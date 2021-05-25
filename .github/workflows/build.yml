@@ -1,0 +1,32 @@
+name: PlatformIO CI
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+    - name: Install PlatformIO
+      run: |
+        python -m pip install --upgrade pip
+        pip install --upgrade platformio
+    - name: build OC_teensy40
+      run: |
+        pio run -e OC_teensy40
+    - name: firmware_builds
+      uses: actions/upload-artifact@v2
+      with:
+        name: firmwares
+        path: .pio/build/*/firmware.hex
+    - name: Test
+      run: |
+        pio lib install
+        sh ./test/test.sh
+    - name: test.wav
+      uses: actions/upload-artifact@v2
+      with:
+        name: test_waves
+        path: .test/*.wav
