@@ -1,0 +1,250 @@
+
+Excerpt for a document I'm working on currently.
+-Chris K
+
+www.chriskann.com
+
+*******************************************************************************
+** SOUND GENERATION HARDWARE **************************************************
+*******************************************************************************
+
+The TR-707 contains 4 sound ROM chips, HN61256P of 32,768 Byte size (256Kbit)
+($0000 - $7FFF) ICs 19, 22, 34 and 35. 
+
+IC19 corrosponds to CRASH CYMBAL. 
+IC22 to RIDE CYMBAL.
+IC34 to BASS DRUM, SNARE DRUM, LOW TOM, and MID TOM. 
+IC35 to HI TOM, HI HAT, RIM SHOT/COW BELL, and HAND CLAP/TAMBOURINE.
+
+The CRASH CYMBAL and RIDE CYMBAL ROMs both have dedicated 6-bit DACs connected 
+directly to the ROMs output data lines D7 through D2. This means that bits D0,
+and D1 are not used and essentially waisted on these ROMs. A likely reason
+that they work this way is that the 6-bit resistor network DAC used then was
+comparatively cheap, and the circuits were for all purposes "copied & pasted"
+from the TR-909.
+
+The remaining two ROMs IC 34 & 35 store sounds in 4x$2000 (8192 dec) byte size
+"slots" per ROM. Each ROM has 4 "sound slots" or rather 4 areas that can be 
+played back simultaniously. Some sounds share a "slot" such as BASS DRUM 1 & 
+BASS DRUM 2, or HAND CLAP & TAMBOURINE ect. The two $1000 (4096 dec) byte 
+sounds are multiplexed in these areas with sound 1 getting the even addresses,
+and sound 2 getting the odd addresses. So for example in IC 34 address $0000
+would be the first byte of BASS DRUM 1 and $0001 would be the first byte of
+BASS DRUM 2, like wise address $0002 would be the second Byte of BASS DRUM 1,
+and back and fourth till address $1FFF is reached (end of the sound slot). 
+This doubling up of samples in a single $2000 size "sound slot" is why certain
+instruments can't be played on top of others, as there is only one voice 
+channel for both sounds. 
+
+Both IC34 & IC35 share the same 8-bit multiplying DAC (uPC624C). The DAC 
+is multiplying in the sence that it takes the 8-bit sample from a sound ROM 
+and multiplies it with the incoming ACCENT reference voltage (pin 14) V+ 
+from the ACCENT circuit. The ACCENT circuit is basically a latch connected 
+directly to a 6-Bit DAC (similar to the CRASH and RIDE circuits) which is 
+then buffered (transistor in a voltage follower) to drive the DAC ACCENT in.
+
+The 8 "sound slots" are converted to 8 separate voices by a network of 
+analog switches (4051), sample and hold buffers and a Roland custom 
+timing / controller chip IC30 (RD63H114) GATE ARRAY.
+
+The basic idea here is:
+
+1. The CPU sets up the ACCENT level and opens the ACCENT sample and hold gate.
+   Now ACCENT is buffered as a DAC voltage value to be multiplied for voice 1.
+
+2. The Roland Gate Array chip outputs the sample address to the ROM for the 
+   voice. Then cycles the sound ROM Chip Enable line low -> high (enable 
+   is active high), (@200Khtz) so the ROMs data output latch gets loaded with
+   the correct data. On Rolands sound ROMs the /CS or CE must be cycled for 
+   the current address data to latch out. Next the output ROM sample data is
+   buffered in a 40H273 latch (IC36) and finally is input into the 8-bit 
+   multiplying DAC.
+
+3. The 8-bit Multiplying DAC multiplies the ACCENT voltage level by the Byte 
+   value from the sound ROM latch.
+
+4. The voltage on the DAC output goes through an analog switch mux (4051) 
+   that updates an analog sample and hold buffer. This sample and hold 
+   circuit is the output buffer for the voice where it then goes through 
+   the TR-707s mixer and out.
+
+5. The CPU then changes addressing to the next voice (2), which closes the 
+   sample and hold inputs for the previous voice (1), and opens them for
+   the current voice.
+   
+This cycles through updating each voice at a rate of 12.5Khtz.
+
+The sound ROM address lines A13, A14 and /CS line are attached to the 4051 
+sample and hold MUX select input lines A, B, and C, so as the analog 
+voice buffer is incremented from voice to voice, the different drums in ROM
+are automatically banked in.
+
+A13 -> A
+A14 -> B
+/CS -> C
+
+To demonstrate how this works I have a lookup table below. Keep in mind that 
+A13=Mux input A, A14=Mux input B, ect. are the same physical line (wire).
+
+ VOICE MULTIPLEXING TABLE
++-----+----------------------------------------------------------+-----------+
+|Voice| ROM IC34 & 35 Lines    | S/H MUX | IC ROM                | Sound     |
++-----+------------------------+---------+-----------------------+-----------+
+|     |A13 A14 /CS ROM1 CS ROM2| A  B  C |            Address    |           |
+|   1 |  0   0        0       0| 0  0  0 |34on  35off $0000-$1FFF|Bass  1,2  |
+|   2 |  1   0        0       0| 1  0  0 |34on  35off $2000-$3FFF|Snare 1,2  |
+|   3 |  0   1        0       0| 0  1  0 |34on  35off $4000-$5FFF|Low Tom    |
+|   4 |  1   1        0       0| 1  1  0 |34on  35off $6000-$7FFF|Mid Tom    |
+|     +------------------------+---------+-----------------------+-----------+
+|   5 |  0   0        1       1| 0  0  1 |34off 35on  $0000-$1FFF|Hi Tom     |
+|   6 |  1   0        1       1| 1  0  1 |34off 35on  $2000-$3FFF|Hi Hat     |
+|   7 |  0   1        1       1| 0  1  1 |34off 35on  $4000-$5FFF|Rim & Cow  |
+|   8 |  1   1        1       1| 1  1  1 |34off 35on  $6000-$7FFF|Clap & Tamb|
++-----+------------------------+---------+-----------------------+-----------+
+
+Note: The CS line on IC34 is an inversion of the CS line on IC35.
+These ROMs, IC34 & IC35, are Roland custom made mask ROMs.
+
+
+The trick here is that on the Roland RD63H114 Gate Array chip the three pins 
+A(3),B(5),C(7) which are connected to A13, A14 and /CS continually count up 
+at a clock rate of 100KHtz.
+
+Please note that the voice update rate is not exactly the same as the ROM 
+sample playback frequency which has a few differences. The update rate on the 
+ROM CE line as well as the latch that feeds the 8-bit DAC is 200KHtz. Each of 
+the eight $2000 size "sound slot" (Voices) is given a seperate address counter 
+on the Roland RD63H114 Gate Array and can be clocked independantly.
+
+This means that the actual sample playback rate can reach a max of 200Khtz 
+during the short 12.5KHtz time that a voice is muxed in. It might be possible 
+to clock samples at a higher rate than 200KHtz with the Roland Gate Array, 
+however, the addresses wouldn't be accessible as actual output bytes because 
+the ROM CE line needs to be strobed for the data output latch to be updated 
+on these Hitachi HN61256 mask ROMs.
+
+The Cymbal and Ride are not part of this multiplexing and have no upper limit
+on sample playback rate.
+
+A workaround for higher fidelity *might* be possible by overclocking the 
+Roland Gate Array, or simply increasing the ROM and data latch CE frequency 
+via an external oscillator. However at this high a frequency (200KHtz) the 
+error of the sample and hold circuits themselves (time to charge) could come 
+into play first.
+
+Note on HiHat envelope:
+There is one extra transistor based VCA for the Hi Hat after the output 
+sample & hold buffer. Its used when the closed Hi Hat is sounded for a quick
+decay, and can probably be adjusted by altering C70, C71, or the connected 
+filter resistors.
+
+2.A Setting Pitch For Each Voice
+*******************************************************************************
+
+The clock lines that determine sample playback rate are hard-wired to the 
+Roland Gate Array and are not programmible via the TR-707 CPU. Though modding 
+the TR-707 so that each voice can be shifted in pitch is as easy as 
+disconnecting the clock lines and adding in your own. The clock line signals 
+used are a standard 0 to +5V TTL compatable square wave.
+
+The CRASH CYMBAL uses a 50KHtz source clock rate into pin 11 of IC25 (4013).
+The RIDE CYMBAL uses the same 50Khtz clock into pin 3 of IC25 (4013).
+The actual sample playback rate is divided by two by the 4013 chip. An input 
+of 50KHtz = 25KHtz actual playback sample rate. To use your own sample rate 
+simply cut the trace leading to these seperate pins and connect your clock
+lines.
+
+The rest of the voices use clock lines that are connected to pins 56, 57, 
+59, 60, 61, 62, 63, 64 of the Roland Gate Array. These clock lines increment 
+the internal address counter for each of the eight $2000 size memory 
+"sound slots".
+
+The "sound slots" that hold two drums (ex. Snare 1,2) are clocked at twice
+the sample frequency since only every other address that is incremented is 
+the actual sample data.
+
+ CLOCK PIN TO VOICE TABLE
++-------------------------------------------------+
+|Clock Frequency| Gate Pin  Sound                 |
++---------------+---------------------------------+
+| 50.0 KHtz     | Pin 56 -> Bass Drum 1,2         |
+| 50.0 KHtz     | Pin 57 -> Snare Drum 1,2        |
+| 12.5 KHtz     | Pin 59 -> Low Tom               |
+| 12.5 KHtz     | Pin 60 -> Mid Tom               |
+| 12.5 KHtz     | Pin 61 -> Hi Tom                |
+| 25.0 KHtz     | Pin 62 -> Hi Hat                |
+| 50.0 KHtz     | Pin 63 -> Rimshot / Cowbell     |
+| 50.0 KHtz     | Pin 64 -> Hand Clap / Tambourine|
++---------------+---------------------------------+
+
+The line connected to pin 57 also is the source clock signal for the Cymbal 
+and Ride. Cutting it will disable normal operation of these voices.
+I recommend lifting the pin off the trace to connect your own clock line.
+
+2.B TR-707 Sound ROM Format
+*******************************************************************************
+The byte format is a simple 8-bit word unsigned PCM stream. The 8-bit 
+multiplying DAC is unsigned, so data byte $00 is the lowest voltage output 
+while $FF the highest. Likewise $80 is the AC waveform center.
+
+Even though the TR-707 sound ROMs work using standard EPROM / ROM address, 
+data and control lines (aside from different Chip Enable, Chip Select levels), 
+the address lines are incompatable with most common EPROM pinouts making them 
+unreadable in a standard EPROM reader / writer. My guess is that the two 
+reasons for this are first, a cheap copy protection, second the trace layout 
+on the PCB might have been easier to design with the address lines that way.
+
+Here is the corrected pinout for IC19,IC22,IC34,IC35 alongside a 32Kbyte EPROM.
+
+     IC34 HN61256P           IC35 HN61256P            27C256
+     .-----v----.            .-----v----.            .-----v----.
+     |          |            |          |            |          |
+ NC -|01      28|- Vcc   NC -|01      28|- Vcc  Vpp -|01      28|- Vcc
+A13 -|02      27|- A12  A13 -|02      27|- A12  A12 -|02      27|- A14
+A14 -|03      26|- /CS  A14 -|03      26|- CS    A7 -|03      26|- A13
+ A6 -|04      25|- A7    A6 -|04      25|- A7    A6 -|04      25|- A8
+ A9 -|05      24|- A8    A9 -|05      24|- A8    A5 -|05      24|- A9
+A11 -|06      23|- A5   A11 -|06      23|- A5    A4 -|06      23|- A11
+ A4 -|07      22|- CE    A4 -|07      22|- CE    A3 -|07      22|- /OE
+A10 -|08      21|- A3   A10 -|08      21|- A3    A2 -|08      21|- A10
+ A1 -|09      20|- A2    A1 -|09      20|- A2    A1 -|09      20|- /CE /PGM
+ A0 -|10      19|- D7    A0 -|10      19|- D7    A0 -|10      19|- D7
+ D0 -|11      18|- D6    D0 -|11      18|- D6    D0 -|11      18|- D6
+ D1 -|12      17|- D5    D1 -|12      17|- D5    D1 -|12      17|- D5
+ D2 -|13      16|- D4    D2 -|13      16|- D4    D2 -|13      16|- D4
+GND -|14      15|- D3   GND -|14      15|- D3   GND -|14      15|- D3
+     |          |            |          |            |          |
+     `----------'            `----------'            `----------'
+
+     IC19 HN61256P           IC22 HN61256P
+     .-----v----.            .-----v----.
+     |          |            |          |
+ NC -|01      28|- Vcc   NC -|01      28|- Vcc
+A10 -|02      27|- A11  A11 -|02      27|- A5
+ A9 -|03      26|- /CS   A4 -|03      26|- /CS
+ A7 -|04      25|- A12  A10 -|04      25|- A6
+ A8 -|05      24|- A13  A14 -|05      24|- A3
+ A6 -|06      23|- A14  A13 -|06      23|- A2
+ A3 -|07      22|- CE   A12 -|07      22|- CE
+ A2 -|08      21|- A5    A9 -|08      21|- A1
+ A0 -|09      20|- A4    A7 -|09      20|- A0
+ A1 -|10      19|- D7    A8 -|10      19|- D7
+ D0 -|11      18|- D6    D0 -|11      18|- D6
+ D1 -|12      17|- D5    D1 -|12      17|- D5
+ D2 -|13      16|- D4    D2 -|13      16|- D4
+GND -|14      15|- D3   GND -|14      15|- D3
+     |          |            |          |
+     `----------'            `----------'
+
+If you attempt to read your own TR-707 or TR-727 sound ROMs please note
+that /CS or CE must be strobed in order to latch the correct data out 
+for a given address on these chips.
+
+In my tests with a Needhams EMP-11 programmer I can use the Hitachi 
+27256 EPROM setting to read the ROM as long as I pull CE to Vcc and use 
+/OE line on the /CS line, along with re-routing the address lines to 
+their correct place for the 27C256 pinout. To read IC35 I added an 
+inverter to the CS input (74HC00 used as inverter).
+
+Reading IC19 Crash Cymbal and IC22 Ride Cymbal is the same as reading IC34,
+except for the rearrangement of address lines.

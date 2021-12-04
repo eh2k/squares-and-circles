@@ -24,82 +24,139 @@
 //
 
 #pragma once
-
 #include "machine.h"
-#include "braids/envelope.h"
+#include "stmlib/dsp/dsp.h"
 
-// TODO: use plaits envelope...
-
-template <typename T, uint16_t len, uint16_t sample_rate = 48000>
-struct Sample : public machine::Engine
+template <typename T>
+struct SampleEngine : public machine::Engine
 {
+    const char *param_names[5] = {"Pitch", "", "Start", "End", nullptr};
+
     float i = 0;
-    const float default_inc = 1.0f / len * (sample_rate / 48000.0f);
-    float inc = default_inc;
-    float start = 0;
+    float start = 1;
     float end = 1;
 
-    const T *data = nullptr;
-    uint16_t params_[4] = {INT16_MAX, INT16_MAX, 0, UINT16_MAX};
+    template <typename U>
+    struct sample_spec
+    {
+        const char *name;
+        const U *data;
+        int len;
+        int sample_rate;
+        int addr_shift;
+    };
+
+    const sample_spec<T> *ptr;
+    int sample_count = 1;
+    float default_inc;
+    float inc;
+
+    uint16_t params_[4] = {INT16_MAX, 0, 0, UINT16_MAX};
     float buffer[machine::FRAME_BUFFER_SIZE];
 
-    inline float At(const uint8_t *table, float pos)
+    inline float get_float(const sample_spec<uint8_t> &smpl, int index)
     {
-        const int shift = (sizeof(int16_t) * 8 - sizeof(uint8_t) * 8);
-        float min = std::min(start, end);
-        float max = std::max(start, end);
-        if (pos < min || pos > max)
+        if (index < smpl.len && index >= 0)
+            return ((float)smpl.data[index << smpl.addr_shift] - 127) / 128;
+        else
             return 0;
-
-        int p = pos * (len - 2);
-        float pd = (pos * (len - 1)) - p;
-        float a = (1 - pd) * (table[p] - 127) / 128 + pd * (table[p + 1] - 127) / 128;
-
-        return a;
     }
 
-    inline float At(const int16_t *table, float pos)
+    inline float get_float(const sample_spec<int16_t> &smpl, int index)
     {
-        float min = std::min(start, end);
-        float max = std::max(start, end);
-        if (pos < min || pos > max)
-            return 0;
 
-        int p = pos * (len - 1);
-        float pd = (pos * (len - 1)) - p;
-        float a = (1.0 - pd) * table[p] / INT16_MAX + pd * table[p + 1] / INT16_MAX;
-        return a;
+        if (index < smpl.len && index >= 0)
+            return (float)smpl.data[index << smpl.addr_shift] / INT16_MAX;
+        else
+            return 0;
+    }
+
+    inline float Interpolate(const sample_spec<T> &table, float index)
+    {
+        index *= table.len;
+        MAKE_INTEGRAL_FRACTIONAL(index)
+        float a = get_float(table, index_integral);
+        float b = get_float(table, index_integral + 1);
+        return a + (b - a) * index_fractional;
+    }
+
+    inline float InterpolateHermite(const sample_spec<T> &table, float index)
+    {
+        index *= table.len;
+        MAKE_INTEGRAL_FRACTIONAL(index)
+        const float xm1 = get_float(table, index_integral - 1);
+        const float x0 = get_float(table, index_integral + 0);
+        const float x1 = get_float(table, index_integral + 1);
+        const float x2 = get_float(table, index_integral + 2);
+        const float c = (x1 - xm1) * 0.5f;
+        const float v = x0 - x1;
+        const float w = c + v;
+        const float a = w + v + (x2 - x0) * 0.5f;
+        const float b_neg = w + a;
+        const float f = index_fractional;
+        return (((a * f) - b_neg) * f + c) * f + x0;
     }
 
 public:
     bool loop = false;
 
-    Sample(const uint8_t *sample) : data((const T *)sample)
+    SampleEngine(const sample_spec<T> *samples, int select, int count) : ptr(samples), sample_count(count)
     {
+        params_[1] = select;
     }
 
     void Process(const machine::ControlFrame &frame, float **out, float **aux) override
     {
         auto p = buffer;
         auto size = machine::FRAME_BUFFER_SIZE;
+
         if (frame.trigger)
         {
             SetParams(params_);
             i = start;
         }
 
-        while (size--)
-        {
-            *p++ = At(data, i);
-            i += inc;
-        }
+        auto &smpl = ptr[params_[1]];
+        param_names[1] = smpl.name;
 
         float s = std::min(start, end);
         float e = std::max(start, end);
-        if (loop && (i < s || i > e))
-            inc = -inc;
+
+        while (size--)
+        {
+            *p++ = s <= i && i < e ? InterpolateHermite(smpl, i) : 0;
+            i += this->start < this->end ? inc : -inc;
+        }
+
+        if (loop)
+        {
+
+            if (i < s || i > e)
+                inc = -inc;
+        }
 
         *out = buffer;
+    }
+
+    void OnEncoder(uint8_t param_index, int16_t inc, bool pressed) override
+    {
+        if (param_index == 1)
+        {
+            auto select = this->params_[1];
+            if (inc > 0 && select < (sample_count - 1))
+                select++;
+            else if (inc < 0 && select > 0)
+                select--;
+
+            this->params_[1] = select;
+            auto &spec = ptr[params_[1]];
+            this->default_inc = 1.0f / spec.len * (spec.sample_rate / 48000.0f);
+            this->inc = default_inc;
+        }
+        else
+        {
+            Engine::OnEncoder(param_index, inc, pressed);
+        }
     }
 
     void SetParams(const uint16_t *params) override
@@ -107,23 +164,21 @@ public:
         for (int i = 0; i < 4; i++)
             params_[i] = params[i];
 
+        auto &spec = ptr[params_[1]];
+        this->default_inc = 1.0f / spec.len * (spec.sample_rate / 48000.0f);
+
         float pitch_fine = 0;
         float pitch_coarse = params_[0];
         pitch_coarse /= UINT16_MAX;
         pitch_coarse -= 0.5f;
-        inc = default_inc + (default_inc * pitch_fine * 0.5f) + (default_inc * pitch_coarse * 2.f);
-        start = params_[2];
-        start /= UINT16_MAX;
-        end = params_[3];
-        end /= UINT16_MAX;
-        if (start > end)
-            inc = -inc;
+
+        this->inc = default_inc + (default_inc * pitch_fine * 0.5f) + (default_inc * pitch_coarse * 2.f);
+        this->start = (float)params_[2] / UINT16_MAX;
+        this->end = (float)params_[3] / UINT16_MAX;
     }
 
     const char **GetParams(uint16_t *values) override
     {
-        static const char *param_names[] = {"Pitch", "", "Start", "End", nullptr};
-
         for (int i = 0; i < 4; i++)
         {
             values[i] = params_[i];

@@ -1,8 +1,8 @@
-> WORK-IN-PROGRESS: At the moment where not all engines in this repo. If you like to test the firmware - feel free to leave me a message / feedback or any hints in the ["BETA TEST - FEEDBACK"](https://github.com/eh2k/squares-and-circles/issues/1) issue. More engines will follow.
+> WORK-IN-PROGRESS: At the moment where not all engines in this repo. Feel free to leave me a message / feedback or any hints in the ["BETA TEST - FEEDBACK"](https://github.com/eh2k/squares-and-circles/issues/1) issue. More engines will follow.
 
 # □︎●︎ [![PlatformIO CI](https://github.com/eh2k/squares-and-circles/actions/workflows/build.yml/badge.svg)](https://github.com/eh2k/squares-and-circles/actions/workflows/build.yml)
 <!-- ⧉⦾ ⧇ ⟥⧂ -->
-**squares-and-circles** is an alternative Firmware for the Eurorack Module O_C, targeting Teensy 4.0.
+**squares-and-circles** is an alternative firmware for the Eurorack module O_C, targeting Teensy 4.0.
 
 ## ■ Demos 
 
@@ -39,24 +39,21 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
 ## ○ Machines ([Wiki](https://github.com/eh2k/squares-and-circles/wiki/%E2%96%A1%EF%B8%8E%E2%97%8F%EF%B8%8E-Machines-&-Engines))
 
 * **GND**
-  * ---, Copycat
+  * ---
 * **CV**
   * V/OCT, LFO, Envelope
 * **Drums**
   * Analog-BD, Analog SD, Analog HH, Analog HH2
-  * 909ish-BD, 909ish-SD, 909-CH-OH, 909-OH, 909-Ride
+  * 909ish-BD, 909ish-SD, TR909-CH-OH, TR909-OH, TR909-Ride
   * 808ish-BD, 808ish-SD, 808ish-CH-OH, 808ish-HiHat
+  * TR707, TR707-CH-OH
   * FM-Drum
   * Clap
 * **M-OSC**
   * Waveforms
   * Virt.Analog, Waveshaping, FM, Grain, Additive, Wavetable, Chord
-  * Swarm, Noise, Particle
-  * String, Modal
 * **Stereo-FX**
-  * Reverb, Delay, Resonator, ..
-* **EXPERIMENTAL**
-  * Battling-LFOs, Stereolizer
+  * Reverb, Diffusor,
 * **DEV (Experimental)**
   * CPU-Monitor, Scope, ...
 
@@ -81,7 +78,9 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
 ## Ornament-and-Crime
  * Teensy 4.x + DAC8565 + 128x64 OLED display
  * Build-guide: http://ornament-and-cri.me/ (https://github.com/jakplugg/uO_c)
-   > Replace the Teensy3 with Teensy4 (ensure there is no contact to the POGO Pin)
+   * Replace the Teensy3 with Teensy4
+   > **HINT**:
+   if the [POGO Pin](https://www.modwiggler.com/forum/viewtopic.php?p=2867702#p2867702) is soldered - cover the bottom of the teensy with insulating tape - all other pins are compatible with T4 to T3 (see pjrc). Be careful with connecting USB and power at the same time - if you have VIN/VUSB connected.
  * **⦾ Midi-Expander**
    
    Midi-In is supported on the trigger-port TR1. Although the connection does not comply with the [MIDI standard](https://minimidi.world/?fbclid=IwAR31TqOyRkvdwaLYCxoU2a89hcy2PF3hltCtRKD7IzD5HbZqzn3m9NmiZzc#types) - for me this solution is more practical than the alternative via USB.

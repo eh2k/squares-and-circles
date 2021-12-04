@@ -36,7 +36,8 @@ int main()
     MACHINE_INIT(init_peaks);
     MACHINE_INIT(init_braids);
     MACHINE_INIT(init_plaits);
-    MACHINE_INIT(init_samples);
+    MACHINE_INIT(init_samples_tr909);
+    MACHINE_INIT(init_samples_tr707);
     MACHINE_INIT(init_clap);
     MACHINE_INIT(init_reverb);
     // MACHINE_INIT(init_delay);

@@ -39,18 +39,18 @@
 #include "claps/cp909.h"
 #include "claps/cp808.h"
 
-struct TR909_CP : public Sample<int16_t, cp909_raw_len / 2, 44100>
+struct TR909_CP : public SampleEngine<int16_t>
 {
-    TR909_CP() : Sample<int16_t, cp909_raw_len / 2, 44100>(cp909_raw)
-    {
-    }
+    const sample_spec<int16_t> _sound = {"", (const int16_t *)cp909_raw, cp909_raw_len / 2, 44100, 0};
+
+    TR909_CP() : SampleEngine<int16_t>(&_sound, 0, 1) {}
 };
 
-struct TR808_CP : public Sample<int16_t, cp808_raw_len / 2, 44100>
+struct TR808_CP : public SampleEngine<int16_t>
 {
-    TR808_CP() : Sample<int16_t, cp808_raw_len / 2, 44100>(cp808_raw)
-    {
-    }
+    const sample_spec<int16_t> _sound = {"", (const int16_t *)cp808_raw, cp808_raw_len / 2, 44100, 0};
+
+    TR808_CP() : SampleEngine<int16_t>(&_sound, 0, 1) {}
 };
 
 #include "clouds/dsp/fx/diffuser.h"
@@ -274,8 +274,8 @@ public:
 void init_clap()
 {
     machine::add<Clap>(machine::DRUM, "Clap");
-    //machine::add<TR909_CP>(machine::DRUM, "909-Clap");
-    //machine::add<TR808_CP>(machine::DRUM, "808-Clap");
+    //machine::add<TR909_CP>(machine::DRUM, "TR909-Clap");
+    //machine::add<TR808_CP>(machine::DRUM, "TR808-Clap");
     //machine::add<Clap2>(machine::DEV, "Clap2");
 }
 
