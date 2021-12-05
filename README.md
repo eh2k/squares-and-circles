@@ -1,4 +1,4 @@
-> WORK-IN-PROGRESS: At the moment where not all engines in this repo. Feel free to leave me a message / feedback or any hints in the ["BETA TEST - FEEDBACK"](https://github.com/eh2k/squares-and-circles/issues/1) issue. More engines will follow.
+> WORK-IN-PROGRESS: At the moment where are not all engines in this repo. Feel free to leave me a message / feedback or any hints in the ["BETA TEST - FEEDBACK"](https://github.com/eh2k/squares-and-circles/issues/1) issue. More engines will follow.
 
 # □︎●︎ [![PlatformIO CI](https://github.com/eh2k/squares-and-circles/actions/workflows/build.yml/badge.svg)](https://github.com/eh2k/squares-and-circles/actions/workflows/build.yml)
 <!-- ⧉⦾ ⧇ ⟥⧂ -->

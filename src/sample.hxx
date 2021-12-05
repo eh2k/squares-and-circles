@@ -32,7 +32,7 @@ struct SampleEngine : public machine::Engine
 {
     const char *param_names[5] = {"Pitch", "", "Start", "End", nullptr};
 
-    float i = 0;
+    float i = 1; //0=plays the sample on init, 1=plays the sample next trig
     float start = 1;
     float end = 1;
 
