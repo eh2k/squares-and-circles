@@ -40,11 +40,11 @@ int main()
     MACHINE_INIT(init_samples_tr707);
     MACHINE_INIT(init_clap);
     MACHINE_INIT(init_reverb);
-    // MACHINE_INIT(init_delay);
-    // MACHINE_INIT(init_resonator);
+    MACHINE_INIT(init_faust);
+    MACHINE_INIT(init_rings);
     // MACHINE_INIT(init_fx);
 
-    machine::setup(machine::OC_REV2E, "0.0a");
+    machine::setup(machine::OC_REV2E, "0.0b");
 
     while (true)
         machine::loop();

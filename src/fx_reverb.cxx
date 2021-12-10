@@ -150,7 +150,7 @@ struct CloudsDiffuser : public Engine
 void init_reverb()
 {
     machine::add<CloudsReverb>(FX, "Reverb");
-    machine::add<CloudsDiffuser>(FX, "Diffusor");
+    //machine::add<CloudsDiffuser>(FX, "Diffusor");
 }
 
 MACHINE_INIT(init_reverb);

@@ -80,8 +80,9 @@ namespace machine
         dummy_##init_fun() { init_fun(); } \
     } dummy_##init_fun
 
-#include "../src/peaks.cxx"
-#include "../src/braids.cxx"
+//#include "../src/peaks.cxx"
+//#include "../src/braids.cxx"
+#include "../src/rings.cxx"
 
 // #include "../src/tr909_samples.cxx"
 // #include "../src/clap.cxx"
@@ -136,7 +137,7 @@ int main()
 
         for (float v = -3; v < 3; v += 1.f)
         {
-            for (int i = 0; i < 48000;)
+            for (int i = 0; i < 48000*2;)
             {
                 frame.trigger = i == 0;
                 frame.cv_voltage = v;
@@ -164,6 +165,9 @@ int main()
                 for (int k = 0; k < machine::FRAME_BUFFER_SIZE; k++)
                 {
                     auto v = (out[k]) * INT16_MAX;
+                    if(aux != nullptr)
+                        v += (aux[k]) * INT16_MAX;
+
                     CONSTRAIN(v, INT16_MIN, INT16_MAX);
                     buffer.push_back(v);
                     i++;

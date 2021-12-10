@@ -148,10 +148,7 @@ public:
             else if (inc < 0 && select > 0)
                 select--;
 
-            this->params_[1] = select;
-            auto &spec = ptr[params_[1]];
-            this->default_inc = 1.0f / spec.len * (spec.sample_rate / 48000.0f);
-            this->inc = default_inc;
+            SetParam(param_index, select);
         }
         else
         {

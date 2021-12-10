@@ -1,6 +1,6 @@
-// Copyright (C)2021 - Eduard Heidt
+// Copyright 2015 Emilie Gillet.
 //
-// Author: Eduard Heidt (eh2k@gmx.de)
+// Author: Emilie Gillet (emilie.o.gillet@gmail.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -8,10 +8,10 @@
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-//
+// 
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-//
+// 
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -19,60 +19,51 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
+// 
 // See http://creativecommons.org/licenses/MIT/ for more information.
 //
+// -----------------------------------------------------------------------------
+//
+// Resources definitions.
+//
+// Automatically generated with:
+// make resources
+
+
+#ifndef RINGS_RESOURCES_H_
+#define RINGS_RESOURCES_H_
+
 
 #include "stmlib/stmlib.h"
-#include "machine.h"
 
-using namespace machine;
 
-struct Scope : public Engine
-{
-    float level = 0;
-    int8_t wav[128];
-    int j = 0;
 
-    Scope() : Engine(AUDIO_PROCESSOR)
-    {
-    }
+namespace rings {
 
-    void Process(const ControlFrame &frame, float **out, float **aux) override
-    {
-        for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
-            level += frame.audio_in[0][i];
+typedef uint8_t ResourceId;
 
-        level /= FRAME_BUFFER_SIZE;
+extern const int16_t* lookup_table_int16_table[];
 
-        wav[(j++) % 128] = level * 24;
+extern const uint32_t* lookup_table_uint32_table[];
 
-        *out = frame.audio_in[0];
-        *aux = frame.audio_in[1];
-    }
+extern const float* lookup_table_table[];
 
-    void SetParams(const uint16_t *params) override
-    {
-    }
+extern const float lut_sine[];
+extern const float lut_4_decades[];
+extern const float lut_svf_shift[];
+extern const float lut_stiffness[];
+extern const float lut_fm_frequency_quantizer[];
+const int LUT_SINE = 0;
+const int LUT_SINE_SIZE = 5121;
+const int LUT_4_DECADES = 1;
+const int LUT_4_DECADES_SIZE = 257;
+const int LUT_SVF_SHIFT = 2;
+const int LUT_SVF_SHIFT_SIZE = 257;
+const int LUT_STIFFNESS = 3;
+const int LUT_STIFFNESS_SIZE = 257;
+const int LUT_FM_FREQUENCY_QUANTIZER = 4;
+const int LUT_FM_FREQUENCY_QUANTIZER_SIZE = 129;
 
-    const char **GetParams(uint16_t *values) override
-    {
-        static const char *names[]{nullptr};
-        return names;
-    }
+}  // namespace rings
 
-    void OnDisplay(uint8_t *display)
-    {
-        for (int i = 0; i < 128; i += 2)
-            gfx::drawLine(display, i, wav[i] + 40, i + 1, wav[i + 1] + 40);
-
-        gfx::drawEngine(display, this);
-    }
-};
-
-void init_scope()
-{
-    machine::add<Scope>(DEV, "Scope");
-}
-
-MACHINE_INIT(init_scope);
+#endif  // RINGS_RESOURCES_H_
