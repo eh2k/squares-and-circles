@@ -39,7 +39,7 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
 ## ○ Machines ([Wiki](https://github.com/eh2k/squares-and-circles/wiki/%E2%96%A1%EF%B8%8E%E2%97%8F%EF%B8%8E-Machines-&-Engines))
 
 * **GND**
-  * ---
+  * `---`
 * **CV**
   * V/OCT, LFO, Envelope
 * **Drums**
@@ -48,18 +48,20 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
   * 808ish-BD, 808ish-SD, 808ish-CH-OH, 808ish-HiHat
   * TR707, TR707-CH-OH
   * FM-Drum
+  * Djembe
   * Clap
 * **M-OSC**
   * Waveforms
   * Virt.Analog, Waveshaping, FM, Grain, Additive, Wavetable, Chord
+  * Resonator
 * **Stereo-FX**
-  * Reverb, Diffusor,
-* **DEV (Experimental)**
-  * CPU-Monitor, Scope, ...
+  * Reverb, Rev-Dattorro,
+* **DEV/DEBUG**
+  * Scope, ...
 
 ## Machine-Config (per Track)
  * **Trig-Input**: default Trig/Gate, Midi-In (channel 1 only)
- * **CV-Input**: default V/OCT, any other Control parameter
+ * **CV-Input**: default V/OCT, any other control parameter
  * **Transpose**: -48 to 24  (default -24)
  * **Midi-Channel**: 1-16, one channel on mulitple machines, for polyphony
    * **Note-Hold**: True, False (Trigger)
@@ -90,8 +92,8 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
  
 The project was originally a kind of research that I did over half a year. The current O_C hardware could certainly be optimised. As you know, the DAC and the display share the SPI port - this is not ideal for simultaneous operation. Furthermore, the Teensy 4.0 does not have "high-end" ADCs - my focus here was to achieve operation at audio rate - the issue of noise has not been the focus so far. ADC/DAC calibration is still on my to-do list.
 
-At the moment I want to make the project available to the community as open-source, so that everyone has the possibility to adapt and experiment with it (in the spirit of Mutable-Instruments). 
-In principle, this project is a suite of apps so-called machines/engines interfacing with a framework ("libmachine").
+At the moment I want to make the project available to the community as open-source, so that everyone has the possibility to adapt and experiment with it. 
+In principle, this project is a suite of apps so-called machines/engines interfacing with a system library ("libmachine").
 You are welcome for any kind of feedback or colleboration. Lets extend the engine collection - where is about 60% free space at the moment.
 
 The application code respectively the suite of machines/engines is released under the MIT licence. 

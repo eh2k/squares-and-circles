@@ -1,8 +1,7 @@
 
-#ifndef TEST
+#include <inttypes.h>
+#ifndef PROGMEM
 #include "pgmspace.h"
-#else
-#define FLASHMEM
 #endif
 
 #include "tr707/IC34_TR707_SNDROM.h"

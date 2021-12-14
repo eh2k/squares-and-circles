@@ -1,8 +1,7 @@
 
-#ifndef TEST
+#include <inttypes.h>
+#ifndef PROGMEM
 #include "pgmspace.h"
-#else
-#define FLASHMEM
 #endif
 
 #include "tr909/hihats.h"

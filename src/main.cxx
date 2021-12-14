@@ -25,6 +25,7 @@
 
 #include "machine.h"
 
+#undef MACHINE_INIT
 #define MACHINE_INIT(init_fun) \
     extern void init_fun();    \
     init_fun();
