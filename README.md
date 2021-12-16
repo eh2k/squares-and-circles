@@ -56,8 +56,8 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
   * Resonator
 * **Stereo-FX**
   * Reverb, Rev-Dattorro,
-* **DEV/DEBUG**
-  * Scope, ...
+* **SPEECH**
+  * LPC, SAM
 
 ## Machine-Config (per Track)
  * **Trig-Input**: default Trig/Gate, Midi-In (channel 1 only)

@@ -74,27 +74,26 @@ namespace machine
     }
 }
 
-#define MACHINE_INIT(init_fun)             \
-    static struct dummy_##init_fun         \
-    {                                      \
-        dummy_##init_fun() { init_fun(); } \
-    } dummy_##init_fun
-
-//#include "../src/peaks.cxx"
-//#include "../src/braids.cxx"
-#include "../src/rings.cxx"
-
-// #include "../src/tr909_samples.cxx"
-// #include "../src/clap.cxx"
-// #include "../src/plaits.cxx"
-// #include "../src/resonator.cxx"
-// #include "../src/fx_reverb.cxx"
-// #include "../src/fx_delay.cxx"
-// #include "../src/voltage.cxx"
-// #include "../src/speech.cxx"
+#undef MACHINE_INIT
+#define MACHINE_INIT(init_fun) \
+    extern void init_fun();    \
+    init_fun();
 
 int main()
 {
+    MACHINE_INIT(init_voltage);
+    MACHINE_INIT(init_peaks);
+    MACHINE_INIT(init_braids);
+    MACHINE_INIT(init_plaits);
+    MACHINE_INIT(init_samples_tr909);
+    MACHINE_INIT(init_samples_tr707);
+    MACHINE_INIT(init_clap);
+    MACHINE_INIT(init_reverb);
+    MACHINE_INIT(init_faust);
+    MACHINE_INIT(init_rings);
+    MACHINE_INIT(init_speech);
+    MACHINE_INIT(init_sam);
+
     std::map<const char *, bool> machines;
 
     for (int j = 0; j < machine::registry.size(); j++)

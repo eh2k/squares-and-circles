@@ -33,7 +33,6 @@
 int main()
 {
     MACHINE_INIT(init_voltage);
-    MACHINE_INIT(init_scope);
     MACHINE_INIT(init_peaks);
     MACHINE_INIT(init_braids);
     MACHINE_INIT(init_plaits);
@@ -43,9 +42,10 @@ int main()
     MACHINE_INIT(init_reverb);
     MACHINE_INIT(init_faust);
     MACHINE_INIT(init_rings);
-    // MACHINE_INIT(init_fx);
+    MACHINE_INIT(init_speech);
+    MACHINE_INIT(init_sam);
 
-    machine::setup(machine::OC_REV2E, "0.0b");
+    machine::setup(machine::OC_REV2E, "0.0c");
 
     while (true)
         machine::loop();

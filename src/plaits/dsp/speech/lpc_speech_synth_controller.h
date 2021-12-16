@@ -109,6 +109,8 @@ class LPCSpeechSynthWordBank {
   
   bool Load(int index);
   void Reset();
+
+  inline int num_words() const { return num_words_; }
   
   inline int num_frames() const { return num_frames_; }
   inline const LPCSpeechSynth::Frame* frames() const { return frames_; }
