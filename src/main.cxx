@@ -45,7 +45,7 @@ int main()
     MACHINE_INIT(init_speech);
     MACHINE_INIT(init_sam);
 
-    machine::setup(machine::OC_REV2E, "0.0c");
+    machine::setup(machine::OC_REV2E, "0.0d");
 
     while (true)
         machine::loop();
