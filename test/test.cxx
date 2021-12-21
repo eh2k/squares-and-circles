@@ -46,10 +46,21 @@ void write_wav(const std::vector<int16_t> &buffer, const std::string &fileName)
 
 namespace machine
 {
-    float midi_bpm = 0;
+    static struct : MidiHandler
+    {
+        void midiReceive(uint8_t midiByte) override {}
+        void midiReset() override {}
+        bool getMidiNote(int midi_channel, int midi_voice, MidiNote *note) override { return false; }
+        bool getPlaybackInfo(float *bpm) override
+        {
+            *bpm = 120.f * (25.f / 24);
+            return false;
+        }
+    } _dummy;
+
+    MidiHandler *midi_handler = &_dummy;
 
     static std::vector<engine_def> registry;
-
 
     void add(const engine_def &def)
     {
@@ -93,6 +104,7 @@ int main()
     MACHINE_INIT(init_rings);
     MACHINE_INIT(init_speech);
     MACHINE_INIT(init_sam);
+    MACHINE_INIT(init_delay);
 
     std::map<const char *, bool> machines;
 
@@ -136,7 +148,7 @@ int main()
 
         for (float v = -3; v < 3; v += 1.f)
         {
-            for (int i = 0; i < 48000*2;)
+            for (int i = 0; i < 48000 * 2;)
             {
                 frame.trigger = i == 0;
                 frame.cv_voltage = v;
@@ -164,13 +176,19 @@ int main()
                 for (int k = 0; k < machine::FRAME_BUFFER_SIZE; k++)
                 {
                     auto v = (out[k]) * INT16_MAX;
-                    if(aux != nullptr)
+                    if (aux != nullptr)
                         v += (aux[k]) * INT16_MAX;
 
                     CONSTRAIN(v, INT16_MIN, INT16_MAX);
                     buffer.push_back(v);
                     i++;
                 }
+            }
+
+            for (int k = 0; k < 8; k++)
+            {
+                engine->SetParam(k, UINT32_MAX);
+                engine->SetParam(k, params[k]);
             }
         }
 

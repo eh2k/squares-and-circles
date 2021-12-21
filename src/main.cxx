@@ -44,8 +44,9 @@ int main()
     MACHINE_INIT(init_rings);
     MACHINE_INIT(init_speech);
     MACHINE_INIT(init_sam);
+    MACHINE_INIT(init_delay);
 
-    machine::setup(machine::OC_REV2E, "0.0d");
+    machine::setup(machine::OC_REV2E, "0.0e");
 
     while (true)
         machine::loop();

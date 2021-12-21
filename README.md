@@ -55,7 +55,7 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
   * Virt.Analog, Waveshaping, FM, Grain, Additive, Wavetable, Chord
   * Resonator
 * **Stereo-FX**
-  * Reverb, Rev-Dattorro,
+  * Reverb, Rev-Dattorro, Delay
 * **SPEECH**
   * LPC, SAM
 
@@ -94,6 +94,25 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
    
    Midi-In is supported on the trigger-port TR1. Although the connection does not comply with the [MIDI standard](https://minimidi.world/?fbclid=IwAR31TqOyRkvdwaLYCxoU2a89hcy2PF3hltCtRKD7IzD5HbZqzn3m9NmiZzc#types) - for me this solution is more practical than the alternative via USB.
    <img src="https://github.com/eh2k/squares-and-circles/raw/main/doc/midi2ts.png" width=80% />
+
+### Midi-Control
+  * Engines can be loaded/selected by midi program change
+  * Midi channel configurable per track `*` ([Long Press Right-Button] enters the config-page)
+  * Note-On behaviour configurable (HOLD, TRIGGER) 
+  * Paramter CC-Mappings
+    ````
+    | HEX | DEC | parameter-index | CH |
+    |-----|-----|-----------------|----|
+    |  20 |  32 |        0        |  * |
+    |  21 |  33 |        1        |  * |
+    |  22 |  34 |        2        |  * |
+    |  23 |  35 |        3        |  * |
+    |  24 |  36 |        4        |  * |
+    |  25 |  37 |        5        |  * |
+    |  26 |  38 |        6        |  * |
+    |  27 |  39 |        7        |  * |
+    ````
+
 
 ## ⧉ Conclusions and the future 
  
