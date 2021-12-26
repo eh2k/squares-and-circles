@@ -203,11 +203,11 @@ void init_plaits()
     // machine::add<PlaitsEngine<11>>(machine::M_OSC, "String", 0.f, 0.5f, 0.5f, 0.5f, "Freq", "Harm", "Timbre", "Decay");
     // machine::add<PlaitsEngine<12>>(machine::M_OSC, "Modal", 0.f, 0.5f, 0.5f, 0.5f, "Freq", "Harm", "Timbre", "Decay");
 
-    machine::add<PlaitsEngine<13, 0>>(machine::DRUM, "Analog BD", -0.5f, 0.8f, 0.5f, 0.5f, "Pitch", "Drive", "Tone", "Decay");
+    machine::add<PlaitsEngine<13, 0>>(machine::DRUM, "Analog BD", -1.5f, 0.8f, 0.5f, 0.5f, "Pitch", "Drive", "Tone", "Decay");
     machine::add<PlaitsEngine<14, 0>>(machine::DRUM, "Analog SD", 1.f, 0.5f, 0.5f, 0.5f, "Pitch", "Snappy", "Tone", "Decay");
-    machine::add<PlaitsEngine<15, 0>>(machine::DRUM, "Analog HH", 1.f, 0.5f, 0.9f, 0.6f, "Pitch", "Noise", "Tone", "Decay");
-    machine::add<PlaitsEngine<15, 1>>(machine::DRUM, "Analog HH2", 1.f, 0.5f, 0.9f, 0.6f, "Pitch", "Noise", "Tone", "Decay");
-    machine::add<PlaitsEngine<13, 1>>(machine::DRUM, "909ish-BD", -0.5f, 0.8f, 0.8f, 0.75f, "Pitch", "Punch", "Tone", "Decay");
+    machine::add<PlaitsEngine<15, 0>>(machine::DRUM, "Analog HH", 0.5f, 0.5f, 0.9f, 0.6f, "Pitch", "Noise", "Tone", "Decay");
+    machine::add<PlaitsEngine<15, 1>>(machine::DRUM, "Analog HH2", 0.5f, 0.5f, 0.9f, 0.6f, "Pitch", "Noise", "Tone", "Decay");
+    machine::add<PlaitsEngine<13, 1>>(machine::DRUM, "909ish-BD", -1.5f, 0.8f, 0.8f, 0.75f, "Pitch", "Punch", "Tone", "Decay");
     machine::add<PlaitsEngine<14, 1>>(machine::DRUM, "909ish-SD", 1.f, 0.5f, 0.5f, 0.5f, "Pitch", "Snappy", "Tone", "Decay");
 }
 

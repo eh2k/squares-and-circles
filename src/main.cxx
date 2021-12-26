@@ -46,7 +46,7 @@ int main()
     MACHINE_INIT(init_sam);
     MACHINE_INIT(init_delay);
 
-    machine::setup(machine::OC_REV2E, "0.0e");
+    machine::setup(machine::OC_REV2E, "0.0f");
 
     while (true)
         machine::loop();

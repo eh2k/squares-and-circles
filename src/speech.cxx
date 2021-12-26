@@ -126,7 +126,7 @@ struct SpeechEngine : public Engine
 
 void init_speech()
 {
-    machine::add<SpeechEngine>("Speech", "LPC");
+    machine::add<SpeechEngine>("SPEECH", "LPC");
 }
 
 MACHINE_INIT(init_speech);

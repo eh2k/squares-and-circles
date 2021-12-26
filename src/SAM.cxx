@@ -104,7 +104,7 @@ public:
 
 void init_sam()
 {
-    machine::add<SAM>("Speech", "SAM");
+    machine::add<SAM>("SPEECH", "SAM");
 }
 
 MACHINE_INIT(init_sam);

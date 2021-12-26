@@ -36,7 +36,7 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
 
 ----
 
-## ○ Machines ([Wiki](https://github.com/eh2k/squares-and-circles/wiki/%E2%96%A1%EF%B8%8E%E2%97%8F%EF%B8%8E-Machines-&-Engines))
+## Machines ([Wiki](https://github.com/eh2k/squares-and-circles/wiki/%E2%96%A1%EF%B8%8E%E2%97%8F%EF%B8%8E-Machines-&-Engines))
 
 * **GND**
   * `---`
@@ -74,13 +74,16 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
    - Open Folder or `code .` inside project directory  
    - In VSCode - choose environment e.g "OC_teensy40", press "build" or "upload" (ensure teensy connected via usb)
  * OR: use Teensy Loader to flash compiled hex: https://www.pjrc.com/teensy/loader.html
+
 # Supported Hardware  
+
 ## Ornament-and-Crime
  * Teensy 4.x + DAC8565 + 128x64 OLED display
  * Build-guide: http://ornament-and-cri.me/ (https://github.com/jakplugg/uO_c)
    * Replace the Teensy3 with Teensy4
    > **HINT**:
    if the [POGO Pin](https://www.modwiggler.com/forum/viewtopic.php?p=2867702#p2867702) is soldered - cover the bottom of the teensy with insulating tape - all other pins are compatible with T4 to T3 (see pjrc). Be careful with connecting USB and power at the same time - if you have VIN/VUSB connected.
+
 ## Hardware setup procedure (automatically on first startup)
   >Power on the module with the [LEFT] button pressed for entering the setup procedure.
   * Encoder setup
