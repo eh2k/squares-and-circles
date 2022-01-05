@@ -43,7 +43,7 @@ struct TR707 : public SampleEngine<uint8_t>
         {"> HH", HH, 0x2000, 25000, 0},
     };
 
-    TR707(int sample_num = 0) : SampleEngine<uint8_t>(_sounds, sample_num, sizeof(_sounds)/sizeof(_sounds[0]))
+    TR707(int sample_num = 0) : SampleEngine<uint8_t>(_sounds, sample_num, LEN_OF(_sounds))
     {
     }
 };

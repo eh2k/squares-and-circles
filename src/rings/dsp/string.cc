@@ -89,7 +89,7 @@ void String::ProcessInternal(
     src_ratio = 1.0f;
   }
 
-  float clamped_position = 0.5f - 0.98f * fabs(position_ - 0.5f);
+  float clamped_position = 0.5f - 0.98f * fabsf(position_ - 0.5f);
   
   // Linearly interpolate all comb-related CV parameters for each sample.
   ParameterInterpolator delay_modulation(
@@ -162,7 +162,7 @@ void String::ProcessInternal(
         float ac_blocking_amount = bridge_curving;
 
         bridge_curving = bridge_curving * bridge_curving * 0.01f;
-        float ap_gain = -0.618f * dispersion / (0.15f + fabs(dispersion));
+        float ap_gain = -0.618f * dispersion / (0.15f + fabsf(dispersion));
         
         float delay_fm = 1.0f;
         delay_fm += dispersion_noise_ * noise_amount;
@@ -181,9 +181,9 @@ void String::ProcessInternal(
         dc_blocker_.Process(&s_ac, 1);
         s += ac_blocking_amount * (s_ac - s);
         
-        float value = fabs(s) - 0.025f;
+        float value = fabsf(s) - 0.025f;
         float sign = s > 0.0f ? 1.0f : -1.5f;
-        curved_bridge_ = (fabs(value) + value) * sign;
+        curved_bridge_ = (fabsf(value) + value) * sign;
       } else {
         s = string_.ReadHermite(delay);
       }

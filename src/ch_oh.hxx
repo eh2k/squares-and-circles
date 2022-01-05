@@ -8,10 +8,10 @@
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -19,7 +19,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-// 
+//
 // See http://creativecommons.org/licenses/MIT/ for more information.
 //
 
@@ -35,6 +35,7 @@ struct CHOH : public Engine
     Engine *_oh;
     Engine *_ch;
 
+    float _pitch = 0;
     float _ch_vol = 0.75f;
 
     braids::Envelope _ch_env;
@@ -48,11 +49,14 @@ public:
     {
         _ch_env.Init();
         _oh_env.Init();
+
+        param[0].init("", &_pitch);
+        param[1].init("CH-Lev", &_ch_vol);
+        param[2].init("CH-Dec", &_ch_end);
+        param[3].init("OH-Dec", &_oh_end);
     }
 
-    virtual bool IsCvTrigger() { return true; }
-
-    void Process(const ControlFrame &frame_, float** out, float** aux) override
+    void Process(const ControlFrame &frame_, float **out, float **aux) override
     {
         ControlFrame frame;
         memcpy(&frame, &frame_, sizeof(ControlFrame));
@@ -67,7 +71,7 @@ public:
         _ch_env.Update(0, cd);
         float ch_ad = (float)_ch_env.Render() / UINT16_MAX;
 
-        float* ch_buffer = nullptr;
+        float *ch_buffer = nullptr;
         _ch->Process(frame, &ch_buffer, &ch_buffer);
 
         _oh_mute = frame.trigger;
@@ -82,35 +86,12 @@ public:
 
         float oh_ad = (float)_oh_env.Render() / UINT16_MAX;
 
-        float* oh_buffer = nullptr;
+        float *oh_buffer = nullptr;
         _oh->Process(frame, &oh_buffer, &oh_buffer);
 
         for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
             oh_buffer[i] = 0.9f * ch_buffer[i] * _ch_vol * ch_ad + oh_buffer[i] * oh_ad;
 
         *out = oh_buffer;
-    }
-
-    void SetParams(const uint16_t *params) override
-    {
-        _ch_vol = params[1];
-        _ch_vol /= UINT16_MAX;
-        _ch_end = params[2];
-        _ch_end /= UINT16_MAX;
-        _oh_end = params[3];
-        _oh_end /= UINT16_MAX;
-    }
-
-    const char **GetParams(uint16_t *values) override
-    {
-        static const char *_names[]{"", "CH-Lev", "CH-Dec", "OH-Dec", nullptr};
-        uint16_t _values[8];
-        _oh->GetParams(_values);
-
-        values[0] = _values[1];
-        values[1] = _ch_vol * UINT16_MAX;
-        values[2] = _ch_end * UINT16_MAX;
-        values[3] = _oh_end * UINT16_MAX;
-        return _names;
     }
 };

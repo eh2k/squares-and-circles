@@ -30,11 +30,12 @@
 template <typename T>
 struct SampleEngine : public machine::Engine
 {
-    const char *param_names[5] = {"Pitch", "", "Start", "End", nullptr};
-
     float i = 1; //0=plays the sample on init, 1=plays the sample next trig
     float start = 1;
     float end = 1;
+
+    uint16_t selection = 0;
+    float pitch_coarse = 0;
 
     template <typename U>
     struct sample_spec
@@ -47,11 +48,9 @@ struct SampleEngine : public machine::Engine
     };
 
     const sample_spec<T> *ptr;
-    int sample_count = 1;
     float default_inc;
     float inc;
 
-    uint16_t params_[4] = {INT16_MAX, 0, 0, UINT16_MAX};
     float buffer[machine::FRAME_BUFFER_SIZE];
 
     inline float get_float(const sample_spec<uint8_t> &smpl, int index)
@@ -100,24 +99,31 @@ struct SampleEngine : public machine::Engine
 public:
     bool loop = false;
 
-    SampleEngine(const sample_spec<T> *samples, int select, int count) : ptr(samples), sample_count(count)
+    SampleEngine(const sample_spec<T> *samples, int select, int count) : ptr(samples)
     {
-        params_[1] = select;
+        param[0].init("Pitch", &pitch_coarse, pitch_coarse, -.5f, .5f);
+        param[1].init("Sample", &selection, select, 0, count - 1);
+        param[2].init("Start", &start, 0);
+        param[3].init("End", &end, 1);
     }
 
     void Process(const machine::ControlFrame &frame, float **out, float **aux) override
     {
+        auto &smpl = ptr[selection];
+
+        this->default_inc = 1.0f / smpl.len * (smpl.sample_rate / (float)machine::SAMPLE_RATE);
+
+        float pitch_fine = 0;
+        this->inc = (this->inc < 0 ? -1.f : 1.f) *
+                    (default_inc + (default_inc * pitch_fine * 0.5f) + (default_inc * pitch_coarse * 2.f));
+
         auto p = buffer;
         auto size = machine::FRAME_BUFFER_SIZE;
 
         if (frame.trigger)
         {
-            SetParams(params_);
             i = start;
         }
-
-        auto &smpl = ptr[params_[1]];
-        param_names[1] = smpl.name;
 
         float s = std::min(start, end);
         float e = std::max(start, end);
@@ -138,49 +144,11 @@ public:
         *out = buffer;
     }
 
-    void OnEncoder(uint8_t param_index, int16_t inc, bool pressed) override
+    void OnDisplay(uint8_t *buffer) override
     {
-        if (param_index == 1)
-        {
-            auto select = this->params_[1];
-            if (inc > 0 && select < (sample_count - 1))
-                select++;
-            else if (inc < 0 && select > 0)
-                select--;
+        auto &smpl = ptr[selection];
+        param[1].name = smpl.name;
 
-            SetParam(param_index, select);
-        }
-        else
-        {
-            Engine::OnEncoder(param_index, inc, pressed);
-        }
-    }
-
-    void SetParams(const uint16_t *params) override
-    {
-        for (int i = 0; i < 4; i++)
-            params_[i] = params[i];
-
-        auto &spec = ptr[params_[1]];
-        this->default_inc = 1.0f / spec.len * (spec.sample_rate / 48000.0f);
-
-        float pitch_fine = 0;
-        float pitch_coarse = params_[0];
-        pitch_coarse /= UINT16_MAX;
-        pitch_coarse -= 0.5f;
-
-        this->inc = default_inc + (default_inc * pitch_fine * 0.5f) + (default_inc * pitch_coarse * 2.f);
-        this->start = (float)params_[2] / UINT16_MAX;
-        this->end = (float)params_[3] / UINT16_MAX;
-    }
-
-    const char **GetParams(uint16_t *values) override
-    {
-        for (int i = 0; i < 4; i++)
-        {
-            values[i] = params_[i];
-        }
-
-        return param_names;
+        gfx::drawEngine(buffer, this);
     }
 };

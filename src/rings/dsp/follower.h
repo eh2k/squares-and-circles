@@ -80,7 +80,7 @@ class Follower {
     float total = 0.0f;
     float frequency = 0.0f;
     for (int32_t i = 0; i < 3; ++i) {
-      SLOPE(detector_[i], fabs(bands[i]), attack_[i], decay_[i]);
+      SLOPE(detector_[i], fabsf(bands[i]), attack_[i], decay_[i]);
       weighted += detector_[i] * frequency;
       total += detector_[i];
       frequency += 0.5f;

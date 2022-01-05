@@ -54,24 +54,6 @@ class FaustEngine : public machine::Engine, UI
     float _pitch = 0.5f;
 
     T _faust;
-    static constexpr int _params_n = 8;
-    const char *_param_names[_params_n] = {};
-
-    struct
-    {
-        float *value;
-        float min;
-        float max;
-        float step;
-        void from_uint16(uint16_t v)
-        {
-            *value = min + ((float)v / UINT16_MAX) * (max - min);
-        }
-        uint16_t to_uint16()
-        {
-            return (*value - min) / (max - min) * UINT16_MAX;
-        }
-    } _param_values[_params_n] = {};
 
     float *_trigger = nullptr;
 
@@ -110,19 +92,11 @@ class FaustEngine : public machine::Engine, UI
 
     void addHorizontalSlider(const char *label, float *zone, float init, float min, float max, float step) override
     {
-        for (size_t i = 0; i < _params_n - 1; i++)
+        for (size_t i = 0; i < LEN_OF(param); i++)
         {
-            if (_param_names[i] == nullptr)
+            if (param[i].name == nullptr)
             {
-                _param_names[i] = label;
-                _param_values[i].value = zone;
-                _param_values[i].min = min;
-                _param_values[i].max = max;
-                _param_values[i].step = step;
-                *_param_values[i].value = init;
-
-                _param_names[i + 1] = nullptr;
-                _param_values[i + 1].value = nullptr;
+                param[i].init(label, zone, init, min, max);
                 return;
             }
         }
@@ -133,7 +107,6 @@ public:
     {
         // static_assert(sizeof(T) < 150000, "");
 
-        memset(_param_values, 0, sizeof(_param_values));
         _faust.init(48000);
         _faust.buildUserInterface(this);
     }
@@ -142,12 +115,12 @@ public:
     {
     }
 
-    double base_frequency = 440.0;
-    double base_pitch = 69.0;
+    float base_frequency = 440.f;
+    float base_pitch = 69.f;
 
-    double note_to_frequency(double note)
+    float note_to_frequency(float note)
     {
-        return base_frequency * pow(2.0, (note - base_pitch) / 12.0);
+        return base_frequency * powf(2.f, (note - base_pitch) / 12.f);
     }
 
     void Process(const machine::ControlFrame &frame, float **out, float **aux) override
@@ -155,8 +128,7 @@ public:
         if (_trigger != nullptr)
             *_trigger = frame.trigger ? 1.f : 0.f;
 
-        auto note = (float)frame.midi.key + _pitch * 12.f + (frame.midi.pitch / 128) + frame.cv_voltage * 12;
-
+        // auto note = (float)frame.midi.key + _pitch * 12.f + (frame.midi.pitch / 128) + frame.cv_voltage * 12;
         // auto f = note_to_frequency(note + 12);
 
         float *outputs[] = {bufferL, bufferR};
@@ -168,29 +140,7 @@ public:
         if (_faust.getNumOutputs() > 1)
             *aux = bufferR;
     }
-
-    void SetParams(const uint16_t *params) override
-    {
-        //_pitch = float_range_from_uint16_t(params[0]);
-        for (int i = 0; i < _params_n; i++)
-        {
-            if (_param_values[i].value != nullptr)
-                _param_values[i].from_uint16(params[i]);
-        }
-    }
-
-    const char **GetParams(uint16_t *values) override
-    {
-        for (int i = 0; i < _params_n; i++)
-        {
-            if (_param_names[i] != nullptr)
-                values[i] = _param_values[i].to_uint16();
-        }
-
-        return _param_names;
-    }
 };
-
 
 #include "faust/djembe.hxx"
 #include "faust/rev_dattorro.hxx"

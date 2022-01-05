@@ -24,44 +24,52 @@
 //
 // -----------------------------------------------------------------------------
 //
-// Limiter.
+// Quantize voltages by sampling from a discrete distribution.
 
-#ifndef STMLIB_DSP_LIMITER_H_
-#define STMLIB_DSP_LIMITER_H_
+#ifndef MARBLES_RANDOM_DISCRETE_DISTRIBUTION_QUANTIZER_H_
+#define MARBLES_RANDOM_DISCRETE_DISTRIBUTION_QUANTIZER_H_
 
 #include "stmlib/stmlib.h"
 
-#include <algorithm>
+#include "marbles/random/distributions.h"
+#include "marbles/random/quantizer.h"
 
-#include "stmlib/dsp/dsp.h"
-#include "stmlib/dsp/filter.h"
+namespace marbles {
 
-namespace stmlib {
-
-class Limiter {
+class DiscreteDistributionQuantizer {
  public:
-  Limiter() { }
-  ~Limiter() { }
-
-  void Init() {
-    peak_ = 0.5f;
-  }
-
-  void Process(float pre_gain, float* in_out, size_t size) {
-    while (size--) {
-      float s = *in_out * pre_gain;
-      SLOPE(peak_, fabsf(s), 0.05f, 0.00002f);
-      float gain = (peak_ <= 1.0f ? 1.0f : 1.0f / peak_);
-      *in_out++ = s * gain * 0.8f;
+  typedef DiscreteDistribution<kMaxDegrees> Distribution;
+  
+  struct Cell {
+    float center;
+    float width;
+    float weight;
+  
+    inline float scaled_width(float amount) {
+      float w = 8.0f * (weight - amount) + 0.5f;
+      CONSTRAIN(w, 0.0f, 1.0f);
+      return w * width;
     }
-  }
+  };
+  
+  DiscreteDistributionQuantizer() { }
+  ~DiscreteDistributionQuantizer() { }
+
+  void Init(const Scale& scale);
+  
+  float Process(float value, float amount);
 
  private:
-  float peak_;
-
-  DISALLOW_COPY_AND_ASSIGN(Limiter);
+  float base_interval_;
+  float base_interval_reciprocal_;
+  
+  int num_cells_;
+  Cell cells_[kMaxDegrees + 1];
+  Distribution distribution_;
+  
+  DISALLOW_COPY_AND_ASSIGN(DiscreteDistributionQuantizer);
 };
 
-}  // namespace stmlib
+}  // namespace marbles
 
-#endif  // STMLIB_DSP_LIMITER_H_
+#endif  // MARBLES_RANDOM_DISCRETE_DISTRIBUTION_QUANTIZER_H_

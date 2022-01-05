@@ -24,44 +24,59 @@
 //
 // -----------------------------------------------------------------------------
 //
-// Limiter.
+// Low pass filter for getting stable pitch data.
 
-#ifndef STMLIB_DSP_LIMITER_H_
-#define STMLIB_DSP_LIMITER_H_
-
-#include "stmlib/stmlib.h"
-
-#include <algorithm>
+#ifndef MARBLES_NOTE_FILTER_H_
+#define MARBLES_NOTE_FILTER_H_
 
 #include "stmlib/dsp/dsp.h"
-#include "stmlib/dsp/filter.h"
+#include "stmlib/dsp/delay_line.h"
 
-namespace stmlib {
+namespace marbles {
 
-class Limiter {
+// Note: this is a "slow" filter, since it takes about 10 samples to catch
+// up with an edge in the input signal.
+class NoteFilter {
  public:
-  Limiter() { }
-  ~Limiter() { }
+  enum {
+    N = 7  // Median filter order
+  };
+  NoteFilter() { }
+  ~NoteFilter() { }
 
   void Init() {
-    peak_ = 0.5f;
+    lp_1_ = 0.0f;
+    lp_2_ = 0.0f;
+    std::fill(&previous_values_[0], &previous_values_[N], 0.0f);
   }
 
-  void Process(float pre_gain, float* in_out, size_t size) {
-    while (size--) {
-      float s = *in_out * pre_gain;
-      SLOPE(peak_, fabsf(s), 0.05f, 0.00002f);
-      float gain = (peak_ <= 1.0f ? 1.0f : 1.0f / peak_);
-      *in_out++ = s * gain * 0.8f;
-    }
+  inline float Process(float value) {
+    float sorted_values[N];
+
+    std::rotate(
+        &previous_values_[0],
+        &previous_values_[1],
+        &previous_values_[N]);
+    previous_values_[N - 1] = value;
+    
+    std::copy(&previous_values_[0], &previous_values_[N], &sorted_values[0]);
+    std::sort(&sorted_values[0], &sorted_values[N]);
+    value = sorted_values[(N - 1) / 2];
+    
+    const float kLPCoefficient = 0.65f;
+    ONE_POLE(lp_1_, value, kLPCoefficient);
+    ONE_POLE(lp_2_, lp_1_, kLPCoefficient);
+    return lp_2_;
   }
 
  private:
-  float peak_;
-
-  DISALLOW_COPY_AND_ASSIGN(Limiter);
+  float previous_values_[N];
+  float lp_1_;
+  float lp_2_;
+  
+  DISALLOW_COPY_AND_ASSIGN(NoteFilter);
 };
 
-}  // namespace stmlib
+}  // namespace marbles
 
-#endif  // STMLIB_DSP_LIMITER_H_
+#endif  // MARBLES_NOTE_FILTER_H_

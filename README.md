@@ -29,15 +29,16 @@ Similar to Monomachine and Machinedrum here we have basically 4 configurable tra
 As there are mono and stereo machines, the generated audio signal is routed to one or two neighbour DAC outputs by default.
 E.g you can chain the mono audio signal from an oscillator machine to the neighbour fx-machine with stereo-outputs.
 
-* [Short Press Left/Right Button] scrolls through the 4 machine-tracks.
-* [Long Press Left-Button] enters the machine-selection-page.
-* [Long Press Right-Button] enters the machine-config-page.
-* [Long Press Left and Right-Button] saves the patch - will be restored at startup.
+* [Short Press [LEFT]/[RIGHT]] scrolls through the 4 machine-tracks.
+* [Long press [LEFT]] enters the machine-selection-page.
+* [Long press [RIGHT]] enters the machine-config-page.
+* [Long press [LEFT] and [RIGHT]] saves the patch - will be restored at startup.
+* [Long press left/right [ENCODER]] shows the modulation popup
 
 ----
 
-## Machines ([Wiki](https://github.com/eh2k/squares-and-circles/wiki/%E2%96%A1%EF%B8%8E%E2%97%8F%EF%B8%8E-Machines-&-Engines))
-
+### Machines ([Wiki](https://github.com/eh2k/squares-and-circles/wiki/%E2%96%A1%EF%B8%8E%E2%97%8F%EF%B8%8E-Machines-&-Engines))  
+<sup>[Long press [LEFT]] enters the machine-selection-page.</sup>
 * **GND**
   * `---`
 * **CV**
@@ -59,17 +60,43 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
 * **SPEECH**
   * LPC, SAM
 
-## Machine-Config (per Track)
- * **Trig-Input**: default Trig/Gate, Midi-In (channel 1 only)
- * **CV-Input**: default V/OCT, any other control parameter
+### Machine-Config 
+<sup>[Long press [RIGHT]] enters the machine-config-page.</sup>
+ * **Trig-Input**: ---, TR-1, TR-2, TR-3, TR-4
+   * none = Midi on TR-1 only
+ * **CV-Input/Aux-Input**: ---, CV-1, CV-2, CV-3, CV-4 
+   * V/OCT: -3V..6V for frequency-control (default)
+   * AUX-IN: -3V..3V for additional audio source for effects (prefer CV4).
+   * MOD-CV: signal is only used for modulations.
  * **Transpose**: -48 to 24  (default -24)
  * **Midi-Channel**: 1-16, one channel on mulitple machines, for polyphony
    * **Note-Hold**: True, False (Trigger)
  * **Output-Boost**: Add extra-gain to the output - can result in distortion
+
+### Modulations
+<sup>[Long press left/right [ENCODER]] shows/hides the modulation popup</sup>
+ * SRC: 
+   * **CV1-CV4**: Voltage is sampled at 2khz 
+   * **SH1-SH4**: Sample and Hold eg: SH1 = CV1 is sampled on TR1 trigger
+   * **TR1-RND**: Trigger generates a random voltage
+ * Attenuverter (-/+)
+   * Modulation Voltage is attenuverted in the range from -1..+1;
+  >
+  > Sharing/reusing CV-signals: 
+  >
+ ````
+      * Parameter 0 (top-left) is mainly used for V/OCT control.
+        Thus, one single V/OCT signal / CV-Input can be shared by using 
+        modulation on parameter-0 with attenuverter = +1 (-3V..+6V) range.
+        It is also possible to select the V/OCT input in the machine-config.
+      * All other paramters can be modulated with a assumed voltage-range of -4V..4V 
+        at 2kHz sample rate.
+      * Be aware the CV-range is propably limited by hardware to: -3.5v..6.5V
+ ````
 ---------
 
 # Build & Flash firmware
- * install VSCode + platformio extension (https://platformio.org/platformio-ide)
+ * Install VSCode + platformio extension (https://platformio.org/platformio-ide)
    - On linux: curl https://www.pjrc.com/teensy/00-teensy.rules > /etc/udev/rules.d/49-teensy.rules 
    - Open Folder or `code .` inside project directory  
    - In VSCode - choose environment e.g "OC_teensy40", press "build" or "upload" (ensure teensy connected via usb)

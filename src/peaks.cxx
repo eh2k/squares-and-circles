@@ -19,7 +19,7 @@ template <class T, bool cv = false, int P1 = 0, int P2 = 1, int P3 = 2, int P4 =
 struct PeaksEngine : public machine::Engine
 {
     T _processor;
-    const char *param_names[5];
+
     uint16_t params_[4];
 
     peaks::GateFlags flags[machine::FRAME_BUFFER_SIZE];
@@ -33,17 +33,22 @@ struct PeaksEngine : public machine::Engine
                 const char *param1 = nullptr,
                 const char *param2 = nullptr,
                 const char *param3 = nullptr,
-                const char *param4 = nullptr) : param_names{param1, param2, param3, param4, nullptr},
-                                                params_{p1, p2, p3, p4}
+                const char *param4 = nullptr)
     {
         memset(&_processor, 0, sizeof(T));
         _processor.Init();
         std::fill(&flags[0], &flags[machine::FRAME_BUFFER_SIZE], peaks::GATE_FLAG_LOW);
-        SetParams(params_);
+
+        param[0].init(param1, &params_[P1], p1);
+        param[1].init(param2, &params_[P2], p2);
+        param[2].init(param3, &params_[P3], p3);
+        param[3].init(param4, &params_[P4], p4);
     }
 
     void Process(const machine::ControlFrame &frame, float **out, float **aux) override
     {
+        _processor.Configure(params_, peaks::CONTROL_MODE_FULL);
+
         if (frame.trigger)
         {
             flags[0] = peaks::GATE_FLAG_RISING;
@@ -63,49 +68,35 @@ struct PeaksEngine : public machine::Engine
         *out = buffer;
     }
 
-    void SetParams(const uint16_t *params) override
+    void OnDisplay(uint8_t *buffer) override
     {
-        params_[P1] = params[0];
-        params_[P2] = params[1];
-        params_[P3] = params[2];
-        params_[P4] = params[3];
-        _processor.Configure(params_, peaks::CONTROL_MODE_FULL);
-    }
-
-    const char **GetParams(uint16_t *values) override
-    {
-        values[0] = params_[P1];
-        values[1] = params_[P2];
         if (std::is_same<T, peaks::Lfo>::value)
         {
-            auto shape = static_cast<peaks::LfoShape>(values[1] * peaks::LFO_SHAPE_LAST >> 16);
+            auto shape = static_cast<peaks::LfoShape>(params_[P2] * peaks::LFO_SHAPE_LAST >> 16);
             switch (shape)
             {
             case peaks::LFO_SHAPE_SINE:
-                param_names[1] = "Sine";
+                param[1].name = "Sine";
                 break;
             case peaks::LFO_SHAPE_TRIANGLE:
-                param_names[1] = "Triangle";
+                param[1].name = "Triangle";
                 break;
             case peaks::LFO_SHAPE_SQUARE:
-                param_names[1] = "Square";
+                param[1].name = "Square";
                 break;
             case peaks::LFO_SHAPE_STEPS:
-                param_names[1] = "Steps";
+                param[1].name = "Steps";
                 break;
             case peaks::LFO_SHAPE_NOISE:
-                param_names[1] = "Noise";
+                param[1].name = "Noise";
                 break;
             default:
-                param_names[1] = "Shape";
+                param[1].name = "Shape";
                 break;
             }
         }
 
-        values[2] = params_[P3];
-        values[3] = params_[P4];
-
-        return param_names;
+        gfx::drawEngine(buffer, this);
     }
 };
 

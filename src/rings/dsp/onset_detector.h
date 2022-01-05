@@ -96,7 +96,7 @@ class Compressor {
   void Process(const float* in, float* out, size_t size) {
     float level = level_;
     while (size--) {
-      SLOPE(level, fabs(*in), attack_, decay_);
+      SLOPE(level, fabsf(*in), attack_, decay_);
       *out++ = *in++ / (skew_ + level);
     }
     level_ = level;
@@ -177,7 +177,7 @@ class OnsetDetector {
       envelope_[i] = envelope;
 
       float derivative = energy - energy_[i];
-      onset_df += derivative + fabs(derivative);
+      onset_df += derivative + fabsf(derivative);
       energy_[i] = energy;
       total_energy += energy;
     }

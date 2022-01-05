@@ -24,44 +24,38 @@
 //
 // -----------------------------------------------------------------------------
 //
-// Limiter.
+// Lag processor for the STEPS control.
 
-#ifndef STMLIB_DSP_LIMITER_H_
-#define STMLIB_DSP_LIMITER_H_
+#ifndef MARBLES_RANDOM_LAG_PROCESSOR_H_
+#define MARBLES_RANDOM_LAG_PROCESSOR_H_
 
 #include "stmlib/stmlib.h"
 
-#include <algorithm>
+#include <cstdio>
 
-#include "stmlib/dsp/dsp.h"
-#include "stmlib/dsp/filter.h"
+namespace marbles {
 
-namespace stmlib {
-
-class Limiter {
+class LagProcessor {
  public:
-  Limiter() { }
-  ~Limiter() { }
-
-  void Init() {
-    peak_ = 0.5f;
+  LagProcessor() { }
+  ~LagProcessor() { }
+  
+  void Init();
+  inline void ResetRamp() {
+    ramp_start_ = ramp_value_;
   }
-
-  void Process(float pre_gain, float* in_out, size_t size) {
-    while (size--) {
-      float s = *in_out * pre_gain;
-      SLOPE(peak_, fabsf(s), 0.05f, 0.00002f);
-      float gain = (peak_ <= 1.0f ? 1.0f : 1.0f / peak_);
-      *in_out++ = s * gain * 0.8f;
-    }
-  }
+  
+  float Process(float value, float smoothness, float phase);
 
  private:
-  float peak_;
-
-  DISALLOW_COPY_AND_ASSIGN(Limiter);
+  float ramp_start_;
+  float ramp_value_;
+  float lp_state_;
+  float previous_phase_;
+  
+  DISALLOW_COPY_AND_ASSIGN(LagProcessor);
 };
 
-}  // namespace stmlib
+}  // namespace marbles
 
-#endif  // STMLIB_DSP_LIMITER_H_
+#endif  // MARBLES_RANDOM_LAG_PROCESSOR_H_

@@ -24,44 +24,59 @@
 //
 // -----------------------------------------------------------------------------
 //
-// Limiter.
+// Stream of random values, filled from a hardware RNG, with a fallback
+// mechanism.
 
-#ifndef STMLIB_DSP_LIMITER_H_
-#define STMLIB_DSP_LIMITER_H_
+#ifndef MARBLES_RANDOM_RANDOM_STREAM_H_
+#define MARBLES_RANDOM_RANDOM_STREAM_H_
 
 #include "stmlib/stmlib.h"
 
-#include <algorithm>
+#include "stmlib/utils/ring_buffer.h"
 
-#include "stmlib/dsp/dsp.h"
-#include "stmlib/dsp/filter.h"
+#include "marbles/random/random_generator.h"
 
-namespace stmlib {
+namespace marbles {
 
-class Limiter {
+class RandomStream {
  public:
-  Limiter() { }
-  ~Limiter() { }
-
-  void Init() {
-    peak_ = 0.5f;
+  RandomStream() { }
+  ~RandomStream() { }
+  
+  inline void Init(RandomGenerator* fallback_generator) {
+    fallback_generator_ = fallback_generator;
+    buffer_.Init();
   }
 
-  void Process(float pre_gain, float* in_out, size_t size) {
-    while (size--) {
-      float s = *in_out * pre_gain;
-      SLOPE(peak_, fabsf(s), 0.05f, 0.00002f);
-      float gain = (peak_ <= 1.0f ? 1.0f : 1.0f / peak_);
-      *in_out++ = s * gain * 0.8f;
+  inline void Write(uint32_t value) {
+    // buffer_.Swallow(1);
+    // buffer_.Overwrite(value);
+    if (buffer_.writable()) {
+      buffer_.Overwrite(value);
+    }
+    fallback_generator_->Mix(value);
+  }
+  
+  inline uint32_t GetWord() {
+    if (buffer_.readable()) {
+      return buffer_.ImmediateRead();
+    } else {
+      return fallback_generator_->GetWord();
     }
   }
-
+  
+  inline float GetFloat() {
+    uint32_t word = GetWord();
+    return static_cast<float>(word) / 4294967296.0f;
+  }
+  
  private:
-  float peak_;
-
-  DISALLOW_COPY_AND_ASSIGN(Limiter);
+  stmlib::RingBuffer<uint32_t, 128> buffer_;
+  RandomGenerator* fallback_generator_;
+  
+  DISALLOW_COPY_AND_ASSIGN(RandomStream);
 };
 
-}  // namespace stmlib
+}  // namespace marbles
 
-#endif  // STMLIB_DSP_LIMITER_H_
+#endif  // MARBLES_RANDOM_RANDOM_STREAM_H_

@@ -44,6 +44,15 @@ void write_wav(const std::vector<int16_t> &buffer, const std::string &fileName)
 #include "machine.h"
 #include "stmlib/dsp/dsp.h"
 
+namespace gfx
+{
+    void drawPixel(uint8_t *buffer, int16_t x, int16_t y) {}
+    void drawLine(uint8_t *buffer, int x1, int y1, int x2, int y2) {}
+    void drawXbm(uint8_t *buffer, int16_t x, int16_t y, int16_t width, int16_t height, const uint8_t *xbm) {}
+    void drawString(uint8_t *buffer, int16_t x, int16_t y, const char *text, uint8_t font) {}
+    void drawEngine(uint8_t *buffer, machine::Engine *engine) {}
+}
+
 namespace machine
 {
     static struct : MidiHandler
@@ -51,14 +60,14 @@ namespace machine
         void midiReceive(uint8_t midiByte) override {}
         void midiReset() override {}
         bool getMidiNote(int midi_channel, int midi_voice, MidiNote *note) override { return false; }
-        bool getPlaybackInfo(float *bpm) override
-        {
-            *bpm = 120.f * (25.f / 24);
-            return false;
-        }
     } _dummy;
 
     MidiHandler *midi_handler = &_dummy;
+
+    float get_bpm()
+    {
+        return 120;
+    }
 
     static std::vector<engine_def> registry;
 
@@ -131,10 +140,8 @@ int main()
         printf("````\n");
         printf("Parameters:\n");
 
-        uint16_t params[8];
-        auto names = engine->GetParams(params);
-        for (int n = 0; names[n] != nullptr; n++)
-            printf(" - %s\n", names[n]);
+        for (int n = 0; n < LEN_OF(engine->param) && engine->param[n].name != nullptr; n++)
+            printf(" - %s\n", engine->param[n].name);
 
         printf("````\n");
 
@@ -185,10 +192,11 @@ int main()
                 }
             }
 
-            for (int k = 0; k < 8; k++)
+            for (int k = 0; k < LEN_OF(engine->param) && engine->param[k].name != nullptr; k++)
             {
-                engine->SetParam(k, UINT32_MAX);
-                engine->SetParam(k, params[k]);
+                auto val = engine->param[k].to_uint16();
+                engine->param[k].from_uint16(UINT16_MAX);
+                engine->param[k].from_uint16(val);
             }
         }
 

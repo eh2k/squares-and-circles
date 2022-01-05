@@ -30,10 +30,10 @@
 namespace sam
 {
     int debug = 0;
-    #include "SAM/sam.c"
-    #include "SAM/render.c"
-    #include "SAM/reciter.c"
-    #include "SAM/debug.c"
+#include "SAM/sam.c"
+#include "SAM/render.c"
+#include "SAM/reciter.c"
+#include "SAM/debug.c"
 }
 
 using namespace sam;
@@ -87,18 +87,23 @@ struct SAM : public SampleEngine<uint8_t>
         return s_len;
     }
 
+    int _lastSelection = 0;
+
 public:
-    SAM() : SampleEngine<uint8_t>(&_sounds[0], 0, sizeof(_sounds) / sizeof(_sounds[0]))
+    SAM() : SampleEngine<uint8_t>(&_sounds[0], 0, LEN_OF(_sounds))
     {
         _sounds[0].len = say(&_sounds[0].name[1]);
     }
 
-    void SetParams(const uint16_t *params) override
+    void Process(const ControlFrame &frame, float **out, float **aux) override
     {
-        CONSTRAIN((uint16_t&)params[1], 0, sizeof(_sounds) / sizeof(_sounds[0]) - 1);
-        _sounds[params[1]].len = say(&_sounds[params[1]].name[1]);
+        if (_lastSelection != selection)
+        {
+            _sounds[selection].len = say(&_sounds[selection].name[1]);
+            _lastSelection = selection;
+        }
 
-        SampleEngine<uint8_t>::SetParams(params);
+        SampleEngine<uint8_t>::Process(frame, out, aux);
     }
 };
 

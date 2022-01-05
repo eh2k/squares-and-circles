@@ -27,7 +27,6 @@
 #include "stmlib/midi/midi.h"
 #include "stmlib/dsp/units.h"
 #include "machine.h"
-#include <Arduino.h>
 
 using namespace machine;
 
@@ -40,9 +39,6 @@ struct MidiHandlerImpl : MidiHandler
     };
 
     MidiState midi[16] = {}; // midi-state for all channels
-    uint32_t midi_clock = 0; // millis()
-    float midi_bpm = 0;
-    bool playing = false;
 
     static MidiHandlerImpl *instance()
     {
@@ -90,7 +86,7 @@ struct MidiHandlerImpl : MidiHandler
             auto &note = instance()->midi[channel].note[i];
             if (note.on == 0)
             {
-                note.on = millis();
+                note.on = machine::millis();
                 note.key = key;
                 note.velocity = velocity;
                 break;
@@ -125,7 +121,7 @@ struct MidiHandlerImpl : MidiHandler
             if (engine->midi_ch == channel)
             {
                 if (controller >= 32 && controller < 40)
-                    engine->SetParam(controller - 32, (uint16_t)value << 9); //MSB
+                    engine->param[controller - 32].from_uint16((uint16_t)value << 9); //MSB
             }
         }
     }
@@ -139,34 +135,15 @@ struct MidiHandlerImpl : MidiHandler
 
     static void Clock()
     {
-        static uint32_t last_clock = 0;
-        static uint8_t i = 0;
-
-        if (++i > 24)
-        {
-            i = 0;
-            uint32_t ticks = micros() - last_clock;
-            auto bpm = (60 * 1000.0f * 1000.0f) / ticks * (25.f / 24);
-            
-            if (abs(bpm - instance()->midi_bpm) > 1)
-                instance()->midi_bpm = bpm;
-
-            ONE_POLE(instance()->midi_bpm, bpm, 0.1f);
-
-            last_clock = micros();
-        }
-
-        instance()->midi_clock = millis();
+        machine::clock(24);
     }
 
     static void Start()
     {
-        instance()->playing = true;
     }
 
     static void Continue()
     {
-        instance()->playing = !instance()->playing;
     }
 
     static void Stop()
@@ -187,7 +164,7 @@ struct MidiHandlerImpl : MidiHandler
         instance()->midiReset();
     }
 
-    FASTRUN void midiReceive(uint8_t midiByte) override
+    void midiReceive(uint8_t midiByte) override
     {
         static stmlib_midi::MidiStreamParser<MidiHandlerImpl> midi_stream;
         midi_stream.PushByte(midiByte);
@@ -195,7 +172,6 @@ struct MidiHandlerImpl : MidiHandler
 
     void midiReset() override
     {
-        playing = false;
         memset(midi, 0, sizeof(midi));
 
         for (int channel = 0; channel < 4; channel++)
@@ -216,15 +192,6 @@ struct MidiHandlerImpl : MidiHandler
         }
         else
             return false;
-    }
-
-    bool getPlaybackInfo(float *bpm) override
-    {
-        if (millis() - midi_clock > 100)
-            midi_bpm = 0;
-
-        *bpm = midi_bpm;
-        return playing;
     }
 };
 

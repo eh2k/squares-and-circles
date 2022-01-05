@@ -24,44 +24,42 @@
 //
 // -----------------------------------------------------------------------------
 //
-// Limiter.
+// Pseudo-random generator used as a fallback when we need more random values
+// than available in the hardware RNG buffer.
 
-#ifndef STMLIB_DSP_LIMITER_H_
-#define STMLIB_DSP_LIMITER_H_
+#ifndef MARBLES_RANDOM_RANDOM_GENERATOR_H_
+#define MARBLES_RANDOM_RANDOM_GENERATOR_H_
 
 #include "stmlib/stmlib.h"
 
-#include <algorithm>
+#include "stmlib/utils/ring_buffer.h"
 
-#include "stmlib/dsp/dsp.h"
-#include "stmlib/dsp/filter.h"
+namespace marbles {
 
-namespace stmlib {
-
-class Limiter {
+class RandomGenerator {
  public:
-  Limiter() { }
-  ~Limiter() { }
-
-  void Init() {
-    peak_ = 0.5f;
+  RandomGenerator() { }
+  ~RandomGenerator() { }
+  
+  inline void Init(uint32_t seed) {
+    state_ = seed;
   }
-
-  void Process(float pre_gain, float* in_out, size_t size) {
-    while (size--) {
-      float s = *in_out * pre_gain;
-      SLOPE(peak_, fabsf(s), 0.05f, 0.00002f);
-      float gain = (peak_ <= 1.0f ? 1.0f : 1.0f / peak_);
-      *in_out++ = s * gain * 0.8f;
-    }
+  
+  inline void Mix(uint32_t word) {
+    // state_ ^= word;
   }
-
+  
+  inline uint32_t GetWord() {
+    state_ = state_ * 1664525L + 1013904223L;
+    return state_;
+  }
+ 
  private:
-  float peak_;
-
-  DISALLOW_COPY_AND_ASSIGN(Limiter);
+  uint32_t state_;
+  
+  DISALLOW_COPY_AND_ASSIGN(RandomGenerator);
 };
 
-}  // namespace stmlib
+}  // namespace marbles
 
-#endif  // STMLIB_DSP_LIMITER_H_
+#endif  // MARBLES_RANDOM_RANDOM_GENERATOR_H_

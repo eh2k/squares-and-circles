@@ -86,9 +86,15 @@ public:
         bpf_.Init();
         freq = 0.3f;
         long_decay = 0.5f;
-        uint16_t params[4];
-        GetParams(params);
-        SetParams(params);
+
+        param[0].init("Pitch", &freq, freq);
+        param[1].init("Decay", &long_decay, long_decay);
+        param[2].init("Crispy", &crispy, crispy);
+        param[3].init("Diffuse", &diffuse, diffuse);
+
+        cp_loop.loop = true;
+        cp_loop.param[2].from_uint16(0.8f * UINT16_MAX);
+        cp_loop.param[3].from_uint16(0.4f * UINT16_MAX);
     }
 
     uint32_t t = -1;
@@ -98,6 +104,8 @@ public:
 
     void Process(const machine::ControlFrame &frame, float **out, float **aux) override
     {
+        sync_params();
+
         const int ms = 48000 / 1000;
 
         if (frame.trigger)
@@ -153,40 +161,16 @@ public:
         *aux = bufferAux;
     }
 
-    void SetParams(const uint16_t *parameter) override
+    void sync_params()
     {
-        freq = (float)parameter[0] / UINT16_MAX;
-        long_decay = (float)parameter[1] / UINT16_MAX;
-        crispy = (float)parameter[2] / UINT16_MAX;
-        diffuse = (float)parameter[3] / UINT16_MAX;
-
         diffusor_.set_amount(diffuse);
 
         bpf_.set_g_r(0.02f + freq * 0.2f, 1 - freq * 0.1f);
 
-        uint16_t params[4];
-        cp.GetParams(params);
-        params[0] = 0.99f * UINT16_MAX * freq;
-        params[2] = (1.f - crispy) * 0.1f * UINT16_MAX;
-        cp.SetParams(params);
+        cp.param[0].from_uint16(0.99f * UINT16_MAX * freq);
+        cp.param[2].from_uint16((1.f - crispy) * 0.1f * UINT16_MAX);
 
-        cp_loop.loop = true;
-        cp_loop.GetParams(params);
-        params[0] = 0.99f * UINT16_MAX * freq;
-        params[2] = 0.8f * UINT16_MAX;
-        params[3] = 0.4f * UINT16_MAX;
-        cp_loop.SetParams(params);
-    }
-
-    const char **GetParams(uint16_t *values) override
-    {
-        values[0] = freq * UINT16_MAX;
-        values[1] = long_decay * UINT16_MAX;
-        values[2] = crispy * UINT16_MAX;
-        values[3] = diffuse * UINT16_MAX;
-
-        static const char *names[]{"Pitch", "Decay", "Crispy", "Diffuse", nullptr};
-        return names;
+        cp_loop.param[0].from_uint16(0.99f * UINT16_MAX * freq);
     }
 };
 
@@ -209,6 +193,9 @@ public:
         freq = 0.1f;
         long_decay = 0.5f;
         bpf_.set_g_r(0.1f + freq * 0.25f, 1 - freq * 0.25f);
+
+        param[0].init("Color", &freq, freq);
+        param[1].init("Decay", &long_decay, long_decay);
     }
 
     int t = 0;
@@ -216,6 +203,8 @@ public:
 
     void Process(const machine::ControlFrame &frame, float **out, float **aux) override
     {
+        bpf_.set_g_r(0.1f + freq * 0.25f, 1 - freq * 0.25f);
+
         const int ms = 48000 / 1000;
         static float decay = 0.01f;
         static float gain = 1.0f;
@@ -251,23 +240,6 @@ public:
         }
 
         *out = buffer;
-    }
-
-    void SetParams(const uint16_t *parameter) override
-    {
-        freq = (float)parameter[0] / UINT16_MAX;
-        long_decay = (float)parameter[1] / UINT16_MAX;
-
-        bpf_.set_g_r(0.1f + freq * 0.25f, 1 - freq * 0.25f);
-    }
-
-    const char **GetParams(uint16_t *values) override
-    {
-        values[0] = freq * UINT16_MAX;
-        values[1] = long_decay * UINT16_MAX;
-
-        static const char *names[]{"Color", "Decay", nullptr};
-        return names;
     }
 };
 

@@ -24,44 +24,40 @@
 //
 // -----------------------------------------------------------------------------
 //
-// Limiter.
+// Simple ramp generator.
 
-#ifndef STMLIB_DSP_LIMITER_H_
-#define STMLIB_DSP_LIMITER_H_
+#ifndef MARBLES_RAMP_RAMP_GENERATOR_H_
+#define MARBLES_RAMP_RAMP_GENERATOR_H_
 
 #include "stmlib/stmlib.h"
 
-#include <algorithm>
+namespace marbles {
 
-#include "stmlib/dsp/dsp.h"
-#include "stmlib/dsp/filter.h"
-
-namespace stmlib {
-
-class Limiter {
+class RampGenerator {
  public:
-  Limiter() { }
-  ~Limiter() { }
-
+  RampGenerator() { }
+  ~RampGenerator() { }
+  
   void Init() {
-    peak_ = 0.5f;
+    phase_ = 0.0f;
   }
 
-  void Process(float pre_gain, float* in_out, size_t size) {
+  void Render(float frequency, float* out, size_t size) {
     while (size--) {
-      float s = *in_out * pre_gain;
-      SLOPE(peak_, fabsf(s), 0.05f, 0.00002f);
-      float gain = (peak_ <= 1.0f ? 1.0f : 1.0f / peak_);
-      *in_out++ = s * gain * 0.8f;
+      phase_ += frequency;
+      if (phase_ >= 1.0f) {
+        phase_ -= 1.0f;
+      }
+      *out++ = phase_;
     }
   }
-
+  
  private:
-  float peak_;
+  float phase_;
 
-  DISALLOW_COPY_AND_ASSIGN(Limiter);
+  DISALLOW_COPY_AND_ASSIGN(RampGenerator);
 };
 
-}  // namespace stmlib
+}  // namespace marbles
 
-#endif  // STMLIB_DSP_LIMITER_H_
+#endif  // MARBLES_RAMP_RAMP_GENERATOR_H_

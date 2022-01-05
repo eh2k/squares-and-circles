@@ -45,8 +45,10 @@ int main()
     MACHINE_INIT(init_speech);
     MACHINE_INIT(init_sam);
     MACHINE_INIT(init_delay);
+    MACHINE_INIT(init_modulations);
+    MACHINE_INIT(init_marbles);
 
-    machine::setup(machine::OC_REV2E, "0.0f");
+    machine::setup<machine::OC_REV2E>("0.0g");
 
     while (true)
         machine::loop();

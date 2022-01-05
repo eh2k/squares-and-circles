@@ -56,9 +56,9 @@ class Limiter {
       float l_pre = *l * pre_gain;
       float r_pre = *r * pre_gain;
     
-      float l_peak = fabs(l_pre);
-      float r_peak = fabs(r_pre);
-      float s_peak = fabs(r_pre - l_pre);
+      float l_peak = fabsf(l_pre);
+      float r_peak = fabsf(r_pre);
+      float s_peak = fabsf(r_pre - l_pre);
 
       float peak = std::max(std::max(l_peak, r_peak), s_peak);
       SLOPE(peak_, peak, 0.05f, 0.00002f);

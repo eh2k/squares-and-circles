@@ -6,7 +6,7 @@ using namespace machine;
 
 struct ResonatorEngine : public Engine
 {
-    uint8_t model;
+    uint16_t _model;
     rings::Strummer strummer;
     rings::Part part;
     rings::Patch patch;
@@ -16,9 +16,10 @@ struct ResonatorEngine : public Engine
 
     float in[FRAME_BUFFER_SIZE];
 
-    ResonatorEngine() : Engine(AUDIO_PROCESSOR)
+    float _pitch;
+
+    ResonatorEngine() : Engine()
     {
-        model = 0;
         memset(&strummer, 0, sizeof(rings::Strummer));
         memset(&patch, 0, sizeof(rings::Patch));
         patch.structure = 0.5f;
@@ -26,22 +27,34 @@ struct ResonatorEngine : public Engine
         patch.damping = 0.5f;
         patch.position = 0.5f;
         memset(&performance_state, 0, sizeof(rings::PerformanceState));
-        strummer.Init(0.01f, 48000 / FRAME_BUFFER_SIZE);
+        strummer.Init(0.01f, SAMPLE_RATE / FRAME_BUFFER_SIZE);
         part.Init();
-        part.set_model((rings::ResonatorModel)model);
+        part.set_model(rings::ResonatorModel::RESONATOR_MODEL_MODAL);
         part.set_polyphony(rings::kMaxPolyphony);
         memset(in, 0, sizeof(in));
+
+        param[0].init_v_oct("Freq", &_pitch);
+        param[1].init("Model", &_model, rings::ResonatorModel::RESONATOR_MODEL_MODAL, 
+            rings::ResonatorModel::RESONATOR_MODEL_MODAL, 
+            rings::ResonatorModel::RESONATOR_MODEL_SYMPATHETIC_STRING_QUANTIZED);
+            
+        param[2].init("Struc.", &patch.structure);
+        param[3].init("Brighn.", &patch.brightness);
+        param[4].init("Damping", &patch.damping);
+        param[5].init("Pos", &patch.position);
     }
 
     void Process(const ControlFrame &frame, float **out, float **aux) override
     {
+        part.set_model((rings::ResonatorModel)_model);
+
         performance_state.strum = frame.trigger;
         performance_state.internal_strum = false;
         performance_state.internal_note = true;
         performance_state.internal_exciter = true;
         performance_state.tonic = 0.2f;
         performance_state.chord = 0;
-        performance_state.note = frame.midi.key;
+        performance_state.note = (float)frame.midi.key + _pitch * 12.f + (frame.midi.pitch / 128);
 
         float *input = frame.audio_in[0];
 
@@ -54,58 +67,20 @@ struct ResonatorEngine : public Engine
         *aux = bufferAux;
     }
 
-    void SetParams(const uint16_t *params) override
+    void OnDisplay(uint8_t *buffer) override
     {
-        model = params[0];
-        CONSTRAIN(model, rings::ResonatorModel::RESONATOR_MODEL_MODAL, rings::ResonatorModel::RESONATOR_MODEL_SYMPATHETIC_STRING_QUANTIZED);
-        part.set_model((rings::ResonatorModel)model);
-
-        patch.structure = (float)params[2] / UINT16_MAX;
-        patch.brightness = (float)params[3] / UINT16_MAX;
-        patch.damping = (float)params[4] / UINT16_MAX;
-        patch.position = (float)params[5] / UINT16_MAX;
-    }
-
-    const char **GetParams(uint16_t *values) override
-    {
-        static const char *names[]{"", "", "Struc.", "Brighn.", "Damping", "Pos", nullptr};
-
-        if (model == rings::ResonatorModel::RESONATOR_MODEL_MODAL)
-            names[0] = ">  Modal";
-        else if (model == rings::ResonatorModel::RESONATOR_MODEL_SYMPATHETIC_STRING)
-            names[0] = ">  Sympathetic";
-        else if (model == rings::ResonatorModel::RESONATOR_MODEL_STRING)
-            names[0] = ">  String";
-        else if (model == rings::ResonatorModel::RESONATOR_MODEL_FM_VOICE)
-            names[0] = ">  FM";
+        if (_model == rings::ResonatorModel::RESONATOR_MODEL_MODAL)
+            param[1].name = ">  Modal";
+        else if (_model == rings::ResonatorModel::RESONATOR_MODEL_SYMPATHETIC_STRING)
+            param[1].name = ">  Sympath.";
+        else if (_model == rings::ResonatorModel::RESONATOR_MODEL_STRING)
+            param[1].name = ">  String";
+        else if (_model == rings::ResonatorModel::RESONATOR_MODEL_FM_VOICE)
+            param[1].name = ">  FM";
         else
-            names[0] = ">  String Quant.";
+            param[1].name = ">  StrQuant.";
 
-        values[0] = model;
-        values[1] = 0;
-        values[2] = patch.structure * UINT16_MAX;
-        values[3] = patch.brightness * UINT16_MAX;
-        values[4] = patch.damping * UINT16_MAX;
-        values[5] = patch.position * UINT16_MAX;
-
-        return names;
-    }
-
-    void OnEncoder(uint8_t param_index, int16_t inc, bool pressed) override
-    {
-        if (param_index == 0)
-        {
-            if (inc > 0)
-                model += 1;
-            else if (model > 0)
-                model -= 1;
-
-            SetParam(param_index, model);
-        }
-        else
-        {
-            Engine::OnEncoder(param_index, inc, pressed);
-        }
+        gfx::drawEngine(buffer, this);
     }
 };
 

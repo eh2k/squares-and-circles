@@ -32,8 +32,8 @@ using namespace machine;
 class VoltsPerOctave : public Engine
 {
     char tmp[64];
-    int16_t oct = 0;
-    int16_t note = 0;
+    float oct = 0;
+    float note = 0;
     uint8_t midi_note = 0;
     float cv = 0;
 
@@ -42,6 +42,9 @@ class VoltsPerOctave : public Engine
 public:
     VoltsPerOctave() : Engine(OUT_EQ_VOLT)
     {
+        param[0].init_v_oct("octave", &oct);
+        param[1].init("note", &note, 0, -12, 12);
+        param[1].setStepValue(1.f);
     }
 
     void Process(const ControlFrame &frame, float **out, float **aux) override
@@ -59,49 +62,15 @@ public:
         *out = buffer;
     }
 
-    void SetParams(const uint16_t *params) override
-    {
-        oct = (int16_t)(params[0] - INT16_MAX) >> 12;
-        note = (int16_t)(params[1] - INT16_MAX) >> 11;
-    }
-
-    const char **GetParams(uint16_t *values) override
+    void OnDisplay(uint8_t *display) override
     {
         static char tmp0[20];
         static char tmp1[20];
-        static const char *names[]{tmp0, tmp1, nullptr};
-        sprintf(tmp0, "\t%+d", oct);
-        sprintf(tmp1, "\t%+d", note);
-        values[0] = (oct << 12) + INT16_MAX;
-        values[1] = (note << 11) + INT16_MAX;
-        return names;
-    }
+        sprintf(tmp0, "\t%+d", (int)oct);
+        sprintf(tmp1, "\t%+d", (int)note);
+        param[0].name = tmp0;
+        param[1].name = tmp1;
 
-    void OnEncoder(uint8_t param_index, int16_t inc, bool pressed) override
-    {
-        auto &select = param_index == 0 ? oct : note;
-        if (inc > 0)
-            select++;
-        else
-            select--;
-
-        if (note > 12)
-        {
-            oct++;
-            note = 1;
-        }
-        else if (note < -12)
-        {
-            oct--;
-            note = -1;
-        }
-
-        CONSTRAIN(note, -12, 12);
-        CONSTRAIN(oct, -3, 5);
-    }
-
-    void OnDisplay(uint8_t *display) override
-    {
         gfx::drawString(display, 8, 16, "Octave");
         gfx::drawString(display, 78, 16, "Note");
 

@@ -38,8 +38,6 @@ using namespace machine;
 
 struct Delay : public Engine
 {
-    const char *param_names[5] = {"Time", "Color", "Pan", "Feedb", nullptr};
-
     float time = 0.5f;
     float color = 0.5f;
     float level = 0.5f;
@@ -65,51 +63,53 @@ struct Delay : public Engine
     float bufferL[FRAME_BUFFER_SIZE];
     float bufferR[FRAME_BUFFER_SIZE];
 
-    Delay() : Engine(AUDIO_PROCESSOR | IS_CLOCKED)
+    Delay() : Engine(AUDIO_PROCESSOR)
     {
         delay_mem[0].Init();
         delay_mem[1].Init();
 
-        SetParam(0, 0, false);
+        param[0].init("Time", &time, time);
+        param[1].init("Color", &color, color);
+        param[2].init("Pan", &pan, pan);
+        param[3].init("Feedb", &level, level);
     }
 
-    size_t delay = 0;
+    float delay = 0;
+    float t_32 = 0;
 
-    bool calc_t_step32(float *t_32)
+    bool calc_t_step32()
     {
-        float midi_bpm = 0;
-        machine::midi_handler->getPlaybackInfo(&midi_bpm);
+        float midi_bpm = machine::get_bpm();
         if (midi_bpm > 0)
         {
             auto bpm = midi_bpm / (25.f / 24);
             auto t_per_beat = 60.f / bpm; // * machine::SAMPLE_RATE
-            *t_32 = t_per_beat / 32;
+            t_32 = t_per_beat / 32;
             return true;
         }
         else
+        {
+            t_32 = 1.f / 256.f;
             return false;
+        }
     }
 
     void Process(const ControlFrame &frame, float **out, float **aux) override
     {
-        auto d = time * machine::SAMPLE_RATE;
+        sync_params();
 
-        float t_32 = 0;
-        if (calc_t_step32(&t_32))
-        {
-            int n = 1 + time / t_32;
-            d = n * t_32 * machine::SAMPLE_RATE;
-        }
+        int n = 1 + time / t_32;
+        float d = n * t_32 * machine::SAMPLE_RATE;
 
-        if (abs(d - delay) > machine::SAMPLE_RATE / 10)
+        if (fabsf(d - delay) > machine::SAMPLE_RATE / 10)
             delay = d;
         else
             ONE_POLE(delay, d, 0.01f);
 
         for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
         {
-            float readL = DelayRead(delay_mem[0], delay);
-            float readR = DelayRead(delay_mem[1], delay);
+            float readL = DelayRead(delay_mem[0], (int)delay);
+            float readR = DelayRead(delay_mem[1], (int)delay);
 
             auto inL = frame.audio_in[0][i];
             auto inR = frame.audio_in[1][i];
@@ -130,28 +130,10 @@ struct Delay : public Engine
         *aux = bufferR;
     }
 
-    virtual void OnEncoder(uint8_t param_index, int16_t inc, bool pressed)
+    void sync_params()
     {
-        float t_32 = 0;
-        if (param_index == 0 && calc_t_step32(&t_32))
-        {
-            inc *= t_32 * UINT16_MAX;
-        }
-        else
-        {
-            if (pressed == false)
-                inc *= 8;
-
-            inc *= 256;
-        }
-
-        SetParam(param_index, inc, false);
-    }
-
-    void SetParams(const uint16_t *params) override
-    {
-        time = (float)params[0] / UINT16_MAX;
-        color = (float)params[1] / UINT16_MAX;
+        calc_t_step32();
+        param[0].setStepValue(t_32);
 
         float colorFreq = std::pow(100.f, 2.f * color - 1.f);
         float lowpassFreq = clamp(20000.f * colorFreq, 20.f, 20000.f) / machine::SAMPLE_RATE;
@@ -161,17 +143,12 @@ struct Delay : public Engine
         filterLP[1].set_f<stmlib::FREQUENCY_DIRTY>(lowpassFreq);
         filterHP[0].set_f<stmlib::FREQUENCY_DIRTY>(highpassFreq);
         filterHP[1].set_f<stmlib::FREQUENCY_DIRTY>(highpassFreq);
-
-        level = (float)params[3] / UINT16_MAX;
-        pan = (float)params[2] / UINT16_MAX;
     }
 
     char time_info[64] = "Time";
-    const char **GetParams(uint16_t *values) override
+    void OnDisplay(uint8_t *buffer) override
     {
-        param_names[0] = time_info;
-        float t_32 = 0;
-        if (calc_t_step32(&t_32))
+        if (calc_t_step32())
         {
             int n = 1 + time / t_32;
             sprintf(time_info, ">T:%d/32", n);
@@ -179,11 +156,17 @@ struct Delay : public Engine
         else
             sprintf(time_info, ">T:%d ms", (int)(time * 1000));
 
-        values[0] = time * UINT16_MAX;
-        values[1] = color * UINT16_MAX;
-        values[2] = pan * UINT16_MAX;
-        values[3] = level * UINT16_MAX;
-        return param_names;
+        param[0].name = time_info;
+
+        gfx::drawEngine(buffer, this);
+
+        float midi_bpm = machine::get_bpm();
+        if (midi_bpm > 0)
+        {
+            char tmp[16];
+            sprintf(tmp, "BPM:%.1f", midi_bpm); //dtostrf(midi_bpm, 2, 1, &tmp[4]);
+            gfx::drawString(buffer, 10, 28, tmp, 0);
+        }
     }
 };
 

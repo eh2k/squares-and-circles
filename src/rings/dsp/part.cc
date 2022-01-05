@@ -433,7 +433,7 @@ void Part::RenderStringVoice(
       brightness *= (2.0f - brightness);
       brightness *= (2.0f - brightness);
       damping = 0.7f + patch.damping * 0.27f;
-      float amount = (0.5f - fabs(0.5f - patch.position)) * 0.9f;
+      float amount = (0.5f - fabsf(0.5f - patch.position)) * 0.9f;
       position = patch.position + lfo_value * amount;
       glide = SemitonesToRatio((brightness - 1.0f) * 36.0f);
       input = sympathetic_resonator_input_;

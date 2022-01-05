@@ -64,7 +64,7 @@ class NoteFilter {
 
   inline float Process(float note, bool strum) {
     // If there is a sharp change, follow it instantly.
-    if (fabs(note - note_) > 0.4f || strum) {
+    if (fabsf(note - note_) > 0.4f || strum) {
       stable_note_ = note_ = note;
       coefficient_ = fast_coefficient_;
       stable_coefficient_ = slow_coefficient_;

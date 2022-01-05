@@ -27,12 +27,9 @@ struct BraidsEngine : public Engine
     uint16_t _attack;
     uint16_t _decay;
 
-    uint16_t timbre;
-    uint16_t color;
-
     float buffer[FRAME_BUFFER_SIZE];
 
-    BraidsEngine()
+    BraidsEngine() : Engine()
     {
         settings.Init();
         osc.Init();
@@ -42,15 +39,17 @@ struct BraidsEngine : public Engine
         memset(audio_samples, 0, sizeof(audio_samples));
         memset(sync_samples, 0, sizeof(sync_samples));
 
-        uint16_t defaults[] = {float_range_to_uint16_t(0), braids::MACRO_OSC_SHAPE_CSAW, INT16_MAX, INT16_MAX, INT16_MAX, 0};
-        SetParams(defaults);
-        timbre = _timbre;
-        color = _color;
-
         // settings.SetValue(SETTING_AD_VCA, true);
         settings.SetValue(SETTING_SAMPLE_RATE, 5);
         settings.SetValue(SETTING_PITCH_OCTAVE, 4);
         settings.SetValue(SETTING_PITCH_RANGE, PITCH_RANGE_EXTERNAL);
+
+        param[0].init_v_oct("Freq", &_pitch);
+        param[1].init("Shape", &_shape, braids::MACRO_OSC_SHAPE_CSAW, braids::MACRO_OSC_SHAPE_CSAW, braids::MACRO_OSC_SHAPE_LAST - 1);
+        param[2].init("Timbre", &_timbre, INT16_MAX);
+        param[3].init("Color", &_color, INT16_MAX);
+        param[4].init("Decay", &_decay, INT16_MAX);
+        param[5].init("Attack", &_attack, 0);
     }
 
     void Process(const ControlFrame &frame, float **out, float **aux) override
@@ -88,10 +87,7 @@ struct BraidsEngine : public Engine
         if (settings.vco_flatten())
             pitch = stmlib::Interpolate88(braids::lut_vco_detune, pitch << 2);
 
-        ONE_POLE(timbre, _timbre, 0.005f);
-        ONE_POLE(color, _color, 0.005f);
-
-        osc.set_parameters(timbre >> 1, color >> 1);
+        osc.set_parameters(_timbre >> 1, _color >> 1);
 
         osc.set_pitch(pitch + settings.pitch_transposition());
 
@@ -106,69 +102,22 @@ struct BraidsEngine : public Engine
         *out = buffer;
     }
 
-    void OnEncoder(uint8_t param_index, int16_t inc, bool pressed) override
+    void OnDisplay(uint8_t *buffer) override
     {
-        if (param_index == 0)
-        {
-            if (inc > 0)
-                _pitch += !pressed ? 1 : 1.f / 12;
-            else
-                _pitch -= !pressed ? 1 : 1.f / 12;
-
-            CONSTRAIN(_pitch, -4, 4);
-        }
-        else if (param_index == 1)
-        {
-            if (inc > 0)
-                _shape += 1;
-            else if (_shape > 0)
-                _shape -= 1;
-
-            CONSTRAIN(_shape, braids::MACRO_OSC_SHAPE_CSAW, braids::MACRO_OSC_SHAPE_QUESTION_MARK);
-        }
-        else
-        {
-            Engine::OnEncoder(param_index, inc, pressed);
-        }
-    }
-
-    void SetParams(const uint16_t *params) override
-    {
-        _pitch = float_range_from_uint16_t(params[0]);
-        _shape = params[1];
-        CONSTRAIN(_shape, braids::MACRO_OSC_SHAPE_CSAW, braids::MACRO_OSC_SHAPE_QUESTION_MARK);
-        _timbre = params[2];
-        _color = params[3];
-        _decay = params[4];
-        _attack = params[5];
-    }
-
-    const char **GetParams(uint16_t *values) override
-    {
-        static const char *names[]{"Freq.", "", "Timbre", "Color", "Decay", "Attack", nullptr};
-        values[0] = float_range_to_uint16_t(_pitch);
-        static char shape[12];
-        CONSTRAIN(_shape, braids::MACRO_OSC_SHAPE_CSAW, braids::MACRO_OSC_SHAPE_QUESTION_MARK);
-        sprintf(shape, ">  %s", braids::settings.metadata(braids::Setting::SETTING_OSCILLATOR_SHAPE).strings[_shape]);
-        names[1] = shape;
-
-        values[1] = _shape;
-        values[2] = _timbre;
-        values[3] = _color;
+        param[1].name = braids::settings.metadata(braids::Setting::SETTING_OSCILLATOR_SHAPE).strings[(int)_shape];
 
         if (_decay < UINT16_MAX)
         {
-            values[4] = _decay;
-            values[5] = _attack;
+            param[4].name = "Decay";
+            param[5].name = "Attack";
         }
         else
         {
-            names[4] = "VCA-off";
-            values[4] = _decay;
-            names[5] = nullptr;
+            param[4].name = "VCA-off";
+            param[5].name = nullptr;
         }
 
-        return names;
+        gfx::drawEngine(buffer, this);
     }
 };
 

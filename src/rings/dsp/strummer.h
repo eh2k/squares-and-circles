@@ -59,7 +59,7 @@ class Strummer {
       PerformanceState* performance_state) {
     
     bool has_onset = in && onset_detector_.Process(in, size);
-    bool note_changed = fabs(performance_state->note - previous_note_) > 0.4f;
+    bool note_changed = fabsf(performance_state->note - previous_note_) > 0.4f;
 
     int32_t inhibit_timer = inhibit_timer_;
     if (performance_state->internal_strum) {

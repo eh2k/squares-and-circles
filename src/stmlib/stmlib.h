@@ -55,29 +55,7 @@
 #define JOIN_2(lhs, rhs)  lhs##rhs
 
 #define STATIC_ASSERT(expression, message)\
-  struct JOIN(__static_assertion_at_line_, __LINE__)\
-  {\
-    impl::StaticAssertion<static_cast<bool>((expression))> JOIN(JOIN(JOIN(STATIC_ASSERTION_FAILED_AT_LINE_, __LINE__), _), message);\
-  };\
-  typedef impl::StaticAssertionTest<sizeof(JOIN(__static_assertion_at_line_, __LINE__))> JOIN(__static_assertion_test_at_line_, __LINE__)
-
-namespace impl {
-
-  template <bool>
-  struct StaticAssertion;
-
-  template <>
-  struct StaticAssertion<true>
-  {
-  }; // StaticAssertion<true>
-
-  template<int i>
-  struct StaticAssertionTest
-  {
-  }; // StaticAssertionTest<int>
-
-} // namespace impl
-
+  static_assert(expression, #message)
 
 #ifndef TEST
 #define IN_RAM __attribute__ ((section (".ramtext")))
