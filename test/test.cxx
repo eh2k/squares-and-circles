@@ -44,6 +44,13 @@ void write_wav(const std::vector<int16_t> &buffer, const std::string &fileName)
 #include "machine.h"
 #include "stmlib/dsp/dsp.h"
 
+uint32_t random(uint32_t howbig)
+{
+    if (howbig == 0)
+        return 0;
+    return random() % howbig;
+}
+
 namespace gfx
 {
     void drawPixel(uint8_t *buffer, int16_t x, int16_t y) {}
@@ -69,6 +76,38 @@ namespace machine
         return 120;
     }
 
+    uint32_t trigger[4] = {}; // millis()
+    float cv_voltage[4] = {};
+
+    template <>
+    float get_cv<float>(int src)
+    {
+        return cv_voltage[src];
+    }
+
+    uint32_t get_trigger(int src)
+    {
+        return trigger[src];
+    }
+
+    float audio_in[2][FRAME_BUFFER_SIZE];
+
+    template <>
+    float *get_aux<float>(int src)
+    {
+        if (src == -1)
+        {
+            return audio_in[1];
+        }
+
+        if (src == -2)
+        {
+            return audio_in[2];
+        }
+
+        return nullptr;
+    }
+
     static std::vector<engine_def> registry;
 
     void add(const engine_def &def)
@@ -90,6 +129,21 @@ namespace machine
             ptr->~Engine();
             ::free(ptr);
             ptr = nullptr;
+        }
+    }
+
+    void add_modulation_source(const char *name, ModulationSource *modulation)
+    {
+        printf("%s\n", name);
+        for (int i = 0; i < 16; i++)
+        {
+            for (int t = 0; t < 4; t++)
+            {
+                machine::trigger[t] = 1 + i;
+                machine::cv_voltage[t] = 0.01 * i;
+            }
+
+            printf("%d : %f\n", i, modulation->process());
         }
     }
 }
@@ -114,6 +168,10 @@ int main()
     MACHINE_INIT(init_speech);
     MACHINE_INIT(init_sam);
     MACHINE_INIT(init_delay);
+
+    MACHINE_INIT(init_modulations);
+
+    //return;
 
     std::map<const char *, bool> machines;
 
@@ -160,13 +218,9 @@ int main()
                 frame.trigger = i == 0;
                 frame.cv_voltage = v;
 
-                frame.audio_in[0] = tmp;
-                frame.audio_in[1] = tmp;
+                float *ins[] = {machine::audio_in[0], machine::audio_in[1]};
 
-                audio_in->Process(frame, &frame.audio_in[0], &frame.audio_in[0]);
-
-                if (frame.audio_in[1] == nullptr)
-                    frame.audio_in[1] = frame.audio_in[0];
+                audio_in->Process(frame, &ins[0], &ins[1]);
 
                 float *out = nullptr;
                 float *aux = nullptr;

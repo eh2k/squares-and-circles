@@ -65,18 +65,20 @@ struct CloudsReverb : public Engine
         fx_.set_input_gain(gain * 0.1f); // 0.1f);
         fx_.set_lp(0.6f + 0.37f * feedback);
 
+        float *ins[] = {machine::get_aux(AUX_L), machine::get_aux(AUX_R)};
+
         for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
         {
-            bufferL[i] = frame.audio_in[0][i];
-            bufferR[i] = frame.audio_in[1][i];
+            bufferL[i] = ins[0][i];
+            bufferR[i] = ins[1][i];
         }
 
         fx_.Process(bufferL, bufferR, FRAME_BUFFER_SIZE);
 
         for (int i = 0; i < FRAME_BUFFER_SIZE; ++i)
         {
-            bufferL[i] = raw * bufferL[i] + (1 - raw) * frame.audio_in[0][i];
-            bufferR[i] = raw * bufferR[i] + (1 - raw) * frame.audio_in[1][i];
+            bufferL[i] = raw * bufferL[i] + (1 - raw) * ins[0][i];
+            bufferR[i] = raw * bufferR[i] + (1 - raw) * ins[1][i];
         }
 
         *out = bufferL;
@@ -106,10 +108,12 @@ struct CloudsDiffuser : public Engine
     {
         fx_.set_amount(raw);
 
+        float *ins[] = {machine::get_aux(-2), machine::get_aux(-1)};
+
         for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
         {
-            bufferL[i] = frame.audio_in[0][i];
-            bufferR[i] = frame.audio_in[1][i];
+            bufferL[i] = ins[0][i];
+            bufferR[i] = ins[1][i];
         }
 
         fx_.Process(bufferL, bufferR, FRAME_BUFFER_SIZE);

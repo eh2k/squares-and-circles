@@ -56,7 +56,7 @@ struct ResonatorEngine : public Engine
         performance_state.chord = 0;
         performance_state.note = (float)frame.midi.key + _pitch * 12.f + (frame.midi.pitch / 128);
 
-        float *input = frame.audio_in[0];
+        float *input = machine::get_aux(AUX_L);
 
         performance_state.note += frame.cv_voltage * 12;
 

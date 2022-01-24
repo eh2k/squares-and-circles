@@ -132,7 +132,8 @@ public:
         // auto f = note_to_frequency(note + 12);
 
         float *outputs[] = {bufferL, bufferR};
-        float *ins[] = {frame.audio_in[0], frame.audio_in[1]};
+        float *ins[] = {machine::get_aux(AUX_L), machine::get_aux(AUX_R)};
+        
         _faust.compute(FRAME_BUFFER_SIZE, &ins[0], &outputs[0]);
 
         *out = bufferL;

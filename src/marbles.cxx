@@ -27,11 +27,11 @@ struct MX : machine::ModulationSource
 
     float process() override
     {
-        if (machine::trigger[channel] != last_trig)
+        if (machine::get_trigger(channel) != last_trig)
         {
-            last_trig = machine::trigger[channel];
+            last_trig = machine::get_trigger(channel);
 
-            sr.NewNote(machine::cv_voltage[channel]);
+            sr.NewNote(machine::get_cv(channel));
             sr.AcceptNote();
 
             marbles::Scale s;

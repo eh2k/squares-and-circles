@@ -5,7 +5,7 @@ mkdir -p ../.test
 INC=$(for i in ../.pio/libdeps/*/*/*/; do echo "-I $i"; done )
 INC="$INC $(for i in ../.pio/libdeps/*/*/; do echo "-I $i"; done )"
 SRC=$(find ../.pio/libdeps/ -name "*.c*" | grep -v -E "main|EEPROM|SPI|libmachine" )
-SRC="$SRC $(find ../src/ -name "*.c*" | grep -v main | grep -v -E "midi|marbles|modulations.cxx|SAM/")"
+SRC="$SRC $(find ../src/ -name "*.c*" | grep -v main | grep -v -E "midi|marbles|SAM/")"
 
 set -ex
 

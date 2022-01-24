@@ -24,21 +24,25 @@
 //
 
 #include "machine.h"
-#include "stmlib/utils/random.h"
+
+#ifdef TEENSYDUINO
+#include <Entropy.h>
+#else
+struct
+{
+    int32_t random() { return rand(); }
+    float randomf(float min, float max) { return (float)rand() / INT32_MAX * (max - min) + min; }
+} Entropy;
+#endif
 
 template <int channel>
 struct CV : machine::ModulationSource
 {
     float process() override
     {
-        return machine::cv_voltage[channel]; // 1V/OCT : -3.5V..6.5V
+        return machine::get_cv(channel); // 1V/OCT : -3.5V..6.5V
     }
 };
-
-static CV<0> cv1;
-static CV<1> cv2;
-static CV<2> cv3;
-static CV<3> cv4;
 
 template <int channel>
 struct SH : machine::ModulationSource
@@ -47,20 +51,15 @@ struct SH : machine::ModulationSource
     uint32_t last_trig = 0;
     float process() override
     {
-        if (machine::trigger[channel] != last_trig)
+        if (machine::get_trigger(channel) != last_trig)
         {
-            last_trig = machine::trigger[channel];
-            value = machine::cv_voltage[channel];
+            last_trig = machine::get_trigger(channel);
+            value = machine::get_cv(channel);
         }
 
         return value;
     }
 };
-
-static SH<0> sh1;
-static SH<1> sh2;
-static SH<2> sh3;
-static SH<3> sh4;
 
 template <int channel>
 struct Rand : machine::ModulationSource
@@ -69,33 +68,39 @@ struct Rand : machine::ModulationSource
     uint32_t last_trig = 0;
     float process() override
     {
-        if (machine::trigger[channel] != last_trig)
+        if (machine::get_trigger(channel) != last_trig)
         {
-            last_trig = machine::trigger[channel];
-            value = (stmlib::Random::GetFloat() * 20 - 10);
+            last_trig = machine::get_trigger(channel);
+            value = Entropy.randomf(-10, 10);
         }
 
         return value;
     }
 };
 
-static Rand<0> rnd0;
-static Rand<1> rnd1;
-static Rand<2> rnd2;
-static Rand<3> rnd3;
+template <typename T>
+void ADD_MODULATION_SOURCE(const char *name)
+{
+    static T instance;
+    machine::add_modulation_source(name, &instance);
+}
 
 void init_modulations()
 {
-    machine::add_modulation_source("CV1", &cv1);
-    machine::add_modulation_source("CV2", &cv2);
-    machine::add_modulation_source("CV3", &cv3);
-    machine::add_modulation_source("CV4", &cv4);
-    machine::add_modulation_source("SH1", &sh1);
-    machine::add_modulation_source("SH2", &sh2);
-    machine::add_modulation_source("SH3", &sh3);
-    machine::add_modulation_source("SH4", &sh4);
-    machine::add_modulation_source("TR1\nRND", &rnd0);
-    machine::add_modulation_source("TR2\nRND", &rnd1);
-    machine::add_modulation_source("TR3\nRND", &rnd2);
-    machine::add_modulation_source("TR4\nRND", &rnd3);
+    ADD_MODULATION_SOURCE<CV<0>>("CV1");
+    ADD_MODULATION_SOURCE<CV<1>>("CV2");
+    ADD_MODULATION_SOURCE<CV<2>>("CV3");
+    ADD_MODULATION_SOURCE<CV<3>>("CV4");
+
+    ADD_MODULATION_SOURCE<SH<0>>("SH1");
+    ADD_MODULATION_SOURCE<SH<1>>("SH2");
+    ADD_MODULATION_SOURCE<SH<2>>("SH3");
+    ADD_MODULATION_SOURCE<SH<3>>("SH4");
+
+    ADD_MODULATION_SOURCE<Rand<0>>("RND1");
+    ADD_MODULATION_SOURCE<Rand<1>>("RND2");
+    ADD_MODULATION_SOURCE<Rand<2>>("RND3");
+    ADD_MODULATION_SOURCE<Rand<3>>("RND4");
 }
+
+MACHINE_INIT(init_modulations);

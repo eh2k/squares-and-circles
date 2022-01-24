@@ -106,13 +106,15 @@ struct Delay : public Engine
         else
             ONE_POLE(delay, d, 0.01f);
 
+        float *ins[] = {machine::get_aux(AUX_L), machine::get_aux(AUX_R)};
+
         for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
         {
             float readL = DelayRead(delay_mem[0], (int)delay);
             float readR = DelayRead(delay_mem[1], (int)delay);
 
-            auto inL = frame.audio_in[0][i];
-            auto inR = frame.audio_in[1][i];
+            auto inL = ins[0][i];
+            auto inR = ins[1][i];
 
             inL = filterLP[0].Process<stmlib::FILTER_MODE_LOW_PASS>(inL);
             inL = filterHP[0].Process<stmlib::FILTER_MODE_HIGH_PASS>(inL);
@@ -122,8 +124,8 @@ struct Delay : public Engine
             DelayWrite(delay_mem[0], (readR + inL * (0 + pan) * 2) * level);
             DelayWrite(delay_mem[1], (readL + inR * (1 - pan) * 2) * level);
 
-            bufferL[i] = readL + frame.audio_in[0][i];
-            bufferR[i] = readR + frame.audio_in[1][i];
+            bufferL[i] = readL + ins[0][i];
+            bufferR[i] = readR + ins[1][i];
         }
 
         *out = bufferL;

@@ -6,9 +6,9 @@
 
 ## ■ Demos 
 
-[![](https://img.youtube.com/vi/WQj3YqGpxRU/0.jpg)](https://www.youtube.com/watch?v=WQj3YqGpxRU)
-[![](https://img.youtube.com/vi/QdlwETEaE3A/0.jpg)](https://youtu.be/QdlwETEaE3A)
-[![](https://img.youtube.com/vi/lb-pbm1ddRw/0.jpg)](https://youtu.be/lb-pbm1ddRw)
+| [![](https://img.youtube.com/vi/WQj3YqGpxRU/0.jpg)](https://www.youtube.com/watch?v=WQj3YqGpxRU) | [![](https://img.youtube.com/vi/QdlwETEaE3A/0.jpg)](https://youtu.be/QdlwETEaE3A) |
+|--|--|
+| [![](https://img.youtube.com/vi/lb-pbm1ddRw/0.jpg)](https://youtu.be/lb-pbm1ddRw) | |
 
 ## Motivation
 
@@ -26,8 +26,8 @@ A tricky task to design a simple UI logic and to get as much out of the hardware
 ## Concept
 
 Similar to Monomachine and Machinedrum here we have basically 4 configurable tracks. Each track can be assigned with a synthesizer machine, controlled by a trigger and CV input. 
-As there are mono and stereo machines, the generated audio signal is routed to one or two neighbour DAC outputs by default.
-E.g you can chain the mono audio signal from an oscillator machine to the neighbour fx-machine with stereo-outputs.
+As there are mono and stereo machines, the generated audio signal is routed to one or two neighbor DAC outputs by default.
+E.g you can chain the mono audio signal from an oscillator machine to the neighbor fx-machine with stereo-outputs.
 
 * [Short Press [LEFT]/[RIGHT]] scrolls through the 4 machine-tracks.
 * [Long press [LEFT]] enters the machine-selection-page.
@@ -35,10 +35,16 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
 * [Long press [LEFT] and [RIGHT]] saves the patch - will be restored at startup.
 * [Long press left/right [ENCODER]] shows the modulation popup
 
-----
+<br/>
 
-### Machines ([Wiki](https://github.com/eh2k/squares-and-circles/wiki/%E2%96%A1%EF%B8%8E%E2%97%8F%EF%B8%8E-Machines-&-Engines))  
+# Machines
+
+> See [wiki](https://github.com/eh2k/squares-and-circles/wiki/%E2%96%A1%EF%B8%8E%E2%97%8F%EF%B8%8E-Machines-&-Engines) for details...
+
+<img align="right" src="https://ehx.spdns.org/squares-and-circles/doc/menu.bmp" width=196px /> 
+
 <sup>[Long press [LEFT]] enters the machine-selection-page.</sup>
+
 * **GND**
   * `---`
 * **CV**
@@ -60,25 +66,28 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
 * **SPEECH**
   * LPC, SAM
 
-### Machine-Config 
-<sup>[Long press [RIGHT]] enters the machine-config-page.</sup>
- * **Trig-Input**: ---, TR-1, TR-2, TR-3, TR-4
-   * none = Midi on TR-1 only
- * **CV-Input/Aux-Input**: ---, CV-1, CV-2, CV-3, CV-4 
-   * V/OCT: -3V..6V for frequency-control (default)
-   * AUX-IN: -3V..3V for additional audio source for effects (prefer CV4).
-   * MOD-CV: signal is only used for modulations.
- * **Transpose**: -48 to 24  (default -24)
- * **Midi-Channel**: 1-16, one channel on mulitple machines, for polyphony
-   * **Note-Hold**: True, False (Trigger)
- * **Output-Boost**: Add extra-gain to the output - can result in distortion
+## Machine/Engine  
+
+<img align="right" src="https://ehx.spdns.org/squares-and-circles/doc/engine.bmp" width=196px />
+
+Machine/Engines are controlled by individual parameters.
+
+* [Short press left/right [ENCODER]] changes parameter selection
+
+* [Rotate left/right [ENCODER]] changes parameter value
 
 ### Modulations
-<sup>[Long press left/right [ENCODER]] shows/hides the modulation popup</sup>
+
+<img align="right" src="https://ehx.spdns.org/squares-and-circles/doc/modulation.bmp" width=196px />
+
+* [Long press left/right [ENCODER]] shows/hides the modulation popup
+
+For each parameter a modulation can be configured:
+
  * SRC: 
    * **CV1-CV4**: Voltage is sampled at 2khz 
    * **SH1-SH4**: Sample and Hold eg: SH1 = CV1 is sampled on TR1 trigger
-   * **TR1-RND**: Trigger generates a random voltage
+   * **RND1-RND4**: Trigger generates a random voltage
  * Attenuverter (-/+)
    * Modulation Voltage is attenuverted in the range from -1..+1;
   >
@@ -89,11 +98,29 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
         Thus, one single V/OCT signal / CV-Input can be shared by using 
         modulation on parameter-0 with attenuverter = +1 (-3V..+6V) range.
         It is also possible to select the V/OCT input in the machine-config.
-      * All other paramters can be modulated with a assumed voltage-range of -4V..4V 
+      * All other parameters can be modulated with a assumed voltage-range of -4V..4V 
         at 2kHz sample rate.
-      * Be aware the CV-range is propably limited by hardware to: -3.5v..6.5V
+      * Be aware the CV-range is probably limited by hardware to: -3.5v..6.5V
  ````
 ---------
+
+
+### Machine-Config 
+
+<img align="right" src="https://ehx.spdns.org/squares-and-circles/doc/config.bmp" width=196px />
+
+<sup>[Long press [RIGHT]] enters the machine-config-page.</sup>
+
+ * **Trig-Input**: ---, TR-1, TR-2, TR-3, TR-4
+   * none = Midi on TR-1 only
+ * **CV-Input/Aux-Input**: ---, CV-1, CV-2, CV-3, CV-4 
+   * V/OCT: -3V..6V for frequency-control (default)
+   * AUX-IN: -3V..3V for additional audio source for effects (prefer CV4).
+   * MOD-CV: signal is only used for modulations.
+ * **Transpose**: -48 to 24  (default -24)
+ * **Midi-Channel**: 1-16, one channel on multiple machines, for polyphony
+   * **Note-Hold**: True, False (Trigger)
+ * **Output-Boost**: Add extra-gain to the output - can result in distortion
 
 # Build & Flash firmware
  * Install VSCode + platformio extension (https://platformio.org/platformio-ide)
@@ -113,23 +140,36 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
 
 ## Hardware setup procedure (automatically on first startup)
   >Power on the module with the [LEFT] button pressed for entering the setup procedure.
-  * Encoder setup
-    * Check the encoder rotation direction, press encoder for reversed setup.
-  * TR/CV Test: 
-    * Test/Verify your TRIG or CV inputs.
-  * DAC Test: 
-    * All outputs shoud have 0V.
+### Encoder setup
+
+<img align="right" src="https://ehx.spdns.org/squares-and-circles/doc/encoder_setup.bmp" width=196px />
+
+* Check the encoder rotation direction.
+* Press encoder for reversed setup. 
+
+<br/>
+
+
+### I/O Test: 
+
+<img align="right" src="https://ehx.spdns.org/squares-and-circles/doc/io_test.bmp" width=196px />
+  
+* Test/Verify your TRIG or CV inputs. 
+* All DAC outputs should have 0V. 
+
+<br/>
+
 
 ## **⦾ Midi-Expander**
    
    Midi-In is supported on the trigger-port TR1. Although the connection does not comply with the [MIDI standard](https://minimidi.world/?fbclid=IwAR31TqOyRkvdwaLYCxoU2a89hcy2PF3hltCtRKD7IzD5HbZqzn3m9NmiZzc#types) - for me this solution is more practical than the alternative via USB.
-   <img src="https://github.com/eh2k/squares-and-circles/raw/main/doc/midi2ts.png" width=80% />
+   <img src="https://ehx.spdns.org/squares-and-circles/doc/midi2ts.png" width=80% />
 
 ### Midi-Control
   * Engines can be loaded/selected by midi program change
   * Midi channel configurable per track `*` ([Long Press Right-Button] enters the config-page)
-  * Note-On behaviour configurable (HOLD, TRIGGER) 
-  * Paramter CC-Mappings
+  * Note-On behavior configurable (HOLD, TRIGGER) 
+  * Parameter CC-Mappings
     ````
     | HEX | DEC | parameter-index | CH |
     |-----|-----|-----------------|----|
@@ -146,15 +186,19 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
 
 ## ⧉ Conclusions and the future 
  
-The project was originally a kind of research that I did over half a year. The current O_C hardware could certainly be optimised. As you know, the DAC and the display share the SPI port - this is not ideal for simultaneous operation. Furthermore, the Teensy 4.0 does not have "high-end" ADCs - my focus here was to achieve operation at audio rate - the issue of noise has not been the focus so far. ADC/DAC calibration is still on my to-do list.
+The project was originally a kind of research that I did over half a year. The current O_C hardware could certainly be optimized. As you know, the DAC and the display share the SPI port - this is not ideal for simultaneous operation. Furthermore, the Teensy 4.0 does not have "high-end" ADCs - my focus here was to achieve operation at audio rate - the issue of noise has not been the focus so far. ADC/DAC calibration is still on my to-do list.
 
 At the moment I want to make the project available to the community as open-source, so that everyone has the possibility to adapt and experiment with it. 
 In principle, this project is a suite of apps so-called machines/engines interfacing with a system library ("libmachine").
-You are welcome for any kind of feedback or colleboration. Lets extend the engine collection - where is about 60% free space at the moment.
 
-The application code respectively the suite of machines/engines is released under the MIT licence. 
+You are welcome for any suggestions and feedback or collaboration.
 
-The previously mentioned "libmachine", a hardware abstraction layer, will remain "closed software" until I follow some not yet discarded ideas. This is to prevent the firmware from being ported to similar digital Eurorack modules and some theoretical licensing questions. So if you consider commercially distributing hardware with this firmware, please contact me (eh2k◯gmx.de). 
+## License
+
+The application code respectively the suite of machines/engines is released under the MIT license. 
+For details e.g. the copyright holders - see the header of individual source code files or readme/license file in the sub folder.
+
+The previously mentioned "libmachine", a hardware abstraction layer, will remain "closed software" until I follow some not yet discarded ideas. This is to prevent the firmware from being forked/ported to similar digital Eurorack modules and some theoretical licensing questions. So if you consider commercially distributing hardware with this firmware, please contact me (eh2k◯gmx.de). 
 
 <!--
 ````
@@ -176,3 +220,4 @@ The previously mentioned "libmachine", a hardware abstraction layer, will remain
 |_______________|
 ````
 -->
+

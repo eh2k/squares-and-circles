@@ -48,7 +48,7 @@ int main()
     MACHINE_INIT(init_modulations);
     MACHINE_INIT(init_marbles);
 
-    machine::setup<machine::OC_REV2E>("0.0g");
+    machine::setup<machine::OC_REV2E>("0.0h");
 
     while (true)
         machine::loop();

@@ -1,0 +1,15 @@
+{
+    "name": "squares-and-circles",
+    "version": "0.0.a",
+    "platforms": [
+        "teensy@4.15.0"
+    ],
+    "frameworks": [
+        "arduino"
+    ],
+    "dependencies": [
+        {
+            "name": "Entropy"
+        }
+    ]
+}
