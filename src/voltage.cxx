@@ -32,8 +32,8 @@ using namespace machine;
 class VoltsPerOctave : public Engine
 {
     char tmp[64];
-    float oct = 0;
     float note = 0;
+    float tune = 0;
     uint8_t midi_note = 0;
     float cv = 0;
 
@@ -42,8 +42,9 @@ class VoltsPerOctave : public Engine
 public:
     VoltsPerOctave() : Engine(OUT_EQ_VOLT)
     {
-        param[0].init_v_oct("octave", &oct);
-        param[1].init("note", &note, 0, -12, 12);
+        param[0].init_v_oct("Tone", &note);
+        param[1].init("\t", &tune, 0, -12, 12);
+        param[1].step.f = 1/48.f;
         param[1].setStepValue(1.f);
     }
 
@@ -52,7 +53,7 @@ public:
         midi_note = frame.midi.key;
 
         cv = frame.cv_voltage;
-        cv += (frame.midi.key - 60 + (oct * 12) + note) / 12.f;
+        cv += (frame.midi.key - 60 + (note * 12) + tune) / 12.f;
 
         for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
         {
@@ -64,15 +65,8 @@ public:
 
     void OnDisplay(uint8_t *display) override
     {
-        static char tmp0[20];
-        static char tmp1[20];
-        sprintf(tmp0, "\t%+d", (int)oct);
-        sprintf(tmp1, "\t%+d", (int)note);
-        param[0].name = tmp0;
-        param[1].name = tmp1;
-
-        gfx::drawString(display, 8, 16, "Octave");
-        gfx::drawString(display, 78, 16, "Note");
+        gfx::drawString(display, 18, 16, "Note");
+        gfx::drawString(display, 82, 16, "Tune");
 
         sprintf(tmp, "MIDI: %d", midi_note);
         gfx::drawString(display, 0, 49, tmp);

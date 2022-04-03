@@ -21,7 +21,7 @@ struct BraidsEngine : public Engine
     uint8_t sync_samples[FRAME_BUFFER_SIZE];
 
     float _pitch;
-    uint16_t _shape;
+    uint8_t _shape;
     uint16_t _timbre;
     uint16_t _color;
     uint16_t _attack;
@@ -104,7 +104,7 @@ struct BraidsEngine : public Engine
 
     void OnDisplay(uint8_t *buffer) override
     {
-        param[1].name = braids::settings.metadata(braids::Setting::SETTING_OSCILLATOR_SHAPE).strings[(int)_shape];
+        param[1].name = braids::settings.metadata(braids::Setting::SETTING_OSCILLATOR_SHAPE).strings[_shape];
 
         if (_decay < UINT16_MAX)
         {

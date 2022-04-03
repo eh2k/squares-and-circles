@@ -46,9 +46,11 @@ int main()
     MACHINE_INIT(init_sam);
     MACHINE_INIT(init_delay);
     MACHINE_INIT(init_modulations);
+    MACHINE_INIT(init_sequencer);
     MACHINE_INIT(init_marbles);
+    MACHINE_INIT(init_fv1);
 
-    machine::setup<machine::OC_REV2E>("0.0h");
+    machine::setup<machine::OC_REV2E>("0.0i");
 
     while (true)
         machine::loop();

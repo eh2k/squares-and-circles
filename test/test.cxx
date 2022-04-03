@@ -55,9 +55,11 @@ namespace gfx
 {
     void drawPixel(uint8_t *buffer, int16_t x, int16_t y) {}
     void drawLine(uint8_t *buffer, int x1, int y1, int x2, int y2) {}
+    void drawRect(uint8_t *buffer, int x1, int y1, int w, int h) {}
     void drawXbm(uint8_t *buffer, int16_t x, int16_t y, int16_t width, int16_t height, const uint8_t *xbm) {}
     void drawString(uint8_t *buffer, int16_t x, int16_t y, const char *text, uint8_t font) {}
     void drawEngine(uint8_t *buffer, machine::Engine *engine) {}
+    void DrawKnob(unsigned char*, int, int, char const*, unsigned short, bool) {}
 }
 
 namespace machine
@@ -108,11 +110,21 @@ namespace machine
         return nullptr;
     }
 
-    static std::vector<engine_def> registry;
-
-    void add(const engine_def &def)
+    struct EngineDef
     {
-        registry.push_back(def);
+        const char* engine;
+        std::function<Engine *()> init;
+    };
+
+    static std::vector<EngineDef> registry;
+
+    void add(const char *machine, const char *engine, std::function<Engine *()> createFunc)
+    {
+        registry.push_back({ engine, createFunc });
+    }
+
+    void add_modulation_source(const char *name, std::function<void(Parameter *)> createFunc)
+    {
     }
 
     void *malloc(size_t size)
@@ -129,21 +141,6 @@ namespace machine
             ptr->~Engine();
             ::free(ptr);
             ptr = nullptr;
-        }
-    }
-
-    void add_modulation_source(const char *name, ModulationSource *modulation)
-    {
-        printf("%s\n", name);
-        for (int i = 0; i < 16; i++)
-        {
-            for (int t = 0; t < 4; t++)
-            {
-                machine::trigger[t] = 1 + i;
-                machine::cv_voltage[t] = 0.01 * i;
-            }
-
-            printf("%d : %f\n", i, modulation->process());
         }
     }
 }
@@ -182,12 +179,6 @@ int main()
         std::vector<int16_t> buffer;
 
         auto &r = machine::registry[j];
-
-        if (machines[r.machine] == false)
-        {
-            printf("### %s\n", r.machine);
-            machines[r.machine] = true;
-        }
 
         printf("* **%s**\n", r.engine);
         // if (j != 1)

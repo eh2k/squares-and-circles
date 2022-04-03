@@ -1,4 +1,4 @@
-> WORK-IN-PROGRESS: At the moment where are not all engines in this repo. Feel free to leave me a message / feedback or any hints in the ["BETA TEST - FEEDBACK"](https://github.com/eh2k/squares-and-circles/issues/1) issue. More engines will follow.
+> WORK-IN-PROGRESS: Feel free to leave me a message / feedback or any hints in the ["BETA TEST - FEEDBACK"](https://github.com/eh2k/squares-and-circles/issues/1) issue.
 
 # □︎●︎ [![PlatformIO CI](https://github.com/eh2k/squares-and-circles/actions/workflows/build.yml/badge.svg)](https://github.com/eh2k/squares-and-circles/actions/workflows/build.yml)
 <!-- ⧉⦾ ⧇ ⟥⧂ -->
@@ -17,6 +17,9 @@ Maybe the reason was the chip shortage that makes Eurorack DIY projects tricky a
 At this point, a big thanks to the people behind ornament & crime (o_C), Teensy and specially Mutable Instruments for the inspiring playground and the basis regarding hardware and software for this project.
 
 ## Challenge
+
+<img align="right" src="https://ehx.spdns.org/squares-and-circles/doc/u_oc.png" width=160px /> 
+
 
 Given are the following ingredients: Two buttons, two encoders and a 128x64 display. Sixteen I/O ports (4x trigs, 4x cv and 4x dac) and a Cortex-M7.
 
@@ -49,7 +52,7 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
   * `---`
 * **CV**
   * V/OCT, LFO, Envelope
-* **Drums**
+* **Drums** <img align="right" src="https://ehx.spdns.org/squares-and-circles/doc/engine.bmp" width=196px />
   * Analog-BD, Analog SD, Analog HH, Analog HH2
   * 909ish-BD, 909ish-SD, TR909-CH-OH, TR909-OH, TR909-Ride
   * 808ish-BD, 808ish-SD, 808ish-CH-OH, 808ish-HiHat
@@ -57,12 +60,12 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
   * FM-Drum
   * Djembe
   * Clap
-* **M-OSC**
-  * Waveforms
+* **M-OSC** <img align="right" src="https://ehx.spdns.org/squares-and-circles/doc/osc.bmp" width=196px />
+  * Waveforms 
   * Virt.Analog, Waveshaping, FM, Grain, Additive, Wavetable, Chord
   * Resonator
 * **Stereo-FX**
-  * Reverb, Rev-Dattorro, Delay
+  * Reverb, Rev-Dattorro, Delay, Gated-Reverb, Reverb-HP-LP
 * **SPEECH**
   * LPC, SAM
 
@@ -88,6 +91,8 @@ For each parameter a modulation can be configured:
    * **CV1-CV4**: Voltage is sampled at 2khz 
    * **SH1-SH4**: Sample and Hold eg: SH1 = CV1 is sampled on TR1 trigger
    * **RND1-RND4**: Trigger generates a random voltage
+   * **EVN1-ENV4**: Triggered Envelope (Attack, Decay)
+   * **LFO, LFO1-LFO4**: Free/Triggered LFO (Shape, Param)
  * Attenuverter (-/+)
    * Modulation Voltage is attenuverted in the range from -1..+1;
   >
@@ -104,30 +109,34 @@ For each parameter a modulation can be configured:
  ````
 ---------
 
-
-### Machine-Config 
+### Machine-I/O-Config 
 
 <img align="right" src="https://ehx.spdns.org/squares-and-circles/doc/config.bmp" width=196px />
 
 <sup>[Long press [RIGHT]] enters the machine-config-page.</sup>
 
- * **Trig-Input**: ---, TR-1, TR-2, TR-3, TR-4
-   * none = Midi on TR-1 only
- * **CV-Input/Aux-Input**: ---, CV-1, CV-2, CV-3, CV-4 
+ * **Trig-Input**: `---`, `TR-1`, `TR-2`, `TR-3`, `TR-4`
+ * **CV-Input/Aux-Input**: `---`, `CV-1`, `CV-2`, `CV-3`, `CV-4` 
    * V/OCT: -3V..6V for frequency-control (default)
    * AUX-IN: -3V..3V for additional audio source for effects (prefer CV4).
-   * MOD-CV: signal is only used for modulations.
  * **Transpose**: -48 to 24  (default -24)
- * **Midi-Channel**: 1-16, one channel on multiple machines, for polyphony
-   * **Note-Hold**: True, False (Trigger)
  * **Output-Boost**: Add extra-gain to the output - can result in distortion
 
-# Build & Flash firmware
- * Install VSCode + platformio extension (https://platformio.org/platformio-ide)
-   - On linux: curl https://www.pjrc.com/teensy/00-teensy.rules > /etc/udev/rules.d/49-teensy.rules 
-   - Open Folder or `code .` inside project directory  
-   - In VSCode - choose environment e.g "OC_teensy40", press "build" or "upload" (ensure teensy connected via usb)
- * OR: use Teensy Loader to flash compiled hex: https://www.pjrc.com/teensy/loader.html
+### Conditional Paramters
+
+<img align="right" src="https://ehx.spdns.org/squares-and-circles/doc/config_midi.bmp" width=196px />
+
+*In case the Trig-Input TR-1 is not set - TR-1 is in Midi-Mode / Midi is configurable:*
+   * **Midi-Channel**: 1-16, one channel on multiple machines, for polyphony
+   * **Note-Hold**: True, False (Trigger)
+
+<img align="right" src="https://ehx.spdns.org/squares-and-circles/doc/config_fx.bmp" width=196px />
+
+*In case the Engine is an AUDIO_PROCESSOR - Input signal mix is configurable:*
+   * **Insert-1**: Feed-in signal from engine-1
+   * **Insert-2**: Feed-in signal from engine-2
+   * **Insert-3**: Feed-in signal from engine-3
+   * **Insert-Aux**: Feed-in signal from aux-input
 
 # Supported Hardware  
 
@@ -138,8 +147,24 @@ For each parameter a modulation can be configured:
    > **HINT**:
    if the [POGO Pin](https://www.modwiggler.com/forum/viewtopic.php?p=2867702#p2867702) is soldered - cover the bottom of the teensy with insulating tape - all other pins are compatible with T4 to T3 (see pjrc). Be careful with connecting USB and power at the same time - if you have VIN/VUSB connected.
 
+### DAC-Voltage-Range-Mod (-5V..5V Range)
+  * O_C DAC was initially designed for CV-control within range from -3.75V to +6.25V. 
+  * The range is not ideal for audio A/C signals in the Eurorack. However, it is easily possible to lower the range to -5V..+5V.
+    * 
+  * In the same way as raising the level ([see description](https://ornament-and-cri.me/hardware-basics/)), you can bring the V_bias (default 1.25V) to ~1.0V by modifying the voltage divider. Instead of the two 47K resistors, the ratio should be about 47K / 31.2K - one possibility would be to [solder a 100K resistor in parallel to the lower 47K resistor (uO_C:R14).](http://lushprojects.com/circuitjs/circuitjs.html?ctz=CQAgjCAMB0l3BWEBmATNA7AhAOBjVIAWfbEInEJfKgUwFowwAoAJXFUqdRADYjwYHpHDkRYaKiQSpUKNATMAhiCm8OlImg0guPRjzDx44WELABOZFuRwcnPKcjmSGChZwY8W8McjMAJx1uVUguITlUIgs4ZgB3UPCeNUFhQNUEdRForLkjY2YAYwz1bS0ebRF0Swtauvq6nAYmKkwcSAQLBCIMfmQcVyQYOBYElJCU-ih4kr4BFIppsczyShTKmfKUHi2p-wTdgS2hSn3yC3UTqgtDTmmg47ucnSrCGfXklZEz56vn7-eKzARAEYEuIPuIHo2mBAmhhhuch68HS8JAFyhMIh2QwKIA5piEfptIRTtN2GiMfQphjvmJVAo5N8FOkweAIWzLMJfAUEpzEWiuUtwOC4ViBP4APZyParXgYXzyeCWBDIIRDVRyZDMaUtWVESC1UJK+AWXqZWQQUEQZDgDVgJDaoA) 
+
 ## Hardware setup procedure (automatically on first startup)
   >Power on the module with the [LEFT] button pressed for entering the setup procedure.
+
+### Display setup
+
+<img align="right" src="https://ehx.spdns.org/squares-and-circles/doc/display_setup.bmp" width=196px />
+
+* Press left encoder to flip180.
+* Press right encoder for changing display brightness (50%, maximal). 
+
+
+
 ### Encoder setup
 
 <img align="right" src="https://ehx.spdns.org/squares-and-circles/doc/encoder_setup.bmp" width=196px />
@@ -148,17 +173,30 @@ For each parameter a modulation can be configured:
 * Press encoder for reversed setup. 
 
 <br/>
+<br/>
 
+### DAC calibration
+
+<img align="right" src="https://ehx.spdns.org/squares-and-circles/doc/dac_calib.bmp" width=196px />
+
+To calibrate the DAC, you need a multimeter. Besides the reference voltage of `0V`, the voltages `-2V` and `+2V` should be calibrated as accurately as possible.
+Start with DAC1 (channel A) - connect the multimeter typically using alligator clip on a patch cable inserted in the jack. Use the right encoder to set the voltage as accurately as possible (press the encoder for coarse adjustment). Do it on all outputs - use the left encoder for channel selection. After calibrating `0V` on all outputs, press [right] to step to the `-2V` calibration. Repeat the procedure and press [right] to calibrating `+2V`. 
+
+
+### ADC calibration
+
+<img align="right" src="https://ehx.spdns.org/squares-and-circles/doc/adc_calib.bmp" width=196px />
+
+To callibrate the ADC `0V` reference, remove all patch cables from the module. Use the right encoder to adjust the offset (press the encoder for fast adjustment). Do it on all cv-inputs, select the channel with the left encoder. Press [right] to enter the `-2V` calibration. Now you need to connect the DAC outputs to the cv-inputs. The DAC output produces the reference voltage, that is calibrated on the input. Repeat the calibration procedure and step to the `+2V` calibration.
 
 ### I/O Test: 
 
 <img align="right" src="https://ehx.spdns.org/squares-and-circles/doc/io_test.bmp" width=196px />
   
 * Test/Verify your TRIG or CV inputs. 
-* All DAC outputs should have 0V. 
+* The output voltage is set by the cv input voltage (DACx = ADCx).
 
 <br/>
-
 
 ## **⦾ Midi-Expander**
    
@@ -192,6 +230,13 @@ At the moment I want to make the project available to the community as open-sour
 In principle, this project is a suite of apps so-called machines/engines interfacing with a system library ("libmachine").
 
 You are welcome for any suggestions and feedback or collaboration.
+
+#### <u>Build & Flash firmware</u>
+ * Install VSCode + platformio extension (https://platformio.org/platformio-ide)
+   - On linux: curl https://www.pjrc.com/teensy/00-teensy.rules > /etc/udev/rules.d/49-teensy.rules 
+   - Open Folder or `code .` inside project directory  
+   - In VSCode - choose environment e.g "OC_teensy40", press "build" or "upload" (ensure teensy connected via usb)
+ * Alternatively: use Teensy Loader to flash compiled hex: https://www.pjrc.com/teensy/loader.html
 
 ## License
 

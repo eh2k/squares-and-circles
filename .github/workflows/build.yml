@@ -16,11 +16,16 @@ jobs:
     - name: build OC_teensy40
       run: |
         pio run -e OC_teensy40
-    - name: firmware_builds
+        export hash=$(git rev-parse --short HEAD)
+        mv .pio/build/*/firmware.hex ./firmware_$hash.hex
+        mv .github/workflows/LICENSE.txt ./LICENSE.txt
+    - name: firmware_artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: firmwares
-        path: .pio/build/*/firmware.hex
+        name: firmware-${{ github.sha }}
+        path: |
+          ./firmware*.hex
+          ./LICENSE.txt
     - name: Test
       run: |
         pio lib install

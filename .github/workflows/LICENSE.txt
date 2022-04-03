@@ -1,0 +1,35 @@
+# End User License Agreement for squares-and-circles firmware
+
+___
+
+## 1. USE
+
+This software is licensed, not sold.
+
+The purchase of this software by a user grants the user one license for the software.
+A license grants use on all operating systems on all computers owned by the user, provided the primary user is the license holder.
+
+Businesses and organizations must purchase a license for each user of the software.
+
+You must not remove or alter any copyright notices on any copy of this software.
+
+You must not disassemble, decompile, or reverse engineer the software, in whole or in part.
+
+## 2. DISTRIBUTION
+
+You must not distribute or sell licenses of this software to third parties.
+Licenses are revoked if distributed or sold to third parties.
+
+
+## 3. WARRANTIES
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.

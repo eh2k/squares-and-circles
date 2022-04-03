@@ -18,7 +18,7 @@ struct ResonatorEngine : public Engine
 
     float _pitch;
 
-    ResonatorEngine() : Engine()
+    ResonatorEngine() : Engine(AUDIO_PROCESSOR)
     {
         memset(&strummer, 0, sizeof(rings::Strummer));
         memset(&patch, 0, sizeof(rings::Patch));
