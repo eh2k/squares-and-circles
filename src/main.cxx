@@ -50,7 +50,7 @@ int main()
     MACHINE_INIT(init_marbles);
     MACHINE_INIT(init_fv1);
 
-    machine::setup<machine::OC_REV2E>("0.0i");
+    machine::setup<machine::OC_REV2E>("0.0j");
 
     while (true)
         machine::loop();

@@ -38,7 +38,7 @@ struct
 
 struct common
 {
-    template <int attenuverter_index = 0, class T>
+    template <int attenuverter_index, class T>
     static void display(T *_this, uint8_t *buffer, int x, int y)
     {
         if (_this->src > 0)
@@ -75,15 +75,96 @@ struct CV : machine::ModulationSource
 
     void process() override
     {
-        value = machine::get_cv(channel); // 1V/OCT : -3.5V..6.5V
-        target->modulate(value * attenuverter);
+        value = machine::get_cv(channel) * attenuverter;
+        target->modulate(value);
     }
 
     void display(uint8_t *buffer, int x, int y) override
     {
-        common::display(this, buffer, x, y);
+        common::display<0>(this, buffer, x, y);
     }
 };
+
+// #include "braids/quantizer.h"
+// #include "braids/quantizer_scales.h"
+// #include "braids/settings.h"
+
+// template <int channel>
+// struct QCV : machine::ModulationSource
+// {
+//     float value = 0;
+//     float attenuverter = 0;
+
+//     braids::Quantizer quantizer;
+//     uint16_t scale = 0;
+
+//     void eeprom(std::function<void(void *, size_t)> read_write) override
+//     {
+//         read_write(&attenuverter, sizeof(attenuverter));
+//         read_write(&scale, sizeof(scale));
+//     }
+
+//     void init() override
+//     {
+//         if (target->flags & machine::Parameter::IS_V_OCT)
+//         {
+//             quantizer.Init();
+//             quantizer.Configure(braids::scales[0]);
+
+//             param[0].init(" SCALE", &scale, scale, 0, LEN_OF(braids::scales) - 1);
+//             param[0].value_changed = [&]()
+//             {
+//                 quantizer.Configure(braids::scales[scale]);
+//             };
+
+//             param[1].init(" +/-", &attenuverter, attenuverter, -1, +1);
+//         }
+//         else
+//         {
+//             param[0].init(" +/-", &attenuverter, attenuverter, -1, +1);
+//         }
+//     }
+
+//     inline float quantize(float cv)
+//     {
+//         if (target->flags & machine::Parameter::IS_V_OCT)
+//         {
+//             constexpr uint16_t kPitchPerOctave = (12 << 7);
+//             return quantizer.Process(kPitchPerOctave * cv) / kPitchPerOctave;
+//         }
+//         else
+//         {
+//             return cv;
+//         }
+//     }
+
+//     void process() override
+//     {
+//         value = machine::get_cv(channel) * attenuverter;
+//         this->value = quantize(this->value);
+//         target->modulate(value);
+//     }
+
+//     void display(uint8_t *buffer, int x, int y) override
+//     {
+//         if (target->flags & machine::Parameter::IS_V_OCT)
+//         {
+//             // gfx::drawString(buffer, x + 8, y - 13, "QUANTIZER", 0);
+//             gfx::drawString(buffer, x + 10, y - 21, "QUANT", 0);
+//             gfx::drawString(buffer, x + 33, y - 21, ":", 0);
+//             gfx::drawString(buffer, x + 38, y - 21, braids::settings.metadata(braids::Setting::SETTING_QUANTIZER_SCALE).strings[scale], 0);
+
+//             if (this->param[0].flags & machine::Parameter::IS_SELECTED)
+//                 gfx::drawString(buffer, x + 1, y - 22, ">");
+
+//             common::display<1>(this, buffer, x, y - 8);
+//         }
+//         else
+//         {
+//             common::display<0>(this, buffer, x, y);
+//         }
+//     }
+// };
 
 template <int channel>
 struct SH : CV<channel>
@@ -94,10 +175,10 @@ struct SH : CV<channel>
         if (machine::get_trigger(channel) != last_trig)
         {
             last_trig = machine::get_trigger(channel);
-            this->value = machine::get_cv(channel);
+            this->value = machine::get_cv(channel) * this->attenuverter;
         }
 
-        this->target->modulate(this->value * this->attenuverter);
+        this->target->modulate(this->value);
     }
 };
 
@@ -110,10 +191,10 @@ struct Rand : CV<channel>
         if (machine::get_trigger(channel) != last_trig)
         {
             last_trig = machine::get_trigger(channel);
-            this->value = Entropy.randomf(-10, 10);
+            this->value = Entropy.randomf(-10, 10) * this->attenuverter;
         }
 
-        this->target->modulate(this->value * this->attenuverter);
+        this->target->modulate(this->value);
     }
 };
 
@@ -140,11 +221,14 @@ struct PeaksLFO : machine::ModulationSource
     {
         _processor.Init();
         param[0].init("Shape", &params_[1], 0);
+        param[0].step.i = UINT16_MAX / (peaks::LFO_SHAPE_LAST - 1);
+        param[0].step2 = param[0].step;
+
         param[1].init("Freq.", &params_[0], INT16_MAX);
         param[2].init(" +/-", &attenuverter, attenuverter, -1, +1);
-        
-        params_[2] = INT16_MAX; //Parameter
-        params_[3] = INT16_MAX; //Phase
+
+        params_[2] = INT16_MAX; // Parameter
+        params_[3] = INT16_MAX; // Phase
     }
 
     uint32_t last_trig = 0;

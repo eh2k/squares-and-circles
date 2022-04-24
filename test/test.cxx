@@ -127,6 +127,10 @@ namespace machine
     {
     }
 
+    void add_quantizer_scale(const char *name, const QuantizerScale& scale)
+    {        
+    }
+
     void *malloc(size_t size)
     {
         auto ptr = ::malloc(size);

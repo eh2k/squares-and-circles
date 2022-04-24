@@ -124,6 +124,9 @@ struct BraidsEngine : public Engine
 void init_braids()
 {
     machine::add<BraidsEngine>(M_OSC, "Waveforms");
+
+    for(size_t i = 0; i < LEN_OF(braids::scales); i++)
+        machine::add_quantizer_scale(braids::settings.metadata(braids::Setting::SETTING_QUANTIZER_SCALE).strings[i], (const machine::QuantizerScale&)braids::scales[i]);
 }
 
 MACHINE_INIT(init_braids);

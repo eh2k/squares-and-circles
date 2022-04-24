@@ -15,7 +15,7 @@
 #include "peaks/gate_processor.h"
 #include "ch_oh.hxx"
 
-template <class T, bool cv = false, int P1 = 0, int P2 = 1, int P3 = 2, int P4 = 3>
+template <class T, int P1 = 0, int P2 = 1, int P3 = 2, int P4 = 3>
 struct PeaksEngine : public machine::Engine
 {
     T _processor;
@@ -41,6 +41,13 @@ struct PeaksEngine : public machine::Engine
 
         param[0].init(param1, &params_[P1], p1);
         param[1].init(param2, &params_[P2], p2);
+
+        if (std::is_same<T, peaks::Lfo>::value)
+        {
+            param[1].step.i = UINT16_MAX / (peaks::LFO_SHAPE_LAST - 1);
+            param[1].step2 = param[1].step;
+        }
+
         param[2].init(param3, &params_[P3], p3);
         param[3].init(param4, &params_[P4], p4);
     }
@@ -51,19 +58,19 @@ struct PeaksEngine : public machine::Engine
 
         if (frame.trigger)
         {
-            flags[0] = peaks::GATE_FLAG_RISING;
-            flags[1] = peaks::GATE_FLAG_FALLING;
+            flags[0] = flags[0] == peaks::GATE_FLAG_LOW ? peaks::GATE_FLAG_RISING : peaks::GATE_FLAG_HIGH;
+            std::fill(&flags[1], &flags[machine::FRAME_BUFFER_SIZE], peaks::GATE_FLAG_HIGH);
         }
         else
         {
-            flags[0] = peaks::GATE_FLAG_LOW;
-            flags[1] = peaks::GATE_FLAG_LOW;
+            flags[0] = flags[0] == peaks::GATE_FLAG_HIGH ? peaks::GATE_FLAG_FALLING : peaks::GATE_FLAG_LOW;
+            std::fill(&flags[1], &flags[machine::FRAME_BUFFER_SIZE], peaks::GATE_FLAG_LOW);
         }
 
         _processor.Process(flags, tmp, machine::FRAME_BUFFER_SIZE);
 
         for (int i = 0; i < machine::FRAME_BUFFER_SIZE; i++)
-            buffer[i] = ((float)tmp[i]) / INT16_MAX;
+            buffer[i] = (float)tmp[i] / INT16_MAX;
 
         *out = buffer;
     }
@@ -116,14 +123,14 @@ public:
 void init_peaks()
 {
     machine::add<PeaksEngine<peaks::BassDrum>>(machine::DRUM, "808ish-BD", INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX, "Pitch", "Punch", "Tone", "Decay");
-    machine::add<PeaksEngine<peaks::SnareDrum, false, 0, 2, 1, 3>>(machine::DRUM, "808ish-SD", INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX, "Pitch", "Snappy", "Tone", "Decay");
+    machine::add<PeaksEngine<peaks::SnareDrum, 0, 2, 1, 3>>(machine::DRUM, "808ish-SD", INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX, "Pitch", "Snappy", "Tone", "Decay");
 
     machine::add<Hihat808>(machine::DRUM, "808ish-CH-OH");
 
-    machine::add<PeaksEngine<peaks::HighHat, false>>(machine::DRUM, "808ish-HiHat", INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX, "Decay");
-    machine::add<PeaksEngine<peaks::FmDrum, false, 0, 3, 1, 2>>(machine::DRUM, "FM-Drum", INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX, "Freq.", "Noise", "FM", "Decay");
-    machine::add<PeaksEngine<peaks::MultistageEnvelope, true>>(machine::CV, "Envelope", 0, INT16_MAX, 0, 0, "Attack", "Decay", "Sustain", "Release");
-    machine::add<PeaksEngine<peaks::Lfo, true>>(machine::CV, "LFO", 0, INT16_MAX, 0, 0, "Freq.", "Shape", "Param", "Phase");
+    machine::add<PeaksEngine<peaks::HighHat>>(machine::DRUM, "808ish-HiHat", INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX, "Decay");
+    machine::add<PeaksEngine<peaks::FmDrum, 0, 3, 1, 2>>(machine::DRUM, "FM-Drum", INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX, "Freq.", "Noise", "FM", "Decay");
+    machine::add<PeaksEngine<peaks::MultistageEnvelope>>(machine::CV, "Envelope", 0, INT16_MAX, INT16_MAX, INT16_MAX, "Attack", "Decay", "Sustain", "Release");
+    machine::add<PeaksEngine<peaks::Lfo>>(machine::CV, "LFO", 0, 0, INT16_MAX, 0, "Freq.", "Shape", "Param", "Phase");
 }
 
 MACHINE_INIT(init_peaks);

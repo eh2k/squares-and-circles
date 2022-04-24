@@ -69,9 +69,9 @@ public:
         gfx::drawString(display, 82, 16, "Tune");
 
         sprintf(tmp, "MIDI: %d", midi_note);
-        gfx::drawString(display, 0, 49, tmp);
+        gfx::drawString(display, 0, 53, tmp, 0);
         sprintf(tmp, "DAC: %.2fV", cv);
-        gfx::drawString(display, 64, 49, tmp);
+        gfx::drawString(display, 64, 53, tmp, 0);
 
         gfx::drawEngine(display, this);
     }

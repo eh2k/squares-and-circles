@@ -6,25 +6,23 @@
 
 ## ■ Demos 
 
-| [![](https://img.youtube.com/vi/WQj3YqGpxRU/0.jpg)](https://www.youtube.com/watch?v=WQj3YqGpxRU) | [![](https://img.youtube.com/vi/QdlwETEaE3A/0.jpg)](https://youtu.be/QdlwETEaE3A) |
-|--|--|
-| [![](https://img.youtube.com/vi/lb-pbm1ddRw/0.jpg)](https://youtu.be/lb-pbm1ddRw) | |
+| [![](https://img.youtube.com/vi/WQj3YqGpxRU/0.jpg)](https://www.youtube.com/watch?v=WQj3YqGpxRU) | [![](https://img.youtube.com/vi/QdlwETEaE3A/0.jpg)](https://youtu.be/QdlwETEaE3A) | [![](https://img.youtube.com/vi/lb-pbm1ddRw/0.jpg)](https://youtu.be/lb-pbm1ddRw) | [![](https://img.youtube.com/vi/J1vmVwwdVU4/0.jpg)](https://youtu.be/J1vmVwwdVU4)
+|--|--|--|--|
 
 ## Motivation
 
 When I am asked why I do such projects - my general reply is: I don't know - because I like to get deeper understanding of technical things. 
-Maybe the reason was the chip shortage that makes Eurorack DIY projects tricky at the moment and I used that, to get more involved with coding in the eurorack land. 
+Maybe the reason was the chip shortage that makes Eurorack DIY projects tricky at the moment, and I used that to get more involved with coding in the eurorack land. 
 At this point, a big thanks to the people behind ornament & crime (o_C), Teensy and specially Mutable Instruments for the inspiring playground and the basis regarding hardware and software for this project.
 
 ## Challenge
 
-<img align="right" src="https://ehx.spdns.org/squares-and-circles/doc/u_oc.png" width=160px /> 
+<img align="right" src="doc/u_oc.png" width=160px /> 
 
 
 Given are the following ingredients: Two buttons, two encoders and a 128x64 display. Sixteen I/O ports (4x trigs, 4x cv and 4x dac) and a Cortex-M7.
 
-Damn many possibilities to complicate it. Mono, stereo and then again CV. Seen way too many projects that got lost in menu diving.
-A tricky task to design a simple UI logic and to get as much out of the hardware as possible (work in progress).
+Damn many possibilities to complicate it. Mono, stereo and then again CV. A tricky task to design a simple UI logic, not get lost in menu diving, and to get as much out of the hardware as possible (work in progress).
 
 ## Concept
 
@@ -39,12 +37,13 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
 * [Long press left/right [ENCODER]] shows the modulation popup
 
 <br/>
+<div style="page-break-after: always;"></div>
 
 # Machines
 
 > See [wiki](https://github.com/eh2k/squares-and-circles/wiki/%E2%96%A1%EF%B8%8E%E2%97%8F%EF%B8%8E-Machines-&-Engines) for details...
 
-<img align="right" src="https://ehx.spdns.org/squares-and-circles/doc/menu.bmp" width=196px /> 
+<img align="right" src="doc/menu.bmp" width=196px /> 
 
 <sup>[Long press [LEFT]] enters the machine-selection-page.</sup>
 
@@ -52,7 +51,7 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
   * `---`
 * **CV**
   * V/OCT, LFO, Envelope
-* **Drums** <img align="right" src="https://ehx.spdns.org/squares-and-circles/doc/engine.bmp" width=196px />
+* **Drums** <img align="right" src="doc/engine.bmp" width=196px />
   * Analog-BD, Analog SD, Analog HH, Analog HH2
   * 909ish-BD, 909ish-SD, TR909-CH-OH, TR909-OH, TR909-Ride
   * 808ish-BD, 808ish-SD, 808ish-CH-OH, 808ish-HiHat
@@ -60,7 +59,7 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
   * FM-Drum
   * Djembe
   * Clap
-* **M-OSC** <img align="right" src="https://ehx.spdns.org/squares-and-circles/doc/osc.bmp" width=196px />
+* **M-OSC** <img align="right" src="doc/osc.bmp" width=196px />
   * Waveforms 
   * Virt.Analog, Waveshaping, FM, Grain, Additive, Wavetable, Chord
   * Resonator
@@ -71,7 +70,7 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
 
 ## Machine/Engine  
 
-<img align="right" src="https://ehx.spdns.org/squares-and-circles/doc/engine.bmp" width=196px />
+<img align="right" src="doc/engine.bmp" width=196px />
 
 Machine/Engines are controlled by individual parameters.
 
@@ -81,7 +80,7 @@ Machine/Engines are controlled by individual parameters.
 
 ### Modulations
 
-<img align="right" src="https://ehx.spdns.org/squares-and-circles/doc/modulation.bmp" width=196px />
+<img align="right" src="doc/modulation.bmp" width=196px />
 
 * [Long press left/right [ENCODER]] shows/hides the modulation popup
 
@@ -111,7 +110,7 @@ For each parameter a modulation can be configured:
 
 ### Machine-I/O-Config 
 
-<img align="right" src="https://ehx.spdns.org/squares-and-circles/doc/config.bmp" width=196px />
+<img align="right" src="doc/config.bmp" width=196px />
 
 <sup>[Long press [RIGHT]] enters the machine-config-page.</sup>
 
@@ -119,18 +118,19 @@ For each parameter a modulation can be configured:
  * **CV-Input/Aux-Input**: `---`, `CV-1`, `CV-2`, `CV-3`, `CV-4` 
    * V/OCT: -3V..6V for frequency-control (default)
    * AUX-IN: -3V..3V for additional audio source for effects (prefer CV4).
+ * **Quantizer**: [Off, Semitones, Ionian, Dorian, ...](src/braids/quantizer_scales.h)
  * **Transpose**: -48 to 24  (default -24)
  * **Output-Boost**: Add extra-gain to the output - can result in distortion
 
 ### Conditional Paramters
 
-<img align="right" src="https://ehx.spdns.org/squares-and-circles/doc/config_midi.bmp" width=196px />
+<img align="right" src="doc/config_midi.bmp" width=196px />
 
 *In case the Trig-Input TR-1 is not set - TR-1 is in Midi-Mode / Midi is configurable:*
    * **Midi-Channel**: 1-16, one channel on multiple machines, for polyphony
    * **Note-Hold**: True, False (Trigger)
 
-<img align="right" src="https://ehx.spdns.org/squares-and-circles/doc/config_fx.bmp" width=196px />
+<img align="right" src="doc/config_fx.bmp" width=196px />
 
 *In case the Engine is an AUDIO_PROCESSOR - Input signal mix is configurable:*
    * **Insert-1**: Feed-in signal from engine-1
@@ -138,16 +138,24 @@ For each parameter a modulation can be configured:
    * **Insert-3**: Feed-in signal from engine-3
    * **Insert-Aux**: Feed-in signal from aux-input
 
+<br/>
+<div style="page-break-after: always;"></div>
+
 # Supported Hardware  
 
 ## Ornament-and-Crime
- * Teensy 4.x + DAC8565 + 128x64 OLED display
- * Build-guide: http://ornament-and-cri.me/ (https://github.com/jakplugg/uO_c)
-   * Replace the Teensy3 with Teensy4
-   > **HINT**:
-   if the [POGO Pin](https://www.modwiggler.com/forum/viewtopic.php?p=2867702#p2867702) is soldered - cover the bottom of the teensy with insulating tape - all other pins are compatible with T4 to T3 (see pjrc). Be careful with connecting USB and power at the same time - if you have VIN/VUSB connected.
+### Build-guide
+  * http://ornament-and-cri.me/ 
+  * https://github.com/jakplugg/uO_c
 
-### DAC-Voltage-Range-Mod (-5V..5V Range)
+### Teensy4.x - required drop-in replacement for Teensy3
+  * CPU speed at 500MHz (~100mA power draw on +12V bus)
+  * DAC operation at 48kHz per channel
+  * ADC 12-bit (10bit + noise)
+> **HINT**:
+  if the [POGO Pin](https://www.modwiggler.com/forum/viewtopic.php?p=2867702#p2867702) is soldered - cover the bottom of the teensy with insulating tape - all other pins are compatible with T4 to T3 (see pjrc). Be careful with connecting USB and power at the same time - if you have VIN/VUSB connected.
+
+### Optional DAC-voltage-range-mod (-5V..+5V Range)
   * O_C DAC was initially designed for CV-control within range from -3.75V to +6.25V. 
   * The range is not ideal for audio A/C signals in the Eurorack. However, it is easily possible to lower the range to -5V..+5V.
     * 
@@ -158,16 +166,14 @@ For each parameter a modulation can be configured:
 
 ### Display setup
 
-<img align="right" src="https://ehx.spdns.org/squares-and-circles/doc/display_setup.bmp" width=196px />
+<img align="right" src="doc/display_setup.bmp" width=196px />
 
 * Press left encoder to flip180.
 * Press right encoder for changing display brightness (50%, maximal). 
 
-
-
 ### Encoder setup
 
-<img align="right" src="https://ehx.spdns.org/squares-and-circles/doc/encoder_setup.bmp" width=196px />
+<img align="right" src="doc/encoder_setup.bmp" width=196px />
 
 * Check the encoder rotation direction.
 * Press encoder for reversed setup. 
@@ -177,7 +183,7 @@ For each parameter a modulation can be configured:
 
 ### DAC calibration
 
-<img align="right" src="https://ehx.spdns.org/squares-and-circles/doc/dac_calib.bmp" width=196px />
+<img align="right" src="doc/dac_calib.bmp" width=196px />
 
 To calibrate the DAC, you need a multimeter. Besides the reference voltage of `0V`, the voltages `-2V` and `+2V` should be calibrated as accurately as possible.
 Start with DAC1 (channel A) - connect the multimeter typically using alligator clip on a patch cable inserted in the jack. Use the right encoder to set the voltage as accurately as possible (press the encoder for coarse adjustment). Do it on all outputs - use the left encoder for channel selection. After calibrating `0V` on all outputs, press [right] to step to the `-2V` calibration. Repeat the procedure and press [right] to calibrating `+2V`. 
@@ -185,13 +191,13 @@ Start with DAC1 (channel A) - connect the multimeter typically using alligator c
 
 ### ADC calibration
 
-<img align="right" src="https://ehx.spdns.org/squares-and-circles/doc/adc_calib.bmp" width=196px />
+<img align="right" src="doc/adc_calib.bmp" width=196px />
 
 To callibrate the ADC `0V` reference, remove all patch cables from the module. Use the right encoder to adjust the offset (press the encoder for fast adjustment). Do it on all cv-inputs, select the channel with the left encoder. Press [right] to enter the `-2V` calibration. Now you need to connect the DAC outputs to the cv-inputs. The DAC output produces the reference voltage, that is calibrated on the input. Repeat the calibration procedure and step to the `+2V` calibration.
 
 ### I/O Test: 
 
-<img align="right" src="https://ehx.spdns.org/squares-and-circles/doc/io_test.bmp" width=196px />
+<img align="right" src="doc/io_test.bmp" width=196px />
   
 * Test/Verify your TRIG or CV inputs. 
 * The output voltage is set by the cv input voltage (DACx = ADCx).
@@ -201,7 +207,7 @@ To callibrate the ADC `0V` reference, remove all patch cables from the module. U
 ## **⦾ Midi-Expander**
    
    Midi-In is supported on the trigger-port TR1. Although the connection does not comply with the [MIDI standard](https://minimidi.world/?fbclid=IwAR31TqOyRkvdwaLYCxoU2a89hcy2PF3hltCtRKD7IzD5HbZqzn3m9NmiZzc#types) - for me this solution is more practical than the alternative via USB.
-   <img src="https://ehx.spdns.org/squares-and-circles/doc/midi2ts.png" width=80% />
+   <img src="doc/midi2ts.png" width=80% />
 
 ### Midi-Control
   * Engines can be loaded/selected by midi program change
@@ -224,7 +230,7 @@ To callibrate the ADC `0V` reference, remove all patch cables from the module. U
 
 ## ⧉ Conclusions and the future 
  
-The project was originally a kind of research that I did over half a year. The current O_C hardware could certainly be optimized. As you know, the DAC and the display share the SPI port - this is not ideal for simultaneous operation. Furthermore, the Teensy 4.0 does not have "high-end" ADCs - my focus here was to achieve operation at audio rate - the issue of noise has not been the focus so far. ADC/DAC calibration is still on my to-do list.
+The project was originally a kind of research that I did over half a year. The current O_C hardware could certainly be optimized. As you know, the DAC and the display share the SPI port - this is not ideal for simultaneous operation (display updates are sometimes audible). Furthermore, the Teensy 4.0 does not have "high-end" ADCs - my focus here was to achieve operation at audio rate (aux input) - the issue of noise has not been the focus so far.
 
 At the moment I want to make the project available to the community as open-source, so that everyone has the possibility to adapt and experiment with it. 
 In principle, this project is a suite of apps so-called machines/engines interfacing with a system library ("libmachine").

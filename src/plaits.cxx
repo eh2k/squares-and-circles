@@ -57,6 +57,10 @@ struct PlaitsEngine : public Engine
         if (engine < 13)
         {
             param[4].init("Decay", &patch.decay);
+            param[4].value_changed = [&]()
+            {
+                modulations.trigger_patched = patch.decay < 1.f;
+            };
 
             if (engine >= 8 && output == 2)
                 param[5].init("AuxMix", &out_aux_mix);
@@ -66,6 +70,7 @@ struct PlaitsEngine : public Engine
         else
         {
             param[0].setStepValue(4.f / 24);
+            param[0].flags &= ~Parameter::IS_V_OCT;
         }
     }
 
