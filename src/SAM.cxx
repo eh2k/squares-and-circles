@@ -43,10 +43,10 @@ static uint8_t *s_buffer;
 static int s_maxlen;
 static int s_len;
 
-struct SAM : public SampleEngine<uint8_t>
+struct SAM : public SampleEngine
 {
     uint8_t _buffer[48000];
-    sample_spec<uint8_t> _sounds[6] = {
+    tsample_spec<uint8_t> _sounds[6] = {
         {">electro", _buffer, 0, 22050, 0},
         {">techno", _buffer, 0, 22050, 0},
         {">modular", _buffer, 0, 22050, 0},
@@ -90,12 +90,12 @@ struct SAM : public SampleEngine<uint8_t>
     int _lastSelection = 0;
 
 public:
-    SAM() : SampleEngine<uint8_t>(&_sounds[0], 0, LEN_OF(_sounds))
+    SAM() : SampleEngine(&_sounds[0], 0, LEN_OF(_sounds))
     {
         _sounds[0].len = say(&_sounds[0].name[1]);
     }
 
-    void Process(const ControlFrame &frame, float **out, float **aux) override
+    void process(const ControlFrame &frame, OutputFrame &of) override
     {
         if (_lastSelection != selection)
         {
@@ -103,7 +103,7 @@ public:
             _lastSelection = selection;
         }
 
-        SampleEngine<uint8_t>::Process(frame, out, aux);
+        SampleEngine::process(frame, of);
     }
 };
 

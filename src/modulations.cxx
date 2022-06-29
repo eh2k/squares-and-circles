@@ -24,281 +24,134 @@
 //
 
 #include "machine.h"
-#include <cmath>
+#include "stmlib/utils/random.h"
 
-#ifdef TEENSYDUINO
-#include <Entropy.h>
-#else
-struct
+struct ModulationBase : machine::ModulationSource
 {
-    int32_t random() { return rand(); }
-    float randomf(float min, float max) { return (float)rand() / INT32_MAX * (max - min) + min; }
-} Entropy;
-#endif
+    float value;
+    float attenuverter = 0;
 
-struct common
-{
-    template <int attenuverter_index, class T>
-    static void display(T *_this, uint8_t *buffer, int x, int y)
+    void display(uint8_t *buffer, int x, int y) override
     {
-        if (_this->src > 0)
+        if (src > 0)
         {
-            auto m = -_this->value / 10.f * 7;
-            gfx::drawRect(buffer, x + 8, y - 7, 5, 15);
-            gfx::drawLine(buffer, x + 10, y, x + 10, y + m);
+            gfx::drawRect(buffer, x + 1, y + 32, 63, 6);
+            auto m = value / 10.f * 32;
+
+            gfx::drawLine(buffer, x + 32, y + 34, x + 32 + m, y + 34);
+            gfx::drawLine(buffer, x + 32, y + 35, x + 32 + m, y + 35);
         }
 
-        gfx::DrawKnob(buffer, x + 13, y, "~-/+\n", _this->param[attenuverter_index].to_uint16(), false);
-        if (std::fabs(_this->attenuverter) < 0.01f)
-            gfx::drawString(buffer, x + 19, y - 7, "|", 0);
+        x += 20;
 
-        if (_this->param[attenuverter_index].flags & machine::Parameter::IS_SELECTED)
-            gfx::drawString(buffer, x + 1, y - 3, ">");
+        size_t attenuverter_index = 0;
+        while (this->param[attenuverter_index].value != &attenuverter && attenuverter_index < LEN_OF(param))
+            attenuverter_index++;
+
+        bool sel = this->param[attenuverter_index].flags & machine::Parameter::IS_SELECTED;
+
+        gfx::DrawKnob(buffer, x + 30, y + 7, sel ? "~" : " ", this->param[attenuverter_index].to_uint16(), sel);
+        gfx::drawString(buffer, x + 18, y - 3, "-  +", 1);
+        // if (std::fabs(attenuverter) < 0.01f)
+        //     gfx::drawString(buffer, x + 19, y - 7, "|", 0);
+
+        x -= 24;
+
+        ModulationSource::display(buffer, x, y + 2);
     }
 };
 
-template <int channel>
-struct CV : machine::ModulationSource
+struct CV : ModulationBase
 {
-    float value = 0;
-    float attenuverter = 0;
+    uint8_t cv_channel = 0;
 
     void eeprom(std::function<void(void *, size_t)> read_write) override
     {
+        read_write(&cv_channel, sizeof(cv_channel));
         read_write(&attenuverter, sizeof(attenuverter));
     }
 
     CV()
     {
-        param[0].init(" +/-", &attenuverter, attenuverter, -1, +1);
+        param[0].init("SRC", &cv_channel, cv_channel, 0, machine::get_io_info(1) - 1);
+        param[0].print_value = [&](char *tmp)
+        {
+            machine::get_io_info(1, cv_channel, tmp);
+        };
+        param[1].init(".", &attenuverter, attenuverter, -3, +3);
     }
 
-    void process() override
+    void process(machine::Parameter &target, machine::ControlFrame &frame) override
     {
-        value = machine::get_cv(channel) * attenuverter;
-        target->modulate(value);
-    }
-
-    void display(uint8_t *buffer, int x, int y) override
-    {
-        common::display<0>(this, buffer, x, y);
+        value = machine::get_cv(cv_channel);
+        target.modulate(value * attenuverter);
     }
 };
 
-// #include "braids/quantizer.h"
-// #include "braids/quantizer_scales.h"
-// #include "braids/settings.h"
-
-// template <int channel>
-// struct QCV : machine::ModulationSource
-// {
-//     float value = 0;
-//     float attenuverter = 0;
-
-//     braids::Quantizer quantizer;
-//     uint16_t scale = 0;
-
-//     void eeprom(std::function<void(void *, size_t)> read_write) override
-//     {
-//         read_write(&attenuverter, sizeof(attenuverter));
-//         read_write(&scale, sizeof(scale));
-//     }
-
-//     void init() override
-//     {
-//         if (target->flags & machine::Parameter::IS_V_OCT)
-//         {
-//             quantizer.Init();
-//             quantizer.Configure(braids::scales[0]);
-
-//             param[0].init(" SCALE", &scale, scale, 0, LEN_OF(braids::scales) - 1);
-//             param[0].value_changed = [&]()
-//             {
-//                 quantizer.Configure(braids::scales[scale]);
-//             };
-
-//             param[1].init(" +/-", &attenuverter, attenuverter, -1, +1);
-//         }
-//         else
-//         {
-//             param[0].init(" +/-", &attenuverter, attenuverter, -1, +1);
-//         }
-//     }
-
-//     inline float quantize(float cv)
-//     {
-//         if (target->flags & machine::Parameter::IS_V_OCT)
-//         {
-//             constexpr uint16_t kPitchPerOctave = (12 << 7);
-//             return quantizer.Process(kPitchPerOctave * cv) / kPitchPerOctave;
-//         }
-//         else
-//         {
-//             return cv;
-//         }
-//     }
-
-//     void process() override
-//     {
-//         value = machine::get_cv(channel) * attenuverter;
-//         this->value = quantize(this->value);
-//         target->modulate(value);
-//     }
-
-//     void display(uint8_t *buffer, int x, int y) override
-//     {
-//         if (target->flags & machine::Parameter::IS_V_OCT)
-//         {
-//             // gfx::drawString(buffer, x + 8, y - 13, "QUANTIZER", 0);
-//             gfx::drawString(buffer, x + 10, y - 21, "QUANT", 0);
-//             gfx::drawString(buffer, x + 33, y - 21, ":", 0);
-//             gfx::drawString(buffer, x + 38, y - 21, braids::settings.metadata(braids::Setting::SETTING_QUANTIZER_SCALE).strings[scale], 0);
-
-//             if (this->param[0].flags & machine::Parameter::IS_SELECTED)
-//                 gfx::drawString(buffer, x + 1, y - 22, ">");
-
-//             common::display<1>(this, buffer, x, y - 8);
-//         }
-//         else
-//         {
-//             common::display<0>(this, buffer, x, y);
-//         }
-//     }
-// };
-
-template <int channel>
-struct SH : CV<channel>
+struct RND : ModulationBase
 {
-    uint32_t last_trig = 0;
-    void process() override
-    {
-        if (machine::get_trigger(channel) != last_trig)
-        {
-            last_trig = machine::get_trigger(channel);
-            this->value = machine::get_cv(channel) * this->attenuverter;
-        }
+    uint8_t tr_channel = 0;
 
-        this->target->modulate(this->value);
+    float randomf(float min, float max)
+    {
+        return stmlib::Random::GetFloat() * (max - min) + min;
     }
-};
 
-template <int channel>
-struct Rand : CV<channel>
-{
-    uint32_t last_trig = 0;
-    void process() override
+    void eeprom(std::function<void(void *, size_t)> read_write) override
     {
-        if (machine::get_trigger(channel) != last_trig)
+        read_write(&tr_channel, sizeof(tr_channel));
+        read_write(&attenuverter, sizeof(attenuverter));
+    }
+
+    RND()
+    {
+        stmlib::Random::Seed(reinterpret_cast<uint32_t>(this));
+
+        param[0].init("TRIG", &tr_channel, tr_channel, 0, machine::get_io_info(0));
+        param[0].print_value = [&](char *tmp)
         {
-            last_trig = machine::get_trigger(channel);
-            this->value = Entropy.randomf(-10, 10) * this->attenuverter;
+            if (tr_channel == 0)
+                sprintf(tmp, "!");
+            else
+                machine::get_io_info(0, tr_channel - 1, tmp);
+        };
+        param[1].init(".", &attenuverter, attenuverter, -1, +1);
+    }
+
+    void process(machine::Parameter &target, machine::ControlFrame &frame) override
+    {
+        if (tr_channel == 0)
+        {
+            if (frame.trigger)
+                this->value = randomf(-10, 10);
+        }
+        else
+        {
+            if (machine::get_trigger(tr_channel - 1))
+                this->value = randomf(-10, 10);
         }
 
-        this->target->modulate(this->value);
+        target.modulate(this->value * this->attenuverter);
     }
 };
 
 #include "peaks/modulations/lfo.h"
 
-template <int channel>
-struct PeaksLFO : machine::ModulationSource
-{
-    float value = 0;
-    float attenuverter = 0;
-
-    uint16_t params_[4];
-    peaks::GateFlags flags[2];
-
-    peaks::Lfo _processor;
-
-    void eeprom(std::function<void(void *, size_t)> read_write) override
-    {
-        read_write(&params_[0], sizeof(params_));
-        read_write(&attenuverter, sizeof(attenuverter));
-    }
-
-    PeaksLFO()
-    {
-        _processor.Init();
-        param[0].init("Shape", &params_[1], 0);
-        param[0].step.i = UINT16_MAX / (peaks::LFO_SHAPE_LAST - 1);
-        param[0].step2 = param[0].step;
-
-        param[1].init("Freq.", &params_[0], INT16_MAX);
-        param[2].init(" +/-", &attenuverter, attenuverter, -1, +1);
-
-        params_[2] = INT16_MAX; // Parameter
-        params_[3] = INT16_MAX; // Phase
-    }
-
-    uint32_t last_trig = 0;
-    void process() override
-    {
-        _processor.Configure(params_, peaks::CONTROL_MODE_FULL);
-
-        if (channel >= 0 && machine::get_trigger(channel) != last_trig)
-        {
-            last_trig = machine::get_trigger(channel);
-
-            flags[0] = peaks::GATE_FLAG_RISING;
-            flags[1] = peaks::GATE_FLAG_FALLING;
-        }
-        else
-        {
-            flags[0] = peaks::GATE_FLAG_LOW;
-            flags[1] = peaks::GATE_FLAG_LOW;
-        }
-
-        int16_t ivalue = 0;
-        _processor.Process(flags, &ivalue, 1);
-        value = (float)ivalue / INT16_MAX * 10.f;
-
-        this->target->modulate(value * this->attenuverter);
-    }
-
-    void display(uint8_t *buffer, int x, int y) override
-    {
-        auto shape = static_cast<peaks::LfoShape>(params_[1] * peaks::LFO_SHAPE_LAST >> 16);
-        switch (shape)
-        {
-        case peaks::LFO_SHAPE_SINE:
-            param[0].name = ">Sine";
-            break;
-        case peaks::LFO_SHAPE_TRIANGLE:
-            param[0].name = ">Triangle";
-            break;
-        case peaks::LFO_SHAPE_SQUARE:
-            param[0].name = ">Square";
-            break;
-        case peaks::LFO_SHAPE_STEPS:
-            param[0].name = ">Steps";
-            break;
-        case peaks::LFO_SHAPE_NOISE:
-            param[0].name = ">Noise";
-            break;
-        default:
-            param[0].name = ">?????";
-            break;
-        }
-
-        common::display<2>(this, buffer, x, y);
-    }
-};
+#include "peaks/modulations/multistage_envelope.h"
 
 #include "braids/envelope.h"
 
-template <int channel>
-struct Envelope : machine::ModulationSource
+struct Envelope : ModulationBase
 {
-    float value = 0;
-    float attenuverter = 0;
-    uint16_t attack = 0;
-    uint16_t decay = 0;
+    uint8_t attack = 0;
+    uint8_t decay = 0;
+    uint8_t tr_channel = 0;
 
     braids::Envelope _processor;
 
     void eeprom(std::function<void(void *, size_t)> read_write) override
     {
+        read_write(&tr_channel, sizeof(tr_channel));
         read_write(&attack, sizeof(attack));
         read_write(&decay, sizeof(decay));
         read_write(&attenuverter, sizeof(attenuverter));
@@ -307,60 +160,164 @@ struct Envelope : machine::ModulationSource
     Envelope()
     {
         _processor.Init();
-        param[0].init("Att.", &attack, 0);
-        param[1].init("Dec.", &decay, INT16_MAX);
-        param[2].init(" +/-", &attenuverter, attenuverter, -1, +1);
+        param[0].init("TRIG", &tr_channel, tr_channel, 0, machine::get_io_info(0));
+        param[0].print_value = [&](char *tmp)
+        {
+            if (tr_channel == 0)
+                sprintf(tmp, "!");
+            else
+                machine::get_io_info(0, tr_channel - 1, tmp);
+        };
+        param[1].init("Att.", &attack, 0);
+        param[2].init("Dec.", &decay);
+        param[3].init(".", &attenuverter, attenuverter, -1, +1);
     }
 
-    uint32_t last_trig = 0;
-    void process() override
+    void process(machine::Parameter &target, machine::ControlFrame &frame) override
     {
-        _processor.Update(attack >> 9, decay >> 9);
+        _processor.Update(attack >> 1, decay >> 1);
 
-        if (channel >= 0 && machine::get_trigger(channel) != last_trig)
+        bool trigger = false;
+        if (tr_channel == 0)
         {
-            last_trig = machine::get_trigger(channel);
-            _processor.Trigger(braids::ENV_SEGMENT_ATTACK);
+            trigger = frame.trigger;
         }
+        else
+        {
+            trigger = machine::get_trigger(tr_channel - 1);
+        }
+
+        if (trigger)
+            _processor.Trigger(braids::ENV_SEGMENT_ATTACK);
 
         value = ((float)_processor.Render() / UINT16_MAX) * 10.f;
 
-        this->target->modulate(value * this->attenuverter);
+        target.modulate(value * this->attenuverter);
+    }
+};
+
+template <peaks::LfoShape mode>
+struct LFO : ModulationBase
+{
+    uint8_t tr_channel = 0;
+    uint8_t shape = mode;
+
+    uint16_t rate;
+    peaks::Lfo _processor;
+
+    void eeprom(std::function<void(void *, size_t)> read_write) override
+    {
+        read_write(&rate, sizeof(rate));
+        read_write(&attenuverter, sizeof(attenuverter));
+    }
+
+    LFO()
+    {
+        _processor.Init();
+        _processor.set_level(40960);
+        _processor.set_rate(rate);
+        _processor.set_parameter(INT16_MAX - 32768);
+        _processor.set_reset_phase(INT16_MAX - 32768);
+
+        param[0].init("TRIG", &tr_channel, tr_channel, 0, 1 + machine::get_io_info(0));
+        param[0].print_value = [&](char *tmp)
+        {
+            if (tr_channel == 0)
+                sprintf(tmp, "-");
+            else if (tr_channel - 1 == 0)
+                sprintf(tmp, "!");
+            else
+                machine::get_io_info(0, tr_channel - 2, tmp);
+        };
+
+        if (mode == peaks::LFO_SHAPE_LAST)
+        {
+            _processor.set_shape(peaks::LFO_SHAPE_SINE);
+            param[1].init("Shape", &shape, peaks::LFO_SHAPE_SINE, 0, peaks::LFO_SHAPE_LAST - 1);
+            param[1].step2 = param[1].step;
+            param[2].init("Freq.", &rate, INT16_MAX);
+            param[3].init(".", &attenuverter, attenuverter, -1, +1);
+        }
+        else
+        {
+            _processor.set_shape((peaks::LfoShape)shape);
+            param[1].init("Freq.", &rate, INT16_MAX);
+            param[2].init(".", &attenuverter, attenuverter, -1, +1);
+        }
+    }
+
+    uint32_t last_trig = 0;
+    void process(machine::Parameter &target, machine::ControlFrame &frame) override
+    {
+        _processor.set_shape((peaks::LfoShape)shape);
+        _processor.set_rate(rate);
+
+        peaks::GateFlags flags[] = {peaks::GATE_FLAG_LOW, peaks::GATE_FLAG_LOW};
+
+        if (tr_channel == 0)
+        {
+            // Free LFO
+        }
+        else if (tr_channel == 1)
+        {
+            if (frame.trigger)
+            {
+                flags[0] = peaks::GATE_FLAG_RISING;
+                flags[1] = peaks::GATE_FLAG_FALLING;
+            }
+        }
+        else
+        {
+            if (machine::get_trigger(tr_channel - 2))
+            {
+                flags[0] = peaks::GATE_FLAG_RISING;
+                flags[1] = peaks::GATE_FLAG_FALLING;
+            }
+        }
+
+        int16_t ivalue = 0;
+        _processor.Process(flags, &ivalue, 1);
+        value = (float)ivalue / INT16_MAX * 10.f;
+        target.modulate(value * this->attenuverter);
     }
 
     void display(uint8_t *buffer, int x, int y) override
     {
-        common::display<2>(this, buffer, x, y);
+        if (mode == peaks::LFO_SHAPE_LAST)
+        {
+            switch (shape)
+            {
+            case peaks::LFO_SHAPE_SINE:
+                param[1].name = ">Sine";
+                break;
+            case peaks::LFO_SHAPE_TRIANGLE:
+                param[1].name = ">Triangle";
+                break;
+            case peaks::LFO_SHAPE_SQUARE:
+                param[1].name = ">Square";
+                break;
+            case peaks::LFO_SHAPE_STEPS:
+                param[1].name = ">Steps";
+                break;
+            case peaks::LFO_SHAPE_NOISE:
+                param[1].name = ">Noise";
+                break;
+            default:
+                param[1].name = ">?????";
+                break;
+            }
+
+            ModulationBase::display(buffer, x, y);
+        }
     }
 };
 
 void init_modulations()
 {
-    machine::add_modulation_source<CV<0>>("CV1");
-    machine::add_modulation_source<CV<1>>("CV2");
-    machine::add_modulation_source<CV<2>>("CV3");
-    machine::add_modulation_source<CV<3>>("CV4");
-
-    machine::add_modulation_source<SH<0>>("SH1");
-    machine::add_modulation_source<SH<1>>("SH2");
-    machine::add_modulation_source<SH<2>>("SH3");
-    machine::add_modulation_source<SH<3>>("SH4");
-
-    machine::add_modulation_source<Rand<0>>("RND1");
-    machine::add_modulation_source<Rand<1>>("RND2");
-    machine::add_modulation_source<Rand<2>>("RND3");
-    machine::add_modulation_source<Rand<3>>("RND4");
-
-    machine::add_modulation_source<Envelope<0>>("ENV1");
-    machine::add_modulation_source<Envelope<1>>("ENV2");
-    machine::add_modulation_source<Envelope<2>>("ENV3");
-    machine::add_modulation_source<Envelope<3>>("ENV4");
-
-    machine::add_modulation_source<PeaksLFO<-1>>("LFO");
-    machine::add_modulation_source<PeaksLFO<0>>("LFO1");
-    machine::add_modulation_source<PeaksLFO<1>>("LFO2");
-    machine::add_modulation_source<PeaksLFO<2>>("LFO3");
-    machine::add_modulation_source<PeaksLFO<3>>("LFO4");
+    machine::add_modulation_source<CV>("CV");
+    machine::add_modulation_source<RND>("RND");
+    machine::add_modulation_source<Envelope>("ENV");
+    machine::add_modulation_source<LFO<peaks::LFO_SHAPE_LAST>>("LFO");
 }
 
 MACHINE_INIT(init_modulations);

@@ -43,7 +43,7 @@ struct UI
 
 using namespace machine;
 
-template <class T>
+template <class T, uint32_t engine_props>
 class FaustEngine : public machine::Engine, UI
 {
     static_assert(std::is_base_of<dsp, T>::value, "T must derive from dsp");
@@ -103,7 +103,7 @@ class FaustEngine : public machine::Engine, UI
     }
 
 public:
-    FaustEngine() : machine::Engine(machine::AUDIO_PROCESSOR)
+    FaustEngine() : machine::Engine(engine_props)
     {
         // static_assert(sizeof(T) < 150000, "");
 
@@ -123,7 +123,7 @@ public:
         return base_frequency * powf(2.f, (note - base_pitch) / 12.f);
     }
 
-    void Process(const machine::ControlFrame &frame, float **out, float **aux) override
+    void process(const machine::ControlFrame &frame, OutputFrame &of) override
     {
         if (_trigger != nullptr)
             *_trigger = frame.trigger ? 1.f : 0.f;
@@ -133,13 +133,13 @@ public:
 
         float *outputs[] = {bufferL, bufferR};
         float *ins[] = {machine::get_aux(AUX_L), machine::get_aux(AUX_R)};
-        
+
         _faust.compute(FRAME_BUFFER_SIZE, &ins[0], &outputs[0]);
 
-        *out = bufferL;
+        of.out = bufferL;
 
         if (_faust.getNumOutputs() > 1)
-            *aux = bufferR;
+            of.aux = bufferR;
     }
 };
 
@@ -150,8 +150,8 @@ void init_faust()
 {
     //(char[sizeof(mydsp)])"";
 
-    machine::add<FaustEngine<djembe>>(machine::DRUM, "Djembe");
-    machine::add<FaustEngine<rev_dattorro>>(machine::FX, "Rev-Dattorro");
+    machine::add<FaustEngine<djembe, machine::TRIGGER_INPUT>>(machine::DRUM, "Djembe");
+    machine::add<FaustEngine<rev_dattorro, machine::AUDIO_PROCESSOR>>(machine::FX, "Rev-Dattorro");
 }
 
 MACHINE_INIT(init_faust);

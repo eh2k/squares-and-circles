@@ -7,9 +7,8 @@
     "frameworks": [
         "arduino"
     ],
-    "dependencies": [
-        {
-            "name": "Entropy"
-        }
-    ]
+    "build": {
+        "srcDir": ".",
+        "includeDir": "./lib/"
+    }
 }

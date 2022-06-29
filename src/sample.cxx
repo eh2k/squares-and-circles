@@ -1,4 +1,3 @@
-
 // Copyright (C)2021 - Eduard Heidt
 //
 // Author: Eduard Heidt (eh2k@gmx.de)
@@ -24,51 +23,31 @@
 // See http://creativecommons.org/licenses/MIT/ for more information.
 //
 
-#include "machine.h"
+#include "sample.hxx"
 
-using namespace machine;
-
-class VoltsPerOctave : public Engine
+template <>
+float tsample_spec<float>::get_float(int index) const
 {
-    char tmp[64];
-    float note = 0;
-    float tune = 0;
-    float cv = 0;
-
-    float buffer[FRAME_BUFFER_SIZE] = {};
-
-public:
-    VoltsPerOctave() : Engine(OUT_EQ_VOLT | VOCT_INPUT)
-    {
-        param[0].init_v_oct("Tone", &note);
-        param[1].init("\t", &tune, 0, -12, 12);
-        param[1].step.f = 1 / 48.f;
-        param[1].setStepValue(1.f);
-    }
-
-    void process(const ControlFrame &frame, OutputFrame &of) override
-    {
-        cv = frame.cv_voltage;
-        cv += ((note * 12) + tune) / 12.f;
-
-        of.push(&cv, 1);
-    }
-
-    void onDisplay(uint8_t *display) override
-    {
-        gfx::drawString(display, 18, 16, "Note");
-        gfx::drawString(display, 82, 16, "Tune");
-
-        sprintf(tmp, "DAC: %.2fV", cv);
-        gfx::drawString(display, 64, 53, tmp, 0);
-
-        gfx::drawEngine(display, this);
-    }
-};
-
-void init_voltage()
-{
-    machine::add<VoltsPerOctave>(CV, "V/OCT");
+    if (index < this->len && index >= 0)
+        return reinterpret_cast<const float*>(this->data)[index << this->addr_shift];
+    else
+        return 0;
 }
 
-MACHINE_INIT(init_voltage);
+template <>
+float tsample_spec<uint8_t>::get_float(int index) const
+{
+    if (index < this->len && index >= 0)
+        return ((float)reinterpret_cast<const uint8_t*>(this->data)[index << this->addr_shift] - 127) / 128;
+    else
+        return 0;
+}
+
+template <>
+float tsample_spec<int16_t>::get_float(int index) const
+{
+    if (index < this->len && index >= 0)
+        return (float)reinterpret_cast<const int16_t*>(this->data)[index << this->addr_shift] / INT16_MAX;
+    else
+        return 0;
+}

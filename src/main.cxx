@@ -33,11 +33,13 @@
 int main()
 {
     MACHINE_INIT(init_voltage);
+    MACHINE_INIT(init_midi_monitor);
+    MACHINE_INIT(init_midi_clock);
+    MACHINE_INIT(init_quantizer);
     MACHINE_INIT(init_peaks);
     MACHINE_INIT(init_braids);
     MACHINE_INIT(init_plaits);
-    MACHINE_INIT(init_samples_tr909);
-    MACHINE_INIT(init_samples_tr707);
+    MACHINE_INIT(init_sample_roms);
     MACHINE_INIT(init_clap);
     MACHINE_INIT(init_reverb);
     MACHINE_INIT(init_faust);
@@ -46,11 +48,10 @@ int main()
     MACHINE_INIT(init_sam);
     MACHINE_INIT(init_delay);
     MACHINE_INIT(init_modulations);
-    MACHINE_INIT(init_sequencer);
-    MACHINE_INIT(init_marbles);
     MACHINE_INIT(init_fv1);
+    MACHINE_INIT(init_midi_polyVA);
 
-    machine::setup<machine::OC_REV2E>("0.0j");
+    machine::setup("0.0k", 0);
 
     while (true)
         machine::loop();

@@ -57,7 +57,7 @@ struct CloudsReverb : public Engine
         param[3].init("Gain", &gain, 1.f);
     }
 
-    void Process(const ControlFrame &frame, float **out, float **aux) override
+    void process(const ControlFrame &frame, OutputFrame &of) override
     {
         fx_.set_amount(reverb_amount * 0.54f);
         fx_.set_diffusion(0.7f);
@@ -81,8 +81,8 @@ struct CloudsReverb : public Engine
             bufferR[i] = raw * bufferR[i] + (1 - raw) * ins[1][i];
         }
 
-        *out = bufferL;
-        *aux = bufferR;
+        of.out = bufferL;
+        of.aux = bufferR;
     }
 };
 
@@ -104,7 +104,7 @@ struct CloudsDiffuser : public Engine
         param[0].init("Amount", &raw, raw);
     }
 
-    void Process(const ControlFrame &frame, float **out, float **aux) override
+    void process(const ControlFrame &frame, OutputFrame &of) override
     {
         fx_.set_amount(raw);
 
@@ -118,8 +118,8 @@ struct CloudsDiffuser : public Engine
 
         fx_.Process(bufferL, bufferR, FRAME_BUFFER_SIZE);
 
-        *out = bufferL;
-        *aux = bufferR;
+        of.out = bufferL;
+        of.aux = bufferR;
     }
 };
 

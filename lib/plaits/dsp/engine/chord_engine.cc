@@ -39,6 +39,26 @@ using namespace stmlib;
 
 #ifdef JON_CHORDS
 
+const char* chord_names[kChordNumChords] = {
+    "OCT",
+    "Fifth",
+    "m",
+    "m7",
+    "m9",
+    "m11",
+    "M",
+    "M7",
+    "M9",
+    "Sus4",
+    "69",
+    "6th",
+    "10th",
+    "D7",
+    "D7(b9)",
+    "HD",
+    "FD",
+};
+
 // Alternative chord table by Jon Butler jonbutler88@gmail.com
 const float chords[kChordNumChords][kChordNumNotes] = {
   // Fixed Intervals
@@ -209,7 +229,7 @@ void ChordEngine::Render(
   ONE_POLE(timbre_lp_, parameters.timbre, 0.1f);
 
   const int chord_index = chord_index_quantizer_.Process(
-      parameters.harmonics * 1.02f, kChordNumChords);
+      parameters.harmonics, kChordNumChords, 0);  //[eh2k]
 
   float harmonics[kChordNumHarmonics * 2 + 2];
   float note_amplitudes[kChordNumVoices];

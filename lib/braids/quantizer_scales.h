@@ -29,7 +29,7 @@
 #ifndef BRAIDS_QUANTIZER_SCALES_H_
 #define BRAIDS_QUANTIZER_SCALES_H_
 
-#include "braids/quantizer.h"
+#include "quantizer.h"
 
 namespace braids {
 

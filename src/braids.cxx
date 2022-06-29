@@ -3,8 +3,6 @@
 #include "machine.h"
 #include "braids/macro_oscillator.h"
 #include "braids/envelope.h"
-#include "braids/quantizer.h"
-#include "braids/quantizer_scales.h"
 #include "braids/settings.h"
 #include "braids/vco_jitter_source.h"
 
@@ -29,7 +27,7 @@ struct BraidsEngine : public Engine
 
     float buffer[FRAME_BUFFER_SIZE];
 
-    BraidsEngine() : Engine()
+    BraidsEngine() : Engine(TRIGGER_INPUT|VOCT_INPUT)
     {
         settings.Init();
         osc.Init();
@@ -52,7 +50,7 @@ struct BraidsEngine : public Engine
         param[5].init("Attack", &_attack, 0);
     }
 
-    void Process(const ControlFrame &frame, float **out, float **aux) override
+    void process(const ControlFrame &frame, OutputFrame &of) override
     {
         envelope.Update(_attack / 512, _decay / 512);
 
@@ -62,7 +60,7 @@ struct BraidsEngine : public Engine
             envelope.Trigger(braids::ENV_SEGMENT_ATTACK);
         }
 
-        if (frame.midi.on > 0)
+        if (frame.gate)
         {
             envelope.Trigger(braids::ENV_SEGMENT_ATTACK);
         }
@@ -72,7 +70,7 @@ struct BraidsEngine : public Engine
         osc.set_shape((braids::MacroOscillatorShape)_shape);
 
         float pitchV = (_pitch - 1) + frame.cv_voltage;
-        int32_t pitch = (pitchV * 12.0 + frame.midi.key + 24) * 128 + frame.midi.pitch;
+        int32_t pitch = (pitchV * 12.0 + machine::DEFAULT_NOTE + 24) * 128;
 
         // if (!settings.meta_modulation())
         // {
@@ -93,16 +91,15 @@ struct BraidsEngine : public Engine
 
         osc.Render(sync_samples, audio_samples, FRAME_BUFFER_SIZE);
 
-        float gain = _decay < UINT16_MAX ? ad_value : 65535;
-        gain /= UINT16_MAX;
+        uint16_t gain = _decay < UINT16_MAX ? ad_value : 65535;
 
         for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
-            buffer[i] = ((float)audio_samples[i]) / INT16_MAX * gain;
+            audio_samples[i] = audio_samples[i] * gain / UINT16_MAX;
 
-        *out = buffer;
+        of.push(audio_samples, LEN_OF(audio_samples));
     }
 
-    void OnDisplay(uint8_t *buffer) override
+    void onDisplay(uint8_t *buffer) override
     {
         param[1].name = braids::settings.metadata(braids::Setting::SETTING_OSCILLATOR_SHAPE).strings[_shape];
 
@@ -124,9 +121,6 @@ struct BraidsEngine : public Engine
 void init_braids()
 {
     machine::add<BraidsEngine>(M_OSC, "Waveforms");
-
-    for(size_t i = 0; i < LEN_OF(braids::scales); i++)
-        machine::add_quantizer_scale(braids::settings.metadata(braids::Setting::SETTING_QUANTIZER_SCALE).strings[i], (const machine::QuantizerScale&)braids::scales[i]);
 }
 
 MACHINE_INIT(init_braids);

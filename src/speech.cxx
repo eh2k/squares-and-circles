@@ -40,7 +40,7 @@ struct SpeechEngine : public Engine
     uint8_t buffer[16384];
     stmlib::BufferAllocator allocator;
 
-    SpeechEngine() : Engine()
+    SpeechEngine() : Engine(TRIGGER_INPUT | VOCT_INPUT)
     {
 
         memset(buffer, 0, sizeof(buffer));
@@ -66,9 +66,9 @@ struct SpeechEngine : public Engine
         param[4].init("Prs.Amnt", &_prosody, _prosody);
     }
 
-    void Process(const ControlFrame &frame, float **out, float **aux) override
+    void process(const ControlFrame &frame, OutputFrame &of) override
     {
-        auto note = (float)frame.midi.key + _pitch * 12.f + (frame.midi.pitch / 128);
+        auto note = (float)machine::DEFAULT_NOTE + _pitch * 12.f;
 
         note += frame.cv_voltage * 12;
 
@@ -76,23 +76,23 @@ struct SpeechEngine : public Engine
 
         lpc_speech_synth_controller_.Render(false,
                                             frame.trigger,
-                                            _words[_word].bank, //Bank
+                                            _words[_word].bank, // Bank
                                             f0,
                                             _prosody,
-                                            _speed,             //Speed
-                                            _words[_word].addr, //Word
+                                            _speed,             // Speed
+                                            _words[_word].addr, // Word
                                             _formant_shift,
                                             1.0f,
                                             _aux,
                                             _out,
                                             machine::FRAME_BUFFER_SIZE);
 
-        *out = _out;
-        *aux = _aux;
+        of.out = _out;
+        of.aux = _aux;
     }
 
     char tmp[10];
-    void OnDisplay(uint8_t *buffer) override
+    void onDisplay(uint8_t *buffer) override
     {
         sprintf(tmp, "WORD%0d", _word);
         param[1].name = tmp;

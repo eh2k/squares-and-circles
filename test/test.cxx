@@ -59,26 +59,28 @@ namespace gfx
     void drawXbm(uint8_t *buffer, int16_t x, int16_t y, int16_t width, int16_t height, const uint8_t *xbm) {}
     void drawString(uint8_t *buffer, int16_t x, int16_t y, const char *text, uint8_t font) {}
     void drawEngine(uint8_t *buffer, machine::Engine *engine) {}
-    void DrawKnob(unsigned char*, int, int, char const*, unsigned short, bool) {}
+    void DrawKnob(unsigned char *, int, int, char const *, unsigned short, bool) {}
 }
 
 namespace machine
 {
+    bool MidiHandler::enabled() { return false; }
+
     static struct : MidiHandler
     {
         void midiReceive(uint8_t midiByte) override {}
         void midiReset() override {}
-        bool getMidiNote(int midi_channel, int midi_voice, MidiNote *note) override { return false; }
     } _dummy;
 
     MidiHandler *midi_handler = &_dummy;
 
-    float get_bpm()
+    float& get_bpm()
     {
-        return 120;
+        static float bpm = 120;
+        return bpm;
     }
 
-    uint32_t trigger[4] = {}; // millis()
+    uint32_t digital_inputs; // millis()
     float cv_voltage[4] = {};
 
     template <>
@@ -87,9 +89,14 @@ namespace machine
         return cv_voltage[src];
     }
 
-    uint32_t get_trigger(int src)
+    int get_io_info(int type, int index, char *name)
     {
-        return trigger[src];
+        return 0;
+    }
+
+    bool get_trigger(int src)
+    {
+        return digital_inputs & (1 << src);
     }
 
     float audio_in[2][FRAME_BUFFER_SIZE];
@@ -110,9 +117,39 @@ namespace machine
         return nullptr;
     }
 
+    template <>
+    void OutputFrame::push(float *buff, size_t len)
+    {
+        if (out == nullptr)
+            out = buff;
+        else
+            aux = buff;
+    }
+
+    template <>
+    void OutputFrame::push(int16_t *iout, size_t len)
+    {
+        static float __tmp[machine::FRAME_BUFFER_SIZE];
+
+        auto tmp = __tmp;
+        if (out == nullptr)
+            out = tmp;
+        else
+            aux = tmp;
+
+        for (size_t i = 0; i < len; i++)
+        {
+            for (size_t j = 0; j < (machine::FRAME_BUFFER_SIZE / len); j++)
+            {
+                *tmp++ = ((float)*iout) / INT16_MAX;
+            }
+            ++iout;
+        }
+    }
+
     struct EngineDef
     {
-        const char* engine;
+        const char *engine;
         std::function<Engine *()> init;
     };
 
@@ -120,15 +157,19 @@ namespace machine
 
     void add(const char *machine, const char *engine, std::function<Engine *()> createFunc)
     {
-        registry.push_back({ engine, createFunc });
+        registry.push_back({engine, createFunc});
+    }
+
+    void ModulationSource::display(uint8_t *buffer, int x, int y)
+    {
     }
 
     void add_modulation_source(const char *name, std::function<void(Parameter *)> createFunc)
     {
     }
 
-    void add_quantizer_scale(const char *name, const QuantizerScale& scale)
-    {        
+    void add_quantizer_scale(const char *name, const QuantizerScale &scale)
+    {
     }
 
     void *malloc(size_t size)
@@ -160,8 +201,7 @@ int main()
     MACHINE_INIT(init_peaks);
     MACHINE_INIT(init_braids);
     MACHINE_INIT(init_plaits);
-    MACHINE_INIT(init_samples_tr909);
-    MACHINE_INIT(init_samples_tr707);
+    MACHINE_INIT(init_sample_roms);
     MACHINE_INIT(init_clap);
     MACHINE_INIT(init_reverb);
     MACHINE_INIT(init_faust);
@@ -169,10 +209,9 @@ int main()
     MACHINE_INIT(init_speech);
     MACHINE_INIT(init_sam);
     MACHINE_INIT(init_delay);
-
     MACHINE_INIT(init_modulations);
 
-    //return;
+    // return;
 
     std::map<const char *, bool> machines;
 
@@ -213,15 +252,19 @@ int main()
                 frame.trigger = i == 0;
                 frame.cv_voltage = v;
 
-                float *ins[] = {machine::audio_in[0], machine::audio_in[1]};
+                const float *ins[] = {machine::audio_in[0], machine::audio_in[1]};
 
-                audio_in->Process(frame, &ins[0], &ins[1]);
+                {
+                    machine::OutputFrame of;
+                    audio_in->process(frame, of);
+                    ins[0] = of.out;
+                    ins[1] = of.aux;
+                }
 
-                float *out = nullptr;
-                float *aux = nullptr;
-                engine->Process(frame, &out, &aux);
+                machine::OutputFrame of;
+                engine->process(frame, of);
 
-                if (out == nullptr)
+                if (of.out == nullptr)
                     break;
 
                 const int n = 2000;
@@ -231,9 +274,9 @@ int main()
 
                 for (int k = 0; k < machine::FRAME_BUFFER_SIZE; k++)
                 {
-                    auto v = (out[k]) * INT16_MAX;
-                    if (aux != nullptr)
-                        v += (aux[k]) * INT16_MAX;
+                    auto v = (of.out[k]) * INT16_MAX;
+                    if (of.aux != nullptr)
+                        v += (of.aux[k]) * INT16_MAX;
 
                     CONSTRAIN(v, INT16_MIN, INT16_MAX);
                     buffer.push_back(v);
@@ -247,6 +290,9 @@ int main()
                 engine->param[k].from_uint16(UINT16_MAX);
                 engine->param[k].from_uint16(val);
             }
+
+            //engine->param[1].apply_encoder(1, false);
+            //break;
         }
 
         free(engine);

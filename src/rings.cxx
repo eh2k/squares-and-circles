@@ -18,7 +18,7 @@ struct ResonatorEngine : public Engine
 
     float _pitch;
 
-    ResonatorEngine() : Engine(AUDIO_PROCESSOR)
+    ResonatorEngine() : Engine(TRIGGER_INPUT|VOCT_INPUT|AUDIO_PROCESSOR)
     {
         memset(&strummer, 0, sizeof(rings::Strummer));
         memset(&patch, 0, sizeof(rings::Patch));
@@ -44,7 +44,7 @@ struct ResonatorEngine : public Engine
         param[5].init("Pos", &patch.position);
     }
 
-    void Process(const ControlFrame &frame, float **out, float **aux) override
+    void process(const ControlFrame &frame, OutputFrame &of) override
     {
         part.set_model((rings::ResonatorModel)_model);
 
@@ -54,7 +54,7 @@ struct ResonatorEngine : public Engine
         performance_state.internal_exciter = true;
         performance_state.tonic = 0.2f;
         performance_state.chord = 0;
-        performance_state.note = (float)frame.midi.key + _pitch * 12.f + (frame.midi.pitch / 128);
+        performance_state.note = (float)machine::DEFAULT_NOTE + _pitch * 12.f;
 
         float *input = machine::get_aux(AUX_L);
 
@@ -63,11 +63,11 @@ struct ResonatorEngine : public Engine
         strummer.Process(input, FRAME_BUFFER_SIZE, &performance_state);
         part.Process(performance_state, patch, input, bufferOut, bufferAux, FRAME_BUFFER_SIZE);
 
-        *out = bufferOut;
-        *aux = bufferAux;
+        of.out = bufferOut;
+        of.aux = bufferAux;
     }
 
-    void OnDisplay(uint8_t *buffer) override
+    void onDisplay(uint8_t *buffer) override
     {
         if (_model == rings::ResonatorModel::RESONATOR_MODEL_MODAL)
             param[1].name = ">  Modal";

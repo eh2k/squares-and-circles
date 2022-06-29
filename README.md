@@ -1,6 +1,7 @@
 > WORK-IN-PROGRESS: Feel free to leave me a message / feedback or any hints in the ["BETA TEST - FEEDBACK"](https://github.com/eh2k/squares-and-circles/issues/1) issue.
 
-# □︎●︎ [![PlatformIO CI](https://github.com/eh2k/squares-and-circles/actions/workflows/build.yml/badge.svg)](https://github.com/eh2k/squares-and-circles/actions/workflows/build.yml)
+# □︎●︎ [![PlatformIO CI](https://github.com/eh2k/squares-and-circles/actions/workflows/build.yml/badge.svg)](https://github.com/eh2k/squares-and-circles/actions/workflows/build.yml) [![MODULAGrid](https://img.shields.io/badge/MODULAR-Grid-white)](https://www.modulargrid.net/e/modules/browser?SearchName=squares+and+circles&SearchShowothers=1)
+
 <!-- ⧉⦾ ⧇ ⟥⧂ -->
 **squares-and-circles** is an alternative firmware for the Eurorack module O_C, targeting Teensy 4.0.
 
@@ -32,16 +33,15 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
 
 * [Short Press [LEFT]/[RIGHT]] scrolls through the 4 machine-tracks.
 * [Long press [LEFT]] enters the machine-selection-page.
-* [Long press [RIGHT]] enters the machine-config-page.
-* [Long press [LEFT] and [RIGHT]] saves the patch - will be restored at startup.
-* [Long press left/right [ENCODER]] shows the modulation popup
+* [Long press [RIGHT]] enters the I/O-configuration-page.
+* [Long press [LEFT] + [RIGHT]] enters the MIDI-settings-page.
+* [Long press left or right [ENCODER]] shows the modulation popup
+* [Long press [L-ENCODER] + [R-ENCODER]] saves the patch - will be restored at startup.
 
 <br/>
 <div style="page-break-after: always;"></div>
 
-# Machines
-
-> See [wiki](https://github.com/eh2k/squares-and-circles/wiki/%E2%96%A1%EF%B8%8E%E2%97%8F%EF%B8%8E-Machines-&-Engines) for details...
+# Machines <sup>[wiki](https://github.com/eh2k/squares-and-circles/wiki/%E2%96%A1%EF%B8%8E%E2%97%8F%EF%B8%8E-Machines-&-Engines)</sup>
 
 <img align="right" src="doc/menu.bmp" width=196px /> 
 
@@ -50,12 +50,12 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
 * **GND**
   * `---`
 * **CV**
-  * V/OCT, LFO, Envelope
+  * V/OCT, Envelope, LFO
 * **Drums** <img align="right" src="doc/engine.bmp" width=196px />
   * Analog-BD, Analog SD, Analog HH, Analog HH2
-  * 909ish-BD, 909ish-SD, TR909-CH-OH, TR909-OH, TR909-Ride
-  * 808ish-BD, 808ish-SD, 808ish-CH-OH, 808ish-HiHat
-  * TR707, TR707-CH-OH
+  * 909ish-BD, 909ish-SD, TR909-HiHat, TR909-Ride
+  * 808ish-BD, 808ish-SD, 808ish-HiHat
+  * TR707, TR707-HiHat
   * FM-Drum
   * Djembe
   * Clap
@@ -67,12 +67,14 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
   * Reverb, Rev-Dattorro, Delay, Gated-Reverb, Reverb-HP-LP
 * **SPEECH**
   * LPC, SAM
+* **MIDI**
+  * Monitor, Clock, VAx6
 
 ## Machine/Engine  
 
 <img align="right" src="doc/engine.bmp" width=196px />
 
-Machine/Engines are controlled by individual parameters.
+Machines/Engines are controlled by individual parameters.
 
 * [Short press left/right [ENCODER]] changes parameter selection
 
@@ -82,63 +84,117 @@ Machine/Engines are controlled by individual parameters.
 
 <img align="right" src="doc/modulation.bmp" width=196px />
 
-* [Long press left/right [ENCODER]] shows/hides the modulation popup
+<sup>[Long press left or right [ENCODER]] shows/hides the modulation popup</sup>
 
-For each parameter a modulation can be configured:
-
- * SRC: 
-   * **CV1-CV4**: Voltage is sampled at 2khz 
-   * **SH1-SH4**: Sample and Hold eg: SH1 = CV1 is sampled on TR1 trigger
-   * **RND1-RND4**: Trigger generates a random voltage
-   * **EVN1-ENV4**: Triggered Envelope (Attack, Decay)
-   * **LFO, LFO1-LFO4**: Free/Triggered LFO (Shape, Param)
- * Attenuverter (-/+)
-   * Modulation Voltage is attenuverted in the range from -1..+1;
-  >
-  > Sharing/reusing CV-signals: 
-  >
- ````
-      * Parameter 0 (top-left) is mainly used for V/OCT control.
-        Thus, one single V/OCT signal / CV-Input can be shared by using 
-        modulation on parameter-0 with attenuverter = +1 (-3V..+6V) range.
-        It is also possible to select the V/OCT input in the machine-config.
-      * All other parameters can be modulated with a assumed voltage-range of -4V..4V 
-        at 2kHz sample rate.
+For each parameter a modulation can be assigned:
+  * **CV**:
+    * SRC: `C1`, `C2`, `C3`, `C4`
+    * Hints:
+      * Parameter 0 (top-left) is mainly used for V/OCT control. Thus, one single V/OCT signal / CV-Input can be shared by using modulation on parameter-0 with attenuverter = +1 (-3V..+6V) range. It is also possible to select the V/OCT input in the io-configuration page.
+      * All other parameters can be modulated via CV-input with a assumed voltage-range of -4V..4V at 2kHz sample rate.
       * Be aware the CV-range is probably limited by hardware to: -3.5v..6.5V
- ````
----------
+  * **RND**: Trigger generates a random voltage
+    * TRIG: `!`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`
+  * **ENV**: Triggered Envelope (Attack, Decay)
+    * TRIG: `!`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`
+    * ATTACK
+    * DECAY
+ * **LFO**: Free/Triggered Sine-LFO
+    * TRIG: `-`, `!`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`
+    * SHAPE
+    * FREQUENCY
 
-### Machine-I/O-Config 
+ > <sup>`!` = current engine trigger</sup>  
+ 
+ All modulatiuonation have an attenuverter parameter (-/+).
+  * The modulation-voltage is attenuverted/multiplied by -1..+1;
+
+<div style="page-break-after: always;"></div>
+
+## I/O-Configuration 
+
+<sup>[Long press [RIGHT]] enters the I/O-Configuration page.</sup>
+
+The I/O-Configuration page lets you virtually patch the engine with the hardware ports. Depending on the engine interface, trigger, gate, accent and V/OCT can be configured. In addition to the trigger, which is set with a rising edge, a gate state is also provided, that can be processed by the engine. Engines like Closed/Open-HiHats have an additional accent input - this works technically like a second trigger. The V/OCT input can optionally be quantized and transposed. In addition to the Tx inputs, the Cx inputs can also be used as a source for triggers and accents.
 
 <img align="right" src="doc/config.bmp" width=196px />
 
-<sup>[Long press [RIGHT]] enters the machine-config-page.</sup>
+*In case the Engine supports Triggers/Gates - Trigger Input is configurable:*
 
- * **Trig-Input**: `---`, `TR-1`, `TR-2`, `TR-3`, `TR-4`
- * **CV-Input/Aux-Input**: `---`, `CV-1`, `CV-2`, `CV-3`, `CV-4` 
+ * **Trig-Input**: 
+   * `-`
+   * `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4` 
+  
+ *In case the Engine supports V/OCT - V/OCT Input is configurable:*
+
+ * **CV-Input**: `-`, `C1`, `C2`, `C3`, `C4`
    * V/OCT: -3V..6V for frequency-control (default)
-   * AUX-IN: -3V..3V for additional audio source for effects (prefer CV4).
  * **Quantizer**: [Off, Semitones, Ionian, Dorian, ...](src/braids/quantizer_scales.h)
  * **Transpose**: -48 to 24  (default -24)
- * **Output-Boost**: Add extra-gain to the output - can result in distortion
 
-### Conditional Paramters
+*In case the Engine supports Accents (Closed/Open HighHat) - Accent Input is configurable:*
 
-<img align="right" src="doc/config_midi.bmp" width=196px />
-
-*In case the Trig-Input TR-1 is not set - TR-1 is in Midi-Mode / Midi is configurable:*
-   * **Midi-Channel**: 1-16, one channel on multiple machines, for polyphony
-   * **Note-Hold**: True, False (Trigger)
+ * **Accent-Input**: 
+   * `-`
+   * `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4` 
 
 <img align="right" src="doc/config_fx.bmp" width=196px />
 
 *In case the Engine is an AUDIO_PROCESSOR - Input signal mix is configurable:*
-   * **Insert-1**: Feed-in signal from engine-1
-   * **Insert-2**: Feed-in signal from engine-2
-   * **Insert-3**: Feed-in signal from engine-3
-   * **Insert-Aux**: Feed-in signal from aux-input
+ * **Aux-Input**: `---`, `C1`, `C2`, `C3`, `C4` 
+   * AUX-IN: -3V..3V for additional audio source for effects (prefer CV4).
+ * **Insert-1**: Feed-in signal from engine-1
+ * **Insert-2**: Feed-in signal from engine-2
+ * **Insert-3**: Feed-in signal from engine-3
+ * **Insert-Aux**: Feed-in signal from aux-input
 
 <br/>
+
+*Volume-Control*
+
+ * **Output-Gain**: Add extra-gain to the output (Mono/Stereo)  
+   - can result in distortion
+   - not available on CV-Engines
+
+<br/>
+<div style="page-break-after: always;"></div>
+
+## MIDI-Settings 
+
+<sup>[Long press [LEFT] + [RIGHT]] enters the MIDI-Settings page.</sup>
+
+The MIDI-Settings page lets you select the MIDI-Input. MIDI via USB is active by default - alternatively the [T1 input can be used as MIDI-Input](#-midi-expander). Each engine can be assigned to a MIDI-Channel - it is possible to control single mono engines together polyphonically (for this all engines have to be set to the same midi channel). [Midi-Engines](https://github.com/eh2k/squares-and-circles/wiki/Code-Snippeds#midiengine) consume the MIDI-Stream directly, therefore the MIDI-Messages are not converted as incoming CVs or triggers.
+
+<img align="right" src="doc/config_midi.bmp" width=196px />
+
+ * **MIDI-CLK/INT-CLK**: BPM
+   * *In case clock is send via MIDI the internal clock is feed by midi, else the internal clock is active and can be set*
+ * **MIDI-Input**: USB, T1 
+   * *In case T1 is set - T1 is working in Midi-Mode (Serial) - Triggering is not available on T1*
+ * **MIDI_CH #**: 1-16, single channel on multiple engines, for polyphony
+
+#### Midi-Control
+  * Engines can be loaded/selected by midi program change
+  * Default Parameter CC-Mappings
+    ````
+    | HEX | DEC | parameter-index | CH |
+    |-----|-----|-----------------|----|
+    |  20 |  32 |        0        |  * |
+    |  21 |  33 |        1        |  * |
+    |  22 |  34 |        2        |  * |
+    |  23 |  35 |        3        |  * |
+    |  24 |  36 |        4        |  * |
+    |  25 |  37 |        5        |  * |
+    |  26 |  38 |        6        |  * |
+    |  27 |  39 |        7        |  * |
+    ````
+
+#### **⦾ Midi-Expander**
+   
+   Trigger-port TR1 is also suitable for Midi-In.
+   Although the connection does not comply with the [MIDI standard](https://minimidi.world/?fbclid=IwAR31TqOyRkvdwaLYCxoU2a89hcy2PF3hltCtRKD7IzD5HbZqzn3m9NmiZzc#types) - for me this solution is more practical than the alternative via USB.
+   <img src="doc/midi2ts.png" width=80% />
+
 <div style="page-break-after: always;"></div>
 
 # Supported Hardware  
@@ -204,35 +260,11 @@ To callibrate the ADC `0V` reference, remove all patch cables from the module. U
 
 <br/>
 
-## **⦾ Midi-Expander**
-   
-   Midi-In is supported on the trigger-port TR1. Although the connection does not comply with the [MIDI standard](https://minimidi.world/?fbclid=IwAR31TqOyRkvdwaLYCxoU2a89hcy2PF3hltCtRKD7IzD5HbZqzn3m9NmiZzc#types) - for me this solution is more practical than the alternative via USB.
-   <img src="doc/midi2ts.png" width=80% />
-
-### Midi-Control
-  * Engines can be loaded/selected by midi program change
-  * Midi channel configurable per track `*` ([Long Press Right-Button] enters the config-page)
-  * Note-On behavior configurable (HOLD, TRIGGER) 
-  * Parameter CC-Mappings
-    ````
-    | HEX | DEC | parameter-index | CH |
-    |-----|-----|-----------------|----|
-    |  20 |  32 |        0        |  * |
-    |  21 |  33 |        1        |  * |
-    |  22 |  34 |        2        |  * |
-    |  23 |  35 |        3        |  * |
-    |  24 |  36 |        4        |  * |
-    |  25 |  37 |        5        |  * |
-    |  26 |  38 |        6        |  * |
-    |  27 |  39 |        7        |  * |
-    ````
-
-
 ## ⧉ Conclusions and the future 
  
 The project was originally a kind of research that I did over half a year. The current O_C hardware could certainly be optimized. As you know, the DAC and the display share the SPI port - this is not ideal for simultaneous operation (display updates are sometimes audible). Furthermore, the Teensy 4.0 does not have "high-end" ADCs - my focus here was to achieve operation at audio rate (aux input) - the issue of noise has not been the focus so far.
 
-At the moment I want to make the project available to the community as open-source, so that everyone has the possibility to adapt and experiment with it. 
+At the moment I like to make the project partially available to the community as open-source, so that everyone has the possibility to adapt and experiment with it. 
 In principle, this project is a suite of apps so-called machines/engines interfacing with a system library ("libmachine").
 
 You are welcome for any suggestions and feedback or collaboration.

@@ -26,12 +26,12 @@
 //
 // Settings
 
-#include "braids/settings.h"
+#include "settings.h"
 
 #include <cstring>
 
 //#include "stmlib/system/storage.h"
-#include "stmlib/utils/murmurhash3.h"
+//#include "stmlib/utils/murmurhash3.h"
 
 namespace braids {
 

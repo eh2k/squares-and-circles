@@ -16,22 +16,26 @@ struct PlaitsEngine : public Engine
     float bufferOut[machine::FRAME_BUFFER_SIZE];
     float bufferAux[machine::FRAME_BUFFER_SIZE];
     float out_aux_mix = 0;
-    float _pitch;
+    float _pitch = 0;
+    float _base_pitch = machine::DEFAULT_NOTE;
 
-    PlaitsEngine(float pitch_, float harmonics, float timbre, float morph,
+    stmlib::HysteresisQuantizer chord_index_quantizer_;
+
+    PlaitsEngine(float pitch_offset, float harmonics, float timbre, float morph,
                  const char *param1,
                  const char *param2,
                  const char *param3,
-                 const char *param4) : Engine()
+                 const char *param4) : Engine(TRIGGER_INPUT | VOCT_INPUT)
     {
+        chord_index_quantizer_.Init();
+
         memset(buffer, 0, sizeof(buffer));
         allocator.Init(buffer, 16384);
         voice.Init(&allocator);
 
-        _pitch = pitch_;
         memset(&modulations, 0, sizeof(patch));
         patch.engine = engine;
-        patch.note = 60.f + _pitch * 12.f;
+        patch.note = machine::DEFAULT_NOTE + _pitch * 12.f;
 
         patch.harmonics = harmonics;
         patch.timbre = timbre;
@@ -54,6 +58,19 @@ struct PlaitsEngine : public Engine
         param[2].init(param3, &patch.timbre, timbre);
         param[3].init(param4, &patch.morph, morph);
 
+        if (engine == 6) // Chords
+        {
+            param[1].step.f = 1.f / (plaits::kChordNumChords - 1);
+            param[1].print_value = [&](char *tmp)
+            {
+                const int chord_index = this->chord_index_quantizer_.Process(
+                    this->patch.harmonics, plaits::kChordNumChords, 0);
+                sprintf(tmp, "%s", plaits::chord_names[chord_index]);
+            };
+        }
+
+        _base_pitch += pitch_offset;
+
         if (engine < 13)
         {
             param[4].init("Decay", &patch.decay);
@@ -74,25 +91,26 @@ struct PlaitsEngine : public Engine
         }
     }
 
-    void Process(const machine::ControlFrame &frame, float **out, float **aux) override
+    void process(const machine::ControlFrame &frame, OutputFrame &of) override
     {
         plaits::Frame f;
         f.out = bufferOut;
         f.aux = bufferAux;
 
-        patch.note = (float)frame.midi.key + _pitch * 12.f + (frame.midi.pitch / 128);
+        patch.note = _base_pitch + _pitch * 12.f;
 
         f.size = FRAME_BUFFER_SIZE;
 
         float last_decay = patch.decay;
-        if (frame.midi.on > 0)
+        float last_morph = patch.morph;
+        if (!frame.trigger && frame.gate)
         {
             if (engine >= 11)
                 patch.morph = 1;
             else
                 patch.decay = 1;
 
-            modulations.level = (float)frame.midi.velocity / 128;
+            modulations.level = 1.f;
             modulations.level_patched = true;
         }
         else
@@ -105,19 +123,20 @@ struct PlaitsEngine : public Engine
         voice.Render(patch, modulations, f);
 
         patch.decay = last_decay;
+        patch.morph = last_morph;
 
         switch (output)
         {
         case 0:
-            *out = bufferOut;
+            of.out = bufferOut;
             break;
         case 1:
-            *out = bufferAux;
+            of.out = bufferAux;
             break;
         default:
             for (int i = 0; i < machine::FRAME_BUFFER_SIZE; i++)
                 bufferOut[i] = (1 - out_aux_mix) * bufferOut[i] + out_aux_mix * bufferAux[i];
-            *out = bufferOut;
+            of.out = bufferOut;
             break;
         }
     }
@@ -132,7 +151,7 @@ void init_plaits()
     machine::add<PlaitsEngine<4>>(machine::M_OSC, "Additive", 0.f, 0.8f, 0.8f, 0.75f, "Freq", "Harm", "Timbre", "Morph");
     machine::add<PlaitsEngine<5>>(machine::M_OSC, "Wavetable", 0.f, 0.8f, 0.8f, 0.75f, "Freq", "Harm", "Timbre", "Morph");
     machine::add<PlaitsEngine<6>>(machine::M_OSC, "Chord", 0.f, 0.5f, 0.5f, 0.5f, "Freq", "Harm", "Timbre", "Morph");
-    //machine::add<PlaitsEngine<7>>(machine::M_OSC, "VowelAndSpeech", 0.f, 0.95f, 0.5f, 0.25f, "Freq", "Harm", "Timbre", "Morph");
+    // machine::add<PlaitsEngine<7>>(machine::M_OSC, "VowelAndSpeech", 0.f, 0.95f, 0.5f, 0.25f, "Freq", "Harm", "Timbre", "Morph");
 
     // machine::add<PlaitsEngine<8, 2>>(machine::M_OSC, "Swarm", 0.f, 0.5f, 0.5f, 0.5f, "Freq", "Harm", "Timbre", "Morph");
     // machine::add<PlaitsEngine<9, 2>>(machine::M_OSC, "Noise", 4.f, 0.0f, 1.0f, 1.0f, "Cutoff", "LP/HP", "Clock", "Q");
@@ -140,12 +159,12 @@ void init_plaits()
     // machine::add<PlaitsEngine<11>>(machine::M_OSC, "String", 0.f, 0.5f, 0.5f, 0.5f, "Freq", "Harm", "Timbre", "Decay");
     // machine::add<PlaitsEngine<12>>(machine::M_OSC, "Modal", 0.f, 0.5f, 0.5f, 0.5f, "Freq", "Harm", "Timbre", "Decay");
 
-    machine::add<PlaitsEngine<13, 0>>(machine::DRUM, "Analog BD", -1.f, 0.8f, 0.5f, 0.5f, "Pitch", "Drive", "Tone", "Decay");
-    machine::add<PlaitsEngine<14, 0>>(machine::DRUM, "Analog SD", 1.f, 0.5f, 0.5f, 0.5f, "Pitch", "Snappy", "Tone", "Decay");
-    machine::add<PlaitsEngine<15, 0>>(machine::DRUM, "Analog HH", 0.5f, 0.5f, 0.9f, 0.6f, "Pitch", "Noise", "Tone", "Decay");
-    machine::add<PlaitsEngine<15, 1>>(machine::DRUM, "Analog HH2", 0.5f, 0.5f, 0.9f, 0.6f, "Pitch", "Noise", "Tone", "Decay");
-    machine::add<PlaitsEngine<13, 1>>(machine::DRUM, "909ish-BD", -1.f, 0.8f, 0.8f, 0.75f, "Pitch", "Punch", "Tone", "Decay");
-    machine::add<PlaitsEngine<14, 1>>(machine::DRUM, "909ish-SD", 1.f, 0.5f, 0.5f, 0.5f, "Pitch", "Snappy", "Tone", "Decay");
+    machine::add<PlaitsEngine<13, 0>>(machine::DRUM, "Analog BD", -36.f, 0.8f, 0.5f, 0.5f, "Pitch", "Drive", "Tone", "Decay");
+    machine::add<PlaitsEngine<14, 0>>(machine::DRUM, "Analog SD", 0.f, 0.5f, 0.5f, 0.5f, "Pitch", "Snappy", "Tone", "Decay");
+    machine::add<PlaitsEngine<15, 0>>(machine::DRUM, "Analog HH", 0.f, 0.5f, 0.9f, 0.6f, "Pitch", "Noise", "Tone", "Decay");
+    machine::add<PlaitsEngine<15, 1>>(machine::DRUM, "Analog HH2", 0.f, 0.5f, 0.9f, 0.6f, "Pitch", "Noise", "Tone", "Decay");
+    machine::add<PlaitsEngine<13, 1>>(machine::DRUM, "909ish-BD", -36.f, 0.8f, 0.8f, 0.75f, "Pitch", "Punch", "Tone", "Decay");
+    machine::add<PlaitsEngine<14, 1>>(machine::DRUM, "909ish-SD", -12.f, 0.5f, 0.5f, 0.5f, "Pitch", "Snappy", "Tone", "Decay");
 }
 
 MACHINE_INIT(init_plaits);

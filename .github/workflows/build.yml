@@ -15,6 +15,7 @@ jobs:
         pip install --upgrade platformio
     - name: build OC_teensy40
       run: |
+        git submodule update --init
         pio run -e OC_teensy40
         export hash=$(git rev-parse --short HEAD)
         mv .pio/build/*/firmware.hex ./firmware_$hash.hex

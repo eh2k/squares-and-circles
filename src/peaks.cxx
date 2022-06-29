@@ -15,16 +15,17 @@
 #include "peaks/gate_processor.h"
 #include "ch_oh.hxx"
 
-template <class T, int P1 = 0, int P2 = 1, int P3 = 2, int P4 = 3>
-struct PeaksEngine : public machine::Engine
+using namespace machine;
+
+template <class T, uint32_t engine_props, int P1 = 0, int P2 = 1, int P3 = 2, int P4 = 3>
+struct PeaksEngine : public Engine
 {
     T _processor;
 
     uint16_t params_[4];
 
-    peaks::GateFlags flags[machine::FRAME_BUFFER_SIZE];
-    float buffer[machine::FRAME_BUFFER_SIZE];
-    int16_t tmp[machine::FRAME_BUFFER_SIZE];
+    peaks::GateFlags flags[FRAME_BUFFER_SIZE];
+    int16_t buffer[FRAME_BUFFER_SIZE];
 
     PeaksEngine(uint16_t p1 = UINT16_MAX / 2,
                 uint16_t p2 = UINT16_MAX / 2,
@@ -33,11 +34,11 @@ struct PeaksEngine : public machine::Engine
                 const char *param1 = nullptr,
                 const char *param2 = nullptr,
                 const char *param3 = nullptr,
-                const char *param4 = nullptr)
+                const char *param4 = nullptr) : Engine(engine_props)
     {
         memset(&_processor, 0, sizeof(T));
         _processor.Init();
-        std::fill(&flags[0], &flags[machine::FRAME_BUFFER_SIZE], peaks::GATE_FLAG_LOW);
+        std::fill(&flags[0], &flags[FRAME_BUFFER_SIZE], peaks::GATE_FLAG_LOW);
 
         param[0].init(param1, &params_[P1], p1);
         param[1].init(param2, &params_[P2], p2);
@@ -52,30 +53,31 @@ struct PeaksEngine : public machine::Engine
         param[3].init(param4, &params_[P4], p4);
     }
 
-    void Process(const machine::ControlFrame &frame, float **out, float **aux) override
+    void process(const ControlFrame &frame, OutputFrame &of) override
     {
         _processor.Configure(params_, peaks::CONTROL_MODE_FULL);
 
         if (frame.trigger)
         {
-            flags[0] = flags[0] == peaks::GATE_FLAG_LOW ? peaks::GATE_FLAG_RISING : peaks::GATE_FLAG_HIGH;
-            std::fill(&flags[1], &flags[machine::FRAME_BUFFER_SIZE], peaks::GATE_FLAG_HIGH);
+            flags[0] = peaks::GATE_FLAG_RISING;
+            std::fill(&flags[1], &flags[FRAME_BUFFER_SIZE], peaks::GATE_FLAG_HIGH);
+        }
+        else if (frame.gate)
+        {
+            std::fill(&flags[0], &flags[FRAME_BUFFER_SIZE], peaks::GATE_FLAG_HIGH);
         }
         else
         {
             flags[0] = flags[0] == peaks::GATE_FLAG_HIGH ? peaks::GATE_FLAG_FALLING : peaks::GATE_FLAG_LOW;
-            std::fill(&flags[1], &flags[machine::FRAME_BUFFER_SIZE], peaks::GATE_FLAG_LOW);
+            std::fill(&flags[1], &flags[FRAME_BUFFER_SIZE], peaks::GATE_FLAG_LOW);
         }
 
-        _processor.Process(flags, tmp, machine::FRAME_BUFFER_SIZE);
+        _processor.Process(flags, buffer, FRAME_BUFFER_SIZE);
 
-        for (int i = 0; i < machine::FRAME_BUFFER_SIZE; i++)
-            buffer[i] = (float)tmp[i] / INT16_MAX;
-
-        *out = buffer;
+        of.push(buffer, LEN_OF(buffer));
     }
 
-    void OnDisplay(uint8_t *buffer) override
+    void onDisplay(uint8_t *buffer) override
     {
         if (std::is_same<T, peaks::Lfo>::value)
         {
@@ -109,8 +111,8 @@ struct PeaksEngine : public machine::Engine
 
 class Hihat808 : public CHOH
 {
-    PeaksEngine<peaks::HighHat> oh;
-    PeaksEngine<peaks::HighHat> ch;
+    PeaksEngine<peaks::HighHat, TRIGGER_INPUT> oh;
+    PeaksEngine<peaks::HighHat, TRIGGER_INPUT> ch;
 
 public:
     Hihat808() : oh(UINT16_MAX), ch(UINT16_MAX)
@@ -122,15 +124,16 @@ public:
 
 void init_peaks()
 {
-    machine::add<PeaksEngine<peaks::BassDrum>>(machine::DRUM, "808ish-BD", INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX, "Pitch", "Punch", "Tone", "Decay");
-    machine::add<PeaksEngine<peaks::SnareDrum, 0, 2, 1, 3>>(machine::DRUM, "808ish-SD", INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX, "Pitch", "Snappy", "Tone", "Decay");
+    add<PeaksEngine<peaks::FmDrum, TRIGGER_INPUT, 0, 3, 1, 2>>(DRUM, "FM-Drum", INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX, "Freq.", "Noise", "FM", "Decay");
+    
+    add<PeaksEngine<peaks::BassDrum, TRIGGER_INPUT>>(DRUM, "808ish-BD", INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX, "Pitch", "Punch", "Tone", "Decay");
+    add<PeaksEngine<peaks::SnareDrum, TRIGGER_INPUT, 0, 2, 1, 3>>(DRUM, "808ish-SD", INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX, "Pitch", "Snappy", "Tone", "Decay");
 
-    machine::add<Hihat808>(machine::DRUM, "808ish-CH-OH");
+    add<Hihat808>(DRUM, "808ish-HiHat");
 
-    machine::add<PeaksEngine<peaks::HighHat>>(machine::DRUM, "808ish-HiHat", INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX, "Decay");
-    machine::add<PeaksEngine<peaks::FmDrum, 0, 3, 1, 2>>(machine::DRUM, "FM-Drum", INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX, "Freq.", "Noise", "FM", "Decay");
-    machine::add<PeaksEngine<peaks::MultistageEnvelope>>(machine::CV, "Envelope", 0, INT16_MAX, INT16_MAX, INT16_MAX, "Attack", "Decay", "Sustain", "Release");
-    machine::add<PeaksEngine<peaks::Lfo>>(machine::CV, "LFO", 0, 0, INT16_MAX, 0, "Freq.", "Shape", "Param", "Phase");
+    //add<PeaksEngine<peaks::HighHat, TRIGGER_INPUT>>(DRUM, "808ish-HiHat", INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX, "Decay");
+    add<PeaksEngine<peaks::MultistageEnvelope, TRIGGER_INPUT>>(CV, "Envelope", 0, INT16_MAX, INT16_MAX, INT16_MAX, "Attack", "Decay", "Sustain", "Release");
+    add<PeaksEngine<peaks::Lfo, TRIGGER_INPUT>>(CV, "LFO", 0, 0, INT16_MAX, 0, "Freq.", "Shape", "Param", "Phase");
 }
 
 MACHINE_INIT(init_peaks);

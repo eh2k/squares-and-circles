@@ -39,30 +39,32 @@
 #include "claps/cp909.h"
 #include "claps/cp808.h"
 
-struct TR909_CP : public SampleEngine<int16_t>
+struct TR909_CP : public SampleEngine
 {
-    const sample_spec<int16_t> _sound = {"", (const int16_t *)cp909_raw, cp909_raw_len / 2, 44100, 0};
+    const tsample_spec<int16_t> _sound = {"", (const int16_t *)cp909_raw, cp909_raw_len / 2, 44100, 0};
 
-    TR909_CP() : SampleEngine<int16_t>(&_sound, 0, 1) {}
+    TR909_CP() : SampleEngine(&_sound, 0, 1) {}
 };
 
-struct TR808_CP : public SampleEngine<int16_t>
+struct TR808_CP : public SampleEngine
 {
-    const sample_spec<int16_t> _sound = {"", (const int16_t *)cp808_raw, cp808_raw_len / 2, 44100, 0};
+    const tsample_spec<int16_t> _sound = {"", (const int16_t *)cp808_raw, cp808_raw_len / 2, 44100, 0};
 
-    TR808_CP() : SampleEngine<int16_t>(&_sound, 0, 1) {}
+    TR808_CP() : SampleEngine(&_sound, 0, 1) {}
 };
 
 #include "clouds/dsp/fx/diffuser.h"
 
-class Clap : public machine::Engine
+using namespace machine;
+
+class Clap : public Engine
 {
 private:
     clouds::Diffuser diffusor_;
     uint16_t buffer_diffusor[2048 + 1024];
 
-    float buffer[machine::FRAME_BUFFER_SIZE];
-    float bufferAux[machine::FRAME_BUFFER_SIZE];
+    float buffer[FRAME_BUFFER_SIZE];
+    float bufferAux[FRAME_BUFFER_SIZE];
     stmlib::Svf bpf_;
 
     float freq;
@@ -76,7 +78,7 @@ private:
     TR808_CP cp_loop;
 
 public:
-    Clap()
+    Clap() : Engine(TRIGGER_INPUT)
     {
         diffuse = 0.2f;
         diffusor_.Init(&buffer_diffusor[0]);
@@ -102,7 +104,7 @@ public:
     float decay = 0.01f;
     float gain = 1.0f;
 
-    void Process(const machine::ControlFrame &frame, float **out, float **aux) override
+    void process(const ControlFrame &frame, OutputFrame &of) override
     {
         sync_params();
 
@@ -113,10 +115,12 @@ public:
             t = 0;
         }
 
-        float *cp_out = nullptr;
-        float *cp_loop_out = nullptr;
-        cp.Process(frame, &cp_out, &cp_out);
-        cp_loop.Process(frame, &cp_loop_out, &cp_loop_out);
+        OutputFrame cp_of;
+        OutputFrame cp_loop_of;
+        cp.process(frame, cp_of);
+        cp_loop.process(frame, cp_loop_of);
+        float* cp_out = (float *)cp_of.out;
+        float* cp_loop_out = (float *)cp_loop_of.out;
 
         for (int i = 0; i < machine::FRAME_BUFFER_SIZE; i++)
         {
@@ -157,8 +161,8 @@ public:
 
         diffusor_.Process(buffer, bufferAux, machine::FRAME_BUFFER_SIZE);
 
-        *out = buffer;
-        *aux = bufferAux;
+        of.out = buffer;
+        of.aux = bufferAux;
     }
 
     void sync_params()
@@ -201,7 +205,7 @@ public:
     int t = 0;
     float e = 0;
 
-    void Process(const machine::ControlFrame &frame, float **out, float **aux) override
+    void process(const machine::ControlFrame &frame, OutputFrame &of) override
     {
         bpf_.set_g_r(0.1f + freq * 0.25f, 1 - freq * 0.25f);
 
@@ -239,16 +243,16 @@ public:
             buffer[i] = e * filtered_noise * 3;
         }
 
-        *out = buffer;
+        of.out = buffer;
     }
 };
 
 void init_clap()
 {
     machine::add<Clap>(machine::DRUM, "Clap");
-    //machine::add<TR909_CP>(machine::DRUM, "TR909-Clap");
-    //machine::add<TR808_CP>(machine::DRUM, "TR808-Clap");
-    //machine::add<Clap2>(machine::DEV, "Clap2");
+    // machine::add<TR909_CP>(machine::DRUM, "TR909-Clap");
+    // machine::add<TR808_CP>(machine::DRUM, "TR808-Clap");
+    // machine::add<Clap2>(machine::DEV, "Clap2");
 }
 
 MACHINE_INIT(init_clap);

@@ -43,7 +43,7 @@ struct Delay : public Engine
     float level = 0.5f;
     float pan = 0.5f;
 
-    constexpr static int delay_len = machine::SAMPLE_RATE; //1s
+    constexpr static int delay_len = 48000; //1s
 
     stmlib::DelayLine<uint16_t, delay_len> delay_mem[2];
     stmlib::OnePole filterLP[2];
@@ -94,7 +94,7 @@ struct Delay : public Engine
         }
     }
 
-    void Process(const ControlFrame &frame, float **out, float **aux) override
+    void process(const ControlFrame &frame, OutputFrame &of) override
     {
         sync_params();
 
@@ -128,8 +128,8 @@ struct Delay : public Engine
             bufferR[i] = readR + ins[1][i];
         }
 
-        *out = bufferL;
-        *aux = bufferR;
+        of.out = bufferL;
+        of.aux = bufferR;
     }
 
     void sync_params()
@@ -148,12 +148,12 @@ struct Delay : public Engine
     }
 
     char time_info[64] = "Time";
-    void OnDisplay(uint8_t *buffer) override
+    void onDisplay(uint8_t *buffer) override
     {
         if (calc_t_step32())
         {
             int n = 1 + time / t_32;
-            sprintf(time_info, ">T:%d/32", n);
+            sprintf(time_info, ">t=%d", n);
         }
         else
             sprintf(time_info, ">T:%d ms", (int)(time * 1000));
