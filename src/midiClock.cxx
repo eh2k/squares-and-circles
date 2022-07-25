@@ -38,7 +38,7 @@ class MidiClock : public Engine
     int16_t buffer[FRAME_BUFFER_SIZE] = {};
 
 public:
-    MidiClock() : Engine(TRIGGER_INPUT | OUT_EQ_VOLT)
+    MidiClock() : Engine(SEQUENCER_ENGINE | OUT_EQ_VOLT)
     {
         // 24, 8 or 4 ppqn
         param[0].init("ppqn", &ppqn, 0, 0, 2);
@@ -67,39 +67,32 @@ public:
         };
     }
 
-    uint32_t clock = 0;
     uint32_t sixteens = 0;
     uint32_t next = -1;
-    uint32_t last_clock = 0;
+    uint32_t last_t = 0;
 
     void process(const ControlFrame &frame, OutputFrame &of) override
     {
         if (frame.clock)
-        {
-            clock++;
-            last_clock = frame.t;
-        }
-
-        if (frame.clock > 1) // RESET
-            clock = 0;
+            last_t = frame.t;
 
         uint32_t div = ppqn == 0 ? 6 : (ppqn == 1 ? 3 : 1);
 
-        if (frame.trigger || (frame.clock && (clock % div) == 0))
+        if ((frame.clock % div) == 1 || (ppqn > 1 && frame.clock))
         {
             next = frame.t + (offset * 2);
         }
 
         if (frame.t == next)
         {
-            if (frame.t - last_clock > 1000)
+            if (frame.t - last_t > 1000)
             {
                 // No external clock - so diy and sync with trigger
-                auto bpm = machine::get_bpm() / (25.f / 24);
-                auto t_per_beat = 60.f / bpm;
-                auto t_24 = t_per_beat / 24.f * div;
-                float t_per_frame = 1.f / (machine::SAMPLE_RATE / machine::FRAME_BUFFER_SIZE);
-                next = frame.t + (t_24 / t_per_frame);
+                auto one_div_bpm = 100 * machine::get_bpm() / (25 / 24);
+                auto t_per_beat = 60 * one_div_bpm;
+                auto t_24 = t_per_beat / 24 * div;
+                auto samples_per_frame = machine::SAMPLE_RATE / machine::FRAME_BUFFER_SIZE;
+                next = frame.t + (t_24 * samples_per_frame);
             }
             else
                 next = -1;
@@ -116,7 +109,9 @@ public:
         gfx::drawEngine(buffer, this);
 
         char tmp[20];
-        sprintf(tmp, " %.1fbpm", machine::get_bpm());
+        int bpm = machine::get_bpm();
+        int bpm2 = ((bpm % 100) / 10);
+        sprintf(tmp, " %d.%dbpm", bpm / 100, bpm2);
         gfx::drawString(buffer, 58, 1, tmp, 0);
     }
 };

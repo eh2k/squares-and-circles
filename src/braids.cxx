@@ -69,7 +69,7 @@ struct BraidsEngine : public Engine
 
         osc.set_shape((braids::MacroOscillatorShape)_shape);
 
-        float pitchV = (_pitch - 1) + frame.cv_voltage;
+        float pitchV = (_pitch - 1) + frame.cv_voltage();
         int32_t pitch = (pitchV * 12.0 + machine::DEFAULT_NOTE + 24) * 128;
 
         // if (!settings.meta_modulation())
@@ -94,7 +94,7 @@ struct BraidsEngine : public Engine
         uint16_t gain = _decay < UINT16_MAX ? ad_value : 65535;
 
         for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
-            audio_samples[i] = audio_samples[i] * gain / UINT16_MAX;
+            audio_samples[i] = audio_samples[i] * gain / UINT16_MAX / 4;
 
         of.push(audio_samples, LEN_OF(audio_samples));
     }

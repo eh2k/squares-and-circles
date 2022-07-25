@@ -58,7 +58,7 @@ struct ResonatorEngine : public Engine
 
         float *input = machine::get_aux(AUX_L);
 
-        performance_state.note += frame.cv_voltage * 12;
+        performance_state.note += frame.cv_voltage() * 12;
 
         strummer.Process(input, FRAME_BUFFER_SIZE, &performance_state);
         part.Process(performance_state, patch, input, bufferOut, bufferAux, FRAME_BUFFER_SIZE);

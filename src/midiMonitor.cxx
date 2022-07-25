@@ -41,7 +41,9 @@ struct MidiMonitor : public machine::MidiEngine
         for (int y = 12; y < 60; y += 3)
             gfx::drawPixel(buffer, 64, y);
 
-        sprintf(tmp, "clock: %4.1f", machine::get_bpm());
+        int bpm = machine::get_bpm();
+        int bpm2 = ((bpm % 100) / 10);
+        sprintf(tmp, "clock: %3d.%d", bpm / 100, bpm2);
         gfx::drawString(buffer, 66, 20, tmp, 0);
 
         sprintf(tmp, "pitch: %4d", pitch);

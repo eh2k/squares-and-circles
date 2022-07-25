@@ -119,7 +119,7 @@ struct PlaitsEngine : public Engine
         modulations.engine = 0;
         modulations.trigger = frame.trigger ? 1 : 0;
 
-        modulations.note = frame.cv_voltage * 12;
+        modulations.note = frame.cv_voltage() * 12;
         voice.Render(patch, modulations, f);
 
         patch.decay = last_decay;

@@ -241,7 +241,7 @@ void init_sample_roms()
     machine::add<TR707>(machine::DRUM, "TR707");
     machine::add<TR707_CH_OH>(machine::DRUM, "TR707-HiHat");
 
-#ifdef PRIVATE
+#ifndef PRIVATE
     machine::add<Am6070Engine>(machine::DRUM, "Vint.EPROMs");
     machine::add<CH_OH>(machine::DRUM, "Vint.HiHats");
 #endif

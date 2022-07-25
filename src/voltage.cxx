@@ -31,25 +31,22 @@ using namespace machine;
 class VoltsPerOctave : public Engine
 {
     char tmp[64];
-    float note = 0;
-    float tune = 0;
-    float cv = 0;
-
-    float buffer[FRAME_BUFFER_SIZE] = {};
+    uint8_t note = DEFAULT_NOTE;
+    uint8_t tune = 32;
+    int32_t cv = 0;
 
 public:
     VoltsPerOctave() : Engine(OUT_EQ_VOLT | VOCT_INPUT)
     {
         param[0].init_v_oct("Tone", &note);
-        param[1].init("\t", &tune, 0, -12, 12);
-        param[1].step.f = 1 / 48.f;
-        param[1].setStepValue(1.f);
+        param[1].init("\t", &tune, tune, 0, 64);
     }
 
     void process(const ControlFrame &frame, OutputFrame &of) override
     {
-        cv = frame.cv_voltage;
-        cv += ((note * 12) + tune) / 12.f;
+        cv = frame.cv_voltage_ +
+             (((int)note - DEFAULT_NOTE) * machine::PITCH_PER_OCTAVE / 12) +
+             (((int)tune - 32) << 3);
 
         of.push(&cv, 1);
     }
@@ -59,7 +56,7 @@ public:
         gfx::drawString(display, 18, 16, "Note");
         gfx::drawString(display, 82, 16, "Tune");
 
-        sprintf(tmp, "DAC: %.2fV", cv);
+        sprintf(tmp, "DAC: %.2fV", ((float)cv / machine::PITCH_PER_OCTAVE));
         gfx::drawString(display, 64, 53, tmp, 0);
 
         gfx::drawEngine(display, this);

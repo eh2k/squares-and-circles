@@ -1,0 +1,203 @@
+;OEM1_4 Gated Reverb
+
+;pot0 = gate time
+;pot1 = predelay
+;pot2 = damping
+
+;gated reverb by FIR technique. Good for percussion, but signal levels may 
+;accumulate with continuous program. 
+
+;Input is mono, for use with portable mixer sends. Output is spread into stereo space.
+
+;Gate time is variable from 115mS to 307mS (Fs=46608KHz) or 162mS to 436mS (Fs=32768KHz)
+
+;Predelay is variable from 0 to 87mS (Fs=46608KHz), or 0 to 125mS (Fs=32768KHz)
+
+;Damping filter within FIR delay increases with clockwise rotation of pot2
+
+;memory declarations:
+
+mem	pdel	4100
+mem	gdel	15000
+mem	lap1	234
+mem	lap2	446
+mem	lap3	552
+mem	rap1	201
+mem	rap2	389
+mem	rap3	627
+
+;register declarations:
+
+equ	temp	reg0
+equ	gout	reg1
+equ	fil1	reg2
+equ	fil2	reg3
+equ	fil3	reg4
+equ	fil4	reg5
+
+constants:
+
+equ	kap	0.6
+
+;do variable predelay:
+
+skp	run,1
+wldr	rmp0,0,4096		;initialize predelay
+
+rdax	adcl,0.25		;put inputs into predelay
+rdax	adcr,0.25		;headroom space
+wra	pdel,0
+
+cho	rda,rmp0,reg|compc,pdel	;get outputs from predelay, interpolated
+cho	rda,rmp0,0,pdel+1
+wra	gdel,0			;write predelay output to gate delay memory
+
+cho	rdal,rmp0		;read current predelay pointer
+rdax	pot1,-0.5		;subtract pot for servo control of pointer
+wrax	rmp0_rate,0		;maintain predelay pointer
+
+;prepare for decay time setting;
+;analyze pot value and jump to proper location:
+;jump only when ACC is zero, as this is carried into audio calculations
+
+rdax	pot0,1
+and	%01111000_000000000_00000000	;mask upper 4 bits
+sof	1,-15/16
+skp	gez,p1
+sof	1,1/16
+skp	gez,p2
+sof	1,1/16
+skp	gez,p3
+sof	1,1/16
+skp	gez,p4
+sof	1,1/16
+skp	gez,p5
+sof	1,1/16
+skp	gez,p6
+sof	1,1/16
+skp	gez,p7
+sof	1,1/16
+skp	gez,p8
+sof	1,1/16
+skp	gez,p9
+sof	1,1/16
+skp	gez,p10
+sof	1,1/16
+skp	gez,p11
+sof	1,1/16
+skp	gez,p12
+sof	1,1/16
+skp	gez,p13
+sof	1,1/16
+skp	gez,p14
+sof	1,1/16
+skp	gez,p15
+sof	1,1/16
+skp	gez,p16
+sof	1,1/16
+skp	gez,p17
+sof	1,1/16
+skp	gez,p18
+sof	1,1/16
+skp	gez,p19
+sof	1,1/16
+skp	gez,p20
+p1:
+rda	gdel+14334,0.4
+p2:
+rda	gdel+14023,0.5
+p3:
+rda	gdel+13508,0.4
+p4:
+rda	gdel+13101,0.5
+p5:
+rda	gdel+12760,0.5
+p6:
+rda	gdel+12120,0.4
+p7:
+rda	gdel+11765,0.5
+p8:
+rda	gdel+11312,0.5
+p9:
+rda	gdel+10750,0.5
+p10:
+rda	gdel+10212,0.5
+p11:
+rda	gdel+9705,0.5
+p12:
+rda	gdel+9367,0.5
+p13:
+rda	gdel+8905,0.4
+p14:
+rda	gdel+8575,0.5
+p15:
+rda	gdel+8215,0.5
+p16:
+rda	gdel+7412,0.4
+p17:
+rda	gdel+7144,0.5
+p18:
+rda	gdel+6513,0.5
+p19:
+rda	gdel+5822,0.5
+p20:
+rda	gdel+5320,0.5
+rda	gdel+5138,0.5
+rda	gdel+4576,0.5
+rda	gdel+3907,0.4
+rda	gdel+3420,0.5
+rda	gdel+2974,0.5
+rda	gdel+2530,0.5
+rda	gdel+2110,0.5
+rda	gdel+1340,0.5
+rda	gdel+923,0.5
+rda	gdel+500,0.5
+rda	gdel,0.6
+
+wrax	gout,1		
+rda	lap1#,kap		;spread outputs and smear with allpasses
+wrap	lap1,-kap
+rda	lap2#,kap
+wrap	lap2,-kap
+rda	lap3#,kap
+wrap	lap3,-kap		
+wrax	dacl,0
+
+rdax	gout,1
+rda	rap1#,kap
+wrap	rap1,-kap
+rda	rap2#,kap
+wrap	rap2,-kap
+rda	rap3#,kap
+wrap	rap3,-kap
+wrax	dacr,0
+
+;now insert lp filters into gate delay, adjustable by pot2:
+
+rda	gdel+2500,-1
+rdfx	fil1,0.5
+wrhx	fil1,-1
+mulx	pot2
+rda	gdel+2500,1
+wra	gdel+2500,0
+
+rda	gdel+4500,-1
+rdfx	fil2,0.4
+wrhx	fil2,-1
+mulx	pot2
+rda	gdel+4500,1
+wra	gdel+4500,0
+
+rda	gdel+7000,-1
+rdfx	fil1,0.3
+wrhx	fil1,-1
+mulx	pot2
+rda	gdel+7000,1
+wra	gdel+7000,0
+
+rda	gdel+10000,-1
+rdfx	fil1,0.2
+wrhx	fil1,-1
+mulx	pot2
+rda	gdel+10000,1
+wra	gdel+10000,0

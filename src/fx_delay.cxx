@@ -79,7 +79,7 @@ struct Delay : public Engine
 
     bool calc_t_step32()
     {
-        float midi_bpm = machine::get_bpm();
+        float midi_bpm = 1.f / 100 * machine::get_bpm();
         if (midi_bpm > 0)
         {
             auto bpm = midi_bpm / (25.f / 24);
@@ -162,7 +162,7 @@ struct Delay : public Engine
 
         gfx::drawEngine(buffer, this);
 
-        float midi_bpm = machine::get_bpm();
+        float midi_bpm = 1.f / 100 * machine::get_bpm();
         if (midi_bpm > 0)
         {
             char tmp[16];

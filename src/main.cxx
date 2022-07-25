@@ -49,9 +49,9 @@ int main()
     MACHINE_INIT(init_delay);
     MACHINE_INIT(init_modulations);
     MACHINE_INIT(init_fv1);
-    MACHINE_INIT(init_midi_polyVA);
+    MACHINE_INIT(init_midi_polyVA);   
 
-    machine::setup("0.0k", 0);
+    machine::setup("0.0l", 0);
 
     while (true)
         machine::loop();

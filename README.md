@@ -12,7 +12,7 @@
 
 ## Motivation
 
-When I am asked why I do such projects - my general reply is: I don't know - because I like to get deeper understanding of technical things. 
+When I am asked why I do such projects - my general reply is: I don't know, it makes fun and I like to get deeper understanding of technical things. 
 Maybe the reason was the chip shortage that makes Eurorack DIY projects tricky at the moment, and I used that to get more involved with coding in the eurorack land. 
 At this point, a big thanks to the people behind ornament & crime (o_C), Teensy and specially Mutable Instruments for the inspiring playground and the basis regarding hardware and software for this project.
 

@@ -108,7 +108,7 @@ public:
 
         this->default_inc = 1.0f / smpl.len * (smpl.sample_rate / (float)machine::SAMPLE_RATE);
 
-        this->default_inc *= stmlib::SemitonesToRatio(frame.cv_voltage * 12);
+        this->default_inc *= stmlib::SemitonesToRatio(frame.cv_voltage() * 12);
 
         float pitch_fine = 0;
         this->inc = (this->inc < 0 ? -1.f : 1.f) *

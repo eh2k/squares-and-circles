@@ -70,7 +70,7 @@ struct SpeechEngine : public Engine
     {
         auto note = (float)machine::DEFAULT_NOTE + _pitch * 12.f;
 
-        note += frame.cv_voltage * 12;
+        note += frame.cv_voltage() * 12;
 
         const float f0 = NoteToFrequency(note);
 

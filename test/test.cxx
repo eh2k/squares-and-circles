@@ -48,12 +48,12 @@ uint32_t random(uint32_t howbig)
 {
     if (howbig == 0)
         return 0;
-    return random() % howbig;
+    return std::rand() % howbig;
 }
 
 namespace gfx
 {
-    void drawPixel(uint8_t *buffer, int16_t x, int16_t y) {}
+    void drawPixel(uint8_t *buffer, int16_t x, int16_t y, uint8_t color) {}
     void drawLine(uint8_t *buffer, int x1, int y1, int x2, int y2) {}
     void drawRect(uint8_t *buffer, int x1, int y1, int w, int h) {}
     void drawXbm(uint8_t *buffer, int16_t x, int16_t y, int16_t width, int16_t height, const uint8_t *xbm) {}
@@ -74,9 +74,9 @@ namespace machine
 
     MidiHandler *midi_handler = &_dummy;
 
-    float& get_bpm()
+    uint32_t &get_bpm()
     {
-        static float bpm = 120;
+        static uint32_t bpm = 120 * 100;
         return bpm;
     }
 
@@ -117,34 +117,52 @@ namespace machine
         return nullptr;
     }
 
-    template <>
-    void OutputFrame::push(float *buff, size_t len)
+    float *tmp_buff()
     {
-        if (out == nullptr)
-            out = buff;
-        else
-            aux = buff;
+        static float __tmp[machine::FRAME_BUFFER_SIZE * 12];
+        static int __tmpP = 0;
+
+        __tmpP += machine::FRAME_BUFFER_SIZE;
+        __tmpP %= LEN_OF(__tmp);
+        return &__tmp[__tmpP];
     }
 
-    template <>
-    void OutputFrame::push(int16_t *iout, size_t len)
+    template <typename T>
+    void _push(T *buff, size_t len, float f, OutputFrame *out)
     {
-        static float __tmp[machine::FRAME_BUFFER_SIZE];
+        auto tmp = tmp_buff();
 
-        auto tmp = __tmp;
-        if (out == nullptr)
-            out = tmp;
-        else
-            aux = tmp;
+        if (out->out == nullptr)
+            out->out = tmp;
+        else if (out->aux == nullptr)
+            out->aux = tmp;
 
+        T *buff2 = buff;
         for (size_t i = 0; i < len; i++)
         {
             for (size_t j = 0; j < (machine::FRAME_BUFFER_SIZE / len); j++)
-            {
-                *tmp++ = ((float)*iout) / INT16_MAX;
-            }
-            ++iout;
+                *tmp++ = (float)*buff2 * f;
+
+            ++buff2;
         }
+    }
+
+    template <>
+    void OutputFrame::push(float *buff, size_t len)
+    {
+        _push(buff, len, 1.f, this);
+    }
+
+    template <>
+    void OutputFrame::push(int16_t *buff, size_t len)
+    {
+        _push(buff, len, 5.f / INT16_MAX, this);
+    }
+
+    template <>
+    void OutputFrame::push(int32_t *buff, size_t len)
+    {
+        _push(buff, len, 1.f / machine::PITCH_PER_OCTAVE, this);
     }
 
     struct EngineDef
@@ -195,8 +213,13 @@ namespace machine
     extern void init_fun();    \
     init_fun();
 
+#include "plaits/dsp/voice.h"
+
 int main()
 {
+    auto f = plaits::NoteToFrequency(machine::DEFAULT_NOTE);
+    printf("%f\n", f);
+
     MACHINE_INIT(init_voltage);
     MACHINE_INIT(init_peaks);
     MACHINE_INIT(init_braids);
@@ -213,12 +236,12 @@ int main()
 
     // return;
 
+    machine::Engine *seq = nullptr;
+
     std::map<const char *, bool> machines;
 
     for (int j = 0; j < machine::registry.size(); j++)
     {
-        auto audio_in = machine::registry[0].init();
-
         std::vector<int16_t> buffer;
 
         auto &r = machine::registry[j];
@@ -228,6 +251,11 @@ int main()
         //      continue;
 
         auto engine = r.init();
+
+        if (engine->props & machine::SEQUENCER_ENGINE)
+        {
+            seq = r.init();
+        }
 
         printf("````\n");
         printf("Parameters:\n");
@@ -245,38 +273,57 @@ int main()
         machine::ControlFrame frame;
         float tmp[machine::FRAME_BUFFER_SIZE] = {};
 
-        for (float v = -3; v < 3; v += 1.f)
+        // for (float v = -6; v < 6; v += 1.f)
+
+        for (int t = 0; t < 16; t++)
         {
-            for (int i = 0; i < 48000 * 2;)
+            for (int i = 0; i < 48000 / 6;)
             {
+
                 frame.trigger = i == 0;
-                frame.cv_voltage = v;
+                frame.accent = 0;
+                frame.cv_voltage_ = 0;
+
+                int n = (48000 / 6 / 24);
+
+                frame.clock = 1 + ((buffer.size() / n) % 96);
+                if ((buffer.size() % n) > 1)
+                    frame.clock = 0;
 
                 const float *ins[] = {machine::audio_in[0], machine::audio_in[1]};
 
+                if (seq != nullptr && !(engine->props & machine::SEQUENCER_ENGINE))
                 {
                     machine::OutputFrame of;
-                    audio_in->process(frame, of);
-                    ins[0] = of.out;
-                    ins[1] = of.aux;
+                    seq->process(frame, of);
+                    frame.cv_voltage_ = machine::PITCH_PER_OCTAVE * of.out[0];
+                    static bool last = false;
+
+                    frame.trigger = !last && of.aux[0] > 1;
+                    frame.accent = frame.trigger;
+                    last = frame.trigger;
+                    // ins[0] = of.out;
+                    // ins[1] = of.aux;
                 }
 
                 machine::OutputFrame of;
                 engine->process(frame, of);
 
+                frame.t++;
+
                 if (of.out == nullptr)
                     break;
 
-                const int n = 2000;
-                // if (buffer.size() > n * 2 &&
-                //     !memcmp(&buffer[buffer.size() - n * 2], &buffer[buffer.size() - n], n))
-                //     break;
+                // const int n = 2000;
+                //  if (buffer.size() > n * 2 &&
+                //      !memcmp(&buffer[buffer.size() - n * 2], &buffer[buffer.size() - n], n))
+                //      break;
 
                 for (int k = 0; k < machine::FRAME_BUFFER_SIZE; k++)
                 {
-                    auto v = (of.out[k]) * INT16_MAX;
-                    if (of.aux != nullptr)
-                        v += (of.aux[k]) * INT16_MAX;
+                    auto v = (-of.out[k]) * INT16_MAX;
+                    // if (of.aux != nullptr)
+                    //      v += (-of.aux[k]) * INT16_MAX / 5;
 
                     CONSTRAIN(v, INT16_MIN, INT16_MAX);
                     buffer.push_back(v);
@@ -291,8 +338,8 @@ int main()
                 engine->param[k].from_uint16(val);
             }
 
-            //engine->param[1].apply_encoder(1, false);
-            //break;
+            // engine->param[1].apply_encoder(1, false);
+            // break;
         }
 
         free(engine);
