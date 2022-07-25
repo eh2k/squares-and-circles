@@ -1,3 +1,6 @@
 [submodule "lib/eproms"]
 	path = lib/eproms
 	url = https://github.com/eh2k/vintage-drum-roms.git
+[submodule "lib/open303"]
+	path = lib/open303
+	url = https://github.com/eh2k/open303.git

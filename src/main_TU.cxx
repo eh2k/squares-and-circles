@@ -36,24 +36,8 @@ int main()
     MACHINE_INIT(init_midi_monitor);
     MACHINE_INIT(init_midi_clock);
     MACHINE_INIT(init_quantizer);
-    MACHINE_INIT(init_peaks);
-    MACHINE_INIT(init_braids);
-    MACHINE_INIT(init_plaits);
-    MACHINE_INIT(init_sample_roms);
-    MACHINE_INIT(init_clap);
-    MACHINE_INIT(init_reverb);
-    MACHINE_INIT(init_faust);
-    MACHINE_INIT(init_rings);
-    MACHINE_INIT(init_speech);
-    MACHINE_INIT(init_sam);
-    MACHINE_INIT(init_delay);
-    MACHINE_INIT(init_modulations);
-    MACHINE_INIT(init_fv1);
-    MACHINE_INIT(init_midi_polyVA);
-    //MACHINE_INIT(init_open303);
-    //MACHINE_INIT(init_acid_sequencer);
-    //MACHINE_INIT(init_trig_sequencer);
-    
+    MACHINE_INIT(init_acid_sequencer);
+    MACHINE_INIT(init_trig_sequencer);
 
     machine::setup("0.0l", 0);
 

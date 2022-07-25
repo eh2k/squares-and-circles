@@ -13,16 +13,19 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install --upgrade platformio
-    - name: build OC_teensy40
+    - name: build
       run: |
         git submodule update --init
-        pio run -e OC_teensy40
+        pio run
         export hash=$(git rev-parse --short HEAD)
-        mv .pio/build/*/firmware.hex ./firmware_OC_T40_$hash.hex
+        mv .pio/build/OC_teensy40/firmware.hex ./firmware_OC_T40_$hash.hex
+        mv .pio/build/TU_teensy32/firmware.hex ./firmware_TU_T32_$hash.hex
         mv .github/workflows/LICENSE.txt ./LICENSE.txt
         zip -j ./firmware_OC_T40_$hash.zip ./firmware_OC_T40_$hash.hex ./LICENSE.txt
-        curl -f -X PUT -u ${{ secrets.UPLOAD_KEY }} ${{ secrets.LATEST_DROP_FOLDER }}/firmware_OC_T40_latest.zip --upload-file ./firmware_OC_T40_$hash.zip
-        curl -f -X PUT -u ${{ secrets.UPLOAD_KEY }} ${{ secrets.LATEST_DROP_FOLDER }}/firmware_latest.sha -d "$hash"
+        zip -j ./firmware_TU_T32_$hash.zip ./firmware_TU_T32_$hash.hex ./LICENSE.txt
+        curl -X PUT -u ${{ secrets.UPLOAD_KEY }} ${{ secrets.LATEST_DROP_FOLDER }}/firmware_OC_T40_latest.zip --upload-file ./firmware_OCT40_$hash.zip || true
+        curl -X PUT -u ${{ secrets.UPLOAD_KEY }} ${{ secrets.LATEST_DROP_FOLDER }}/firmware_TU_T32_latest.zip --upload-file ./firmware_TUT32_$hash.zip || true
+        curl -X PUT -u ${{ secrets.UPLOAD_KEY }} ${{ secrets.LATEST_DROP_FOLDER }}/firmware_latest.sha -d "$hash"
     - name: firmware_artifacts
       uses: actions/upload-artifact@v2
       with:
