@@ -1,4 +1,4 @@
-#include "sample.hxx"
+#include "base/SampleEngine.hxx"
 #include <inttypes.h>
 #ifndef PROGMEM
 #include "pgmspace.h"
@@ -36,8 +36,7 @@
 #include "eproms/linn9k/clap0125.bin.h"
 //#include "eproms/linn9k/hat0124.bin.h"
 
-#include "ch_oh.hxx"
-#include "sample.hxx"
+#include "base/HiHatsEngine.hxx"
 
 struct Am6070Engine : public SampleEngine
 {
@@ -100,7 +99,7 @@ struct HIHATS : public SampleEngine
     }
 };
 
-struct CH_OH : public CHOH
+struct CH_OH : public HiHatsEngine
 {
     HIHATS oh;
     HIHATS ch;
@@ -164,7 +163,7 @@ struct TR707 : public SampleEngine
     }
 };
 
-struct TR707_CH_OH : public CHOH
+struct TR707_CH_OH : public HiHatsEngine
 {
     TR707 oh;
     TR707 ch;
@@ -209,7 +208,7 @@ struct TR909_Ride : public SampleEngine
     }
 };
 
-struct TR909_CH_OH : public CHOH
+struct TR909_CH_OH : public HiHatsEngine
 {
     TR909_OH oh;
     TR909_CH ch;
@@ -221,7 +220,7 @@ struct TR909_CH_OH : public CHOH
     }
 };
 
-struct TR909_CR_OR : public CHOH
+struct TR909_CR_OR : public HiHatsEngine
 {
     TR909_Ride oh;
     TR909_Ride ch;

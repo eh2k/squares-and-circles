@@ -35,7 +35,7 @@
 #define FLASHMEM
 #endif
 
-#include "sample.hxx"
+#include "base/SampleEngine.hxx"
 #include "claps/cp909.h"
 #include "claps/cp808.h"
 

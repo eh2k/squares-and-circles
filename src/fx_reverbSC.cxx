@@ -1,4 +1,4 @@
-// Copyright (C)2021 - Eduard Heidt
+// Copyright (C)2022 - Eduard Heidt
 //
 // Author: Eduard Heidt (eh2k@gmx.de)
 //
@@ -28,55 +28,45 @@
 #include "machine.h"
 #include <vector>
 
-#include "clouds/dsp/fx/reverb.h"
+extern "C" {
+#include "soundpipe/revsc.h"
+}
 
 using namespace machine;
 
-struct CloudsReverb : public Engine
+struct ReverbSC : public Engine
 {
-    float raw = 0;
+    sp_data sp_data_;
+    sp_revsc sp_revsc_;
+    uint8_t aux[107440]; //sp_revsc_.aux.size
+
+    float raw = 1.f;
     float reverb_amount;
     float feedback;
     float gain;
 
-    uint16_t buffer[16384];
-    clouds::Reverb fx_;
-
     float bufferL[FRAME_BUFFER_SIZE];
     float bufferR[FRAME_BUFFER_SIZE];
 
-    CloudsReverb() : Engine(AUDIO_PROCESSOR)
+    ReverbSC() : Engine(AUDIO_PROCESSOR)
     {
-        raw = 1.f;
-        memset(buffer, 0, sizeof(buffer));
-        fx_.Init(buffer);
+        sp_data_.sr = machine::SAMPLE_RATE;
+        sp_data_.aux.ptr = &aux[0];
+        sp_data_.aux.size = sizeof(aux);
+        sp_revsc_init(&sp_data_, &sp_revsc_);
 
         param[0].init("D/W", &raw, raw);
-        param[1].init("Reverb", &reverb_amount, 0.75f);
-        param[2].init("Damp", &feedback, 0.5f);
-        param[3].init("Gain", &gain, 1.f);
+        param[1].init("Feedback", &sp_revsc_.feedback, 0.97f, 0, 1);
+        param[2].init("LpFreq", &sp_revsc_.lpfreq, 10000, 0, machine::SAMPLE_RATE/2);
     }
 
     void process(const ControlFrame &frame, OutputFrame &of) override
     {
-        fx_.set_amount(reverb_amount * 0.54f);
-        fx_.set_diffusion(0.7f);
-        fx_.set_time(0.35f + 0.63f * reverb_amount);
-        fx_.set_input_gain(gain * 0.1f); // 0.1f);
-        fx_.set_lp(0.6f + 0.37f * feedback);
-
         float *ins[] = {machine::get_aux(AUX_L), machine::get_aux(AUX_R)};
-
-        for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
-        {
-            bufferL[i] = ins[0][i];
-            bufferR[i] = ins[1][i];
-        }
-
-        fx_.Process(bufferL, bufferR, FRAME_BUFFER_SIZE);
 
         for (int i = 0; i < FRAME_BUFFER_SIZE; ++i)
         {
+            sp_revsc_compute(&sp_data_, &sp_revsc_, &ins[0][i], &ins[1][i], &bufferL[i], &bufferR[i]);
             bufferL[i] = raw * bufferL[i] + (1 - raw) * ins[0][i];
             bufferR[i] = raw * bufferR[i] + (1 - raw) * ins[1][i];
         }
@@ -86,47 +76,9 @@ struct CloudsReverb : public Engine
     }
 };
 
-#include "clouds/dsp/fx/diffuser.h"
-
-struct CloudsDiffuser : public Engine
+void init_reverbSC()
 {
-    float raw = 0;
-    clouds::Diffuser fx_;
-    uint16_t buffer[2048 + 1024];
-
-    float bufferL[FRAME_BUFFER_SIZE];
-    float bufferR[FRAME_BUFFER_SIZE];
-
-    CloudsDiffuser() : Engine(AUDIO_PROCESSOR)
-    {
-        raw = 1.f;
-        fx_.Init(&buffer[0]);
-        param[0].init("Amount", &raw, raw);
-    }
-
-    void process(const ControlFrame &frame, OutputFrame &of) override
-    {
-        fx_.set_amount(raw);
-
-        float *ins[] = {machine::get_aux(AUX_L), machine::get_aux(AUX_R)};
-
-        for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
-        {
-            bufferL[i] = ins[0][i];
-            bufferR[i] = ins[1][i];
-        }
-
-        fx_.Process(bufferL, bufferR, FRAME_BUFFER_SIZE);
-
-        of.out = bufferL;
-        of.aux = bufferR;
-    }
-};
-
-void init_reverb()
-{
-    machine::add<CloudsReverb>(FX, "Reverb");
-    //machine::add<CloudsDiffuser>(FX, "Diffusor");
+    machine::add<ReverbSC>(FX, "ReverbSC");
 }
 
-MACHINE_INIT(init_reverb);
+MACHINE_INIT(init_reverbSC);

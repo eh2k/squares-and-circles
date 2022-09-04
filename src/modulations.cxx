@@ -64,6 +64,7 @@ struct ModulationBase : machine::ModulationSource
 struct CV : ModulationBase
 {
     uint8_t cv_channel = 0;
+    uint8_t tr_channel = 0;
 
     void eeprom(std::function<void(void *, size_t)> read_write) override
     {
@@ -78,13 +79,33 @@ struct CV : ModulationBase
         {
             machine::get_io_info(1, cv_channel, tmp);
         };
-        param[1].init(".", &attenuverter, attenuverter, -3, +3);
+        param[1].init("OP", &tr_channel, tr_channel, 0, machine::get_io_info(0));
+        param[1].print_value = [&](char *tmp)
+        {
+            if (tr_channel == 0)
+                sprintf(tmp, "Thru");
+            else if (tr_channel <= 4)
+                sprintf(tmp, "S&H-T%d", tr_channel);
+            else if (tr_channel <= 8)
+                sprintf(tmp, "T&H-T%d", tr_channel - 4);
+            else
+                machine::get_io_info(0, tr_channel - 1, tmp);
+        };
+
+        param[2].init(".", &attenuverter, attenuverter, -1, +1);
     }
 
     void process(machine::Parameter &target, machine::ControlFrame &frame) override
     {
-        value = machine::get_cv(cv_channel);
-        target.modulate(value * attenuverter);
+        if (tr_channel == 0 || (tr_channel <= 4 && machine::get_trigger(tr_channel - 1)) || (tr_channel <= 8 && machine::get_gate(tr_channel - 4)))
+            value = machine::get_cv(cv_channel);
+
+        float a = attenuverter;
+
+        if(!(target.flags & machine::Parameter::IS_V_OCT))
+            a *= 3;  // ADC is -3...6V ...faktor 3 for non V/OCT 
+
+        target.modulate(value * a);
     }
 };
 

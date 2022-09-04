@@ -1,4 +1,4 @@
-// Copyright (C)2021 - Eduard Heidt
+// Copyright (C)2022 - Eduard Heidt
 //
 // Author: Eduard Heidt (eh2k@gmx.de)
 //
@@ -24,39 +24,49 @@
 //
 
 #include "machine.h"
+#include "misc/noise.hxx"
 
-#undef MACHINE_INIT
-#define MACHINE_INIT(init_fun) \
-    extern void init_fun();    \
-    init_fun();
+using namespace machine;
 
-int main()
+struct NoiseEngine : public Engine
 {
-    MACHINE_INIT(init_voltage);
-    MACHINE_INIT(init_noise);
-    MACHINE_INIT(init_midi_monitor);
-    MACHINE_INIT(init_midi_clock);
-    MACHINE_INIT(init_quantizer);
-    MACHINE_INIT(init_peaks);
-    MACHINE_INIT(init_braids);
-    MACHINE_INIT(init_plaits);
-    MACHINE_INIT(init_sample_roms);
-    MACHINE_INIT(init_clap);
-    MACHINE_INIT(init_reverb);
-    MACHINE_INIT(init_reverbSC);
-    MACHINE_INIT(init_faust);
-    MACHINE_INIT(init_rings);
-    MACHINE_INIT(init_speech);
-    MACHINE_INIT(init_sam);
-    MACHINE_INIT(init_delay);
-    MACHINE_INIT(init_modulations);
-    MACHINE_INIT(init_fv1);
-    MACHINE_INIT(init_midi_polyVA)
+    const char *modes[2] = {">White", ">Pink"};
+    PinkNoise<> pink;
+    float gain;
+    uint8_t mode;
 
-    machine::setup("0.0m", 0);
+    NoiseEngine() : Engine(0)
+    {
+        param[0].init("Level", &gain, 1);
+        param[1].init(">Type", &mode, 0, 0, LEN_OF(modes) - 1);
+    };
 
-    while (true)
-        machine::loop();
+    float buffer[machine::FRAME_BUFFER_SIZE];
 
-    return 0;
+    void process(const ControlFrame &frame, OutputFrame &of) override
+    {
+        for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
+        {
+            if (mode == 0)
+                buffer[i] = pink.white.nextf(-1.f, 1.f) * gain;
+            else
+                buffer[i] = pink.nextf(-1.f, 1.f) * gain;
+        }
+
+        of.push(buffer, machine::FRAME_BUFFER_SIZE);
+    }
+
+    void onDisplay(uint8_t *display) override
+    {
+        param[1].name = modes[mode];
+
+        gfx::drawEngine(display, this);
+    }
+};
+
+void init_noise()
+{
+    machine::add<NoiseEngine>(CV, "Noise");
 }
+
+MACHINE_INIT(init_noise);

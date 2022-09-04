@@ -25,11 +25,10 @@
 
 #include "machine.h"
 #include "stmlib/dsp/dsp.h"
-#include "sample.hxx"
+#include "base/SampleEngine.hxx"
 
 namespace sam
 {
-    int debug = 0;
 #include "SAM/sam.c"
 #include "SAM/render.c"
 #include "SAM/reciter.c"

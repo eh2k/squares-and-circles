@@ -23,7 +23,7 @@
 // See http://creativecommons.org/licenses/MIT/ for more information.
 //
 
-#include "sample.hxx"
+#include "base/SampleEngine.hxx"
 
 template <>
 float tsample_spec<float>::get_float(int index) const

@@ -62,7 +62,8 @@ struct BraidsEngine : public Engine
 
         if (frame.gate)
         {
-            envelope.Trigger(braids::ENV_SEGMENT_ATTACK);
+            //Not working witch Attack > 0
+            //envelope.Trigger(braids::ENV_SEGMENT_DECAY);
         }
 
         uint32_t ad_value = envelope.Render();
@@ -91,10 +92,10 @@ struct BraidsEngine : public Engine
 
         osc.Render(sync_samples, audio_samples, FRAME_BUFFER_SIZE);
 
-        uint16_t gain = _decay < UINT16_MAX ? ad_value : 65535;
+        uint32_t gain = _decay < UINT16_MAX ? ad_value : UINT16_MAX;
 
         for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
-            audio_samples[i] = audio_samples[i] * gain / UINT16_MAX / 4;
+            audio_samples[i] = (gain * audio_samples[i]) / UINT16_MAX;
 
         of.push(audio_samples, LEN_OF(audio_samples));
     }

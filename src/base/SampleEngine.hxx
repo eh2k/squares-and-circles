@@ -80,7 +80,7 @@ struct SampleEngine : public machine::Engine
     }
 
 public:
-    bool loop = false;
+    int loop = 0; // 1 = knight rider, 2 infinite
 
     uint8_t rtrg = 0;
     uint8_t rtim = 0;
@@ -145,10 +145,21 @@ public:
             i += this->start < this->end ? inc : -inc;
         }
 
-        if (loop)
+        if (loop == 0)
+        {
+
+        }
+        else if (loop == 1)
         {
             if (i < s || i > e)
                 inc = -inc;
+        }
+        else if (loop == 2)
+        {
+            if (i < s)
+                i += (e-s);
+            else if (i > e)
+                i -= (e-s);
         }
 
         of.out = buffer;

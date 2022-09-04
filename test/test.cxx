@@ -53,11 +53,11 @@ uint32_t random(uint32_t howbig)
 
 namespace gfx
 {
-    void drawPixel(uint8_t *buffer, int16_t x, int16_t y, uint8_t color) {}
+    void drawPixel(uint8_t *buffer, int x, int y, uint8_t color) {}
     void drawLine(uint8_t *buffer, int x1, int y1, int x2, int y2) {}
     void drawRect(uint8_t *buffer, int x1, int y1, int w, int h) {}
-    void drawXbm(uint8_t *buffer, int16_t x, int16_t y, int16_t width, int16_t height, const uint8_t *xbm) {}
-    void drawString(uint8_t *buffer, int16_t x, int16_t y, const char *text, uint8_t font) {}
+    void drawXbm(uint8_t *buffer, int x, int y, int width, int height, const uint8_t *xbm) {}
+    void drawString(uint8_t *buffer, int x, int y, const char *text, uint8_t font) {}
     void drawEngine(uint8_t *buffer, machine::Engine *engine) {}
     void DrawKnob(unsigned char *, int, int, char const *, unsigned short, bool) {}
 }
@@ -98,11 +98,15 @@ namespace machine
     {
         return digital_inputs & (1 << src);
     }
+    bool get_gate(int src)
+    {
+        return digital_inputs & (8 << src);
+    }
 
     float audio_in[2][FRAME_BUFFER_SIZE];
 
     template <>
-    float *get_aux<float>(int src)
+    float *get_aux<float>(AUX src)
     {
         if (src == -1)
         {
@@ -156,7 +160,7 @@ namespace machine
     template <>
     void OutputFrame::push(int16_t *buff, size_t len)
     {
-        _push(buff, len, 5.f / INT16_MAX, this);
+        _push(buff, len, 1.f / INT16_MAX, this);
     }
 
     template <>
@@ -186,8 +190,29 @@ namespace machine
     {
     }
 
+    std::pair<const char *, const machine::QuantizerScale *> quantizer_scales[UINT8_MAX] = {};
+
     void add_quantizer_scale(const char *name, const QuantizerScale &scale)
     {
+        auto p = &quantizer_scales[0];
+
+        while (p->first != nullptr)
+            p++;
+
+        if (p < (&quantizer_scales[0] + LEN_OF(quantizer_scales)))
+        {
+            p->first = name;
+            auto s = &scale;
+            p->second = s;
+        }
+    }
+
+    const std::pair<const char *, const QuantizerScale *> &get_quantizer_scale(uint8_t index)
+    {
+        if (index < LEN_OF(quantizer_scales))
+            return quantizer_scales[index];
+        else
+            return quantizer_scales[0];
     }
 
     void *malloc(size_t size)
@@ -215,24 +240,120 @@ namespace machine
 
 #include "plaits/dsp/voice.h"
 
+int test_seq()
+{
+    machine::registry.clear();
+
+    MACHINE_INIT(init_quantizer);
+    //MACHINE_INIT(init_tb_3po);
+    //MACHINE_INIT(init_acid_sequencer);
+    MACHINE_INIT(init_plaits);
+
+    machine::Engine *seq = nullptr;
+
+    for (int j = 0; j < machine::registry.size(); j++)
+    {
+        std::vector<int16_t> buffer;
+
+        auto &r = machine::registry[j];
+
+        auto engine = r.init();
+        engine->init();
+
+        if (engine->props & machine::SEQUENCER_ENGINE)
+        {
+            seq = r.init();
+            seq->init();
+        }
+
+        int16_t d;
+        machine::ControlFrame frame;
+        float tmp[machine::FRAME_BUFFER_SIZE] = {};
+
+        for (int t = 0; t < 16; t++)
+        {
+            for (int i = 0; i < 48000 / 6;)
+            {
+                frame.trigger = i == 0;
+                frame.gate = i < 48000 / 12;
+                frame.cv_voltage_ = 0;
+                frame.accent = 0;
+
+                int n = (48000 / 6 / 24);
+
+                frame.clock = 1 + ((buffer.size() / n) % 96);
+                if ((buffer.size() % n) > 1)
+                    frame.clock = 0;
+
+                const float *ins[] = {machine::audio_in[0], machine::audio_in[1]};
+
+                if (seq != nullptr && !(engine->props & machine::SEQUENCER_ENGINE))
+                {
+                    machine::OutputFrame of;
+                    seq->process(frame, of);
+                    frame.cv_voltage_ = (-2.f + of.out[0]) * machine::PITCH_PER_OCTAVE;
+                    static bool last = false;
+
+                    frame.trigger = !last && of.aux[0] > 0.1f;
+                    frame.accent = false; // frame.trigger;
+                    last = frame.trigger;
+                }
+
+                machine::OutputFrame of;
+                engine->process(frame, of);
+
+                frame.t++;
+
+                for (int k = 0; k < machine::FRAME_BUFFER_SIZE; k++)
+                {
+                    auto v = (-of.out[k]) * INT16_MAX;
+                    // if (of.aux != nullptr)
+                    //      v += (-of.aux[k]) * INT16_MAX / 5;
+
+                    CONSTRAIN(v, INT16_MIN, INT16_MAX);
+                    buffer.push_back(v);
+                    i++;
+                }
+            }
+        }
+
+        free(engine);
+
+        if (buffer.size() > 0)
+        {
+            char name[128];
+            sprintf(name, "%.2d_%s_seq.wav", j, r.engine);
+            write_wav(buffer, name);
+        }
+    }
+
+    return 0;
+}
+
 int main()
 {
-    auto f = plaits::NoteToFrequency(machine::DEFAULT_NOTE);
-    printf("%f\n", f);
+    //test_seq();
 
-    MACHINE_INIT(init_voltage);
-    MACHINE_INIT(init_peaks);
+    machine::registry.clear();
+
+    // MACHINE_INIT(init_midi_clock);
+    // MACHINE_INIT(init_acid_sequencer);
+    // MACHINE_INIT(init_voltage);
+    MACHINE_INIT(init_noise);
+    // MACHINE_INIT(init_padsynth);
+    // MACHINE_INIT(init_open303);
     MACHINE_INIT(init_braids);
     MACHINE_INIT(init_plaits);
+    MACHINE_INIT(init_peaks);
     MACHINE_INIT(init_sample_roms);
     MACHINE_INIT(init_clap);
-    MACHINE_INIT(init_reverb);
     MACHINE_INIT(init_faust);
     MACHINE_INIT(init_rings);
     MACHINE_INIT(init_speech);
     MACHINE_INIT(init_sam);
-    MACHINE_INIT(init_delay);
-    MACHINE_INIT(init_modulations);
+    // MACHINE_INIT(init_reverb);
+    // MACHINE_INIT(init_delay);
+    // MACHINE_INIT(init_modulations);
 
     // return;
 
@@ -252,11 +373,6 @@ int main()
 
         auto engine = r.init();
 
-        if (engine->props & machine::SEQUENCER_ENGINE)
-        {
-            seq = r.init();
-        }
-
         printf("````\n");
         printf("Parameters:\n");
 
@@ -275,14 +391,13 @@ int main()
 
         // for (float v = -6; v < 6; v += 1.f)
 
-        for (int t = 0; t < 16; t++)
+        for (float v = -3; v < 3; v += 1.f)
         {
-            for (int i = 0; i < 48000 / 6;)
+            for (int i = 0; i < 48000;)
             {
-
                 frame.trigger = i == 0;
+                frame.cv_voltage_ = v * machine::PITCH_PER_OCTAVE;
                 frame.accent = 0;
-                frame.cv_voltage_ = 0;
 
                 int n = (48000 / 6 / 24);
 
@@ -291,20 +406,6 @@ int main()
                     frame.clock = 0;
 
                 const float *ins[] = {machine::audio_in[0], machine::audio_in[1]};
-
-                if (seq != nullptr && !(engine->props & machine::SEQUENCER_ENGINE))
-                {
-                    machine::OutputFrame of;
-                    seq->process(frame, of);
-                    frame.cv_voltage_ = machine::PITCH_PER_OCTAVE * of.out[0];
-                    static bool last = false;
-
-                    frame.trigger = !last && of.aux[0] > 1;
-                    frame.accent = frame.trigger;
-                    last = frame.trigger;
-                    // ins[0] = of.out;
-                    // ins[1] = of.aux;
-                }
 
                 machine::OutputFrame of;
                 engine->process(frame, of);

@@ -25,39 +25,42 @@
 //
 
 #include "machine.h"
+#include "stmlib/dsp/dsp.h"
 
 using namespace machine;
 
 class VoltsPerOctave : public Engine
 {
     char tmp[64];
-    uint8_t note = DEFAULT_NOTE;
+    uint16_t note = DEFAULT_NOTE * machine::PITCH_PER_OCTAVE / 12;
     uint8_t tune = 32;
+    int32_t cv0 = 0;
     int32_t cv = 0;
+    float glide = 0;
 
 public:
-    VoltsPerOctave() : Engine(OUT_EQ_VOLT | VOCT_INPUT)
+    VoltsPerOctave() : Engine(OUT_EQ_VOLT | VOCT_INPUT | TRANSPOSE_EQ_0)
     {
         param[0].init_v_oct("Tone", &note);
-        param[1].init("\t", &tune, tune, 0, 64);
+        param[1].init("Fine", &tune, tune, 0, 64);
+        param[2].init("Slew", &glide, 0, 0, 0.5f);
     }
 
     void process(const ControlFrame &frame, OutputFrame &of) override
     {
-        cv = frame.cv_voltage_ +
-             (((int)note - DEFAULT_NOTE) * machine::PITCH_PER_OCTAVE / 12) +
-             (((int)tune - 32) << 3);
+        cv0 = frame.cv_voltage_ +
+              (((int)note - (DEFAULT_NOTE * machine::PITCH_PER_OCTAVE / 12))) +
+              (((int)tune - 32) << 4);
+
+        ONE_POLE(cv, cv0, powf(1 - glide, 10));
 
         of.push(&cv, 1);
     }
 
     void onDisplay(uint8_t *display) override
     {
-        gfx::drawString(display, 18, 16, "Note");
-        gfx::drawString(display, 82, 16, "Tune");
-
-        sprintf(tmp, "DAC: %.2fV", ((float)cv / machine::PITCH_PER_OCTAVE));
-        gfx::drawString(display, 64, 53, tmp, 0);
+        sprintf(tmp, "OUT: %.2fV", ((float)cv / machine::PITCH_PER_OCTAVE));
+        gfx::drawString(display, 4 + 64, 52, tmp, 0);
 
         gfx::drawEngine(display, this);
     }

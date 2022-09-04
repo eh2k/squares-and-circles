@@ -13,7 +13,7 @@
 #include "peaks/pulse_processor/pulse_shaper.h"
 #include "peaks/pulse_processor/pulse_randomizer.h"
 #include "peaks/gate_processor.h"
-#include "ch_oh.hxx"
+#include "base/HiHatsEngine.hxx"
 
 using namespace machine;
 
@@ -109,7 +109,7 @@ struct PeaksEngine : public Engine
     }
 };
 
-class Hihat808 : public CHOH
+class Hihat808 : public HiHatsEngine
 {
     PeaksEngine<peaks::HighHat, TRIGGER_INPUT> oh;
     PeaksEngine<peaks::HighHat, TRIGGER_INPUT> ch;
@@ -125,15 +125,15 @@ public:
 void init_peaks()
 {
     add<PeaksEngine<peaks::FmDrum, TRIGGER_INPUT, 0, 3, 1, 2>>(DRUM, "FM-Drum", INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX, "Freq.", "Noise", "FM", "Decay");
-    
+
     add<PeaksEngine<peaks::BassDrum, TRIGGER_INPUT>>(DRUM, "808ish-BD", INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX, "Pitch", "Punch", "Tone", "Decay");
     add<PeaksEngine<peaks::SnareDrum, TRIGGER_INPUT, 0, 2, 1, 3>>(DRUM, "808ish-SD", INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX, "Pitch", "Snappy", "Tone", "Decay");
 
     add<Hihat808>(DRUM, "808ish-HiHat");
 
-    //add<PeaksEngine<peaks::HighHat, TRIGGER_INPUT>>(DRUM, "808ish-HiHat", INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX, "Decay");
-    add<PeaksEngine<peaks::MultistageEnvelope, TRIGGER_INPUT>>(CV, "Envelope", 0, INT16_MAX, INT16_MAX, INT16_MAX, "Attack", "Decay", "Sustain", "Release");
-    add<PeaksEngine<peaks::Lfo, TRIGGER_INPUT>>(CV, "LFO", 0, 0, INT16_MAX, 0, "Freq.", "Shape", "Param", "Phase");
+    // add<PeaksEngine<peaks::HighHat, TRIGGER_INPUT>>(DRUM, "808ish-HiHat", INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX, "Decay");
+    add<PeaksEngine<peaks::MultistageEnvelope, TRIGGER_INPUT | OUT_EQ_VOLT_INT16>>(CV, "Envelope", 0, INT16_MAX, INT16_MAX, INT16_MAX, "Attack", "Decay", "Sustain", "Release");
+    add<PeaksEngine<peaks::Lfo, TRIGGER_INPUT | OUT_EQ_VOLT_INT16>>(CV, "LFO", 0, 0, INT16_MAX, 0, "Freq.", "Shape", "Param", "Phase");
 }
 
 MACHINE_INIT(init_peaks);

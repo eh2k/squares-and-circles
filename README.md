@@ -14,7 +14,8 @@
 
 When I am asked why I do such projects - my general reply is: I don't know, it makes fun and I like to get deeper understanding of technical things. 
 Maybe the reason was the chip shortage that makes Eurorack DIY projects tricky at the moment, and I used that to get more involved with coding in the eurorack land. 
-At this point, a big thanks to the people behind ornament & crime (o_C), Teensy and specially Mutable Instruments for the inspiring playground and the basis regarding hardware and software for this project.
+At this point, a big thanks to the people behind ornament & crime (o_C) for the inspiring playground and the basis regarding hardware for this project.
+Many thanks also to all those who have worked on the code and algorithms partly reused here and make this treasure trove freely available, especially Mutable Instruments.
 
 ## Challenge
 
@@ -36,7 +37,8 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
 * [Long press [RIGHT]] enters the I/O-configuration-page.
 * [Long press [LEFT] + [RIGHT]] enters the MIDI-settings-page.
 * [Long press left or right [ENCODER]] shows the modulation popup
-* [Long press [L-ENCODER] + [R-ENCODER]] saves the patch - will be restored at startup.
+* [Long press [L-ENCODER] + [R-ENCODER]] saves the patch - will be restored at startup 
+  - DEBUG: skip restore - press [RIGHT] button while startup ).
 
 <br/>
 <div style="page-break-after: always;"></div>
@@ -50,7 +52,7 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
 * **GND**
   * `---`
 * **CV**
-  * V/OCT, Envelope, LFO
+  * V/OCT, Envelope, LFO, Noise
 * **Drums** <img align="right" src="doc/engine.bmp" width=196px />
   * Analog-BD, Analog SD, Analog HH, Analog HH2
   * 909ish-BD, 909ish-SD, TR909-HiHat, TR909-Ride
@@ -64,7 +66,7 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
   * Virt.Analog, Waveshaping, FM, Grain, Additive, Wavetable, Chord
   * Resonator
 * **Stereo-FX**
-  * Reverb, Rev-Dattorro, Delay, Gated-Reverb, Reverb-HP-LP
+  * Reverb, ReverbSC, Rev-Dattorro, Delay, Gated-Reverb, Reverb-HP-LP
 * **SPEECH**
   * LPC, SAM
 * **MIDI**
@@ -89,6 +91,7 @@ Machines/Engines are controlled by individual parameters.
 For each parameter a modulation can be assigned:
   * **CV**:
     * SRC: `C1`, `C2`, `C3`, `C4`
+    * OP: `THRU`, `S&H-T1`, `S&H-T1`, `S&H-T1`, `S&H-T1`, `T&H-T1`, `T&H-T1`, `T&H-T1`, `T&H-T1`
     * Hints:
       * Parameter 0 (top-left) is mainly used for V/OCT control. Thus, one single V/OCT signal / CV-Input can be shared by using modulation on parameter-0 with attenuverter = +1 (-3V..+6V) range. It is also possible to select the V/OCT input in the io-configuration page.
       * All other parameters can be modulated via CV-input with a assumed voltage-range of -4V..4V at 2kHz sample rate.
@@ -265,21 +268,11 @@ To callibrate the ADC `0V` reference, remove all patch cables from the module. U
 The project was originally a kind of research that I did over half a year. The current O_C hardware could certainly be optimized. As you know, the DAC and the display share the SPI port - this is not ideal for simultaneous operation (display updates are sometimes audible). Furthermore, the Teensy 4.0 does not have "high-end" ADCs - my focus here was to achieve operation at audio rate (aux input) - the issue of noise has not been the focus so far.
 
 At the moment I like to make the project partially available to the community as open-source, so that everyone has the possibility to adapt and experiment with it. 
-In principle, this project is a suite of apps so-called machines/engines interfacing with a system library ("libmachine").
-
-You are welcome for any suggestions and feedback or collaboration.
-
-#### <u>Build & Flash firmware</u>
- * Install VSCode + platformio extension (https://platformio.org/platformio-ide)
-   - On linux: curl https://www.pjrc.com/teensy/00-teensy.rules > /etc/udev/rules.d/49-teensy.rules 
-   - Open Folder or `code .` inside project directory  
-   - In VSCode - choose environment e.g "OC_teensy40", press "build" or "upload" (ensure teensy connected via usb)
- * Alternatively: use Teensy Loader to flash compiled hex: https://www.pjrc.com/teensy/loader.html
 
 ## License
 
 The application code respectively the suite of machines/engines is released under the MIT license. 
-For details e.g. the copyright holders - see the header of individual source code files or readme/license file in the sub folder.
+For licenses e.g. the copyright holders of 3rd-party libraries - see the header of individual source code files or readme/license file in the sub folder.
 
 The previously mentioned "libmachine", a hardware abstraction layer, will remain "closed software" until I follow some not yet discarded ideas. This is to prevent the firmware from being forked/ported to similar digital Eurorack modules and some theoretical licensing questions. So if you consider commercially distributing hardware with this firmware, please contact me (eh2k◯gmx.de). 
 

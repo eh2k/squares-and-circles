@@ -30,7 +30,7 @@
 
 using namespace machine;
 
-struct CHOH : public Engine
+struct HiHatsEngine : public Engine
 {
     Engine *_oh = nullptr;
     Engine *_ch = nullptr;
@@ -46,7 +46,7 @@ struct CHOH : public Engine
     float bufferOut[machine::FRAME_BUFFER_SIZE];
 
 public:
-    CHOH() : Engine(TRIGGER_INPUT | ACCENT_INPUT | VOCT_INPUT)
+    HiHatsEngine() : Engine(TRIGGER_INPUT | ACCENT_INPUT | VOCT_INPUT)
     {
         _ch_env.Init();
         _oh_env.Init();

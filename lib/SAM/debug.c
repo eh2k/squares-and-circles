@@ -1,5 +1,7 @@
 #include<stdio.h>
 
+int debug = 0;
+
 extern const unsigned char signInputTable1[];
 extern const unsigned char signInputTable2[];
 
