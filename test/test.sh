@@ -3,7 +3,7 @@ cd $(dirname $0)
 mkdir -p ../.test
 #-std=c++2a 
 INC=$(for i in ../.pio/libdeps/*/*/; do echo "-I $i"; done )
-FILTER="fv1|marbles|main|EEPROM|SPI|machine|weegfx|test|vis|scope"
+FILTER="fv1|marbles|main|EEPROM|SPI|machine|test|vis|scope|screensaver"
 SRC=$(find -L ../src/ ../lib/ -name "*.cc" -o -name "*.cxx" -o -name "*.cpp" | grep -v -E "$FILTER" )
 SRC_C=$(find ../src/ ../lib/ -name "*.c" | grep -v -E "$FILTER" )
 SRC_C=$(for i in $SRC_C; do echo "-xc $i"; done )

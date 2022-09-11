@@ -1,23 +1,6 @@
 
 document.getElementById('connectButton').onclick = teensyConnect
-document.getElementById('leftButton').onclick = async () => await teensySend("l")
-document.getElementById('rightButton').onclick = async () => await teensySend("r")
-document.getElementById('menuButton').onclick = async () => await teensySend("L")
-document.getElementById('ioButton').onclick = async () => await teensySend("R")
-document.getElementById('midiButton').onclick = async () => await teensySend("I")
-
-document.getElementById('leftEncoder-').onclick = async () => await teensySend("j")
-document.getElementById('leftEncoder+').onclick = async () => await teensySend("J")
-document.getElementById('leftEncoderB').onclick = async () => await teensySend("y")
-document.getElementById('leftEncoderH').onclick = async () => await teensySend("Y")
-
-document.getElementById('rightEncoder-').onclick = async () => await teensySend("k")
-document.getElementById('rightEncoder+').onclick = async () => await teensySend("K")
-document.getElementById('rightEncoderB').onclick = async () => await teensySend("z")
-document.getElementById('rightEncoderH').onclick = async () => await teensySend("Z")
-
-document.getElementById('saveButton').onclick = async () => await teensySend("S")
-document.getElementById('debugButton').onclick = async () => await teensySend("d")
+window.drawScreen = drawScreen
 
 var canvas = document.getElementById('display');
 var context = canvas.getContext('2d');
@@ -57,20 +40,6 @@ function delay(time) {
 
 var port = null
 
-async function teensySend(cmd) {
-
-    cmd = cmd.charCodeAt(0)
-    offset = 0;
-
-    console.log(cmd)
-    const writer = port.writable.getWriter();
-    await writer.write(new Uint8Array([cmd]));
-
-    writer.releaseLock();
-
-    await delay(50);
-}
-
 let bmp = new Uint8Array(1024)
 let offset = 0
 
@@ -87,8 +56,6 @@ async function teensyConnect() {
         // `e.target` aus der Liste der verfügbaren Ports entfernen.
         console.log(e)
     });
-
-    teensySend("~")
 
     var reader = port.readable.getReader();
 

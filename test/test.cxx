@@ -74,6 +74,8 @@ namespace machine
 
     MidiHandler *midi_handler = &_dummy;
 
+    Screensaver* screensaver = nullptr;
+
     uint32_t &get_bpm()
     {
         static uint32_t bpm = 120 * 100;

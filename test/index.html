@@ -32,14 +32,111 @@
 </style>
 
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
+  <script type="module" src="display.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/webmidi@3.0.21/dist/iife/webmidi.iife.js"></script>
+
+  <script type="module">
+
+    WebMidi
+      .enable({ sysex: false })
+      .then(onEnabled)
+      .catch(err => alert(err));
+
+
+    var sc_midiout = null;
+    var sc_midi_in = null;
+
+    function onEnabled() {
+
+      if (WebMidi.outputs.length < 1) {
+        document.body.innerHTML += "No device detected.";
+      } else {
+        WebMidi.outputs.forEach((device, index) => {
+          if (device.name.startsWith("Squares&Circles")) {
+            document.getElementById("log").innerHTML += `Device ${index}: ${device.name}`;
+            sc_midiout = WebMidi.outputs[index]
+            sc_midi_in = WebMidi.inputs[index]
+          }
+        });
+
+        var idd = "000000000000"
+        var idx = 0
+
+        String.prototype.replaceAt = function (index, replacement) {
+          return this.substring(0, index) + replacement + this.substring(index + replacement.length);
+        }
+
+        sc_midi_in.addListener("pitchbend", "all", function (e) {
+          idd = idd.replaceAt((e.message.channel - 1) * 2,
+            ((e.data[2] << 7 | e.data[1]) - 8192).toString(16).padStart(2, '0').toUpperCase())
+          idx++;
+          if (idx == 6) {
+            document.getElementById("log").innerHTML += " (" + idd + ")" + "<br>"
+          }
+        });
+
+        teensySend("T")
+      }
+    }
+
+    var prog = 0;
+
+    async function teensySend(id) {
+      sc_midiout.sendSongSelect(id.charCodeAt(0));
+      console.log(id)
+    }
+
+    document.getElementById('leftButton').onclick = async () => await teensySend("l")
+    document.getElementById('rightButton').onclick = async () => await teensySend("r")
+    document.getElementById('menuButton').onclick = async () => await teensySend("L")
+    document.getElementById('ioButton').onclick = async () => await teensySend("R")
+    document.getElementById('midiButton').onclick = async () => await teensySend("I")
+
+    document.getElementById('leftEncoder-').onclick = async () => await teensySend("j")
+    document.getElementById('leftEncoder+').onclick = async () => await teensySend("J")
+    document.getElementById('leftEncoderB').onclick = async () => await teensySend("y")
+    document.getElementById('leftEncoderH').onclick = async () => await teensySend("Y")
+
+    document.getElementById('rightEncoder-').onclick = async () => await teensySend("k")
+    document.getElementById('rightEncoder+').onclick = async () => await teensySend("K")
+    document.getElementById('rightEncoderB').onclick = async () => await teensySend("z")
+    document.getElementById('rightEncoderH').onclick = async () => await teensySend("Z")
+
+    document.getElementById('saveButton').onclick = async () => await teensySend("S")
+    document.getElementById('debugButton').onclick = async () => await teensySend("d")
+
+    var midi_ch = 1;
+
+    document.getElementById('MIDI').oninput = function () { midi_ch = this.value; }
+
+    document.getElementById("PROGRAM").onclick = function () {
+      sc_midiout.channels[midi_ch].sendProgramChange(this.value);
+      document.getElementById("log").innerHTML += `PorgramChange 1 ${this.value} <br>`;
+      console.log(prog)
+    }
+
+    document.getElementById("NOTE_PRESS").onclick = function () {
+      let value = document.getElementById("NOTE").value;
+      sc_midiout.channels[midi_ch].sendNoteOn(value);
+      document.getElementById("log").innerHTML += `NoteOn ${value} <br>`;
+      sc_midiout.channels[midi_ch].sendNoteOff(value);
+      document.getElementById("log").innerHTML += `NoteOff ${value} <br>`;
+    }
+
+    document.getElementById('volume').oninput = function () { sc_midiout.channels[midi_ch].sendControlChange(0x7, this.value); }
+    document.getElementById('CC32').oninput = function () { sc_midiout.channels[midi_ch].sendControlChange(32, this.value); }
+    document.getElementById('CC33').oninput = function () { sc_midiout.channels[midi_ch].sendControlChange(33, this.value); }
+    document.getElementById('CC34').oninput = function () { sc_midiout.channels[midi_ch].sendControlChange(34, this.value); }
+    document.getElementById('CC35').oninput = function () { sc_midiout.channels[midi_ch].sendControlChange(35, this.value); }
+
+  </script>
 </head>
-<script type="module" src="serial.js"></script>
 
 <body class="fullscreen">
   <div class="container">
     <div>
-      <button id="connectButton">Connect</button><br />
+      <button id="connectButton">Connect Display</button><br />
       <br />
       <canvas id="display" width="128" height="64"></canvas>
       <br />
@@ -48,12 +145,12 @@
       <button id="midiButton">MIDI</button>
       <button id="leftButton">L</button>
       <button id="rightButton">R</button>
-      <br/>
+      <br />
       <button id="leftEncoder-">LE-</button>
       <button id="leftEncoder+">LE+</button>
       <button id="rightEncoder-">RE-</button>
       <button id="rightEncoder+">RE+</button>
-      <br/>
+      <br />
       <button id="leftEncoderB">LB</button>
       <button id="leftEncoderH">LH</button>
       <button id="rightEncoderB">RB</button>
@@ -61,9 +158,20 @@
       <button id="saveButton">Save</button>
       <button id="debugButton">Debug</button>
     </div>
+    <h3>MIDI</h3>
+    <div>
+      MIDI CH: <input type="number" min="1" max="16" value="1" class="slider" id="MIDI"><br />
+      PROGRAM: <input type="number" min="0" max="127" value="23" class="slider" id="PROGRAM"><br />
+      NOTE: <input type="range" min="0" max="127" value="64" class="slider" id="NOTE"><button
+        id="NOTE_PRESS">ON/OFF</button><br />
+      CC32: <input type="range" min="0" max="127" value="64" class="slider" id="CC32"><br />
+      CC33: <input type="range" min="0" max="127" value="64" class="slider" id="CC33"><br />
+      CC34: <input type="range" min="0" max="127" value="64" class="slider" id="CC34"><br />
+      CC35: <input type="range" min="0" max="127" value="64" class="slider" id="CC35"><br />
+      Volume: <input type="range" min="0" max="127" value="64" class="slider" id="volume"><br />
+    </div>
+    <br />
     <div id="log"></div>
-
-
 </body>
 
 </html>

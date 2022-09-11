@@ -32,6 +32,7 @@
 
 int main()
 {
+    MACHINE_INIT(init_screensaver);
     MACHINE_INIT(init_voltage);
     MACHINE_INIT(init_noise);
     MACHINE_INIT(init_midi_monitor);
@@ -53,7 +54,7 @@ int main()
     MACHINE_INIT(init_fv1);
     MACHINE_INIT(init_midi_polyVA)
 
-    machine::setup("0.0m", 0);
+    machine::setup("0.0N", 0);
 
     while (true)
         machine::loop();
