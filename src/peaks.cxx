@@ -55,7 +55,17 @@ struct PeaksEngine : public Engine
 
     void process(const ControlFrame &frame, OutputFrame &of) override
     {
-        _processor.Configure(params_, peaks::CONTROL_MODE_FULL);
+        if (std::is_same<T, peaks::FmDrum>::value)
+        {
+            auto bak = params_[P1];
+            params_[P1] += (frame.cv_voltage() * INT16_MAX / 3); // CV or Midi Pitch ?!
+            _processor.Configure(params_, peaks::CONTROL_MODE_FULL);
+            params_[P1] = bak;
+        }
+        else
+        {
+            _processor.Configure(params_, peaks::CONTROL_MODE_FULL);
+        }
 
         if (frame.trigger)
         {
@@ -124,7 +134,7 @@ public:
 
 void init_peaks()
 {
-    add<PeaksEngine<peaks::FmDrum, TRIGGER_INPUT, 0, 3, 1, 2>>(DRUM, "FM-Drum", INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX, "Freq.", "Noise", "FM", "Decay");
+    add<PeaksEngine<peaks::FmDrum, TRIGGER_INPUT | VOCT_INPUT | TRANSPOSE_EQ_0, 0, 3, 1, 2>>(DRUM, "FM-Drum", INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX, "Freq.", "Noise", "FM", "Decay");
 
     add<PeaksEngine<peaks::BassDrum, TRIGGER_INPUT>>(DRUM, "808ish-BD", INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX, "Pitch", "Punch", "Tone", "Decay");
     add<PeaksEngine<peaks::SnareDrum, TRIGGER_INPUT, 0, 2, 1, 3>>(DRUM, "808ish-SD", INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX, "Pitch", "Snappy", "Tone", "Decay");

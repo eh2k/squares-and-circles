@@ -23,6 +23,7 @@ struct PolyVAEngine : public machine::MidiEngine
     float morph;
     float harmonics;
     float pitch = 0;
+    float pitch_bend = 0;
 
     float decay = 0.5f;
     float hf = 1.f;
@@ -70,7 +71,7 @@ struct PolyVAEngine : public machine::MidiEngine
         for (size_t i = 0; i < LEN_OF(voice); i++)
         {
             auto p = parameters[i];
-            p.note += pitch * 12.f;
+            p.note += (pitch * 12.f) + pitch_bend;
             p.timbre = timbre;
             p.morph = morph;
             p.harmonics = harmonics;
@@ -116,10 +117,12 @@ struct PolyVAEngine : public machine::MidiEngine
 
     void onMidiPitchbend(int16_t pitch) override
     {
+        pitch_bend = ((float)pitch / 8192) * 12;
     }
 
     void onMidiCC(uint8_t ccc, uint8_t value) override
     {
+        //nothing implemented..
     }
 };
 

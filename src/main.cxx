@@ -54,7 +54,7 @@ int main()
     MACHINE_INIT(init_fv1);
     MACHINE_INIT(init_midi_polyVA)
 
-    machine::setup("0.0N", 0);
+    machine::setup("0.0N4", 0);
 
     while (true)
         machine::loop();
