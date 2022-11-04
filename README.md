@@ -3,7 +3,7 @@
 # □︎●︎ [![PlatformIO CI](https://github.com/eh2k/squares-and-circles/actions/workflows/build.yml/badge.svg)](https://github.com/eh2k/squares-and-circles/actions/workflows/build.yml) [![WebFlasher](https://img.shields.io/badge/Firmware-WebFlasher-blue)](https://eh2k.github.io/□●/flash/?firmware) [![MODULAGrid](https://img.shields.io/badge/MODULAR-Grid-white)](https://www.modulargrid.net/e/modules/browser?SearchName=squares+and+circles&SearchShowothers=1)
 
 <!-- ⧉⦾ ⧇ ⟥⧂ -->
-**squares-and-circles** is an alternative firmware for the Eurorack module O_C, targeting Teensy 4.0.
+**squares-and-circles** is an alternate firmware for the Eurorack module O_C, targeting Teensy 4.0.
 
 ## ■ Demos 
 
@@ -132,7 +132,7 @@ The I/O-Configuration page lets you virtually patch the engine with the hardware
 
  * **CV-Input**: `-`, `C1`, `C2`, `C3`, `C4`
    * V/OCT: -3V..6V for frequency-control (default)
- * **Quantizer**: [Off, Semitones, Ionian, Dorian, ...](src/braids/quantizer_scales.h)
+ * **Quantizer**: [Off, Semitones, Ionian, Dorian, ...](lib/braids/quantizer_scales.h)
  * **Transpose**: -48 to 24  (default -24)
 
 *In case the Engine supports Accents (Closed/Open HighHat) - Accent Input is configurable:*
