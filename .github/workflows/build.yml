@@ -37,7 +37,7 @@ jobs:
           ./LICENSE.txt
     - name: Test
       run: |
-        pio lib install
+        pio pkg install
         sh ./test/test.sh
     - name: test.wav
       uses: actions/upload-artifact@v2

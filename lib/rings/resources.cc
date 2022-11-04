@@ -32,10 +32,8 @@
 
 #include "rings/resources.h"
 
-#ifndef TEST
+#ifndef FLASHMEM
 #include "pgmspace.h"
-#else
-#define FLASHMEM
 #endif
 
 namespace rings {

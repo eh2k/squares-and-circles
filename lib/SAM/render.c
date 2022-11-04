@@ -777,10 +777,9 @@ do
     X = A;
     mem38 = A - (A>>2);     // 3/4*A ???
 
-if (debug)
-{
+#ifdef SAM_DEBUG
     PrintOutput(sampledConsonantFlag, frequency1, frequency2, frequency3, amplitude1, amplitude2, amplitude3, pitches);
-}
+#endif
 
 // PROCESS THE FRAMES
 //

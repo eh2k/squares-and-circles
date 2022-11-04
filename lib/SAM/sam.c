@@ -152,8 +152,9 @@ int SAMMain()
     phonemeindex[255] = 32; //to prevent buffer overflow
 
     if (!Parser1()) return 0;
-    if (debug)
+#ifdef SAM_DEBUG
         PrintPhonemes(phonemeindex, phonemeLength, stress);
+#endif
     Parser2();
     CopyStress();
     SetPhonemeLength();
@@ -174,10 +175,9 @@ int SAMMain()
     InsertBreath();
 
     //mem[40158] = 255;
-    if (debug)
-    {
+#ifdef SAM_DEBUG
         PrintPhonemes(phonemeindex, phonemeLength, stress);
-    }
+#endif
 
     PrepareOutput();
 

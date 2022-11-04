@@ -26,16 +26,14 @@
 #include "machine.h"
 #include "stmlib/dsp/dsp.h"
 #include "base/SampleEngine.hxx"
+#include <ctype.h>
 
-namespace sam
+extern "C"
 {
-#include "SAM/sam.c"
-#include "SAM/render.c"
-#include "SAM/reciter.c"
-#include "SAM/debug.c"
+#include "SAM/sam.h"
+#include "SAM/reciter.h"
 }
 
-using namespace sam;
 using namespace machine;
 
 static uint8_t *s_buffer;

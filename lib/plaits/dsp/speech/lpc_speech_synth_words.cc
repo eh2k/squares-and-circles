@@ -26,10 +26,8 @@
 //
 // LPC10 encoded words extracted from various TI ROMs.
 
-#ifndef TEST
+#ifndef FLASHMEM
 #include "pgmspace.h"
-#else
-#define FLASHMEM
 #endif
 
 #include "plaits/dsp/speech/lpc_speech_synth_words.h"

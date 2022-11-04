@@ -1,5 +1,8 @@
 cd $(dirname $0)
 
+cat ../.pio/libdeps/OC_T40/libsquares-and-circles-machine/machine.h | grep "inttypes.h" || \
+    sed -i '8 i #include <inttypes.h>' ../.pio/libdeps/OC_T40/libsquares-and-circles-machine/machine.h
+
 mkdir -p ../.test
 #-std=c++2a 
 INC=$(for i in ../.pio/libdeps/*/*/; do echo "-I $i"; done )

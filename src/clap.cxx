@@ -29,10 +29,8 @@
 #include "plaits/dsp/envelope.h"
 #include "machine.h"
 
-#ifndef TEST
+#ifndef FLASHMEM
 #include "pgmspace.h"
-#else
-#define FLASHMEM
 #endif
 
 #include "base/SampleEngine.hxx"

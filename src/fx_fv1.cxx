@@ -1,11 +1,11 @@
 #include "machine.h"
 #include <stdio.h>
 
-#ifndef PROGMEM
+#ifndef FLASHMEM
 #include "pgmspace.h"
 #endif
 
-#include "FV1.h"
+#include "fv1/FV1.h"
 
 using namespace machine;
 

@@ -1,6 +1,6 @@
 #include "base/SampleEngine.hxx"
 #include <inttypes.h>
-#ifndef PROGMEM
+#ifndef FLASHMEM
 #include "pgmspace.h"
 #endif
 

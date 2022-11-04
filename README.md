@@ -3,7 +3,7 @@
 # □︎●︎ [![PlatformIO CI](https://github.com/eh2k/squares-and-circles/actions/workflows/build.yml/badge.svg)](https://github.com/eh2k/squares-and-circles/actions/workflows/build.yml) [![WebFlasher](https://img.shields.io/badge/Firmware-WebFlasher-blue)](https://eh2k.github.io/□●/flash/?firmware) [![MODULAGrid](https://img.shields.io/badge/MODULAR-Grid-white)](https://www.modulargrid.net/e/modules/browser?SearchName=squares+and+circles&SearchShowothers=1)
 
 <!-- ⧉⦾ ⧇ ⟥⧂ -->
-**squares-and-circles** is an alternative firmware for the Eurorack module O_C, targeting Teensy 4.0.
+**squares-and-circles** is an alternate firmware for the Eurorack module O_C, targeting Teensy 4.0.
 
 ## ■ Demos 
 
@@ -91,7 +91,7 @@ Machines/Engines are controlled by individual parameters.
 For each parameter a modulation can be assigned:
   * **CV**:
     * SRC: `C1`, `C2`, `C3`, `C4`
-    * OP: `THRU`, `S&H-T1`, `S&H-T1`, `S&H-T1`, `S&H-T1`, `T&H-T1`, `T&H-T1`, `T&H-T1`, `T&H-T1`
+    * OP: `THRU`, `S&H-T1`, `S&H-T2`, `S&H-T3`, `S&H-T4`, `T&H-T1`, `T&H-T2`, `T&H-T3`, `T&H-T4`
     * Hints:
       * Parameter 0 (top-left) is mainly used for V/OCT control. Thus, one single V/OCT signal / CV-Input can be shared by using modulation on parameter-0 with attenuverter = +1 (-3V..+6V) range. It is also possible to select the V/OCT input in the io-configuration page.
       * All other parameters can be modulated via CV-input with a assumed voltage-range of -4V..4V at 2kHz sample rate.
@@ -132,7 +132,7 @@ The I/O-Configuration page lets you virtually patch the engine with the hardware
 
  * **CV-Input**: `-`, `C1`, `C2`, `C3`, `C4`
    * V/OCT: -3V..6V for frequency-control (default)
- * **Quantizer**: [Off, Semitones, Ionian, Dorian, ...](src/braids/quantizer_scales.h)
+ * **Quantizer**: [Off, Semitones, Ionian, Dorian, ...](lib/braids/quantizer_scales.h)
  * **Transpose**: -48 to 24  (default -24)
 
 *In case the Engine supports Accents (Closed/Open HighHat) - Accent Input is configurable:*

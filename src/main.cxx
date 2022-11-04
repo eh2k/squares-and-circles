@@ -27,7 +27,7 @@
 
 #undef MACHINE_INIT
 #define MACHINE_INIT(init_fun) \
-    extern void init_fun();    \
+    void init_fun() __attribute__((weak)); \
     init_fun();
 
 int main()
@@ -54,7 +54,12 @@ int main()
     MACHINE_INIT(init_fv1);
     MACHINE_INIT(init_midi_polyVA)
 
-    machine::setup("0.0N4", 0);
+    MACHINE_INIT(init_scope)
+    MACHINE_INIT(init_tb_3po);
+    MACHINE_INIT(init_acid_sequencer);
+    MACHINE_INIT(init_trig_sequencer);
+
+    machine::setup("0.79", 0);
 
     while (true)
         machine::loop();

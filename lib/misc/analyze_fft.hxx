@@ -5,9 +5,10 @@
 
 #include <arm_math.h>
 
-#ifndef PROGMEM
+#ifndef FLASHMEM
 #include "pgmspace.h"
 #endif
+
 
 const int16_t AudioWindowHanning1024[] __attribute__ ((aligned (4))) FLASHMEM = {
      0,     0,     1,     3,     5,     8,    11,    15,    20,    25,
