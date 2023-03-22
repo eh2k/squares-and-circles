@@ -33,25 +33,26 @@ namespace plaits {
 using namespace std;
 using namespace stmlib;
 
-void Voice::Init(BufferAllocator* allocator) {
+void Voice::Init(BufferAllocator* allocator, uint32_t engines) {
   engines_.Init();
-  engines_.RegisterInstance(&virtual_analog_engine_, false, 0.8f, 0.8f);
-  engines_.RegisterInstance(&waveshaping_engine_, false, 0.7f, 0.6f);
-  engines_.RegisterInstance(&fm_engine_, false, 0.6f, 0.6f);
-  engines_.RegisterInstance(&grain_engine_, false, 0.7f, 0.6f);
-  engines_.RegisterInstance(&additive_engine_, false, 0.8f, 0.8f);
-  engines_.RegisterInstance(&wavetable_engine_, false, 0.6f, 0.6f);
-  engines_.RegisterInstance(&chord_engine_, false, 0.8f, 0.8f);
-  engines_.RegisterInstance(&speech_engine_, false, -0.7f, 0.8f);
+  int i = 0;
+  if(engines & 1<<(i++)) engines_.RegisterInstance(&virtual_analog_engine_, false, 0.8f, 0.8f);
+  if(engines & 1<<(i++)) engines_.RegisterInstance(&waveshaping_engine_, false, 0.7f, 0.6f);
+  if(engines & 1<<(i++)) engines_.RegisterInstance(&fm_engine_, false, 0.6f, 0.6f);
+  if(engines & 1<<(i++)) engines_.RegisterInstance(&grain_engine_, false, 0.7f, 0.6f);
+  if(engines & 1<<(i++)) engines_.RegisterInstance(&additive_engine_, false, 0.8f, 0.8f);
+  if(engines & 1<<(i++)) engines_.RegisterInstance(&wavetable_engine_, false, 0.6f, 0.6f);
+  if(engines & 1<<(i++)) engines_.RegisterInstance(&chord_engine_, false, 0.8f, 0.8f);
+  if(engines & 1<<(i++)) engines_.RegisterInstance(&speech_engine_, false, -0.7f, 0.8f);
 
-  engines_.RegisterInstance(&swarm_engine_, false, -3.0f, 1.0f);
-  engines_.RegisterInstance(&noise_engine_, false, -1.0f, -1.0f);
-  engines_.RegisterInstance(&particle_engine_, false, -2.0f, 1.0f);
-  engines_.RegisterInstance(&string_engine_, true, -1.0f, 0.8f);
-  engines_.RegisterInstance(&modal_engine_, true, -0.5f, 0.8f);
-  engines_.RegisterInstance(&bass_drum_engine_, true, 0.8f, 0.8f);
-  engines_.RegisterInstance(&snare_drum_engine_, true, 0.8f, 0.8f);
-  engines_.RegisterInstance(&hi_hat_engine_, true, 0.8f, 0.8f);
+  if(engines & 1<<(i++)) engines_.RegisterInstance(&swarm_engine_, false, -3.0f, 1.0f);
+  if(engines & 1<<(i++)) engines_.RegisterInstance(&noise_engine_, false, -1.0f, -1.0f);
+  if(engines & 1<<(i++)) engines_.RegisterInstance(&particle_engine_, false, -2.0f, 1.0f);
+  if(engines & 1<<(i++)) engines_.RegisterInstance(&string_engine_, true, -1.0f, 0.8f);
+  if(engines & 1<<(i++)) engines_.RegisterInstance(&modal_engine_, true, -0.5f, 0.8f);
+  if(engines & 1<<(i++)) engines_.RegisterInstance(&bass_drum_engine_, true, 0.8f, 0.8f);
+  if(engines & 1<<(i++)) engines_.RegisterInstance(&snare_drum_engine_, true, 0.8f, 0.8f);
+  if(engines & 1<<(i++)) engines_.RegisterInstance(&hi_hat_engine_, true, 0.8f, 0.8f);
   for (int i = 0; i < engines_.size(); ++i) {
     // All engines will share the same RAM space.
     allocator->Free();

@@ -56,11 +56,11 @@ struct NoiseEngine : public Engine
         of.push(buffer, machine::FRAME_BUFFER_SIZE);
     }
 
-    void onDisplay(uint8_t *display) override
+    void display() override
     {
         param[1].name = modes[mode];
 
-        gfx::drawEngine(display, this);
+        gfx::drawEngine(this);
     }
 };
 

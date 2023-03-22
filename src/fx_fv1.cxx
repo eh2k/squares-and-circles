@@ -30,7 +30,7 @@ struct FXEngine : public Engine
              const char *n0 = "D/W", const char *n1 = "P0", const char *n2 = "P1", const char *n3 = "P3")
         : Engine(AUDIO_PROCESSOR)
     {
-        fv1 = fv1_init();
+        fv1 = fv1_init(machine::malloc);
 
         param[0].init(n0, &raw, pp0);
         program = PROG;
@@ -39,9 +39,9 @@ struct FXEngine : public Engine
         param[3].init(n3, &pot2, pp3);
     }
 
-    ~FXEngine()
+    ~FXEngine() override
     {
-        fv1_free(fv1);
+        machine::mfree(fv1);
     }
 
     void process(const ControlFrame &frame, OutputFrame &of) override
@@ -74,11 +74,11 @@ struct FXEngine : public Engine
         of.aux = bufferR;
     }
 
-    void onDisplay(uint8_t *buffer) override
+    void display() override
     {
         if (fv1 == nullptr)
         {
-            gfx::drawString(buffer, 4, 32, "<<<< OUT OF RAM >>>>");
+            gfx::drawString(4, 32, "<<<< OUT OF RAM >>>>");
             return;
         }
 
@@ -89,7 +89,7 @@ struct FXEngine : public Engine
             param[1].name = tmp;
         }
 
-        gfx::drawEngine(buffer, this);
+        gfx::drawEngine(this);
     }
 };
 

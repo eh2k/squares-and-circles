@@ -12,7 +12,7 @@
 
 ## Motivation
 
-When I am asked why I do such projects - my general reply is: I don't know, it makes fun and I like to get deeper understanding of technical things. 
+When I am asked why I do such projects - I usually say that it's because I enjoy the challenge and learning more about technical things.
 Maybe the reason was the chip shortage that makes Eurorack DIY projects tricky at the moment, and I used that to get more involved with coding in the eurorack land. 
 At this point, a big thanks to the people behind ornament & crime (o_C) for the inspiring playground and the basis regarding hardware for this project.
 Many thanks also to all those who have worked on the code and algorithms partly reused here and make this treasure trove freely available, especially Mutable Instruments.
@@ -91,7 +91,7 @@ Machines/Engines are controlled by individual parameters.
 For each parameter a modulation can be assigned:
   * **CV**:
     * SRC: `C1`, `C2`, `C3`, `C4`
-    * OP: `THRU`, `S&H-T1`, `S&H-T2`, `S&H-T3`, `S&H-T4`, `T&H-T1`, `T&H-T2`, `T&H-T3`, `T&H-T4`
+    * OP: `THRU`, `S&H-T1`, `S&H-T1`, `S&H-T1`, `S&H-T1`, `T&H-T1`, `T&H-T1`, `T&H-T1`, `T&H-T1`
     * Hints:
       * Parameter 0 (top-left) is mainly used for V/OCT control. Thus, one single V/OCT signal / CV-Input can be shared by using modulation on parameter-0 with attenuverter = +1 (-3V..+6V) range. It is also possible to select the V/OCT input in the io-configuration page.
       * All other parameters can be modulated via CV-input with a assumed voltage-range of -4V..4V at 2kHz sample rate.
@@ -220,7 +220,8 @@ The MIDI-Settings page lets you select the MIDI-Input. MIDI via USB is active by
     * 
   * In the same way as raising the level ([see description](https://ornament-and-cri.me/hardware-basics/)), you can bring the V_bias (default 1.25V) to ~1.0V by modifying the voltage divider. Instead of the two 47K resistors, the ratio should be about 47K / 31.2K - one possibility would be to [solder a 100K resistor in parallel to the lower 47K resistor (uO_C:R14).](http://lushprojects.com/circuitjs/circuitjs.html?ctz=CQAgjCAMB0l3BWEBmATNA7AhAOBjVIAWfbEInEJfKgUwFowwAoAJXFUqdRADYjwYHpHDkRYaKiQSpUKNATMAhiCm8OlImg0guPRjzDx44WELABOZFuRwcnPKcjmSGChZwY8W8McjMAJx1uVUguITlUIgs4ZgB3UPCeNUFhQNUEdRForLkjY2YAYwz1bS0ebRF0Swtauvq6nAYmKkwcSAQLBCIMfmQcVyQYOBYElJCU-ih4kr4BFIppsczyShTKmfKUHi2p-wTdgS2hSn3yC3UTqgtDTmmg47ucnSrCGfXklZEz56vn7-eKzARAEYEuIPuIHo2mBAmhhhuch68HS8JAFyhMIh2QwKIA5piEfptIRTtN2GiMfQphjvmJVAo5N8FOkweAIWzLMJfAUEpzEWiuUtwOC4ViBP4APZyParXgYXzyeCWBDIIRDVRyZDMaUtWVESC1UJK+AWXqZWQQUEQZDgDVgJDaoA) 
 
-## Hardware setup procedure (automatically on first startup)
+## Hardware setup procedure 
+  > Use [![WebFlasher](https://img.shields.io/badge/Firmware-WebFlasher-blue)](https://eh2k.github.io/□●/flash/?firmware)  to enter callibration mode, or execute advanced setup commands </br>
   >Power on the module with the [LEFT] button pressed for entering the setup procedure.
 
 ### Display setup

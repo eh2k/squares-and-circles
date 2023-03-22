@@ -162,76 +162,88 @@ class AnalyzeFFT
 static void apply_window_to_fft_buffer(void *buffer, const void *window)
 {
 	int16_t *buf = (int16_t *)buffer;
-	const int16_t *win = (int16_t *)window;;
+        const int16_t *win = (int16_t *)window;
+        ;
 
-	for (int i=0; i < 1024; i++) {
+        for (int i = 0; i < 1024; i++)
+        {
 		int32_t val = *buf * *win++;
 		//*buf = signed_saturate_rshift(val, 16, 15);
 		*buf = val >> 15;
 		buf += 2;
 	}
-
 }
+
 public:
     AnalyzeFFT()
     {
         arm_cfft_radix4_init_q15(&fft_inst, BITS, 0, 1);
         p = (uint32_t *)buffer;
+        memset(output, 0, sizeof(output));
     }
 
-    void process(const int16_t *in, size_t len)
+    bool process(const int16_t *in, size_t len, int16_t gain = 1)
     {
         for (size_t i = 0; i < len; i++)
         {
-            auto val = in[i];
-            *p++ = val / (1 << 4);
+            *p++ = __SSAT(in[i] * gain, 16);
 
             if (p >= (uint32_t *)(&buffer[BITS * 2]))
             {
-                apply_window_to_fft_buffer(buffer, AudioWindowHanning1024);
+                int16_t bak[LEN_OF(buffer)/2];
+                memcpy(bak, &buffer[LEN_OF(buffer)/2], sizeof(bak));
 
-                p = (uint32_t *)buffer;
+                apply_window_to_fft_buffer(buffer, AudioWindowHanning1024);
                 arm_cfft_radix4_q15(&fft_inst, buffer);
 
                 for (size_t i = 0; i < LEN_OF(output); i++)
                 {
                     uint32_t tmp = *((uint32_t *)buffer + i); // real & imag
                     uint32_t magsq = multiply_16tx16t_add_16bx16b(tmp, tmp);
-                    output[i] = sqrt_uint32_approx(magsq);
+                    output[i] = (output[i] >> 1) + sqrt_uint32_approx(magsq);
                 };
+
+                memcpy(buffer, bak, sizeof(bak));
+                p = (uint32_t *)&buffer[LEN_OF(buffer)/2];
+
+                return true;
             }
         }
+
+        return false;
     }
 
     void display(uint8_t *display, int offset = 7)
     {
         uint32_t ylim = 64 - offset;
-        uint32_t dx = 128;
-        uint32_t bpp = (BITS / 2 / dx);
-        for (uint32_t i = 0; i < dx; i++)
+        constexpr uint32_t dx = 128;
+        constexpr uint32_t bpp = LEN_OF(output) / dx;
+        int x = 0;
+        for (uint32_t i = 0; i < LEN_OF(output); i++)
         {
             if (BITS == 1024)
             {
-                float f = output[i * bpp]; // up 33Khz?!
+                uint32_t sum = 0;
+                int n = std::min<int>(i + bpp, LEN_OF(output));
+                for (int j = i; j < n; j++)
+                    sum += output[j];
 
-                for (uint32_t j = 1; j < bpp; j++)
-                    f += output[i * bpp + j];
+                float f = (1.0f / 16384.0f) * sum;
 
-                //f *= (1.0f / 16384.0f);
+                // f = 20.f * log10f(1+f*10);
 
-                //f = 20.f * log10f(1+f*10);
-                f /= 2;
-
-                gfx::drawLine(display, i, ylim, i, ylim - f);
+                gfx::drawLine(x, ylim, x, ylim - (f*ylim));
+                x++;
+                i = (n - 1);
             }
             else if (BITS == 256)
             {
                 auto f = output[i];
-                gfx::drawLine(display, i, ylim, i, ylim - f);
+                gfx::drawLine(i, ylim, i, ylim - f);
             }
             else
             {
-                gfx::drawString(display, 0, 32, "not implemented");
+                gfx::drawString(0, 32, "not implemented");
             }
         };
     }

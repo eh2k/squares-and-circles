@@ -67,7 +67,7 @@ struct ResonatorEngine : public Engine
         of.aux = bufferAux;
     }
 
-    void onDisplay(uint8_t *buffer) override
+    void display() override
     {
         if (_model == rings::ResonatorModel::RESONATOR_MODEL_MODAL)
             param[1].name = ">  Modal";
@@ -80,7 +80,7 @@ struct ResonatorEngine : public Engine
         else
             param[1].name = ">  StrQuant.";
 
-        gfx::drawEngine(buffer, this);
+        gfx::drawEngine(this);
     }
 };
 

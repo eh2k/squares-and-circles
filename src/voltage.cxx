@@ -57,12 +57,12 @@ public:
         of.push(&cv, 1);
     }
 
-    void onDisplay(uint8_t *display) override
+    void display() override
     {
         sprintf(tmp, "OUT: %.2fV", ((float)cv / machine::PITCH_PER_OCTAVE));
-        gfx::drawString(display, 4 + 64, 52, tmp, 0);
+        gfx::drawString(4 + 64, 52, tmp, 0);
 
-        gfx::drawEngine(display, this);
+        gfx::drawEngine(this);
     }
 };
 

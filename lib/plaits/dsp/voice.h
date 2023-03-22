@@ -188,7 +188,7 @@ class Voice {
   Voice() { }
   ~Voice() { }
   
-  void Init(stmlib::BufferAllocator* allocator);
+  void Init(stmlib::BufferAllocator* allocator, uint32_t engines = 0xFFFF);
   void Render(
       const Patch& patch,
       const Modulations& modulations,

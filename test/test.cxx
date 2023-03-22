@@ -53,13 +53,15 @@ uint32_t random(uint32_t howbig)
 
 namespace gfx
 {
-    void drawPixel(uint8_t *buffer, int x, int y, uint8_t color) {}
-    void drawLine(uint8_t *buffer, int x1, int y1, int x2, int y2) {}
-    void drawRect(uint8_t *buffer, int x1, int y1, int w, int h) {}
-    void drawXbm(uint8_t *buffer, int x, int y, int width, int height, const uint8_t *xbm) {}
-    void drawString(uint8_t *buffer, int x, int y, const char *text, uint8_t font) {}
-    void drawEngine(uint8_t *buffer, machine::Engine *engine) {}
-    void DrawKnob(unsigned char *, int, int, char const *, unsigned short, bool) {}
+    uint8_t* display_buffer = nullptr;
+    void setColor(uint8_t color) {}
+    void drawPixel(int x, int y, uint8_t color) {}
+    void drawLine(int x1, int y1, int x2, int y2) {}
+    void drawRect(int x1, int y1, int w, int h) {}
+    void drawXbm(int x, int y, int width, int height, const uint8_t *xbm) {}
+    void drawString(int x, int y, const char *text, uint8_t font) {}
+    void drawEngine(machine::Engine *engine, const char* infoMsg) {}
+    void DrawKnob(int, int, char const *, unsigned short, bool) {}
 }
 
 namespace machine
@@ -107,8 +109,12 @@ namespace machine
 
     float audio_in[2][FRAME_BUFFER_SIZE];
 
-    template <>
-    float *get_aux<float>(AUX src)
+    void get_audio(int src, float* mix_buffer, float gain)
+    {
+        
+    }
+
+    float *get_aux(AUX src)
     {
         if (src == -1)
         {
@@ -184,7 +190,7 @@ namespace machine
         registry.push_back({engine, createFunc});
     }
 
-    void ModulationSource::display(uint8_t *buffer, int x, int y)
+    void ModulationSource::display(int x, int y)
     {
     }
 
@@ -219,6 +225,7 @@ namespace machine
 
     void *malloc(size_t size)
     {
+        printf("MALLOC %d\n", size);
         auto ptr = ::malloc(size);
         memset(ptr, 0, size);
         return ptr;

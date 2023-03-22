@@ -30,9 +30,9 @@ struct ScreensaverSC : machine::Screensaver
 {
     float peak[4];
 
-    void display(uint8_t *frame) override
+    void display() override
     {
-        memset(frame, 0, 128 * 64 / 8);
+        memset(gfx::display_buffer, 0, 128 * 64 / 8);
         for (size_t i = 0; i < LEN_OF(peak); i++)
         {
             int s = 2 + std::min(5.f, 5 * peak[i]);
@@ -42,25 +42,25 @@ struct ScreensaverSC : machine::Screensaver
             {
                 if (peak[i] < 3)
                 {
-                    gfx::drawCircle(frame, 8 + (i * 32), 72 - (y * 16), s);
-                    gfx::drawCircle(frame, 24 + (i * 32), 72 - (y * 16), s);
+                    gfx::drawCircle(8 + (i * 32), 72 - (y * 16), s);
+                    gfx::drawCircle(24 + (i * 32), 72 - (y * 16), s);
                 }
                 else
                 {
-                    gfx::fillCircle(frame, 8 + (i * 32), 72 - (y * 16), s);
-                    gfx::fillCircle(frame, 24 + (i * 32), 72 - (y * 16), s);
+                    gfx::fillCircle(8 + (i * 32), 72 - (y * 16), s);
+                    gfx::fillCircle(24 + (i * 32), 72 - (y * 16), s);
                 }
             }
 
             if (peak[i] < 2)
             {
-                gfx::drawRect(frame, -s + 8 + (i * 32), -s + 72 - (yy * 16), s * 2, s * 2);
-                gfx::drawRect(frame, -s + 24 + (i * 32), -s + 72 - (yy * 16), s * 2, s * 2);
+                gfx::drawRect(-s + 8 + (i * 32), -s + 72 - (yy * 16), s * 2, s * 2);
+                gfx::drawRect(-s + 24 + (i * 32), -s + 72 - (yy * 16), s * 2, s * 2);
             }
             else
             {
-                gfx::fillRect(frame, -s + 8 + (i * 32), -s + 72 - (yy * 16), s * 2, s * 2);
-                gfx::fillRect(frame, -s + 24 + (i * 32), -s + 72 - (yy * 16), s * 2, s * 2);
+                gfx::fillRect(-s + 8 + (i * 32), -s + 72 - (yy * 16), s * 2, s * 2);
+                gfx::fillRect(-s + 24 + (i * 32), -s + 72 - (yy * 16), s * 2, s * 2);
             }
 
             if (peak[i] > 0)
@@ -68,12 +68,14 @@ struct ScreensaverSC : machine::Screensaver
         }
     }
 
-    void push_data(uint8_t channel, float *buffer, size_t size)
+    void process(const machine::OutputFrame *frames) override
     {
-        for (size_t i = 0; i < size; i++)
-        {
-            peak[channel] = std::max(peak[channel], fabsf(buffer[i]));
-        }
+        for (size_t channel = 0; channel < 4; channel++)
+            for (size_t i = 0; i < 4; i++)
+            {
+                if (frames[channel].out)
+                    peak[channel] = std::max(peak[channel], fabsf(frames[channel].out[i]));
+            }
     }
 };
 
@@ -82,10 +84,10 @@ struct ScreensaverFFT : machine::Screensaver
     AnalyzeFFT<1024> fft;
     int16_t fft_buff[machine::FRAME_BUFFER_SIZE];
 
-    void display(uint8_t *frame) override
+    void display() override
     {
-        memset(frame, 0, 128 * 64 / 8);
-        fft.display(frame, 0);
+        memset(gfx::display_buffer, 0, 128 * 64 / 8);
+        fft.display(gfx::display_buffer, 0);
     }
 
     void push_data(uint8_t channel, float *buffer, size_t size)

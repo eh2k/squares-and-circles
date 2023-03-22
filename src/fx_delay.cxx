@@ -148,7 +148,7 @@ struct Delay : public Engine
     }
 
     char time_info[64] = "Time";
-    void onDisplay(uint8_t *buffer) override
+    void display() override
     {
         if (calc_t_step32())
         {
@@ -160,14 +160,14 @@ struct Delay : public Engine
 
         param[0].name = time_info;
 
-        gfx::drawEngine(buffer, this);
+        gfx::drawEngine(this);
 
         float midi_bpm = 1.f / 100 * machine::get_bpm();
         if (midi_bpm > 0)
         {
             char tmp[16];
             sprintf(tmp, "BPM:%.1f", midi_bpm); //dtostrf(midi_bpm, 2, 1, &tmp[4]);
-            gfx::drawString(buffer, 10, 28, tmp, 0);
+            gfx::drawString(10, 28, tmp, 0);
         }
     }
 };

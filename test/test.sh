@@ -1,12 +1,9 @@
 cd $(dirname $0)
 
-cat ../.pio/libdeps/OC_T40/libsquares-and-circles-machine/machine.h | grep "inttypes.h" || \
-    sed -i '8 i #include <inttypes.h>' ../.pio/libdeps/OC_T40/libsquares-and-circles-machine/machine.h
-
 mkdir -p ../.test
 #-std=c++2a 
 INC=$(for i in ../.pio/libdeps/*/*/; do echo "-I $i"; done )
-FILTER="fv1|marbles|main|EEPROM|SPI|machine|test|vis|scope|screensaver"
+FILTER="fv1|marbles|main|EEPROM|SPI|machine|test|vis|scope|screensaver|fft"
 SRC=$(find -L ../src/ ../lib/ -name "*.cc" -o -name "*.cxx" -o -name "*.cpp" | grep -v -E "$FILTER" )
 SRC_C=$(find ../src/ ../lib/ -name "*.c" | grep -v -E "$FILTER" )
 SRC_C=$(for i in $SRC_C; do echo "-xc $i"; done )

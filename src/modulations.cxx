@@ -31,15 +31,15 @@ struct ModulationBase : machine::ModulationSource
     float value;
     float attenuverter = 0;
 
-    void display(uint8_t *buffer, int x, int y) override
+    void display(int x, int y) override
     {
         if (src > 0)
         {
-            gfx::drawRect(buffer, x + 1, y + 32, 63, 6);
+            gfx::drawRect(x + 1, y + 32, 63, 6);
             auto m = value / 10.f * 32;
 
-            gfx::drawLine(buffer, x + 32, y + 34, x + 32 + m, y + 34);
-            gfx::drawLine(buffer, x + 32, y + 35, x + 32 + m, y + 35);
+            gfx::drawLine(x + 32, y + 34, x + 32 + m, y + 34);
+            gfx::drawLine(x + 32, y + 35, x + 32 + m, y + 35);
         }
 
         x += 20;
@@ -50,14 +50,14 @@ struct ModulationBase : machine::ModulationSource
 
         bool sel = this->param[attenuverter_index].flags & machine::Parameter::IS_SELECTED;
 
-        gfx::DrawKnob(buffer, x + 30, y + 7, sel ? "~" : " ", this->param[attenuverter_index].to_uint16(), sel);
-        gfx::drawString(buffer, x + 18, y - 3, "-  +", 1);
+        gfx::DrawKnob(x + 30, y + 7, sel ? "~" : " ", this->param[attenuverter_index].to_uint16(), sel);
+        gfx::drawString(x + 18, y - 3, "-  +", 1);
         // if (std::fabs(attenuverter) < 0.01f)
         //     gfx::drawString(buffer, x + 19, y - 7, "|", 0);
 
         x -= 24;
 
-        ModulationSource::display(buffer, x, y + 2);
+        ModulationSource::display(x, y + 2);
     }
 };
 
@@ -302,7 +302,7 @@ struct LFO : ModulationBase
         target.modulate(value * this->attenuverter);
     }
 
-    void display(uint8_t *buffer, int x, int y) override
+    void display(int x, int y) override
     {
         if (mode == peaks::LFO_SHAPE_LAST)
         {
@@ -328,7 +328,7 @@ struct LFO : ModulationBase
                 break;
             }
 
-            ModulationBase::display(buffer, x, y);
+            ModulationBase::display(x, y);
         }
     }
 };

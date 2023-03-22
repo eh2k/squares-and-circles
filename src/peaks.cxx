@@ -87,7 +87,7 @@ struct PeaksEngine : public Engine
         of.push(buffer, LEN_OF(buffer));
     }
 
-    void onDisplay(uint8_t *buffer) override
+    void display() override
     {
         if (std::is_same<T, peaks::Lfo>::value)
         {
@@ -115,7 +115,7 @@ struct PeaksEngine : public Engine
             }
         }
 
-        gfx::drawEngine(buffer, this);
+        gfx::drawEngine(this);
     }
 };
 

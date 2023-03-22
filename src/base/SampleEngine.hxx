@@ -92,6 +92,10 @@ public:
         ptr = samples;
         param[0].init("Pitch", &pitch_coarse, pitch_coarse, -.5f, .5f);
         param[1].init("Sample", &selection, select, 0, count - 1);
+        param[1].print_value = [&](char *tmp)
+        {
+            sprintf(tmp, ptr[selection].name);
+        };
         param[2].init("Start", &start, 0);
         param[3].init("End", &end, 1);
         // param[4].init("RTRG", &rtrg, 0, 0, 16);
@@ -163,14 +167,6 @@ public:
         }
 
         of.out = buffer;
-    }
-
-    void onDisplay(uint8_t *buffer) override
-    {
-        auto &smpl = ptr[selection];
-        param[1].name = smpl.name;
-
-        gfx::drawEngine(buffer, this);
     }
 };
 

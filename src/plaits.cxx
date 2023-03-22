@@ -4,11 +4,11 @@
 
 using namespace machine;
 
-template <int engine, int output = 0> // output=0 -> out, output=1 -> aux, output=3 -> stereo
+template <int engine, int output = 0, size_t alloc = 24> // output=0 -> out, output=1 -> aux, output=3 -> stereo
 struct PlaitsEngine : public Engine
 {
     plaits::Modulations modulations;
-    uint8_t buffer[16384];
+    uint8_t buffer[alloc * sizeof(float)];
     stmlib::BufferAllocator allocator;
     plaits::Voice voice;
     plaits::Patch patch;
@@ -31,10 +31,9 @@ struct PlaitsEngine : public Engine
 
         memset(buffer, 0, sizeof(buffer));
         allocator.Init(buffer, 16384);
-        voice.Init(&allocator);
-
+        voice.Init(&allocator, 1 << engine);
         memset(&modulations, 0, sizeof(patch));
-        patch.engine = engine;
+        patch.engine = 0;
         patch.note = machine::DEFAULT_NOTE + _pitch * 12.f;
 
         patch.harmonics = harmonics;
@@ -74,10 +73,6 @@ struct PlaitsEngine : public Engine
         if (engine < 13)
         {
             param[4].init("Decay", &patch.decay);
-            param[4].value_changed = [&]()
-            {
-                modulations.trigger_patched = patch.decay < 1.f;
-            };
 
             if (engine >= 8 && output == 2)
                 param[5].init("AuxMix", &out_aux_mix);
@@ -119,6 +114,9 @@ struct PlaitsEngine : public Engine
         modulations.engine = 0;
         modulations.trigger = frame.trigger ? 1 : 0;
 
+        if (engine < 13)
+            modulations.trigger_patched = patch.decay < 1.f;
+
         modulations.note = frame.cv_voltage() * 12;
         voice.Render(patch, modulations, f);
 
@@ -150,7 +148,7 @@ void init_plaits()
     machine::add<PlaitsEngine<3>>(machine::M_OSC, "Grain", 0.f, 0.8f, 0.8f, 0.75f, "Freq", "Harm", "Timbre", "Morph");
     machine::add<PlaitsEngine<4>>(machine::M_OSC, "Additive", 0.f, 0.8f, 0.8f, 0.75f, "Freq", "Harm", "Timbre", "Morph");
     machine::add<PlaitsEngine<5>>(machine::M_OSC, "Wavetable", 0.f, 0.8f, 0.8f, 0.75f, "Freq", "Harm", "Timbre", "Morph");
-    machine::add<PlaitsEngine<6>>(machine::M_OSC, "Chord", 0.f, 0.5f, 0.5f, 0.5f, "Freq", "Harm", "Timbre", "Morph");
+    machine::add<PlaitsEngine<6, 0, plaits::kChordNumChords * plaits::kChordNumNotes>>(machine::M_OSC, "Chord", 0.f, 0.5f, 0.5f, 0.5f, "Freq", "Harm", "Timbre", "Morph");
     // machine::add<PlaitsEngine<7>>(machine::M_OSC, "VowelAndSpeech", 0.f, 0.95f, 0.5f, 0.25f, "Freq", "Harm", "Timbre", "Morph");
 
     // machine::add<PlaitsEngine<8, 2>>(machine::M_OSC, "Swarm", 0.f, 0.5f, 0.5f, 0.5f, "Freq", "Harm", "Timbre", "Morph");

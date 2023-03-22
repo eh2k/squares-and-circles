@@ -12,9 +12,9 @@ unsigned char speed = 72;
 unsigned char pitch = 64;
 unsigned char mouth = 128;
 unsigned char throat = 128;
-int singmode = 0;
 
-extern int debug;
+int singmode = 0;
+int debug = 0;
 
 unsigned char mem39;
 unsigned char mem44;

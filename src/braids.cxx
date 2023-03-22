@@ -100,7 +100,7 @@ struct BraidsEngine : public Engine
         of.push(audio_samples, LEN_OF(audio_samples));
     }
 
-    void onDisplay(uint8_t *buffer) override
+    void display() override
     {
         param[1].name = braids::settings.metadata(braids::Setting::SETTING_OSCILLATOR_SHAPE).strings[_shape];
 
@@ -115,7 +115,7 @@ struct BraidsEngine : public Engine
             param[5].name = nullptr;
         }
 
-        gfx::drawEngine(buffer, this);
+        gfx::drawEngine(this);
     }
 };
 
