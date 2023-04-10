@@ -54,12 +54,7 @@ int main()
     MACHINE_INIT(init_fv1);
     MACHINE_INIT(init_midi_polyVA)
 
-    MACHINE_INIT(init_scope)
-    MACHINE_INIT(init_tb_3po);
-    MACHINE_INIT(init_acid_sequencer);
-    MACHINE_INIT(init_trig_sequencer);
-
-    machine::setup("0.79", 0);
+    machine::setup("0.79b", 0);
 
     while (true)
         machine::loop();

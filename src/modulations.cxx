@@ -97,13 +97,17 @@ struct CV : ModulationBase
 
     void process(machine::Parameter &target, machine::ControlFrame &frame) override
     {
-        if (tr_channel == 0 || (tr_channel <= 4 && machine::get_trigger(tr_channel - 1)) || (tr_channel <= 8 && machine::get_gate(tr_channel - 4)))
+        if (tr_channel == 0) // THRU
+            value = machine::get_cv(cv_channel);
+        else if (tr_channel >= 1 && tr_channel <= 4 && machine::get_trigger(tr_channel - 1)) // Sample&Hold
+            value = machine::get_cv(cv_channel);
+        else if (tr_channel >= 5 && tr_channel <= 8 && machine::get_gate(tr_channel - 5)) // Track&Hold
             value = machine::get_cv(cv_channel);
 
         float a = attenuverter;
 
-        if(!(target.flags & machine::Parameter::IS_V_OCT))
-            a *= 3;  // ADC is -3...6V ...faktor 3 for non V/OCT 
+        if (!(target.flags & machine::Parameter::IS_V_OCT))
+            a *= 3; // ADC is -3...6V ...faktor 3 for non V/OCT
 
         target.modulate(value * a);
     }
