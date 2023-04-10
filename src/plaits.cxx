@@ -117,6 +117,14 @@ struct PlaitsEngine : public Engine
         if (engine < 13)
             modulations.trigger_patched = patch.decay < 1.f;
 
+        if(!this->io->tr)
+        {
+            modulations.trigger_patched = false;
+            modulations.level_patched = true;
+            modulations.level = patch.decay;
+            patch.decay = 0.001f;
+        }
+
         modulations.note = frame.cv_voltage() * 12;
         voice.Render(patch, modulations, f);
 
@@ -137,6 +145,16 @@ struct PlaitsEngine : public Engine
             of.out = bufferOut;
             break;
         }
+    }
+
+    void display() override
+    {
+        if(!this->io->tr)
+            param[4].name = "Level";
+        else
+            param[4].name = "Decay";
+
+        gfx::drawEngine(this);
     }
 };
 

@@ -367,6 +367,7 @@ int main()
     // return;
 
     machine::Engine *seq = nullptr;
+    machine::IOConfig ioconf { 1, 1, 0, 0 };
 
     std::map<const char *, bool> machines;
 
@@ -381,6 +382,8 @@ int main()
         //      continue;
 
         auto engine = r.init();
+        engine->io = &ioconf;
+        engine->init();
 
         printf("````\n");
         printf("Parameters:\n");
