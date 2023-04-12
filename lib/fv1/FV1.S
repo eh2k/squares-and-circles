@@ -4080,16 +4080,18 @@ fv1_init:
 	@ frame_needed = 0, uses_anonymous_args = 0
 	push	{r3, r4, r5, r6, r7, lr}
 	mov	r3, r0
-	ldr	r0, .L227
+	ldr	r0, .L231
 	blx	r3
-	movs	r5, #0
 	mov	r4, r0
+	cmp	r0, #0
+	beq	.L225
+	movs	r5, #0
 	mov	r2, #131072
-	str	r5, [r0]
-	mov	r1, r5
 	add	r0, r0, #272
-	movs	r6, #1
 	add	r7, r4, #28
+	mov	r1, r5
+	str	r5, [r4]
+	add	r6, r4, #24
 	strd	r5, r5, [r4, #4]
 	strd	r5, r5, [r4, #12]
 	strd	r5, r5, [r4, #20]
@@ -4125,61 +4127,67 @@ fv1_init:
 	strd	r5, r5, [r4, #260]
 	str	r5, [r4, #268]
 	bl	memset
-	ldr	r0, .L227+4
-	ldr	r3, .L227+8
-	add	r2, r4, #20
+	ldr	r0, .L231+4
+	ldr	r1, .L231+8
+	mov	lr, #1
+	ldr	r2, .L231+12
+	add	r3, r4, #20
 	str	r5, [r4, r0]
-	mvn	r0, #274
-	str	r5, [r4, r3]
-	sub	r3, r3, #8519680
-	ldr	r1, .L227+12
 	add	ip, r4, #16
-	add	r3, r3, r0
-	add	r0, r4, #24
-	str	r3, [r4, r1]
-	adds	r1, r1, #12
 	str	r5, [r4, r1]
 	adds	r1, r1, #4
+	str	r5, [r4, r2]
+	adds	r2, r2, #16
+	add	r0, r4, #36
+	str	r5, [r4, r2]
+	adds	r2, r2, #12
+	str	r5, [r4, r2]
+	adds	r2, r2, #16
+	str	r5, [r4, r2]
+	mvn	r5, #334
+	sub	r2, r2, #8519680
+	add	r2, r2, r5
+	ldr	r5, .L231+16
+	str	r2, [r4, r1]
+	adds	r1, r1, #16
+	str	r2, [r4, r1]
+	add	r1, r4, #32
+	ldr	r2, .L231+20
+	strb	lr, [r4, r2]
+	add	r2, r4, #44
+	str	r3, [r4, r5]
+	add	r3, r4, #40
+	ldr	r5, .L231+24
+	ldr	lr, .L231+40
+	str	ip, [r4, lr]
+	str	r7, [r4, r5]
+	adds	r5, r5, #4
+	str	r6, [r4, r5]
+	adds	r5, r5, #12
+	ldr	r6, .L231+28
+	str	r0, [r4, r6]
+	str	r1, [r4, r5]
+	ldr	r0, .L231+32
+	ldr	r1, .L231+36
+	str	r2, [r4, r0]
 	str	r3, [r4, r1]
-	add	r1, r4, #36
-	ldr	r3, .L227+16
-	str	r5, [r4, r3]
-	adds	r3, r3, #12
-	str	r5, [r4, r3]
-	adds	r3, r3, #12
-	strb	r6, [r4, r3]
-	adds	r3, r3, #4
-	add	r6, r4, #32
-	str	r5, [r4, r3]
-	subs	r3, r3, #52
-	add	r5, r4, #44
-	str	r2, [r4, r3]
-	adds	r3, r3, #4
-	add	r2, r4, #40
-	str	ip, [r4, r3]
-	adds	r3, r3, #12
-	str	r7, [r4, r3]
-	adds	r3, r3, #4
-	str	r0, [r4, r3]
-	adds	r3, r3, #8
+.L225:
 	mov	r0, r4
-	str	r1, [r4, r3]
-	adds	r3, r3, #4
-	ldr	r1, .L227+20
-	str	r6, [r4, r3]
-	adds	r3, r3, #12
-	str	r5, [r4, r1]
-	str	r2, [r4, r3]
 	pop	{r3, r4, r5, r6, r7, pc}
-.L228:
+.L232:
 	.align	2
-.L227:
+.L231:
 	.word	131412
 	.word	131344
 	.word	131348
-	.word	131352
-	.word	131380
+	.word	131364
+	.word	131356
+	.word	131404
+	.word	131372
+	.word	131384
 	.word	131396
+	.word	131400
+	.word	131360
 	.size	fv1_init, .-fv1_init
 	.section	.text.fv1_set_fx,"ax",%progbits
 	.align	1
@@ -4193,12 +4201,12 @@ fv1_init:
 fv1_set_fx:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
-	cbz	r0, .L235
+	cbz	r0, .L239
 	movs	r3, #0
-	ldr	r2, .L238
+	ldr	r2, .L242
 	push	{r4, r5, r6, lr}
 	mov	r4, r0
-	ldr	r0, .L238+4
+	ldr	r0, .L242+4
 	movs	r6, #1
 	ldr	r5, [r0, r1, lsl #2]
 	mov	r0, r4
@@ -4209,14 +4217,14 @@ fv1_set_fx:
 	str	r3, [r4, #8]
 	str	r3, [r0], #144
 	bl	memset
-	ldr	r3, .L238+8
+	ldr	r3, .L242+8
 	str	r5, [r4, r3]
 	pop	{r4, r5, r6, pc}
-.L235:
-	bx	lr
 .L239:
+	bx	lr
+.L243:
 	.align	2
-.L238:
+.L242:
 	.word	131404
 	.word	.LANCHOR0
 	.word	131408
@@ -4239,9 +4247,9 @@ fv1_process:
 	sub	sp, sp, #76
 	ldr	r0, [sp, #124]
 	cmp	r4, #0
-	beq	.L240
+	beq	.L244
 	cmp	r0, #0
-	beq	.L240
+	beq	.L244
 	vmov.f32	s15, s0
 	mvn	r5, #-16777216
 	mov	lr, r1
@@ -4254,14 +4262,14 @@ fv1_process:
 	vstr.32	s15, [sp, #16]	@ int
 	vmov.f32	s15, s1
 	ldr	r7, [sp, #16]
-	ldr	r1, .L255
+	ldr	r1, .L259
 	cmp	r7, #-16777216
 	vcvt.s32.f32	s15, s15, #23
 	add	r1, r4, r1
-	ldr	r6, .L255+4
+	ldr	r6, .L259+4
 	it	lt
 	movlt	r7, #-16777216
-	ldr	fp, .L255+32
+	ldr	fp, .L259+32
 	vstr.32	s15, [sp, #20]	@ int
 	vmov.f32	s15, s2
 	str	r7, [sp, #16]
@@ -4270,12 +4278,12 @@ fv1_process:
 	vcvt.s32.f32	s15, s15, #23
 	str	r1, [sp, #64]
 	cmp	r7, #-16777216
-	ldr	r10, .L255+36
-	ldr	r9, .L255+40
+	ldr	r10, .L259+36
+	ldr	r9, .L259+40
 	it	lt
 	movlt	r7, #-16777216
 	vmov	ip, s15	@ int
-	ldr	r8, .L255+44
+	ldr	r8, .L259+44
 	add	r10, r10, r4
 	str	r7, [sp, #20]
 	vmov	r7, s15	@ int
@@ -4283,7 +4291,7 @@ fv1_process:
 	add	r8, r8, r4
 	cmp	r7, #-16777216
 	ldr	r7, [sp, #16]
-	vldr.32	s16, .L255+8
+	vldr.32	s16, .L259+8
 	it	lt
 	movlt	ip, #-16777216
 	mov	r2, r7
@@ -4295,7 +4303,7 @@ fv1_process:
 	movge	r2, r5
 	cmp	r7, r5
 	mov	r0, r7
-	ldr	r7, .L255+12
+	ldr	r7, .L259+12
 	it	ge
 	movge	r0, r5
 	cmp	r3, r5
@@ -4308,8 +4316,8 @@ fv1_process:
 	adds	r1, r4, r7
 	str	r3, [sp, #24]
 	adds	r7, r7, #4
-	ldr	r3, .L255+16
-	ldr	r2, .L255+20
+	ldr	r3, .L259+16
+	ldr	r2, .L259+20
 	adds	r3, r4, r3
 	str	r0, [sp, #20]
 	adds	r2, r4, r2
@@ -4319,12 +4327,12 @@ fv1_process:
 	str	r3, [sp, #60]
 	movs	r7, #0
 	ldr	r3, [sp, #120]
-	ldr	r6, .L255+24
+	ldr	r6, .L259+24
 	str	r0, [sp, #68]
 	str	r1, [sp, #44]
 	str	r2, [sp, #56]
 	str	r3, [sp, #32]
-.L246:
+.L250:
 	ldr	r3, [sp, #12]
 	mov	r0, r4
 	vldmia.32	r3!, {s14}
@@ -4391,13 +4399,13 @@ fv1_process:
 	cmp	r1, #0
 	sbcs	r3, r2, #0
 	strd	r1, [sp]
-	bge	.L242
+	bge	.L246
 	adds	r3, r1, r6
 	str	r3, [sp]
 	ldr	r3, [sp, #4]
 	adc	r3, r7, r3
 	str	r3, [sp, #4]
-.L242:
+.L246:
 	ldr	r3, [sp]
 	lsrs	r1, r3, #23
 	ldr	r3, [sp, #44]
@@ -4417,10 +4425,10 @@ fv1_process:
 	str	r2, [r3]
 	cmp	r0, #0
 	sbcs	r3, r1, #0
-	bge	.L243
+	bge	.L247
 	adds	r0, r0, r6
 	adc	r1, r7, r1
-.L243:
+.L247:
 	lsrs	r3, r0, #23
 	ldr	r2, [fp, #12]
 	orr	r3, r3, r1, lsl #9
@@ -4440,13 +4448,13 @@ fv1_process:
 	cmp	r1, #0
 	sbcs	r3, r2, #0
 	strd	r1, [sp]
-	bge	.L244
+	bge	.L248
 	adds	r3, r1, r6
 	str	r3, [sp]
 	ldr	r3, [sp, #4]
 	adc	r3, r7, r3
 	str	r3, [sp, #4]
-.L244:
+.L248:
 	ldr	r3, [sp]
 	ldr	r2, [r10]
 	lsrs	r1, r3, #23
@@ -4464,13 +4472,13 @@ fv1_process:
 	cmp	r0, #0
 	sbcs	r3, r1, #0
 	strd	r0, [sp]
-	bge	.L245
+	bge	.L249
 	adds	r3, r0, r6
 	str	r3, [sp]
 	ldr	r3, [sp, #4]
 	adc	r3, r7, r3
 	str	r3, [sp, #4]
-.L245:
+.L249:
 	ldr	r2, [sp, #56]
 	ldr	r3, [sp]
 	ldr	r0, [r2]
@@ -4495,7 +4503,7 @@ fv1_process:
 	asrs	r3, r3, #21
 	ldr	ip, [ip]
 	sub	r2, r2, r0, asr #12
-	ldr	r0, .L255+28
+	ldr	r0, .L259+28
 	ldr	r1, [r1]
 	asr	ip, ip, #21
 	asr	r3, r0, r3
@@ -4521,15 +4529,15 @@ fv1_process:
 	str	r3, [sp, #32]
 	ldr	r3, [sp, #52]
 	cmp	r3, r2
-	bne	.L246
-.L240:
+	bne	.L250
+.L244:
 	add	sp, sp, #76
 	@ sp needed
 	vldm	sp!, {d8}
 	pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
-.L256:
+.L260:
 	.align	2
-.L255:
+.L259:
 	.word	131404
 	.word	131408
 	.word	872415232

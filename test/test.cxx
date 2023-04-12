@@ -231,6 +231,11 @@ namespace machine
         return ptr;
     }
 
+    void mfree(void* p)
+    {
+        ::free(p);
+    }
+
     void free(machine::Engine *&ptr)
     {
         if (ptr != nullptr)

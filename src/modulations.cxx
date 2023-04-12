@@ -24,6 +24,7 @@
 //
 
 #include "machine.h"
+#include <cmath>
 #include "stmlib/utils/random.h"
 
 struct ModulationBase : machine::ModulationSource
@@ -63,12 +64,13 @@ struct ModulationBase : machine::ModulationSource
 
 struct CV : ModulationBase
 {
+    const int n_trigs = 4;
     uint8_t cv_channel = 0;
     uint8_t tr_channel = 0;
-
     void eeprom(std::function<void(void *, size_t)> read_write) override
     {
         read_write(&cv_channel, sizeof(cv_channel));
+        read_write(&tr_channel, sizeof(tr_channel));
         read_write(&attenuverter, sizeof(attenuverter));
     }
 
@@ -79,15 +81,16 @@ struct CV : ModulationBase
         {
             machine::get_io_info(1, cv_channel, tmp);
         };
-        param[1].init("OP", &tr_channel, tr_channel, 0, machine::get_io_info(0));
+
+        param[1].init("OP", &tr_channel, tr_channel, 0, 2 * n_trigs);
         param[1].print_value = [&](char *tmp)
         {
             if (tr_channel == 0)
                 sprintf(tmp, "Thru");
-            else if (tr_channel <= 4)
+            else if (tr_channel <= n_trigs)
                 sprintf(tmp, "S&H-T%d", tr_channel);
-            else if (tr_channel <= 8)
-                sprintf(tmp, "T&H-T%d", tr_channel - 4);
+            else if (tr_channel <= (n_trigs * 2))
+                sprintf(tmp, "T&H-T%d", tr_channel - n_trigs);
             else
                 machine::get_io_info(0, tr_channel - 1, tmp);
         };
@@ -99,9 +102,9 @@ struct CV : ModulationBase
     {
         if (tr_channel == 0) // THRU
             value = machine::get_cv(cv_channel);
-        else if (tr_channel >= 1 && tr_channel <= 4 && machine::get_trigger(tr_channel - 1)) // Sample&Hold
+        else if (tr_channel >= 1 && tr_channel <= n_trigs && machine::get_trigger(tr_channel - 1)) // Sample&Hold
             value = machine::get_cv(cv_channel);
-        else if (tr_channel >= 5 && tr_channel <= 8 && machine::get_gate(tr_channel - 5)) // Track&Hold
+        else if (tr_channel >= (1 + n_trigs) && tr_channel <= (n_trigs * 2) && machine::get_gate(tr_channel - 5)) // Track&Hold
             value = machine::get_cv(cv_channel);
 
         float a = attenuverter;
@@ -337,12 +340,99 @@ struct LFO : ModulationBase
     }
 };
 
+// https://www.musicdsp.org/en/latest/Filters/265-output-limiter-using-envelope-follower-in-c.html
+class EnvelopeFollower
+{
+public:
+    EnvelopeFollower() : envelope(0)
+    {
+    }
+
+    void init(float attackMs, float releaseMs, int sampleRate)
+    {
+        a = powf(0.01f, 1.0f / (attackMs * sampleRate * 0.001f));
+        r = powf(0.01f, 1.0f / (releaseMs * sampleRate * 0.001f));
+    }
+
+    float process(float sample)
+    {
+        float v = ::fabsf(sample);
+        if (v > envelope)
+            envelope = a * (envelope - v) + v;
+        else
+            envelope = r * (envelope - v) + v;
+
+        return envelope;
+    }
+
+protected:
+    float envelope;
+    float a;
+    float r;
+};
+
+struct EF : ModulationBase
+{
+    uint8_t cv_channel = 0;
+    uint8_t attack = 0;
+    uint8_t release = 0;
+
+    // DC Block..
+    float output_ = 0.0f;
+    float input_ = 0.0f;
+
+    EnvelopeFollower follower_;
+
+    void eeprom(std::function<void(void *, size_t)> read_write) override
+    {
+        read_write(&cv_channel, sizeof(cv_channel));
+        read_write(&attack, sizeof(attack));
+        read_write(&release, sizeof(release));
+        read_write(&attenuverter, sizeof(attenuverter));
+    }
+
+    EF()
+    {
+        param[0].init("SRC", &cv_channel, cv_channel, 0, machine::get_io_info(1) - 1);
+        param[0].print_value = [&](char *tmp)
+        {
+            machine::get_io_info(1, cv_channel, tmp);
+        };
+
+        param[1].init("ATT", &attack, 1, 1, 64);
+        param[2].init("REL", &release, 32, 1, 64);
+        param[1].value_changed = param[2].value_changed = [&]()
+        {
+            follower_.init(5.f / 64.f * attack, 20.f / 64.f * release, machine::SAMPLE_RATE);
+        };
+        param[2].value_changed();
+
+        param[3].init(".", &attenuverter, attenuverter, -1, +1);
+    }
+
+    void process(machine::Parameter &target, machine::ControlFrame &frame) override
+    {
+        float in = machine::get_cv(cv_channel);
+
+        // https://ccrma.stanford.edu/~jos/fp/DC_Blocker_Software_Implementations.html
+        float out = in - input_ + (0.995f * output_);
+        output_ = out;
+        input_ = in;
+
+        value = follower_.process(out) * 10.f;
+        CONSTRAIN(value, 0, 10.f);
+
+        target.modulate(value * attenuverter);
+    }
+};
+
 void init_modulations()
 {
     machine::add_modulation_source<CV>("CV");
     machine::add_modulation_source<RND>("RND");
     machine::add_modulation_source<Envelope>("ENV");
     machine::add_modulation_source<LFO<peaks::LFO_SHAPE_LAST>>("LFO");
+    machine::add_modulation_source<EF>("EF");
 }
 
 MACHINE_INIT(init_modulations);

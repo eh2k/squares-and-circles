@@ -8,7 +8,7 @@ struct ResonatorEngine : public Engine
 {
     uint16_t _model;
     rings::Strummer strummer;
-    rings::Part part;
+    rings::Part *part;
     rings::Patch patch;
     rings::PerformanceState performance_state;
     float bufferOut[FRAME_BUFFER_SIZE];
@@ -18,7 +18,7 @@ struct ResonatorEngine : public Engine
 
     float _pitch;
 
-    ResonatorEngine() : Engine(TRIGGER_INPUT|VOCT_INPUT|AUDIO_PROCESSOR)
+    ResonatorEngine() : Engine(TRIGGER_INPUT | VOCT_INPUT | AUDIO_PROCESSOR)
     {
         memset(&strummer, 0, sizeof(rings::Strummer));
         memset(&patch, 0, sizeof(rings::Patch));
@@ -28,25 +28,37 @@ struct ResonatorEngine : public Engine
         patch.position = 0.5f;
         memset(&performance_state, 0, sizeof(rings::PerformanceState));
         strummer.Init(0.01f, SAMPLE_RATE / FRAME_BUFFER_SIZE);
-        part.Init();
-        part.set_model(rings::ResonatorModel::RESONATOR_MODEL_MODAL);
-        part.set_polyphony(rings::kMaxPolyphony);
+        if (void *mem = machine::malloc(sizeof(rings::Part)))
+        {
+            part = new(mem)rings::Part();
+            part->Init();
+            part->set_model(rings::ResonatorModel::RESONATOR_MODEL_MODAL);
+            part->set_polyphony(rings::kMaxPolyphony);
+        }
         memset(in, 0, sizeof(in));
 
         param[0].init_v_oct("Freq", &_pitch);
-        param[1].init("Model", &_model, rings::ResonatorModel::RESONATOR_MODEL_MODAL, 
-            rings::ResonatorModel::RESONATOR_MODEL_MODAL, 
-            rings::ResonatorModel::RESONATOR_MODEL_SYMPATHETIC_STRING_QUANTIZED);
-            
+        param[1].init("Model", &_model, rings::ResonatorModel::RESONATOR_MODEL_MODAL,
+                      rings::ResonatorModel::RESONATOR_MODEL_MODAL,
+                      rings::ResonatorModel::RESONATOR_MODEL_SYMPATHETIC_STRING_QUANTIZED);
+
         param[2].init("Struc.", &patch.structure);
         param[3].init("Brighn.", &patch.brightness);
         param[4].init("Damping", &patch.damping);
         param[5].init("Pos", &patch.position);
     }
 
+    ~ResonatorEngine() override
+    {
+        machine::mfree(part);
+    }
+
     void process(const ControlFrame &frame, OutputFrame &of) override
     {
-        part.set_model((rings::ResonatorModel)_model);
+        if(part == nullptr)
+            return;
+
+        part->set_model((rings::ResonatorModel)_model);
 
         performance_state.strum = frame.trigger;
         performance_state.internal_strum = false;
@@ -61,7 +73,7 @@ struct ResonatorEngine : public Engine
         performance_state.note += frame.cv_voltage() * 12;
 
         strummer.Process(input, FRAME_BUFFER_SIZE, &performance_state);
-        part.Process(performance_state, patch, input, bufferOut, bufferAux, FRAME_BUFFER_SIZE);
+        part->Process(performance_state, patch, input, bufferOut, bufferAux, FRAME_BUFFER_SIZE);
 
         of.out = bufferOut;
         of.aux = bufferAux;
@@ -80,7 +92,7 @@ struct ResonatorEngine : public Engine
         else
             param[1].name = ">  StrQuant.";
 
-        gfx::drawEngine(this);
+        gfx::drawEngine(this, part ? nullptr : machine::OUT_OF_MEMORY);
     }
 };
 

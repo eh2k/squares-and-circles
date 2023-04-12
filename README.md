@@ -91,7 +91,10 @@ Machines/Engines are controlled by individual parameters.
 For each parameter a modulation can be assigned:
   * **CV**:
     * SRC: `C1`, `C2`, `C3`, `C4`
-    * OP: `THRU`, `S&H-T1`, `S&H-T1`, `S&H-T1`, `S&H-T1`, `T&H-T1`, `T&H-T1`, `T&H-T1`, `T&H-T1`
+    * OP: `THRU`, `S&H-T1`, `S&H-T2`, `S&H-T3`, `S&H-T4`, `T&H-T1`, `T&H-T2`, `T&H-T3`, `T&H-T4`
+      * THRU - Thru Input
+      * S&H - Sample and Hold
+      * T&H - Track and Hold
     * Hints:
       * Parameter 0 (top-left) is mainly used for V/OCT control. Thus, one single V/OCT signal / CV-Input can be shared by using modulation on parameter-0 with attenuverter = +1 (-3V..+6V) range. It is also possible to select the V/OCT input in the io-configuration page.
       * All other parameters can be modulated via CV-input with a assumed voltage-range of -4V..4V at 2kHz sample rate.
@@ -106,7 +109,10 @@ For each parameter a modulation can be assigned:
     * TRIG: `-`, `!`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`
     * SHAPE
     * FREQUENCY
-
+  * **EF**: Envelope Follower
+    * SRC: `C1`, `C2`, `C3`, `C4`
+    * ATTACK
+    * RELEASE
  > <sup>`!` = current engine trigger</sup>  
  
  All modulatiuonation have an attenuverter parameter (-/+).

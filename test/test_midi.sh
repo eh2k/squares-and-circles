@@ -11,7 +11,7 @@ while true; do
     for i in $(seq 0 100); do 
         C=$(($RANDOM % 4))
         PROG=$((1 + $RANDOM % $N))
-        if [[ $PROG == "x35" || $PROG == "33" || $PROG == "39" || $PROG == "40" || $PROG == "41" ]]; then continue; fi
+        #if [[ $PROG == "x35" || $PROG == "33" || $PROG == "39" || $PROG == "40" || $PROG == "x41" ]]; then continue; fi
         
         echo "$I: $C -> $PROG"
         amidi -p $int -S "$(printf "C%x%02x" $C $PROG)"

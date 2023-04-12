@@ -76,12 +76,6 @@ struct FXEngine : public Engine
 
     void display() override
     {
-        if (fv1 == nullptr)
-        {
-            gfx::drawString(4, 32, "<<<< OUT OF RAM >>>>");
-            return;
-        }
-
         if (PROG < 0)
         {
             static char tmp[16];
@@ -89,7 +83,7 @@ struct FXEngine : public Engine
             param[1].name = tmp;
         }
 
-        gfx::drawEngine(this);
+        gfx::drawEngine(this, fv1 ? nullptr : machine::OUT_OF_MEMORY);
     }
 };
 

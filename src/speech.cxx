@@ -61,10 +61,6 @@ struct SpeechEngine : public Engine
 
         param[0].init_v_oct("Pitch", &_pitch);
         param[1].init("WORD", &_word, 0, 0, LEN_OF(_words) - 1);
-        param[0].print_value = [&](char *tmp)
-        {
-            sprintf(tmp, "WORD%0d", _word);
-        };
         param[2].init("Speed", &_speed, _speed);
         param[3].init("Form.Shift", &_formant_shift, _formant_shift);
         param[4].init("Prs.Amnt", &_prosody, _prosody);
@@ -93,6 +89,15 @@ struct SpeechEngine : public Engine
 
         of.out = _out;
         of.aux = _aux;
+    }
+
+    char tmp[10];
+    void display() override
+    {
+        sprintf(tmp, "WORD%0d", _word);
+        param[1].name = tmp;
+
+        gfx::drawEngine(this);
     }
 };
 
