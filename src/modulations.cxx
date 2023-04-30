@@ -224,11 +224,10 @@ struct Envelope : ModulationBase
     }
 };
 
-template <peaks::LfoShape mode>
 struct LFO : ModulationBase
 {
     uint8_t tr_channel = 0;
-    uint8_t shape = mode;
+    uint8_t shape = peaks::LFO_SHAPE_SINE;
 
     uint16_t rate;
     peaks::Lfo _processor;
@@ -258,20 +257,11 @@ struct LFO : ModulationBase
                 machine::get_io_info(0, tr_channel - 2, tmp);
         };
 
-        if (mode == peaks::LFO_SHAPE_LAST)
-        {
-            _processor.set_shape(peaks::LFO_SHAPE_SINE);
-            param[1].init("Shape", &shape, peaks::LFO_SHAPE_SINE, 0, peaks::LFO_SHAPE_LAST - 1);
-            param[1].step2 = param[1].step;
-            param[2].init("Freq.", &rate, INT16_MAX);
-            param[3].init(".", &attenuverter, attenuverter, -1, +1);
-        }
-        else
-        {
-            _processor.set_shape((peaks::LfoShape)shape);
-            param[1].init("Freq.", &rate, INT16_MAX);
-            param[2].init(".", &attenuverter, attenuverter, -1, +1);
-        }
+        _processor.set_shape(peaks::LFO_SHAPE_SINE);
+        param[1].init("Shape", &shape, shape, 0, peaks::LFO_SHAPE_LAST - 1);
+        param[1].step2 = param[1].step;
+        param[2].init("Freq.", &rate, INT16_MAX);
+        param[3].init(".", &attenuverter, attenuverter, -1, +1);
     }
 
     uint32_t last_trig = 0;
@@ -311,32 +301,29 @@ struct LFO : ModulationBase
 
     void display(int x, int y) override
     {
-        if (mode == peaks::LFO_SHAPE_LAST)
+        switch (shape)
         {
-            switch (shape)
-            {
-            case peaks::LFO_SHAPE_SINE:
-                param[1].name = ">Sine";
-                break;
-            case peaks::LFO_SHAPE_TRIANGLE:
-                param[1].name = ">Triangle";
-                break;
-            case peaks::LFO_SHAPE_SQUARE:
-                param[1].name = ">Square";
-                break;
-            case peaks::LFO_SHAPE_STEPS:
-                param[1].name = ">Steps";
-                break;
-            case peaks::LFO_SHAPE_NOISE:
-                param[1].name = ">Noise";
-                break;
-            default:
-                param[1].name = ">?????";
-                break;
-            }
-
-            ModulationBase::display(x, y);
+        case peaks::LFO_SHAPE_SINE:
+            param[1].name = ">Sine";
+            break;
+        case peaks::LFO_SHAPE_TRIANGLE:
+            param[1].name = ">Triangle";
+            break;
+        case peaks::LFO_SHAPE_SQUARE:
+            param[1].name = ">Square";
+            break;
+        case peaks::LFO_SHAPE_STEPS:
+            param[1].name = ">Steps";
+            break;
+        case peaks::LFO_SHAPE_NOISE:
+            param[1].name = ">Noise";
+            break;
+        default:
+            param[1].name = ">?????";
+            break;
         }
+
+        ModulationBase::display(x, y);
     }
 };
 
@@ -431,7 +418,7 @@ void init_modulations()
     machine::add_modulation_source<CV>("CV");
     machine::add_modulation_source<RND>("RND");
     machine::add_modulation_source<Envelope>("ENV");
-    machine::add_modulation_source<LFO<peaks::LFO_SHAPE_LAST>>("LFO");
+    machine::add_modulation_source<LFO>("LFO");
     machine::add_modulation_source<EF>("EF");
 }
 

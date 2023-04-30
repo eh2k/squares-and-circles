@@ -15,7 +15,6 @@ struct MidiMonitor : public machine::MidiEngine
     {
         allocator.Init();
         allocator.set_size(LEN_OF(voice));
-        machine::midi_handler->midiReset();
     }
 
     void process(const machine::ControlFrame &frame, OutputFrame &of) override

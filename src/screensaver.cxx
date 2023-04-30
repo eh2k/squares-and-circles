@@ -24,7 +24,7 @@
 //
 
 #include "machine.h"
-#include "misc/analyze_fft.hxx"
+#include <cmath>
 
 struct ScreensaverSC : machine::Screensaver
 {
@@ -79,6 +79,10 @@ struct ScreensaverSC : machine::Screensaver
     }
 };
 
+#if defined(ARM_MATH_CM7)
+
+#include "misc/analyze_fft.hxx"
+
 struct ScreensaverFFT : machine::Screensaver
 {
     AnalyzeFFT<1024> fft;
@@ -103,6 +107,7 @@ struct ScreensaverFFT : machine::Screensaver
         fft.process(fft_buff, size);
     }
 };
+#endif
 
 void init_screensaver()
 {

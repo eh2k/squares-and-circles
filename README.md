@@ -65,6 +65,9 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
   * Waveforms 
   * Virt.Analog, Waveshaping, FM, Grain, Additive, Wavetable, Chord
   * Resonator
+* **SYNTH**
+  * [DxFM](https://github.com/eh2k/squares-and-circles/wiki/DxFM)
+  * [Open303](https://github.com/eh2k/squares-and-circles/wiki/Open303)
 * **Stereo-FX**
   * Reverb, ReverbSC, Rev-Dattorro, Delay, Gated-Reverb, Reverb-HP-LP
 * **SPEECH**
@@ -172,7 +175,7 @@ The I/O-Configuration page lets you virtually patch the engine with the hardware
 
 <sup>[Long press [LEFT] + [RIGHT]] enters the MIDI-Settings page.</sup>
 
-The MIDI-Settings page lets you select the MIDI-Input. MIDI via USB is active by default - alternatively the [T1 input can be used as MIDI-Input](#-midi-expander). Each engine can be assigned to a MIDI-Channel - it is possible to control single mono engines together polyphonically (for this all engines have to be set to the same midi channel). [Midi-Engines](https://github.com/eh2k/squares-and-circles/wiki/Code-Snippeds#midiengine) consume the MIDI-Stream directly, therefore the MIDI-Messages are not converted as incoming CVs or triggers.
+The MIDI-Settings page lets you select the MIDI-Input. MIDI via USB is active by default - alternatively the [T1 input can be used as MIDI-Input](#-midi-expander). Each engine can be assigned to a MIDI-Channel - it is possible to control single mono engines together polyphonically (for this all engines have to be set to the same midi channel). [Midi-Engines](src/polyVA.cxx) consume the MIDI-Stream directly, therefore the MIDI-Messages are not converted as incoming CVs or triggers.
 
 <img align="right" src="doc/config_midi.bmp" width=196px />
 
@@ -272,16 +275,17 @@ To callibrate the ADC `0V` reference, remove all patch cables from the module. U
 
 ## ⧉ Conclusions and the future 
  
-The project was originally a kind of research that I did over half a year. The current O_C hardware could certainly be optimized. As you know, the DAC and the display share the SPI port - this is not ideal for simultaneous operation (display updates are sometimes audible). Furthermore, the Teensy 4.0 does not have "high-end" ADCs - my focus here was to achieve operation at audio rate (aux input) - the issue of noise has not been the focus so far.
+The project was originally a kind of research that I did over half a year. The current O_C hardware could certainly be optimized. As you know, the DAC and the display share the SPI port - this is not ideal for simultaneous operation. Furthermore, the Teensy 4.0 does not have "high-end" ADCs - my focus here was to achieve operation at audio rate (aux input) - the issue of noise has not been the focus so far.
 
 At the moment I like to make the project partially available to the community as open-source, so that everyone has the possibility to adapt and experiment with it. 
 
 ## License
 
-The application code respectively the suite of machines/engines is released under the MIT license. 
+The application code respectively the suite of machines/engines is released under permissive software licenses. 
 For licenses e.g. the copyright holders of 3rd-party libraries - see the header of individual source code files or readme/license file in the sub folder.
 
-The previously mentioned "libmachine", a hardware abstraction layer, will remain "closed software" until I follow some not yet discarded ideas. This is to prevent the firmware from being forked/ported to similar digital Eurorack modules and some theoretical licensing questions. So if you consider commercially distributing hardware with this firmware, please contact me (eh2k◯gmx.de). 
+The previously mentioned "libmachine", a hardware abstraction layer, will remain "closed source" until I follow some not yet discarded ideas. This is to prevent the firmware from being forked/ported to similar digital Eurorack modules and some theoretical licensing questions. 
+If you consider commercially distributing hardware with this firmware, please contact me (eh2k◯gmx.de). 
 
 <!--
 ````

@@ -33,6 +33,8 @@
 int main()
 {
     MACHINE_INIT(init_screensaver);
+    MACHINE_INIT(init_modulations);
+    
     MACHINE_INIT(init_voltage);
     MACHINE_INIT(init_noise);
     MACHINE_INIT(init_midi_monitor);
@@ -41,7 +43,8 @@ int main()
     MACHINE_INIT(init_peaks);
     MACHINE_INIT(init_braids);
     MACHINE_INIT(init_plaits);
-    MACHINE_INIT(init_sample_roms);
+    MACHINE_INIT(init_tr909);
+    MACHINE_INIT(init_tr707);
     MACHINE_INIT(init_clap);
     MACHINE_INIT(init_reverb);
     MACHINE_INIT(init_reverbSC);
@@ -50,11 +53,12 @@ int main()
     MACHINE_INIT(init_speech);
     MACHINE_INIT(init_sam);
     MACHINE_INIT(init_delay);
-    MACHINE_INIT(init_modulations);
     MACHINE_INIT(init_fv1);
     MACHINE_INIT(init_midi_polyVA)
+    MACHINE_INIT(init_dxfm);
+    MACHINE_INIT(init_open303);
 
-    machine::setup("0.79b", 0);
+    machine::setup(GIT_COMMIT_SHA, 0);
 
     while (true)
         machine::loop();

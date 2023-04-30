@@ -117,7 +117,7 @@ struct PlaitsEngine : public Engine
         if (engine < 13)
             modulations.trigger_patched = patch.decay < 1.f;
 
-        if(!this->io->tr)
+        if (!this->io->tr)
         {
             modulations.trigger_patched = false;
             modulations.level_patched = true;
@@ -149,10 +149,13 @@ struct PlaitsEngine : public Engine
 
     void display() override
     {
-        if(!this->io->tr)
-            param[4].name = "Level";
-        else
-            param[4].name = "Decay";
+        if (param[4].name)
+        {
+            if (!this->io->tr)
+                param[4].name = "Level";
+            else
+                param[4].name = "Decay";
+        }
 
         gfx::drawEngine(this);
     }

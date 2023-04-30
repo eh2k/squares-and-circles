@@ -64,6 +64,19 @@ class RingBuffer {
     write_ptr_ = (w + 1) % size;
   }
 
+  inline T* OverwritePtr(size_t n) {
+    size_t w = write_ptr_;
+    T* v = &buffer_[w];
+
+    if((w + n) <= size)
+    {
+      write_ptr_ = (w + n) % size;
+      return v;
+    }
+
+    return nullptr;
+  }
+
   inline T Read() {
     while (!readable());
     return ImmediateRead();
@@ -76,6 +89,18 @@ class RingBuffer {
     return result;
   }
   
+  inline const T* ImmediateReadPtr(size_t n) {
+    size_t r = read_ptr_;
+    const T* result = &buffer_[r];
+    
+    if((r + n) <= size)
+    {
+      read_ptr_ = (r + n) % size;
+      return result;
+    }
+    return nullptr;
+  }
+ 
   inline void Flush() {
     write_ptr_ = read_ptr_;
   }

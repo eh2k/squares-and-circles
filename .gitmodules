@@ -1,3 +1,0 @@
-[submodule "lib/eproms"]
-	path = lib/eproms
-	url = https://github.com/eh2k/vintage-drum-roms.git
