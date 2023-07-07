@@ -166,6 +166,7 @@ struct DxFMEngine : public MidiEngine
         param[3].init("Hold", &_hold, 0, 0, SAMPLE_RATE / FRAME_BUFFER_SIZE);
 
         UnpackPatch(patch, (char *)data);
+        loadDXPatch(1); // If patch available, select first
     }
 
     const char DXFM_PATCH[8] = {'D', 'X', 'F', 'M', 'S', 'Y', 'X', '0' + INSTANCE};
@@ -299,7 +300,7 @@ struct DxFMEngine : public MidiEngine
 
         if (frame.trigger)
         {
-            note = (float)machine::DEFAULT_NOTE + (_pitch)*12;
+            note = (float)machine::DEFAULT_NOTE + (_pitch * 12);
             trig |= 1;
             key_down = _hold;
         }
@@ -324,8 +325,8 @@ struct DxFMEngine : public MidiEngine
                 dx7_note.update(data, note, velo, porta, &controllers);
             }
 
-            int32_t tune = frame.cv_voltage() * 0x4000;
-            controllers.masterTune = ((float)(tune << 11)) * (1.0f / 12.f);
+            // see midinote_to_logfreq
+            controllers.masterTune = (frame.cv_voltage() + 2) * (1 << 24);
 
             if (trig & 1)
             {

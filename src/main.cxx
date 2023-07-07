@@ -25,16 +25,16 @@
 
 #include "machine.h"
 
+void init_engines()
+{
 #undef MACHINE_INIT
-#define MACHINE_INIT(init_fun) \
+#define MACHINE_INIT(init_fun)             \
     void init_fun() __attribute__((weak)); \
     init_fun();
 
-int main()
-{
     MACHINE_INIT(init_screensaver);
     MACHINE_INIT(init_modulations);
-    
+
     MACHINE_INIT(init_voltage);
     MACHINE_INIT(init_noise);
     MACHINE_INIT(init_midi_monitor);
@@ -45,7 +45,8 @@ int main()
     MACHINE_INIT(init_plaits);
     MACHINE_INIT(init_tr909);
     MACHINE_INIT(init_tr707);
-    MACHINE_INIT(init_clap);
+    MACHINE_INIT(init_sample_roms);
+    //MACHINE_INIT(init_clap);
     MACHINE_INIT(init_reverb);
     MACHINE_INIT(init_reverbSC);
     MACHINE_INIT(init_faust);
@@ -57,8 +58,18 @@ int main()
     MACHINE_INIT(init_midi_polyVA)
     MACHINE_INIT(init_dxfm);
     MACHINE_INIT(init_open303);
+    MACHINE_INIT(init_aux);
 
-    machine::setup(GIT_COMMIT_SHA, 0);
+    // MACHINE_INIT(init_fft);
+    // MACHINE_INIT(init_scope)
+    // MACHINE_INIT(init_tb_3po);
+    MACHINE_INIT(init_acid_sequencer);
+    MACHINE_INIT(init_trig_sequencer);
+}
+
+int main()
+{
+    machine::setup(GIT_COMMIT_SHA, init_engines);
 
     while (true)
         machine::loop();

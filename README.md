@@ -10,14 +10,11 @@
 | [![](https://img.youtube.com/vi/WQj3YqGpxRU/0.jpg)](https://www.youtube.com/watch?v=WQj3YqGpxRU) | [![](https://img.youtube.com/vi/QdlwETEaE3A/0.jpg)](https://youtu.be/QdlwETEaE3A) | [![](https://img.youtube.com/vi/lb-pbm1ddRw/0.jpg)](https://youtu.be/lb-pbm1ddRw) | [![](https://img.youtube.com/vi/J1vmVwwdVU4/0.jpg)](https://youtu.be/J1vmVwwdVU4)
 |--|--|--|--|
 
-## Motivation
+## Acknowledgments & Credits
 
-When I am asked why I do such projects - I usually say that it's because I enjoy the challenge and learning more about technical things.
-Maybe the reason was the chip shortage that makes Eurorack DIY projects tricky at the moment, and I used that to get more involved with coding in the eurorack land. 
-At this point, a big thanks to the people behind ornament & crime (o_C) for the inspiring playground and the basis regarding hardware for this project.
-Many thanks also to all those who have worked on the code and algorithms partly reused here and make this treasure trove freely available, especially Mutable Instruments.
+Big thanks to the creators of ornament & crime (o_C) and pjrc for the awesome Teensy. They served a great source of inspiration and provided a huge plaground and the foundation for this project. And many many thanks also to all those who have worked on the [code and algorithms](https://github.com/eh2k/squares-and-circles/wiki/credits) partly reused here, especially Mutable Instruments.
 
-## Challenge
+## Motivation / Challenge
 
 <img align="right" src="doc/u_oc.png" width=160px /> 
 
