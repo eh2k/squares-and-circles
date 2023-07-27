@@ -46,7 +46,7 @@ struct ModulationBase : machine::ModulationSource
         x += 20;
 
         size_t attenuverter_index = 0;
-        while (this->param[attenuverter_index].value != &attenuverter && attenuverter_index < LEN_OF(param))
+        while (this->param[attenuverter_index].value.fp != &attenuverter && attenuverter_index < LEN_OF(param))
             attenuverter_index++;
 
         bool sel = this->param[attenuverter_index].flags & machine::Parameter::IS_SELECTED;

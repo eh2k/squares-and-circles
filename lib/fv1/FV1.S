@@ -1,3 +1,6 @@
+/*
+ * Copyright (C)2021 - Eduard Heidt
+ */
 	.cpu cortex-m7
 	.arch armv7e-m
 	.fpu fpv5-d16
@@ -11,7 +14,7 @@
 	.eabi_attribute 18, 4
 	.file	"FV1.S.cpp"
 	.text
-	.section	.qspiflash_data,"ax",%progbits
+	.section	.flashmem,"ax",%progbits
 	.align	1
 	.p2align 2,,3
 	.global	OEM1_4_spn
@@ -3234,7 +3237,7 @@ _Z15execute_programP3FV1:
 	.word	131352
 	.word	-8388607
 	.size	_Z15execute_programP3FV1, .-_Z15execute_programP3FV1
-	.section	.qspiflash_data
+	.section	.flashmem
 	.align	1
 	.p2align 2,,3
 	.global	dance_ir_h_l_spn

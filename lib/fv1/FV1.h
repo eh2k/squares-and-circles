@@ -1,4 +1,6 @@
-
+/*
+ * Copyright (C)2021 - Eduard Heidt
+ */
 
 extern "C"
 {

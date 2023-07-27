@@ -124,9 +124,11 @@ For each parameter a modulation can be assigned:
 
 <sup>[Long press [RIGHT]] enters the I/O-Configuration page.</sup>
 
-The I/O-Configuration page lets you virtually patch the engine with the hardware ports. Depending on the engine interface, trigger, gate, accent and V/OCT can be configured. In addition to the trigger, which is set with a rising edge, a gate state is also provided, that can be processed by the engine. Engines like Closed/Open-HiHats have an additional accent input - this works technically like a second trigger. The V/OCT input can optionally be quantized and transposed. In addition to the Tx inputs, the Cx inputs can also be used as a source for triggers and accents.
+The I/O-Configuration page lets you virtually patch the engine with the hardware ports. Depending on the engine interface, trigger, gate, accent and V/OCT can be configured. In addition to the trigger, which is set with a rising edge, a gate state is also provided, that can be processed by the engine. Engines like Closed/Open-HiHats have an additional accent input - this works technically like a second trigger. The V/OCT input can optionally be quantized and transposed. In addition to the Tx inputs, the Cx inputs can also be used as a source for triggers and accents. The output can be configured as mono or stereo. Several engines can share the same output - the signal is mixed.
 
-<img align="right" src="doc/config.bmp" width=196px />
+### Ctrl / Inputs
+
+<img align="right" src="doc/inputs.png" width=196px />
 
 *In case the Engine supports Triggers/Gates - Trigger Input is configurable:*
 
@@ -147,10 +149,10 @@ The I/O-Configuration page lets you virtually patch the engine with the hardware
    * `-`
    * `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4` 
 
-<img align="right" src="doc/config_fx.bmp" width=196px />
+<img align="right" src="doc/inputs2.png" width=196px />
 
 *In case the Engine is an AUDIO_PROCESSOR - Input signal mix is configurable:*
- * **Aux-Input**: `---`, `C1`, `C2`, `C3`, `C4` 
+ * **Aux-Input**: `-`, `C1`, `C2`, `C3`, `C4` 
    * AUX-IN: -3V..3V for additional audio source for effects (prefer CV4).
  * **Insert-1**: Feed-in signal from engine-1
  * **Insert-2**: Feed-in signal from engine-2
@@ -159,12 +161,19 @@ The I/O-Configuration page lets you virtually patch the engine with the hardware
 
 <br/>
 
-*Volume-Control*
+### Mix / Outputs
 
- * **Output-Gain**: Add extra-gain to the output (Mono/Stereo)  
+<img align="right" src="doc/outputs2.png" width=196px />
+
+ * **Level**: Output volume level
    - can result in distortion
    - not available on CV-Engines
-
+ * **Pan**: Stereo panning
+   - on stereo engines with mono output, panning is also used for mixing
+ * **Output**
+   * `-`, `A`, `A+B`, `B`, `C`, `C+D`, `D`
+     - The option `-(no output)` is useful if the signal is to be routed into an AUDIO_PROCESSOR engine
+   
 <br/>
 <div style="page-break-after: always;"></div>
 

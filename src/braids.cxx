@@ -27,7 +27,7 @@ struct BraidsEngine : public Engine
 
     float buffer[FRAME_BUFFER_SIZE];
 
-    BraidsEngine() : Engine(TRIGGER_INPUT|VOCT_INPUT)
+    BraidsEngine() : Engine(TRIGGER_INPUT | VOCT_INPUT | PRESETS_ENGINE)
     {
         settings.Init();
         osc.Init();
@@ -62,8 +62,8 @@ struct BraidsEngine : public Engine
 
         if (frame.gate)
         {
-            //Not working witch Attack > 0
-            //envelope.Trigger(braids::ENV_SEGMENT_DECAY);
+            // Not working witch Attack > 0
+            // envelope.Trigger(braids::ENV_SEGMENT_DECAY);
         }
 
         uint32_t ad_value = envelope.Render();
@@ -94,8 +94,8 @@ struct BraidsEngine : public Engine
 
         uint32_t gain = _decay < UINT16_MAX ? ad_value : UINT16_MAX;
 
-        if(!this->io->tr)
-            gain = _decay;  // No Trigger patched - use Decay as VCA...
+        if (!this->io->tr)
+            gain = _decay; // No Trigger patched - use Decay as VCA...
 
         for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
             audio_samples[i] = (gain * audio_samples[i]) / UINT16_MAX;
@@ -107,7 +107,7 @@ struct BraidsEngine : public Engine
     {
         param[1].name = braids::settings.metadata(braids::Setting::SETTING_OSCILLATOR_SHAPE).strings[_shape];
 
-        if(!this->io->tr)
+        if (!this->io->tr)
         {
             param[4].name = "Level";
             param[5].name = nullptr;
