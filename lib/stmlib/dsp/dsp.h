@@ -74,6 +74,10 @@ inline float InterpolateWrap(const float* table, float index, float size) {
   return a + (b - a) * index_fractional;
 }
 
+inline float SmoothStep(float value) {
+  return value * value * (3.0f - 2.0f * value);
+}
+
 #define ONE_POLE(out, in, coefficient) out += (coefficient) * ((in) - out);
 #define SLOPE(out, in, positive, negative) { \
   float error = (in) - out; \
@@ -110,10 +114,10 @@ inline float SoftClip(float x) {
 
 #ifdef TEST
   inline int32_t Clip16(int32_t x) {
-    if (x < INT16_MIN) {
-      return INT16_MIN;
-    } else if (x > INT16_MAX) {
-      return INT16_MAX;
+    if (x < -32768) {
+      return -32768;
+    } else if (x > 32767) {
+      return 32767;
     } else {
       return x;
     }

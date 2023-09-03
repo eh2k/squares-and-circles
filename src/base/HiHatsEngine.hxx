@@ -61,6 +61,9 @@ public:
 
     bool init() override
     {
+        _ch->io = this->io;
+        _oh->io = this->io;
+
         return _ch->init() && _oh->init();
     }
 

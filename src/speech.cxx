@@ -1,9 +1,10 @@
-#include "plaits/dsp/speech/lpc_speech_synth_controller.h"
-#include "plaits/dsp/speech/lpc_speech_synth_words.h"
-
 #include "stmlib/stmlib.h"
 #include "stmlib/dsp/units.h"
 #include "machine.h"
+
+#define private public
+#include "plaits/dsp/speech/lpc_speech_synth_controller.h"
+#include "plaits/dsp/speech/lpc_speech_synth_words.h"
 
 using namespace machine;
 
@@ -53,8 +54,8 @@ struct SpeechEngine : public Engine
         {
             lpc_speech_synth_word_bank_.Load(i);
 
-            for (int l = 0; l < lpc_speech_synth_word_bank_.num_words(); l++)
-                _words[j++] = {i, 1.f / lpc_speech_synth_word_bank_.num_words() * l};
+            for (int l = 0; l < lpc_speech_synth_word_bank_.num_words_; l++)
+                _words[j++] = {i, 1.f / lpc_speech_synth_word_bank_.num_words_ * l};
         }
 
         lpc_speech_synth_controller_.Init(&lpc_speech_synth_word_bank_);
@@ -68,9 +69,9 @@ struct SpeechEngine : public Engine
 
     void process(const ControlFrame &frame, OutputFrame &of) override
     {
-        auto note = (float)machine::DEFAULT_NOTE + _pitch * 12.f;
+        auto note = (float)machine::DEFAULT_NOTE;
 
-        note += frame.cv_voltage() * 12;
+        note += frame.qz_voltage(this->io, _pitch) * 12;
 
         const float f0 = NoteToFrequency(note);
 

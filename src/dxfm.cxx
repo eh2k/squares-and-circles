@@ -39,9 +39,15 @@ using namespace machine;
 template <int INSTANCE>
 struct DxFMEngine : public MidiEngine
 {
-    Lfo lfo;
-    FmCore fm_core;
-    Dx7Note dx7_note;
+    struct dxfm
+    {
+        float note = 0;
+        int key_down = 0;
+        Lfo lfo;
+        FmCore fm_core;
+        Dx7Note dx7_note;
+        stmlib::RingBuffer<int32_t, N * 3> buffer;
+    } voices[2];
     Controllers controllers;
 
     float _pitch;
@@ -84,7 +90,7 @@ struct DxFMEngine : public MidiEngine
 #define ALGORITHM() data[6 * 21 + 8]
 #define FEEDBACK() data[6 * 21 + 9]
 #define OSC_SYNC() data[6 * 21 + 10]
-#define LFO_RATE() data[6 * 21 + 11]
+#define LFO_RATE() data[(6 * 21 + 11)]
 #define LFO_DELAY() data[6 * 21 + 12]
 #define LFO_PITCH_MOD_DEPTH() data[6 * 21 + 13]
 #define LFO_AMP_MOD_DEPTH() data[6 * 21 + 14]
@@ -110,7 +116,7 @@ struct DxFMEngine : public MidiEngine
         controllers.refresh();
     }
 
-    void updataRates()
+    void applyRate(float rate)
     {
         for (int op = 0; op < 6; op++)
         {
@@ -118,7 +124,7 @@ struct DxFMEngine : public MidiEngine
             for (int j = 1; j < 4; j++)
             {
                 auto v = min(opData[j] & 0x7f, 99);
-                OP_ENV_RATE(op, j) = min((int)(v * -_rate), 99);
+                OP_ENV_RATE(op, j) = min((int)(v * -rate), 99);
             }
 
             // for (int j = 1; j < 4; j++)
@@ -132,7 +138,7 @@ struct DxFMEngine : public MidiEngine
         }
     }
 
-    DxFMEngine() : MidiEngine(MIDI_ENGINE | TRIGGER_INPUT | VOCT_INPUT)
+    DxFMEngine() : MidiEngine(MIDI_ENGINE | TRIGGER_INPUT | VOCT_INPUT | PRESETS_ENGINE | STEREOLIZED)
     {
         Exp2::init();
         Tanh::init();
@@ -147,9 +153,6 @@ struct DxFMEngine : public MidiEngine
         initControllers();
         controllers.masterTune = 0;
         controllers.opSwitch = 0x3f; // all operators
-        controllers.core = &fm_core;
-
-        lfo.reset(data + 137);
 
         param[0].init_v_oct("Freq", &_pitch);
         param[1].init(">", &_prog, 1, 0, 32);
@@ -158,11 +161,10 @@ struct DxFMEngine : public MidiEngine
             loadPatch = true;
         };
         param[2].init("Rate", &_rate, -1.0f, -1.5f, -0.5f);
-        param[2].value_changed = [&]
+        param[2].value_changed = [&]()
         {
-            updataRates();
+            applyRate(_rate); // * ((float)rand() / INT32_MAX * 0.1f));
         };
-
         param[3].init("Hold", &_hold, 0, 0, SAMPLE_RATE / FRAME_BUFFER_SIZE);
 
         UnpackPatch(patch, (char *)data);
@@ -249,13 +251,11 @@ struct DxFMEngine : public MidiEngine
         // gfx::setColor(1);
     }
 
-    float buffer[machine::FRAME_BUFFER_SIZE];
-    stmlib::RingBuffer<int32_t, N * 3> tmp;
+    float bufferL[machine::FRAME_BUFFER_SIZE];
+    float bufferR[machine::FRAME_BUFFER_SIZE];
 
     uint8_t trig = 0;
     bool loadPatch = true;
-    float note = 0;
-    int key_down = 0;
 
     int16_t dmod_samples[machine::FRAME_BUFFER_SIZE];
     float dmod_in[machine::FRAME_BUFFER_SIZE];
@@ -300,63 +300,106 @@ struct DxFMEngine : public MidiEngine
 
         if (frame.trigger)
         {
-            note = (float)machine::DEFAULT_NOTE + (_pitch * 12);
             trig |= 1;
-            key_down = _hold;
+            int key_down = INT32_MAX;
+            auto next = &voices[0];
+            for (auto &voice : voices)
+                if (voice.key_down < key_down)
+                {
+                    key_down = voice.key_down;
+                    next = &voice;
+                }
+            next->key_down = 0;
         }
         else if (frame.gate)
         {
             trig |= 2;
         }
-
-        if (key_down > 0)
+        else
         {
-            --key_down;
-            trig |= 4;
+            for (auto &voice : voices)
+                if (voice.key_down > 0)
+                    --voice.key_down;
         }
 
-        if (tmp.readable() < N)
+        if (voices[0].buffer.readable() < N)
         {
             if (loadPatch)
             {
                 loadDXPatch(_prog);
-                updataRates();
                 loadPatch = false;
-                dx7_note.update(data, note, velo, porta, &controllers);
+
+                for (auto &voice : voices)
+                {
+                    voice.lfo.reset(&LFO_RATE());
+                    voice.dx7_note.update(data, voice.note, velo, porta, &controllers);
+                }
             }
 
             // see midinote_to_logfreq
-            controllers.masterTune = (frame.cv_voltage() + 2) * (1 << 24);
+            controllers.masterTune = (frame.qz_voltage(this->io, _pitch)) * (1 << 24);
 
-            if (trig & 1)
+            for (auto &voice : voices)
             {
-                dx7_note.keyup();
-                dx7_note.init(data, note, velo, note, porta, &controllers);
+                if ((trig & 1) && voice.key_down == 0)
+                {
+                    voice.key_down = _hold;
+                    voice.note = (float)machine::DEFAULT_NOTE;
+                    voice.lfo.keydown();
+                    voice.dx7_note.keyup();
+                    voice.dx7_note.init(data, voice.note, velo, voice.note, porta, &controllers);
 
-                if (OSC_SYNC())
-                    dx7_note.oscSync();
-            }
-            else if (trig == 0)
-            {
-                dx7_note.keyup();
-            }
+                    if (OSC_SYNC())
+                        voice.dx7_note.oscSync();
 
-            lfo.reset(data + 137);
+                    trig = 0;
+                }
+                else if (voice.key_down == 1)
+                {
+                    voice.dx7_note.keyup();
+                }
+
+                int32_t lfovalue = voice.lfo.getsample();
+                int32_t lfodelay = voice.lfo.getdelay();
+
+                auto p = voice.buffer.OverwritePtr(N);
+                memset(p, 0, sizeof(int32_t) * N);
+                voice.dx7_note.compute(p, &voice.fm_core, lfovalue, lfodelay, &controllers);
+            }
 
             trig = 0;
-
-            int32_t lfovalue = lfo.getsample();
-            int32_t lfodelay = lfo.getdelay();
-
-            auto p = tmp.OverwritePtr(N);
-            memset(p, 0, sizeof(int32_t) * N);
-            dx7_note.compute(p, lfovalue, lfodelay, &controllers);
         }
 
-        for (int i = 0; i < machine::FRAME_BUFFER_SIZE; i++)
-            buffer[i] = signed_saturate_rshift(tmp.ImmediateRead() >> 4, 24, 9) / 32768.0f;
+        memset(bufferL, 0, sizeof(bufferL));
+        memset(bufferR, 0, sizeof(bufferL));
 
-        of.push(buffer, machine::FRAME_BUFFER_SIZE);
+        int v = 0;
+        for (auto &voice : voices)
+        {
+            auto p = voice.buffer.ImmediateReadPtr(machine::FRAME_BUFFER_SIZE);
+
+            if (v++ % 2 == 0)
+            {
+                for (int i = 0; i < machine::FRAME_BUFFER_SIZE; i++)
+                {
+                    float s = (float)*p++ / (INT32_MAX / 8); // signed_saturate_rshift(*p++ >> 4, 24, 9) / 32768.0f;
+                    bufferL[i] += s * (1.f - 1.f / 256.f * this->io->stereo);
+                    bufferR[i] += s;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < machine::FRAME_BUFFER_SIZE; i++)
+                {
+                    float s = (float)*p++ / (INT32_MAX / 8); // signed_saturate_rshift(*p++ >> 4, 24, 9) / 32768.0f;
+                    bufferL[i] += s;
+                    bufferR[i] += s * (1.f - 1.f / 256.f * this->io->stereo);
+                }
+            }
+        }
+
+        of.out = bufferL;
+        of.aux = bufferR;
     }
 };
 

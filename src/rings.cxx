@@ -30,7 +30,7 @@ struct ResonatorEngine : public Engine
         strummer.Init(0.01f, SAMPLE_RATE / FRAME_BUFFER_SIZE);
         if (void *mem = machine::malloc(sizeof(rings::Part)))
         {
-            part = new(mem)rings::Part();
+            part = new (mem) rings::Part();
             part->Init();
             part->set_model(rings::ResonatorModel::RESONATOR_MODEL_MODAL);
             part->set_polyphony(rings::kMaxPolyphony);
@@ -55,7 +55,7 @@ struct ResonatorEngine : public Engine
 
     void process(const ControlFrame &frame, OutputFrame &of) override
     {
-        if(part == nullptr)
+        if (part == nullptr)
             return;
 
         part->set_model((rings::ResonatorModel)_model);
@@ -66,11 +66,11 @@ struct ResonatorEngine : public Engine
         performance_state.internal_exciter = true;
         performance_state.tonic = 0.2f;
         performance_state.chord = 0;
-        performance_state.note = (float)machine::DEFAULT_NOTE + _pitch * 12.f;
+        performance_state.note = machine::DEFAULT_NOTE;
 
         float *input = machine::get_aux(AUX_L);
 
-        performance_state.note += frame.cv_voltage() * 12;
+        performance_state.note += frame.qz_voltage(this->io, _pitch) * 12;
 
         strummer.Process(input, FRAME_BUFFER_SIZE, &performance_state);
         part->Process(performance_state, patch, input, bufferOut, bufferAux, FRAME_BUFFER_SIZE);

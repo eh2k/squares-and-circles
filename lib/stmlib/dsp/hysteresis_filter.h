@@ -58,6 +58,7 @@ class HysteresisFilter {
         value_ = value + threshold;
       }
     }
+    
     return value_;
   }
 
@@ -66,10 +67,12 @@ class HysteresisFilter {
  private:
   float value_;
   float threshold_;
-
+  
   DISALLOW_COPY_AND_ASSIGN(HysteresisFilter);
 };
+
 
 }  // namespace stmlib
 
 #endif  // STMLIB_DSP_HYSTERESIS_FILTER_H_
+

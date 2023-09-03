@@ -33,36 +33,8 @@ namespace plaits {
 using namespace std;
 using namespace stmlib;
 
-void Voice::Init(BufferAllocator* allocator, uint32_t engines) {
-  engines_.Init();
-  int i = 0;
-  if(engines & 1<<(i++)) engines_.RegisterInstance(&virtual_analog_engine_, false, 0.8f, 0.8f);
-  if(engines & 1<<(i++)) engines_.RegisterInstance(&waveshaping_engine_, false, 0.7f, 0.6f);
-  if(engines & 1<<(i++)) engines_.RegisterInstance(&fm_engine_, false, 0.6f, 0.6f);
-  if(engines & 1<<(i++)) engines_.RegisterInstance(&grain_engine_, false, 0.7f, 0.6f);
-  if(engines & 1<<(i++)) engines_.RegisterInstance(&additive_engine_, false, 0.8f, 0.8f);
-  if(engines & 1<<(i++)) engines_.RegisterInstance(&wavetable_engine_, false, 0.6f, 0.6f);
-  if(engines & 1<<(i++)) engines_.RegisterInstance(&chord_engine_, false, 0.8f, 0.8f);
-  if(engines & 1<<(i++)) engines_.RegisterInstance(&speech_engine_, false, -0.7f, 0.8f);
+void Voice::Init() {
 
-  if(engines & 1<<(i++)) engines_.RegisterInstance(&swarm_engine_, false, -3.0f, 1.0f);
-  if(engines & 1<<(i++)) engines_.RegisterInstance(&noise_engine_, false, -1.0f, -1.0f);
-  if(engines & 1<<(i++)) engines_.RegisterInstance(&particle_engine_, false, -2.0f, 1.0f);
-  if(engines & 1<<(i++)) engines_.RegisterInstance(&string_engine_, true, -1.0f, 0.8f);
-  if(engines & 1<<(i++)) engines_.RegisterInstance(&modal_engine_, true, -0.5f, 0.8f);
-  if(engines & 1<<(i++)) engines_.RegisterInstance(&bass_drum_engine_, true, 0.8f, 0.8f);
-  if(engines & 1<<(i++)) engines_.RegisterInstance(&snare_drum_engine_, true, 0.8f, 0.8f);
-  if(engines & 1<<(i++)) engines_.RegisterInstance(&hi_hat_engine_, true, 0.8f, 0.8f);
-  for (int i = 0; i < engines_.size(); ++i) {
-    // All engines will share the same RAM space.
-    allocator->Free();
-    engines_.get(i)->Init(allocator);
-  }
-  
-  engine_quantizer_.Init();
-  previous_engine_index_ = -1;
-  engine_cv_ = 0.0f;
-  
   out_post_processor_.Init();
   aux_post_processor_.Init();
 
@@ -76,6 +48,7 @@ void Voice::Init(BufferAllocator* allocator, uint32_t engines) {
 }
 
 void Voice::Render(
+    Engine* e,
     const Patch& patch,
     const Modulations& modulations,
     Frame& frame) {
@@ -94,7 +67,7 @@ void Voice::Render(
         lpg_envelope_.Trigger();
       }
       decay_envelope_.Trigger();
-      engine_cv_ = modulations.engine;
+      //engine_cv_ = modulations.engine;
     }
   } else {
     if (trigger_value < 0.1f) {
@@ -102,23 +75,24 @@ void Voice::Render(
     }
   }
   if (!modulations.trigger_patched) {
-    engine_cv_ = modulations.engine;
+    //engine_cv_ = modulations.engine;
   }
 
   // Engine selection.
-  int engine_index = engine_quantizer_.Process(
-      patch.engine,
-      engine_cv_,
-      engines_.size(),
-      0.25f);
+  int engine_index = patch.engine;
+  // int engine_index = engine_quantizer_.Process(
+  //     patch.engine,
+  //     engine_cv_,
+  //     engines_.size(),
+  //     0.25f);
+
+  // Engine* e = engines_.get(engine_index);
   
-  Engine* e = engines_.get(engine_index);
-  
-  if (engine_index != previous_engine_index_) {
-    e->Reset();
-    out_post_processor_.Reset();
-    previous_engine_index_ = engine_index;
-  }
+  // if (engine_index != previous_engine_index_) {
+  //   e->Reset();
+  //   out_post_processor_.Reset();
+  //   previous_engine_index_ = engine_index;
+  // }
   EngineParameters p;
 
   bool rising_edge = trigger_state_ && !previous_trigger_state;
@@ -153,6 +127,7 @@ void Voice::Render(
   if (engine_index == 7) {
     internal_envelope_amplitude = 2.0f - p.harmonics * 6.0f;
     CONSTRAIN(internal_envelope_amplitude, 0.0f, 1.0f);
+    auto& speech_engine_ = *static_cast<SpeechEngine*>(e);
     speech_engine_.set_prosody_amount(
         !modulations.trigger_patched || modulations.frequency_patched ?
             0.0f : patch.frequency_modulation_amount);

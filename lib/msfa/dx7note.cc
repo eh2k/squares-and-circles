@@ -204,7 +204,7 @@ void Dx7Note::init(const uint8_t patch[156], int midinote, int velocity, int src
   porta_gliss_ = ctrls->values_[kControllerPortamentoGlissando];
 }
 
-void Dx7Note::compute(int32_t *buf, int32_t lfo_val, int32_t lfo_delay, const Controllers *ctrls) {
+void Dx7Note::compute(int32_t *buf, FmCore *core, int32_t lfo_val, int32_t lfo_delay, const Controllers *ctrls) {
   // ==== PITCH ====
   uint32_t pmd = pitchmoddepth_ * lfo_delay;  // Q32
   int32_t senslfo = pitchmodsens_ * (lfo_val - (1 << 23));
@@ -295,7 +295,7 @@ void Dx7Note::compute(int32_t *buf, int32_t lfo_val, int32_t lfo_delay, const Co
     }
   }
 
-  ctrls->core->render(buf, params_, algorithm_, fb_buf_, fb_shift_);
+  core->render(buf, params_, algorithm_, fb_buf_, fb_shift_);
 }
 
 void Dx7Note::keyup() {

@@ -1,5 +1,4 @@
-
-// Copyright (C)2021 - Eduard Heidt
+// Copyright (C)2022 - Eduard Heidt
 //
 // Author: Eduard Heidt (eh2k@gmx.de)
 //
@@ -25,51 +24,59 @@
 //
 
 #include "machine.h"
-#include "stmlib/dsp/dsp.h"
+#include "misc/nes_noise.hxx"
+#include "stmlib/dsp/filter.h"
 
 using namespace machine;
 
-class VoltsPerOctave : public Engine
+struct NESNoiseEngine : public Engine
 {
-    char tmp[64];
-    uint16_t note = DEFAULT_NOTE * machine::PITCH_PER_OCTAVE / 12;
-    uint8_t tune = 32;
-    int32_t cv0 = 0;
-    int32_t cv = 0;
-    float glide = 0;
+    NESNoise _nes_noise;
+    stmlib::DCBlocker _dc_blocker;
+    static constexpr uint8_t max_level = 15;
+    uint8_t gain;
 
-public:
-    VoltsPerOctave() : Engine(OUT_EQ_VOLT | VOCT_INPUT)
+    NESNoiseEngine() : Engine(PRESETS_ENGINE)
     {
-        param[0].init_v_oct("Tone", &note);
-        param[1].init("Fine", &tune, tune, 0, 64);
-        param[2].init("Slew", &glide, 0, 0, 0.5f);
-    }
+        param[0].init("Level", &gain, max_level, 0, max_level);
+        param[1].init("Period", &_nes_noise.period_index, _nes_noise.period_index, 0, 15);
+        param[2].init("ModeBit", &_nes_noise.mode_bit, _nes_noise.mode_bit, 0, 1);
+
+        _nes_noise.init(1);
+        _dc_blocker.Init(0.999f);
+    };
+
+    float buffer[machine::FRAME_BUFFER_SIZE];
 
     void process(const ControlFrame &frame, OutputFrame &of) override
     {
-        cv0 = frame.qz_voltage(this->io,
-                               (machine::PITCH_PER_OCTAVE * 2) +
-                                   ((int)note - (DEFAULT_NOTE * machine::PITCH_PER_OCTAVE / 12)) +
-                                   (((int)tune - 32) << 4));
+        for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
+        {
+            buffer[i] = _nes_noise.generateSample(1.f / max_level) * gain;
+        }
 
-        ONE_POLE(cv, cv0, powf(1 - glide, 10));
+        _dc_blocker.Process(&buffer[0], FRAME_BUFFER_SIZE);
 
-        of.push(&cv, 1);
+        of.push(buffer, machine::FRAME_BUFFER_SIZE);
     }
 
     void display() override
     {
-        sprintf(tmp, "OUT: %.2fV", ((float)cv / machine::PITCH_PER_OCTAVE));
-        gfx::drawString(4 + 64, 52, tmp, 0);
-
         gfx::drawEngine(this);
+
+        gfx::drawRect(75, 37, 47, 14);
+
+        for (size_t bit = 0; bit < 15; bit++)
+        {
+            if ((_nes_noise.shift_reg & (1 << bit)) != 0)
+                gfx::fillRect(76 + (bit * 3), 38, 3, 12);
+        }
     }
 };
 
-void init_voltage()
+void init_nes_noise()
 {
-    machine::add<VoltsPerOctave>(CV, "V/OCT");
+    machine::add<NESNoiseEngine>(machine::NOISE, "NES_Noise");
 }
 
-MACHINE_INIT(init_voltage);
+MACHINE_INIT(init_noise);

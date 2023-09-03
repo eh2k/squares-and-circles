@@ -1,5 +1,22 @@
 > WORK-IN-PROGRESS: Feel free to leave me a message / feedback or any hints in the ["BETA TEST - FEEDBACK"](https://github.com/eh2k/squares-and-circles/issues/1) issue.
 
+````
+CHANGES:
+== 2023-09-03 ==
+ * Enhancements, new engines:
+    * Claps refactoring, drumsynth based on RC808 models
+    * DxFM enhancement, 2 voice stereo mode
+    * Waveforms, 2 voice stereo mode
+    * JU60_chorus, emulation of Juno60 chorus, based on VA BBD 
+    * Noise engines: NES_noise, 808_squares
+ * Bugfixes 
+    * #52 Modulations & quantizer  
+    * #51 Engine loading - IO config is lost / restored to defaults
+== 2023-08-09 == 
+ * Audio routing refactoring 
+ * Optimizations and bugfixes
+````
+
 # □︎●︎ [![PlatformIO CI](https://github.com/eh2k/squares-and-circles/actions/workflows/build.yml/badge.svg)](https://github.com/eh2k/squares-and-circles/actions/workflows/build.yml) [![WebFlasher](https://img.shields.io/badge/Firmware-WebFlasher-blue)](https://eh2k.github.io/□●/flash/?firmware) [![MODULAGrid](https://img.shields.io/badge/MODULAR-Grid-white)](https://www.modulargrid.net/e/modules/browser?SearchName=squares+and+circles&SearchShowothers=1)
 
 <!-- ⧉⦾ ⧇ ⟥⧂ -->
@@ -42,33 +59,48 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
 
 # Machines <sup>[wiki](https://github.com/eh2k/squares-and-circles/wiki/%E2%96%A1%EF%B8%8E%E2%97%8F%EF%B8%8E-Machines-&-Engines)</sup>
 
+
+>[Long press [LEFT]] enters the machine-selection-page.<br/>
+>[Short press [R-ENCODER]] loads the selected engine.<br/>
+>[Long press [R-ENCODER]] loads the selected engine (default IO-settings).<br/>
+
 <img align="right" src="doc/menu.bmp" width=196px /> 
 
-<sup>[Long press [LEFT]] enters the machine-selection-page.</sup>
 
 * **GND**
   * `---`
 * **CV**
-  * V/OCT, Envelope, LFO, Noise
-* **Drums** <img align="right" src="doc/engine.bmp" width=196px />
+  * V/OCT, Envelope, LFO
+* **Drums** 
   * Analog-BD, Analog SD, Analog HH, Analog HH2
-  * 909ish-BD, 909ish-SD, TR909-HiHat, TR909-Ride
-  * 808ish-BD, 808ish-SD, 808ish-HiHat
+  * 909ish-BD, 909ish-SD, [TR909-HiHat, TR909-Ride](https://github.com/eh2k/squares-and-circles/wiki/TR909_HiHats) <img align="right" src="doc/engine.bmp" width=196px />
+  * 808ish-BD, 808ish-SD, 808ish-HiHat 
   * TR707, TR707-HiHat
-  * FM-Drum
+  * [FM-Drum](https://github.com/eh2k/squares-and-circles/wiki/FM-Drum) 
   * Djembe
-  * Clap
+  * [Claps](https://github.com/eh2k/squares-and-circles/wiki/Claps) 
 * **M-OSC** <img align="right" src="doc/osc.bmp" width=196px />
-  * Waveforms 
+  * [Waveforms](https://github.com/eh2k/squares-and-circles/wiki/Waveforms) 
   * Virt.Analog, Waveshaping, FM, Grain, Additive, Wavetable, Chord
   * Resonator
 * **SYNTH**
   * [DxFM](https://github.com/eh2k/squares-and-circles/wiki/DxFM)
   * [Open303](https://github.com/eh2k/squares-and-circles/wiki/Open303)
 * **Stereo-FX**
-  * Reverb, ReverbSC, Rev-Dattorro, Delay, Gated-Reverb, Reverb-HP-LP
+  * [Reverb](https://github.com/eh2k/squares-and-circles/wiki/clouds_reverb)
+  * ReverbSC
+  * Rev-Dattorro
+  * Delay
+  * Gated-Reverb
+  * Reverb-HP-LP
+  * [JU60_chorus](https://github.com/eh2k/squares-and-circles/wiki/JU60_chorus)
+* **NOISE**
+  * [White/Pink](https://github.com/eh2k/squares-and-circles/wiki/White_Pink_noise)
+  * [NES_noise](https://github.com/eh2k/squares-and-circles/wiki/NES_noise)
+  * [808_squares](https://github.com/eh2k/squares-and-circles/wiki/808_squares)
 * **SPEECH**
-  * LPC, SAM
+  * LPC
+  * [SAM](https://github.com/eh2k/squares-and-circles/wiki/SAM)
 * **MIDI**
   * Monitor, Clock, VAx6
 
@@ -82,11 +114,13 @@ Machines/Engines are controlled by individual parameters.
 
 * [Rotate left/right [ENCODER]] changes parameter value
 
-### Modulations
+### Modulations 
+
+>[Long press left or right [ENCODER]] shows/hides the modulation popup*
 
 <img align="right" src="doc/modulation.bmp" width=196px />
 
-<sup>[Long press left or right [ENCODER]] shows/hides the modulation popup</sup>
+
 
 For each parameter a modulation can be assigned:
   * **CV**:
@@ -113,7 +147,7 @@ For each parameter a modulation can be assigned:
     * SRC: `C1`, `C2`, `C3`, `C4`
     * ATTACK
     * RELEASE
- > <sup>`!` = current engine trigger</sup>  
+ >`!` = current engine trigger
  
  All modulatiuonation have an attenuverter parameter (-/+).
   * The modulation-voltage is attenuverted/multiplied by -1..+1;
@@ -122,7 +156,7 @@ For each parameter a modulation can be assigned:
 
 ## I/O-Configuration 
 
-<sup>[Long press [RIGHT]] enters the I/O-Configuration page.</sup>
+>[Long press [RIGHT]] enters the I/O-Configuration page.
 
 The I/O-Configuration page lets you virtually patch the engine with the hardware ports. Depending on the engine interface, trigger, gate, accent and V/OCT can be configured. In addition to the trigger, which is set with a rising edge, a gate state is also provided, that can be processed by the engine. Engines like Closed/Open-HiHats have an additional accent input - this works technically like a second trigger. The V/OCT input can optionally be quantized and transposed. In addition to the Tx inputs, the Cx inputs can also be used as a source for triggers and accents. The output can be configured as mono or stereo. Several engines can share the same output - the signal is mixed.
 
@@ -173,13 +207,14 @@ The I/O-Configuration page lets you virtually patch the engine with the hardware
  * **Output**
    * `-`, `A`, `A+B`, `B`, `C`, `C+D`, `D`
      - The option `-(no output)` is useful if the signal is to be routed into an AUDIO_PROCESSOR engine
-   
+ * **Stereo**  
+   * Experimanal stereo feature - see STERIOLIZED Flag ;-)
 <br/>
 <div style="page-break-after: always;"></div>
 
 ## MIDI-Settings 
 
-<sup>[Long press [LEFT] + [RIGHT]] enters the MIDI-Settings page.</sup>
+>[Long press [LEFT] + [RIGHT]] enters the MIDI-Settings page.
 
 The MIDI-Settings page lets you select the MIDI-Input. MIDI via USB is active by default - alternatively the [T1 input can be used as MIDI-Input](#-midi-expander). Each engine can be assigned to a MIDI-Channel - it is possible to control single mono engines together polyphonically (for this all engines have to be set to the same midi channel). [Midi-Engines](src/polyVA.cxx) consume the MIDI-Stream directly, therefore the MIDI-Messages are not converted as incoming CVs or triggers.
 
@@ -281,19 +316,20 @@ To callibrate the ADC `0V` reference, remove all patch cables from the module. U
 
 ## ⧉ Conclusions and the future 
  
-The project was originally a kind of research that I did over half a year. The current O_C hardware could certainly be optimized. As you know, the DAC and the display share the SPI port - this is not ideal for simultaneous operation. Furthermore, the Teensy 4.0 does not have "high-end" ADCs - my focus here was to achieve operation at audio rate (aux input) - the issue of noise has not been the focus so far.
+The project was originally a kind of research that I did over half a year. Interestingly, it turned out by chance that the O_C is very well suited for this. Aside from the DAC voltage range, which can be easily [modified](#optional-dac-voltage-range-mod--5v5v-range), the current O_C hardware unfortunately has some unchangeable limitations. As you know, the DAC and the display share the SPI port - that is not ideal for simultaneous operation. Furthermore, the Teensy 4.0 doesn't have "high-end" ADCs. More RAM would also be nice.
 
-At the moment I like to make the project partially available to the community as open-source, so that everyone has the possibility to adapt and experiment with it. 
+Regarding the user interface, I am a bit torn. On the one hand, the two buttons and the two encoders are sufficient and actually practical for a multifunction module, but on the other hand, something is missing. Additional buttons/encoders could definitely simplify the operation/interaction - let's see if this [puzzle](https://github.com/eh2k/squares-and-circles/wiki/Squares&Circles-D_SM-Prototype) can be solved.
 
 ## License
 
-The application code respectively the suite of machines/engines is released under permissive software licenses. 
-For licenses e.g. the copyright holders of 3rd-party libraries - see the header of individual source code files or readme/license file in the sub folder.
+The application code respectively the suite of machines/engines and the third-party source files are published under permissive software licences.
+For the exact licence and copyright holder - see the header of individual source code files or readme/license file in the sub folder.
 
-The previously mentioned "libmachine", a hardware abstraction layer, will remain "closed source" until I follow some not yet discarded ideas. This is to prevent the firmware from being forked/ported to similar digital Eurorack modules and some theoretical licensing questions. 
-If you consider commercially distributing hardware with this firmware, please contact me (eh2k◯gmx.de). 
+The firmware as a whole and the hardware abstraction layer "libmachine" is for personal non-commercial use only. 
+If you are considering commercial distribution hardware with this firmware, please contact me (eh2k◯gmx.de). 
 
 <!--
+
 ````
  _______________
 |***************|

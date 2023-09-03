@@ -1,5 +1,6 @@
 /*
  * Copyright (C)2021 - Eduard Heidt
+ * Licensed for personal, non-commercial use only
  */
 
 extern "C"

@@ -138,8 +138,6 @@ class Controllers {
       if ( ! ((wheel.eg || foot.eg) || (breath.eg || at.eg)) )
         eg_mod = 127;
     }
-
-    FmCore *core;
 };
 
 #endif  // __CONTROLLERS_H

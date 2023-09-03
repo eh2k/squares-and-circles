@@ -104,7 +104,7 @@ struct Open303Engine : public Engine, rosic::Open303
         if (_acc > 0)
             Open303::setAccentDecay(linToExp(_dec, 0.0, 1.0, 200.0, 2000.0));
 
-        _note = (float)machine::DEFAULT_NOTE + 24 + (_pitch + frame.cv_voltage()) * 12;
+        _note = (float)machine::DEFAULT_NOTE + 24 + frame.qz_voltage(this->io, _pitch) * 12;
         CONSTRAIN(_note, 0, 128);
 
         _gate |= frame.gate;

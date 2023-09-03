@@ -41,7 +41,7 @@ class Dx7Note {
 
     // Note: this _adds_ to the buffer. Interesting question whether it's
     // worth it...
-    void compute(int32_t *buf, int32_t lfo_val, int32_t lfo_delay, const Controllers *ctrls);
+    void compute(int32_t *buf, FmCore *core, int32_t lfo_val, int32_t lfo_delay, const Controllers *ctrls);
 
     void keyup();
 

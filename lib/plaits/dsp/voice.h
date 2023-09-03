@@ -26,6 +26,8 @@
 //
 // Main synthesis voice.
 
+// [eh2k] refactoring for one engine instance use case
+
 #ifndef PLAITS_DSP_VOICE_H_
 #define PLAITS_DSP_VOICE_H_
 
@@ -59,7 +61,7 @@
 
 namespace plaits {
 
-const int kMaxEngines = 16;
+//const int kMaxEngines = 1;
 const int kMaxTriggerDelay = 8;
 const int kTriggerDelay = 5;
 
@@ -188,13 +190,13 @@ class Voice {
   Voice() { }
   ~Voice() { }
   
-  void Init(stmlib::BufferAllocator* allocator, uint32_t engines = 0xFFFF);
+  void Init();
   void Render(
+      Engine* engine,
       const Patch& patch,
       const Modulations& modulations,
       Frame& frame);
-  inline int active_engine() const { return previous_engine_index_; }
-    
+ 
  private:
   void ComputeDecayParameters(const Patch& settings);
   
@@ -220,27 +222,27 @@ class Voice {
     return value;
   }
   
-  AdditiveEngine additive_engine_;
-  BassDrumEngine bass_drum_engine_;
-  ChordEngine chord_engine_;
-  FMEngine fm_engine_;
-  GrainEngine grain_engine_;
-  HiHatEngine hi_hat_engine_;
-  ModalEngine modal_engine_;
-  NoiseEngine noise_engine_;
-  ParticleEngine particle_engine_;
-  SnareDrumEngine snare_drum_engine_;
-  SpeechEngine speech_engine_;
-  StringEngine string_engine_;
-  SwarmEngine swarm_engine_;
-  VirtualAnalogEngine virtual_analog_engine_;
-  WaveshapingEngine waveshaping_engine_;
-  WavetableEngine wavetable_engine_;
+  // AdditiveEngine additive_engine_;
+  // BassDrumEngine bass_drum_engine_;
+  // ChordEngine chord_engine_;
+  // FMEngine fm_engine_;
+  // GrainEngine grain_engine_;
+  // HiHatEngine hi_hat_engine_;
+  // ModalEngine modal_engine_;
+  // NoiseEngine noise_engine_;
+  // ParticleEngine particle_engine_;
+  // SnareDrumEngine snare_drum_engine_;
+  // SpeechEngine speech_engine_;
+  // StringEngine string_engine_;
+  // SwarmEngine swarm_engine_;
+  // VirtualAnalogEngine virtual_analog_engine_;
+  // WaveshapingEngine waveshaping_engine_;
+  // WavetableEngine wavetable_engine_;
 
-  stmlib::HysteresisQuantizer engine_quantizer_;
+  // stmlib::HysteresisQuantizer engine_quantizer_;
   
-  int previous_engine_index_;
-  float engine_cv_;
+  //int previous_engine_index_;
+  //float engine_cv_;
   
   float previous_note_;
   bool trigger_state_;
@@ -254,7 +256,7 @@ class Voice {
   ChannelPostProcessor out_post_processor_;
   ChannelPostProcessor aux_post_processor_;
   
-  EngineRegistry<kMaxEngines> engines_;
+  //EngineRegistry<kMaxEngines> engines_;
   
   float out_buffer_[kMaxBlockSize];
   float aux_buffer_[kMaxBlockSize];

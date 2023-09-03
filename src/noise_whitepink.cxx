@@ -66,7 +66,7 @@ struct NoiseEngine : public Engine
 
 void init_noise()
 {
-    machine::add<NoiseEngine>(CV, "Noise");
+    machine::add<NoiseEngine>(NOISE, "White/Pink");
 }
 
 MACHINE_INIT(init_noise);
