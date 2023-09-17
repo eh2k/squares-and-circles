@@ -31,7 +31,7 @@ struct BraidsEngine : public Engine
     float buffer[FRAME_BUFFER_SIZE];
     float bufferR[FRAME_BUFFER_SIZE];
 
-    BraidsEngine() : Engine(TRIGGER_INPUT | VOCT_INPUT | PRESETS_ENGINE | STEREOLIZED)
+    BraidsEngine() : Engine(TRIGGER_INPUT | VOCT_INPUT | STEREOLIZED)
     {
         settings.Init();
         osc1.Init();
@@ -48,7 +48,10 @@ struct BraidsEngine : public Engine
         settings.SetValue(SETTING_PITCH_RANGE, PITCH_RANGE_EXTERNAL);
 
         param[0].init_v_oct("Freq", &_pitch);
-        param[1].init("Shape", &_shape, braids::MACRO_OSC_SHAPE_CSAW, braids::MACRO_OSC_SHAPE_CSAW, braids::MACRO_OSC_SHAPE_LAST - 1);
+        param[1].init_presets("Shape", &_shape, braids::MACRO_OSC_SHAPE_CSAW, braids::MACRO_OSC_SHAPE_CSAW, braids::MACRO_OSC_SHAPE_LAST - 1);
+        param[1].value_changed = [&]() {
+            param[1].name = braids::settings.metadata(braids::Setting::SETTING_OSCILLATOR_SHAPE).strings[_shape];
+        };
         param[2].init("Timbre", &_timbre, INT16_MAX);
         param[3].init("Color", &_color, INT16_MAX);
         param[4].init("Decay", &_decay, INT16_MAX);
@@ -134,8 +137,6 @@ struct BraidsEngine : public Engine
 
     void display() override
     {
-        param[1].name = braids::settings.metadata(braids::Setting::SETTING_OSCILLATOR_SHAPE).strings[_shape];
-
         if (!this->io->tr)
         {
             param[4].name = "Level";

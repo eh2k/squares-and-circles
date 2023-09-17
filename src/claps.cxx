@@ -64,7 +64,7 @@ private:
     };
 
 public:
-    ClapsEngine(const uint8_t *packed_drumKit) : Engine(TRIGGER_INPUT | PRESETS_ENGINE),
+    ClapsEngine(const uint8_t *packed_drumKit) : Engine(TRIGGER_INPUT),
                                                  inst_count(packed_drumKit[0])
     {
         // unpack
@@ -81,7 +81,7 @@ public:
         }
 
         param[0].init("Color", &pitch, pitch, 0.5f, 1.5f);
-        param[1].init("inst", &inst_selection, 0, 0, inst_count + LEN_OF(seeds) - 1);
+        param[1].init_presets("Clap", &inst_selection, 0, 0, inst_count + LEN_OF(seeds) - 1);
         param[1].value_changed = [&]()
         {
             _reload_inst = true;

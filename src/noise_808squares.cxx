@@ -90,7 +90,7 @@ struct MetallicOscEngine : public Engine
     {
         _dc_blocker.Init(0.999f);
         param[0].init("Level", &gain, gain);
-        param[1].init("N", &n, n, 2, 6);
+        param[1].init_presets("@N", &n, n, 2, 6);
         param[2].init("F0", &f0, 540, 254.3f, 627.2f);
         param[3].init("F1", &f1, 800, 359.4f, 1149.9f);
         //param[1].value_changed = std::bind(&MetallicOscEngine::update, this);

@@ -36,10 +36,10 @@ struct NESNoiseEngine : public Engine
     static constexpr uint8_t max_level = 15;
     uint8_t gain;
 
-    NESNoiseEngine() : Engine(PRESETS_ENGINE)
+    NESNoiseEngine() : Engine()
     {
         param[0].init("Level", &gain, max_level, 0, max_level);
-        param[1].init("Period", &_nes_noise.period_index, _nes_noise.period_index, 0, 15);
+        param[1].init_presets("@Period", &_nes_noise.period_index, _nes_noise.period_index, 0, 15);
         param[2].init("ModeBit", &_nes_noise.mode_bit, _nes_noise.mode_bit, 0, 1);
 
         _nes_noise.init(1);

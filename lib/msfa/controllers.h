@@ -28,7 +28,6 @@
 const int kControllerPitch = 0;
 const int kControllerPitchRange = 1;
 const int kControllerPitchStep = 2;
-const int kControllerPortamentoGlissando = 3;
 
 class FmCore;
 
@@ -99,7 +98,7 @@ class Controllers {
     }
 
   public:
-    int32_t values_[4];
+    int32_t values_[3];
 
     uint8_t amp_mod;
     uint8_t pitch_mod;
@@ -109,9 +108,6 @@ class Controllers {
     uint8_t breath_cc;
     uint8_t foot_cc;
     uint8_t modwheel_cc;
-    bool portamento_enable_cc;
-    int portamento_cc;
-    bool portamento_gliss_cc;
     int masterTune;
 
     uint8_t opSwitch;

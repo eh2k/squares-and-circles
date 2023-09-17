@@ -2,6 +2,17 @@
 
 ````
 CHANGES:
+== 2023-09-17 ==
+ * mi-libs sync/upgrade 
+ * new Synth-Engine:
+   - ClassicVAVCF (Classic waveshapes with filter)
+   - DxFM_BNK1-3 (using the SixOpEngine default patches)
+ * Several engines, parameter naming, ranges and defaults optimizations ...
+ * Optimised behaviour on encoders increments 
+   - Value change is 1/128 per step if the increments don't immediately follow each other
+   - Short-time display of the value (0-127)
+ * Bugfix:
+   - GND engine - crash on encoder rotation
 == 2023-09-03 ==
  * Enhancements, new engines:
     * Claps refactoring, drumsynth based on RC808 models
@@ -85,7 +96,9 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
   * Resonator
 * **SYNTH**
   * [DxFM](https://github.com/eh2k/squares-and-circles/wiki/DxFM)
+  * [DxFM_BNK1-3](lib/plaits/resources.cc#L41)
   * [Open303](https://github.com/eh2k/squares-and-circles/wiki/Open303)
+  * [ClassicVAVCF](lib/plaits/dsp/engine2/virtual_analog_vcf_engine.cc)
 * **Stereo-FX**
   * [Reverb](https://github.com/eh2k/squares-and-circles/wiki/clouds_reverb)
   * ReverbSC

@@ -146,7 +146,7 @@ struct Delay : public Engine
     void sync_params()
     {
         calc_t_step32();
-        param[0].setStepValue(t_32);
+        param[0].step.f = param[0].step2.f = t_32;
 
         float colorFreq = std::pow(100.f, 2.f * color - 1.f);
         float lowpassFreq = clamp(20000.f * colorFreq, 20.f, 20000.f) / machine::SAMPLE_RATE;

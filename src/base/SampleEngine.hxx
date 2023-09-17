@@ -34,7 +34,7 @@ struct SampleEngine : public machine::Engine
     float start = 1;
     float end = 1;
 
-    uint16_t selection = 0;
+    uint8_t selection = 0;
     float pitch_coarse = 0;
 
     struct sample_spec
@@ -91,7 +91,7 @@ public:
     {
         ptr = samples;
         param[0].init("Pitch", &pitch_coarse, pitch_coarse, -.5f, .5f);
-        param[1].init("Sample", &selection, select, 0, count - 1);
+        param[1].init_presets("Sample", &selection, select, 0, count - 1);
         param[2].init("Start", &start, 0);
         param[3].init("End", &end, 1);
         // param[4].init("RTRG", &rtrg, 0, 0, 16);

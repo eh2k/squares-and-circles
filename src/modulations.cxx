@@ -386,11 +386,11 @@ struct EF : ModulationBase
             machine::get_io_info(1, cv_channel, tmp);
         };
 
-        param[1].init("ATT", &attack, 1, 1, 64);
-        param[2].init("REL", &release, 32, 1, 64);
+        param[1].init("ATT", &attack, 0);
+        param[2].init("REL", &release);
         param[1].value_changed = param[2].value_changed = [&]()
         {
-            follower_.init(5.f / 64.f * attack, 20.f / 64.f * release, machine::SAMPLE_RATE);
+            follower_.init(0.1f + (5.f / UINT8_MAX) * attack, 0.1f + (20.f / UINT8_MAX) * release, machine::SAMPLE_RATE);
         };
         param[2].value_changed();
 

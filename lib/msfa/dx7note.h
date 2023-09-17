@@ -37,7 +37,7 @@ struct VoiceStatus {
 class Dx7Note {
   public:
     Dx7Note();
-    void init(const uint8_t patch[156], int midinote, int velocity, int srcnote, int porta, const Controllers *ctrls);
+    void init(const uint8_t patch[156], int midinote, int velocity);
 
     // Note: this _adds_ to the buffer. Interesting question whether it's
     // worth it...
@@ -51,11 +51,10 @@ class Dx7Note {
     // keyup, that won't work.
 
     // PG:add the update
-    void update(const uint8_t patch[156], int midinote, int velocity, int porta, const Controllers *ctrls);
+    void update(const uint8_t patch[156], int midinote, int velocity);
     void peekVoiceStatus(VoiceStatus &status);
     void transferState(Dx7Note& src);
     void transferSignal(Dx7Note &src);
-    void transferPortamento(Dx7Note &src);
     void oscSync();
 
   private:
@@ -72,10 +71,6 @@ class Dx7Note {
     int algorithm_;
     int pitchmoddepth_;
     int pitchmodsens_;
-
-    int porta_rateindex_;
-    int porta_gliss_;
-    int32_t porta_curpitch_[6];
 };
 
 #endif  // SYNTH_DX7NOTE_H_

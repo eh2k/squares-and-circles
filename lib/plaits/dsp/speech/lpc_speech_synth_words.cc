@@ -1566,7 +1566,7 @@ const uint8_t FLASHMEM bank_4[] = {
 };
 
 /* extern */
-LPCSpeechSynthWordBankData word_banks_[] = {
+const LPCSpeechSynthWordBankData word_banks_[] = {
   { bank_0, 1233 },
   { bank_1, 900 },
   { bank_2, 1552 },

@@ -6,7 +6,7 @@ using namespace machine;
 
 struct ResonatorEngine : public Engine
 {
-    uint16_t _model;
+    uint8_t _model;
     rings::Strummer strummer;
     rings::Part *part;
     rings::Patch patch;
@@ -38,10 +38,9 @@ struct ResonatorEngine : public Engine
         memset(in, 0, sizeof(in));
 
         param[0].init_v_oct("Freq", &_pitch);
-        param[1].init("Model", &_model, rings::ResonatorModel::RESONATOR_MODEL_MODAL,
+        param[1].init_presets("Model", &_model, rings::ResonatorModel::RESONATOR_MODEL_MODAL,
                       rings::ResonatorModel::RESONATOR_MODEL_MODAL,
                       rings::ResonatorModel::RESONATOR_MODEL_SYMPATHETIC_STRING_QUANTIZED);
-
         param[2].init("Struc.", &patch.structure);
         param[3].init("Brighn.", &patch.brightness);
         param[4].init("Damping", &patch.damping);
@@ -82,15 +81,15 @@ struct ResonatorEngine : public Engine
     void display() override
     {
         if (_model == rings::ResonatorModel::RESONATOR_MODEL_MODAL)
-            param[1].name = ">  Modal";
+            param[1].name = "@Modal";
         else if (_model == rings::ResonatorModel::RESONATOR_MODEL_SYMPATHETIC_STRING)
-            param[1].name = ">  Sympath.";
+            param[1].name = "@Sympath.";
         else if (_model == rings::ResonatorModel::RESONATOR_MODEL_STRING)
-            param[1].name = ">  String";
+            param[1].name = "@String";
         else if (_model == rings::ResonatorModel::RESONATOR_MODEL_FM_VOICE)
-            param[1].name = ">  FM";
+            param[1].name = "@FM";
         else
-            param[1].name = ">  StrQuant.";
+            param[1].name = "@StrQuant.";
 
         gfx::drawEngine(this, part ? nullptr : machine::OUT_OF_MEMORY);
     }

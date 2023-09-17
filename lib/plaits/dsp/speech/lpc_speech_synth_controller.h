@@ -109,8 +109,6 @@ class LPCSpeechSynthWordBank {
   
   bool Load(int index);
   void Reset();
-
-  inline int num_words() const { return num_words_; }
   
   inline int num_frames() const { return num_frames_; }
   inline const LPCSpeechSynth::Frame* frames() const { return frames_; }
@@ -137,22 +135,22 @@ class LPCSpeechSynthWordBank {
   int loaded_bank_;
   int num_frames_;
   int num_words_;
-  int word_boundaries_[kLPCSpeechSynthMaxWords];
-  
+
+  int* word_boundaries_;
   LPCSpeechSynth::Frame* frames_;
   
-  static uint8_t energy_lut_[16];
-  static uint8_t period_lut_[64];
-  static int16_t k0_lut_[32];
-  static int16_t k1_lut_[32];
-  static int8_t k2_lut_[16];
-  static int8_t k3_lut_[16];
-  static int8_t k4_lut_[16];
-  static int8_t k5_lut_[16];
-  static int8_t k6_lut_[16];
-  static int8_t k7_lut_[8];
-  static int8_t k8_lut_[8];
-  static int8_t k9_lut_[8];
+  static const uint8_t energy_lut_[16];
+  static const uint8_t period_lut_[64];
+  static const int16_t k0_lut_[32];
+  static const int16_t k1_lut_[32];
+  static const int8_t k2_lut_[16];
+  static const int8_t k3_lut_[16];
+  static const int8_t k4_lut_[16];
+  static const int8_t k5_lut_[16];
+  static const int8_t k6_lut_[16];
+  static const int8_t k7_lut_[8];
+  static const int8_t k8_lut_[8];
+  static const int8_t k9_lut_[8];
 };
 
 class LPCSpeechSynthController {

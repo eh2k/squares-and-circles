@@ -34,14 +34,15 @@
 #include <unistd.h>
 #include <limits.h>
 
+#include "plaits/resources.h"
+
 using namespace machine;
 
-template <int INSTANCE>
 struct DxFMEngine : public MidiEngine
 {
     struct dxfm
     {
-        float note = 0;
+        int note = 0;
         int key_down = 0;
         Lfo lfo;
         FmCore fm_core;
@@ -69,6 +70,7 @@ struct DxFMEngine : public MidiEngine
                        0x52, 0x49, 0x4d, 0x42, 0x41, 0x20, 0x20, 0x20};
 
     uint8_t data[156];
+    char patch_name[12];
 
 #define OP_ENV_RATE(op, i) data[op * 21 + i]
 #define OP_ENV_LEVEL(op, i) data[op * 21 + 4 + i]
@@ -105,16 +107,16 @@ struct DxFMEngine : public MidiEngine
         controllers.values_[kControllerPitch] = 0x2000;
         controllers.values_[kControllerPitchRange] = 0;
         controllers.values_[kControllerPitchStep] = 0;
-        controllers.values_[kControllerPortamentoGlissando] = 0;
 
         controllers.modwheel_cc = 0;
         controllers.foot_cc = 0;
         controllers.breath_cc = 0;
         controllers.aftertouch_cc = 0;
-        controllers.portamento_enable_cc = false;
-        controllers.portamento_cc = 0;
         controllers.refresh();
     }
+
+    dxfm *active_voice = nullptr;
+    dxfm *other_voice = nullptr;
 
     void applyRate(float rate)
     {
@@ -137,8 +139,7 @@ struct DxFMEngine : public MidiEngine
             // }
         }
     }
-
-    DxFMEngine() : MidiEngine(MIDI_ENGINE | TRIGGER_INPUT | VOCT_INPUT | PRESETS_ENGINE | STEREOLIZED)
+    DxFMEngine(int bnkNum) : MidiEngine(MIDI_ENGINE | TRIGGER_INPUT | VOCT_INPUT | STEREOLIZED), _bnkNum(bnkNum)
     {
         Exp2::init();
         Tanh::init();
@@ -153,9 +154,13 @@ struct DxFMEngine : public MidiEngine
         initControllers();
         controllers.masterTune = 0;
         controllers.opSwitch = 0x3f; // all operators
+        active_voice = &voices[0];
+        other_voice = &voices[1];
 
         param[0].init_v_oct("Freq", &_pitch);
-        param[1].init(">", &_prog, 1, 0, 32);
+
+        sprintf(patch_name, ">%.10s", NAME());
+        param[1].init_presets(patch_name, &_prog, 0, 0, (_bnkNum < 0) ? 32 : 95);
         param[1].value_changed = [&]()
         {
             loadPatch = true;
@@ -168,14 +173,28 @@ struct DxFMEngine : public MidiEngine
         param[3].init("Hold", &_hold, 0, 0, SAMPLE_RATE / FRAME_BUFFER_SIZE);
 
         UnpackPatch(patch, (char *)data);
-        loadDXPatch(1); // If patch available, select first
+        loadDXPatch((_bnkNum < 0) ? 1 : 0); // If patch available, select first
     }
 
-    const char DXFM_PATCH[8] = {'D', 'X', 'F', 'M', 'S', 'Y', 'X', '0' + INSTANCE};
+    const int _bnkNum = -1;
+    const char DXFM_PATCH[8] = {'D', 'X', 'F', 'M', 'S', 'Y', 'X', '0'};
 
     void loadDXPatch(uint8_t prog)
     {
-        if (const uint8_t *sysexData = machine::flash_read(DXFM_PATCH))
+        const uint8_t *sysexData = nullptr;
+
+        if (_bnkNum < 0)
+        {
+            sysexData = machine::flash_read(DXFM_PATCH);
+            if (sysexData)
+                sysexData -= 128; // start with index 1
+        }
+        else
+        {
+            sysexData = plaits::fm_patches_table[0];
+        }
+
+        if (sysexData)
         {
             bool valid = false;
             for (int i = 0; i < 128; i++)
@@ -183,8 +202,9 @@ struct DxFMEngine : public MidiEngine
 
             if (valid)
             {
-                memcpy(patch, (const char *)sysexData + ((prog - 1) * 128), sizeof(patch));
+                memcpy(patch, (const char *)sysexData + (prog * 128), sizeof(patch));
                 UnpackPatch(patch, (char *)data);
+                sprintf(patch_name, "%.10s", NAME());
                 loadPatch = false;
                 _prog = prog;
                 return;
@@ -212,7 +232,7 @@ struct DxFMEngine : public MidiEngine
 
     void display() override
     {
-        if (_prog == 0)
+        if (_bnkNum < 0 && _prog == 0)
         {
             char tmp[64];
             auto bak = param[0].name;
@@ -235,20 +255,6 @@ struct DxFMEngine : public MidiEngine
         }
 
         gfx::drawEngine(this);
-
-        gfx::setColor(0);
-        gfx::fillRect(64, 20, 64, 10);
-        gfx::setColor(1);
-
-        sprintf(name, "%02d:", _prog - 1);
-        gfx::drawString(69, 16, name, 0);
-        name[0] = param[1].flags & Parameter::IS_SELECTED ? '>' : ' ';
-        sprintf(&name[1], "%.10s", NAME());
-        gfx::drawString(62, 22, name, 1);
-
-        // gfx::setColor(trig);
-        // gfx::fillRect(124, 12, 4, 4);
-        // gfx::setColor(1);
     }
 
     float bufferL[machine::FRAME_BUFFER_SIZE];
@@ -289,41 +295,33 @@ struct DxFMEngine : public MidiEngine
 
     void process(const ControlFrame &frame, OutputFrame &of) override
     {
-        if (_prog == 0)
+        if (_bnkNum < 0 && _prog == 0)
         {
             dmod_listen(of);
             return;
         }
-
         int velo = 127;
-        int porta = -1;
 
         if (frame.trigger)
         {
             trig |= 1;
-            int key_down = INT32_MAX;
-            auto next = &voices[0];
-            for (auto &voice : voices)
-                if (voice.key_down < key_down)
-                {
-                    key_down = voice.key_down;
-                    next = &voice;
-                }
-            next->key_down = 0;
         }
         else if (frame.gate)
         {
-            trig |= 2;
+            // keep key down
         }
         else
         {
             for (auto &voice : voices)
-                if (voice.key_down > 0)
+                if (voice.key_down > 1)
                     --voice.key_down;
         }
 
         if (voices[0].buffer.readable() < N)
         {
+            // see midinote_to_logfreq
+            float note = frame.qz_voltage(this->io, 2.f + _pitch) * 12.f + machine::DEFAULT_NOTE;
+
             if (loadPatch)
             {
                 loadDXPatch(_prog);
@@ -331,31 +329,43 @@ struct DxFMEngine : public MidiEngine
 
                 for (auto &voice : voices)
                 {
+                    voice.dx7_note.keyup();
                     voice.lfo.reset(&LFO_RATE());
-                    voice.dx7_note.update(data, voice.note, velo, porta, &controllers);
+                    voice.dx7_note.update(data, voice.note, velo);
                 }
             }
 
-            // see midinote_to_logfreq
-            controllers.masterTune = (frame.qz_voltage(this->io, _pitch)) * (1 << 24);
-
             for (auto &voice : voices)
             {
-                if ((trig & 1) && voice.key_down == 0)
+                if ((trig & 1) && &voice == other_voice)
                 {
-                    voice.key_down = _hold;
-                    voice.note = (float)machine::DEFAULT_NOTE;
+                    voice.key_down = 2 + _hold;
+                    voice.note = note;
                     voice.lfo.keydown();
                     voice.dx7_note.keyup();
-                    voice.dx7_note.init(data, voice.note, velo, voice.note, porta, &controllers);
+
+                    float r = param[2].to_float();
+                    if (r < 0.5f)
+                        velo = 64 + 64 * (r * 2);
+
+                    voice.dx7_note.init(data, voice.note, velo);
 
                     if (OSC_SYNC())
                         voice.dx7_note.oscSync();
 
                     trig = 0;
+
+                    // if (other_voice && active_voice->key_down)
+                    // {
+                    //     voice.dx7_note.transferSignal(active_voice->dx7_note);
+                    //     voice.dx7_note.transferState(active_voice->dx7_note);
+                    // }
+
+                    std::swap(active_voice, other_voice);
                 }
                 else if (voice.key_down == 1)
                 {
+                    voice.key_down = 0;
                     voice.dx7_note.keyup();
                 }
 
@@ -364,6 +374,9 @@ struct DxFMEngine : public MidiEngine
 
                 auto p = voice.buffer.OverwritePtr(N);
                 memset(p, 0, sizeof(int32_t) * N);
+
+                float diff_note = (note - voice.note) / 12.f;
+                controllers.masterTune = diff_note * (1 << 24);
                 voice.dx7_note.compute(p, &voice.fm_core, lfovalue, lfodelay, &controllers);
             }
 
@@ -374,6 +387,7 @@ struct DxFMEngine : public MidiEngine
         memset(bufferR, 0, sizeof(bufferL));
 
         int v = 0;
+        float stereo = (1.f - 1.f / 256.f * this->io->stereo);
         for (auto &voice : voices)
         {
             auto p = voice.buffer.ImmediateReadPtr(machine::FRAME_BUFFER_SIZE);
@@ -382,8 +396,8 @@ struct DxFMEngine : public MidiEngine
             {
                 for (int i = 0; i < machine::FRAME_BUFFER_SIZE; i++)
                 {
-                    float s = (float)*p++ / (INT32_MAX / 8); // signed_saturate_rshift(*p++ >> 4, 24, 9) / 32768.0f;
-                    bufferL[i] += s * (1.f - 1.f / 256.f * this->io->stereo);
+                    float s = (float)*p++ / INT32_MAX * 8;
+                    bufferL[i] += s * stereo;
                     bufferR[i] += s;
                 }
             }
@@ -391,9 +405,9 @@ struct DxFMEngine : public MidiEngine
             {
                 for (int i = 0; i < machine::FRAME_BUFFER_SIZE; i++)
                 {
-                    float s = (float)*p++ / (INT32_MAX / 8); // signed_saturate_rshift(*p++ >> 4, 24, 9) / 32768.0f;
+                    float s = (float)*p++ / INT32_MAX * 8;
                     bufferL[i] += s;
-                    bufferR[i] += s * (1.f - 1.f / 256.f * this->io->stereo);
+                    bufferR[i] += s * stereo;
                 }
             }
         }
@@ -405,9 +419,8 @@ struct DxFMEngine : public MidiEngine
 
 void init_dxfm()
 {
-    machine::add<DxFMEngine<0>>(SYNTH, "DxFM");
-    // machine::add<DxFMEngine<0>>(SYNTH, "DxFM_2");
-    // machine::add<DxFMEngine<2>>(SYNTH, "DxFM_3");
+    machine::add<DxFMEngine>(SYNTH, "DxFM", -1);
+    machine::add<DxFMEngine>(SYNTH, "DxFM_BNK1-3", 0);
 }
 
 MACHINE_INIT(init_dxfm);
