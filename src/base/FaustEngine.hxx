@@ -70,22 +70,22 @@ class FaustEngine : public machine::Engine, UI
     {
     }
 
-    virtual void addButton(const char *label, float *zone)
+    void addButton(const char *label, float *zone) override
     {
         if (_trigger == nullptr)
             _trigger = zone;
     }
 
-    virtual void addNumEntry(const char *label, float *zone, float init, float min, float max, float step)
+    void addNumEntry(const char *label, float *zone, float init, float min, float max, float step) override
     {
     }
 
-    virtual void addCheckButton(const char *label, float *zone)
+    void addCheckButton(const char *label, float *zone) override
     {
         addHorizontalSlider(label, zone, 0, 0, 1, 1);
     }
 
-    virtual void addVerticalSlider(const char *label, float *zone, float init, float min, float max, float step) override
+    void addVerticalSlider(const char *label, float *zone, float init, float min, float max, float step) override
     {
         addHorizontalSlider(label, zone, init, min, max, step);
     }

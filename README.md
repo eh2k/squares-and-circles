@@ -2,6 +2,14 @@
 
 ````
 CHANGES:
+== 2023-09-24 ==
+ * Enhancements:
+   - I/O-Page: UI enhancements
+   - Speech/SAM "random numbers"
+   - Speech/LPC "AuxMix" Parameter
+ * Bugfix:
+   - Speech/LPC word selection
+   - VOCT semitone = encoder step (skipped increments)
 == 2023-09-17 ==
  * mi-libs sync/upgrade 
  * new Synth-Engine:

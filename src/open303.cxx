@@ -54,7 +54,7 @@ struct Open303Engine : public Engine, rosic::Open303
         param[0].init_v_oct("Freq", &_pitch);
         param[1].init("Acc", &_acc, 100, 1.f, 100.f);
         param[2].init("Cutoff", &_cutoff, 0.25f);
-        param[3].init("Res", &_res, 33.f, 1.f, 100.f);
+        param[3].init("Reso", &_res, 33.f, 1.f, 100.f);
         param[4].init("EnvMod", &_env, 25.f, 1.f, 100.f);
         param[5].init("Dec", &_dec, 0.5f);
         // param[6].init("WAVEFORM", &_waveform, _waveform, 0, 1);

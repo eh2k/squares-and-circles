@@ -12,8 +12,9 @@ struct TR909_OH : public SampleEngine
     const uint8_t *HiHats_bin = machine::flash_read("909_HIGH");
     const tsample_spec<uint8_t> _sound = {"", HiHats_bin, 24576, 32000, 0};
 
-    TR909_OH() : SampleEngine(&_sound, 0, 1)
+    TR909_OH() : SampleEngine()
     {
+        setup(&_sound, 0, 1);
     }
 
     bool init() override
@@ -28,8 +29,9 @@ struct TR909_CH : public SampleEngine
     const uint8_t *HiHats_bin = machine::flash_read("909_HIGH");
     const tsample_spec<uint8_t> _sound = {"", HiHats_bin + ch_start, 32768 - ch_start, 32000, 0};
 
-    TR909_CH() : SampleEngine(&_sound, 0, 1)
+    TR909_CH() : SampleEngine()
     {
+        setup(&_sound, 0, 1);
     }
 
     bool init() override
@@ -43,8 +45,9 @@ struct TR909_Ride : public SampleEngine
     const uint8_t *Ride_bin = machine::flash_read("909_RIDE");
     const tsample_spec<uint8_t> _sound = {"", Ride_bin, 32768, 32000, 0};
 
-    TR909_Ride() : SampleEngine(&_sound, 0, 1)
+    TR909_Ride() : SampleEngine()
     {
+        setup(&_sound, 0, 1);
     }
 
     bool init() override

@@ -44,8 +44,9 @@ struct TR707 : public SampleEngine
         {"HH", HH, 0x2000, 25000, 0},
     };
 
-    TR707(int sample_num = 0) : SampleEngine(_sounds, sample_num, LEN_OF(_sounds))
+    TR707(int sample_num = 0) : SampleEngine()
     {
+        setup(_sounds, sample_num, LEN_OF(_sounds));
     }
 
     bool init() override
