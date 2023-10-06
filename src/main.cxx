@@ -65,6 +65,9 @@ void init_engines()
     MACHINE_INIT(init_juno60_chorus);
     MACHINE_INIT(init_plaits2);
 
+    // MACHINE_INIT(init_fft);
+    // MACHINE_INIT(init_scope)
+    // MACHINE_INIT(init_tb_3po);
     MACHINE_INIT(init_acid_sequencer);
     MACHINE_INIT(init_trig_sequencer);
 }

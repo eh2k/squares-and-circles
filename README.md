@@ -2,6 +2,9 @@
 
 ````
 CHANGES:
+== 2023-10-07 ==
+ * Bugfix:
+   - crash in dac calibration 
 == 2023-09-24 ==
  * Enhancements:
    - I/O-Page: UI enhancements
@@ -48,7 +51,8 @@ CHANGES:
 
 ## Acknowledgments & Credits
 
-Big thanks to the creators of ornament & crime (o_C) and pjrc for the awesome Teensy. They served a great source of inspiration and provided a huge plaground and the foundation for this project. And many many thanks also to all those who have worked on the [code and algorithms](https://github.com/eh2k/squares-and-circles/wiki/credits) partly reused here, especially Mutable Instruments.
+Big thanks to the creators of ornament & crime (o_C) and PJRC for the Teensy and also to all those who have worked on the [code and algorithms](https://github.com/eh2k/squares-and-circles/wiki/credits) partly reused here, especially Mutable Instruments.
+They served a great source of learning and provided a huge plaground and the foundation for this project.
 
 ## Motivation / Challenge
 
@@ -337,9 +341,9 @@ To callibrate the ADC `0V` reference, remove all patch cables from the module. U
 
 ## ⧉ Conclusions and the future 
  
-The project was originally a kind of research that I did over half a year. Interestingly, it turned out by chance that the O_C is very well suited for this. Aside from the DAC voltage range, which can be easily [modified](#optional-dac-voltage-range-mod--5v5v-range), the current O_C hardware unfortunately has some unchangeable limitations. As you know, the DAC and the display share the SPI port - that is not ideal for simultaneous operation. Furthermore, the Teensy 4.0 doesn't have "high-end" ADCs. More RAM would also be nice.
+The project was originally a kind of research in embedded DSP that I did over half a year. Interestingly, it turned out by chance that the O_C was very well suited for this by only upgrading the Teensy. Aside from the DAC voltage range, which can be easily [modified](#optional-dac-voltage-range-mod--5v5v-range), the current O_C hardware unfortunately has some unchangeable limitations for audio application. As you know, the DAC and the display share the SPI port - that is not ideal for simultaneous operation. Furthermore, the Teensy 4.0 doesn't have "high-end" ADCs and a limited amount of RAM.
 
-Regarding the user interface, I am a bit torn. On the one hand, the two buttons and the two encoders are sufficient and actually practical for a multifunction module, but on the other hand, something is missing. Additional buttons/encoders could definitely simplify the operation/interaction - let's see if this [puzzle](https://github.com/eh2k/squares-and-circles/wiki/Squares&Circles-D_SM-Prototype) can be solved.
+Regarding the user interface and the concept of firmware, I am a bit torn. On the one hand, the two buttons and the two encoders are sufficient and actually practical for a multifunction module, but on the other hand, something is missing. Additional buttons/encoders could definitely simplify the operation/interaction - let's see if this [puzzle](https://github.com/eh2k/squares-and-circles/wiki/Squares&Circles-D_SM-Prototype) can be solved.
 
 ## License
 
@@ -347,7 +351,7 @@ The application code respectively the suite of machines/engines and the third-pa
 For the exact licence and copyright holder - see the header of individual source code files or readme/license file in the sub folder.
 
 The firmware as a whole and the hardware abstraction layer "libmachine" is for personal non-commercial use only. 
-If you are considering commercial distribution hardware with this firmware, please contact me (eh2k◯gmx.de). 
+If you are considering commercial distributing hardware with this firmware, please contact me (eh2k◯gmx.de). 
 
 <!--
 
