@@ -53,7 +53,7 @@ class FaustEngine : public machine::Engine, UI
 
     float _pitch = 0.5f;
 
-    T _faust;
+    T *_faust = nullptr;
 
     float *_trigger = nullptr;
 
@@ -70,22 +70,22 @@ class FaustEngine : public machine::Engine, UI
     {
     }
 
-    virtual void addButton(const char *label, float *zone)
+    void addButton(const char *label, float *zone) override
     {
         if (_trigger == nullptr)
             _trigger = zone;
     }
 
-    virtual void addNumEntry(const char *label, float *zone, float init, float min, float max, float step)
+    void addNumEntry(const char *label, float *zone, float init, float min, float max, float step) override
     {
     }
 
-    virtual void addCheckButton(const char *label, float *zone)
+    void addCheckButton(const char *label, float *zone) override
     {
         addHorizontalSlider(label, zone, 0, 0, 1, 1);
     }
 
-    virtual void addVerticalSlider(const char *label, float *zone, float init, float min, float max, float step) override
+    void addVerticalSlider(const char *label, float *zone, float init, float min, float max, float step) override
     {
         addHorizontalSlider(label, zone, init, min, max, step);
     }
@@ -106,13 +106,17 @@ public:
     FaustEngine() : machine::Engine(engine_props)
     {
         // static_assert(sizeof(T) < 150000, "");
-
-        _faust.init(48000);
-        _faust.buildUserInterface(this);
+        if (void *mem = machine::malloc(sizeof(T)))
+        {
+            _faust = new (mem) T();
+            _faust->init(48000);
+            _faust->buildUserInterface(this);
+        }
     }
 
     ~FaustEngine() override
     {
+        machine::mfree(_faust);
     }
 
     float base_frequency = 440.f;
@@ -125,6 +129,9 @@ public:
 
     void process(const machine::ControlFrame &frame, OutputFrame &of) override
     {
+        if(_faust == nullptr)
+            return;
+
         if (_trigger != nullptr)
             *_trigger = frame.trigger ? 1.f : 0.f;
 
@@ -134,11 +141,16 @@ public:
         float *outputs[] = {bufferL, bufferR};
         float *ins[] = {machine::get_aux(AUX_L), machine::get_aux(AUX_R)};
 
-        _faust.compute(FRAME_BUFFER_SIZE, &ins[0], &outputs[0]);
+        _faust->compute(FRAME_BUFFER_SIZE, &ins[0], &outputs[0]);
 
         of.out = bufferL;
 
-        if (_faust.getNumOutputs() > 1)
+        if (_faust->getNumOutputs() > 1)
             of.aux = bufferR;
+    }
+
+    void display() override
+    {
+        gfx::drawEngine(this, _faust ? nullptr : machine::OUT_OF_MEMORY);
     }
 };

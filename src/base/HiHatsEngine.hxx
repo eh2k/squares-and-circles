@@ -59,6 +59,14 @@ public:
         param[3].step.i = 8;
     }
 
+    bool init() override
+    {
+        _ch->io = this->io;
+        _oh->io = this->io;
+
+        return _ch->init() && _oh->init();
+    }
+
     void process(const ControlFrame &frame_, OutputFrame &of) override
     {
         ControlFrame frame;

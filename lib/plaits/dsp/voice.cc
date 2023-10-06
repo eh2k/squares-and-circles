@@ -27,40 +27,53 @@
 // Main synthesis voice.
 
 #include "plaits/dsp/voice.h"
+//[eh2k] #include "plaits/user_data.h"
 
 namespace plaits {
 
 using namespace std;
 using namespace stmlib;
 
-void Voice::Init(BufferAllocator* allocator) {
-  engines_.Init();
-  engines_.RegisterInstance(&virtual_analog_engine_, false, 0.8f, 0.8f);
-  engines_.RegisterInstance(&waveshaping_engine_, false, 0.7f, 0.6f);
-  engines_.RegisterInstance(&fm_engine_, false, 0.6f, 0.6f);
-  engines_.RegisterInstance(&grain_engine_, false, 0.7f, 0.6f);
-  engines_.RegisterInstance(&additive_engine_, false, 0.8f, 0.8f);
-  engines_.RegisterInstance(&wavetable_engine_, false, 0.6f, 0.6f);
-  engines_.RegisterInstance(&chord_engine_, false, 0.8f, 0.8f);
-  engines_.RegisterInstance(&speech_engine_, false, -0.7f, 0.8f);
+void Voice::Init() {
+  // engines_.Init();
 
-  engines_.RegisterInstance(&swarm_engine_, false, -3.0f, 1.0f);
-  engines_.RegisterInstance(&noise_engine_, false, -1.0f, -1.0f);
-  engines_.RegisterInstance(&particle_engine_, false, -2.0f, 1.0f);
-  engines_.RegisterInstance(&string_engine_, true, -1.0f, 0.8f);
-  engines_.RegisterInstance(&modal_engine_, true, -0.5f, 0.8f);
-  engines_.RegisterInstance(&bass_drum_engine_, true, 0.8f, 0.8f);
-  engines_.RegisterInstance(&snare_drum_engine_, true, 0.8f, 0.8f);
-  engines_.RegisterInstance(&hi_hat_engine_, true, 0.8f, 0.8f);
-  for (int i = 0; i < engines_.size(); ++i) {
-    // All engines will share the same RAM space.
-    allocator->Free();
-    engines_.get(i)->Init(allocator);
-  }
+  // engines_.RegisterInstance(&virtual_analog_vcf_engine_, false, 1.0f, 1.0f);
+  // engines_.RegisterInstance(&phase_distortion_engine_, false, 0.7f, 0.7f);
+  // engines_.RegisterInstance(&six_op_engine_, true, 1.0f, 1.0f);
+  // engines_.RegisterInstance(&six_op_engine_, true, 1.0f, 1.0f);
+  // engines_.RegisterInstance(&six_op_engine_, true, 1.0f, 1.0f);
+  // engines_.RegisterInstance(&wave_terrain_engine_, false, 0.7f, 0.7f);
+  // engines_.RegisterInstance(&string_machine_engine_, false, 0.8f, 0.8f);
+  // engines_.RegisterInstance(&chiptune_engine_, false, 0.5f, 0.5f);
   
-  engine_quantizer_.Init();
-  previous_engine_index_ = -1;
-  engine_cv_ = 0.0f;
+  // engines_.RegisterInstance(&virtual_analog_engine_, false, 0.8f, 0.8f);
+  // engines_.RegisterInstance(&waveshaping_engine_, false, 0.7f, 0.6f);
+  // engines_.RegisterInstance(&fm_engine_, false, 0.6f, 0.6f);
+  // engines_.RegisterInstance(&grain_engine_, false, 0.7f, 0.6f);
+  // engines_.RegisterInstance(&additive_engine_, false, 0.8f, 0.8f);
+  // engines_.RegisterInstance(&wavetable_engine_, false, 0.6f, 0.6f);
+  // engines_.RegisterInstance(&chord_engine_, false, 0.8f, 0.8f);
+  // engines_.RegisterInstance(&speech_engine_, false, -0.7f, 0.8f);
+
+  // engines_.RegisterInstance(&swarm_engine_, false, -3.0f, 1.0f);
+  // engines_.RegisterInstance(&noise_engine_, false, -1.0f, -1.0f);
+  // engines_.RegisterInstance(&particle_engine_, false, -2.0f, 1.0f);
+  // engines_.RegisterInstance(&string_engine_, true, -1.0f, 0.8f);
+  // engines_.RegisterInstance(&modal_engine_, true, -1.0f, 0.8f);
+  // engines_.RegisterInstance(&bass_drum_engine_, true, 0.8f, 0.8f);
+  // engines_.RegisterInstance(&snare_drum_engine_, true, 0.8f, 0.8f);
+  // engines_.RegisterInstance(&hi_hat_engine_, true, 0.8f, 0.8f);
+  
+  // for (int i = 0; i < engines_.size(); ++i) {
+  //   // All engines will share the same RAM space.
+  //   allocator->Free();
+  //   engines_.get(i)->Init(allocator);
+  // }
+  
+  // engine_quantizer_.Init(engines_.size(), 0.05f, true);
+  // previous_engine_index_ = -1;
+  // reload_user_data_ = false;
+  // engine_cv_ = 0.0f;
   
   out_post_processor_.Init();
   aux_post_processor_.Init();
@@ -75,9 +88,12 @@ void Voice::Init(BufferAllocator* allocator) {
 }
 
 void Voice::Render(
+    Engine* e,
     const Patch& patch,
     const Modulations& modulations,
-    Frame& frame) {
+    float* out,
+    float* aux,
+    size_t size) {
   // Trigger, LPG, internal envelope.
       
   // Delay trigger by 1ms to deal with sequencers or MIDI interfaces whose
@@ -93,7 +109,7 @@ void Voice::Render(
         lpg_envelope_.Trigger();
       }
       decay_envelope_.Trigger();
-      engine_cv_ = modulations.engine;
+      //engine_cv_ = modulations.engine;
     }
   } else {
     if (trigger_value < 0.1f) {
@@ -101,23 +117,30 @@ void Voice::Render(
     }
   }
   if (!modulations.trigger_patched) {
-    engine_cv_ = modulations.engine;
+    //engine_cv_ = modulations.engine;
   }
 
+  int engine_index = patch.engine;
   // Engine selection.
-  int engine_index = engine_quantizer_.Process(
-      patch.engine,
-      engine_cv_,
-      engines_.size(),
-      0.25f);
+  // int engine_index = engine_quantizer_.Process(
+  //     patch.engine,
+  //     engine_cv_);
   
-  Engine* e = engines_.get(engine_index);
+  // Engine* e = engines_.get(engine_index);
   
-  if (engine_index != previous_engine_index_) {
-    e->Reset();
-    out_post_processor_.Reset();
-    previous_engine_index_ = engine_index;
-  }
+  // if (engine_index != previous_engine_index_ || reload_user_data_) {
+  //   UserData user_data;
+  //   const uint8_t* data = user_data.ptr(engine_index);
+  //   if (!data && engine_index >= 2 && engine_index <= 4) {
+  //     data = fm_patches_table[engine_index - 2];
+  //   }
+  //   e->LoadUserData(data);
+  //   e->Reset();
+
+  //   out_post_processor_.Reset();
+  //   previous_engine_index_ = engine_index;
+  //   reload_user_data_ = false;
+  // }
   EngineParameters p;
 
   bool rising_edge = trigger_state_ && !previous_trigger_state;
@@ -126,7 +149,8 @@ void Voice::Render(
   const PostProcessingSettings& pp_s = e->post_processing_settings;
 
   if (modulations.trigger_patched) {
-    p.trigger = rising_edge ? TRIGGER_RISING_EDGE : TRIGGER_LOW;
+    p.trigger = (rising_edge ? TRIGGER_RISING_EDGE : TRIGGER_LOW) | \
+      (trigger_state_ ? TRIGGER_HIGH : TRIGGER_LOW);
   } else {
     p.trigger = TRIGGER_UNPATCHED;
   }
@@ -136,9 +160,8 @@ void Voice::Render(
 
   decay_envelope_.Process(short_decay * 2.0f);
 
-  const float compressed_level = max(
-      1.3f * modulations.level / (0.3f + fabsf(modulations.level)),
-      0.0f);
+  float compressed_level = 1.3f * modulations.level / (0.3f + fabsf(modulations.level));
+  CONSTRAIN(compressed_level, 0.0f, 1.0f);
   p.accent = modulations.level_patched ? compressed_level : 0.8f;
 
   bool use_internal_envelope = modulations.trigger_patched;
@@ -149,17 +172,29 @@ void Voice::Render(
   CONSTRAIN(p.harmonics, 0.0f, 1.0f);
 
   float internal_envelope_amplitude = 1.0f;
-  if (engine_index == 7) {
+  float internal_envelope_amplitude_timbre = 1.0f;
+  if (engine_index == 15) {
     internal_envelope_amplitude = 2.0f - p.harmonics * 6.0f;
     CONSTRAIN(internal_envelope_amplitude, 0.0f, 1.0f);
+    auto& speech_engine_ = *static_cast<SpeechEngine*>(e);
     speech_engine_.set_prosody_amount(
         !modulations.trigger_patched || modulations.frequency_patched ?
             0.0f : patch.frequency_modulation_amount);
     speech_engine_.set_speed( 
         !modulations.trigger_patched || modulations.morph_patched ?
             0.0f : patch.morph_modulation_amount);
+  } else if (engine_index == 7) {
+    auto& chiptune_engine_ = *static_cast<ChiptuneEngine*>(e);
+    if (modulations.trigger_patched && !modulations.timbre_patched) {
+      // Disable internal envelope on TIMBRE, and enable the envelope generator
+      // built into the chiptune engine.
+      internal_envelope_amplitude_timbre = 0.0f;
+      chiptune_engine_.set_envelope_shape(patch.timbre_modulation_amount);
+    } else {
+      chiptune_engine_.set_envelope_shape(ChiptuneEngine::NO_ENVELOPE);
+    }
   }
-
+  
   p.note = ApplyModulations(
       patch.note + note,
       patch.frequency_modulation_amount,
@@ -178,7 +213,7 @@ void Voice::Render(
       modulations.timbre_patched,
       modulations.timbre,
       use_internal_envelope,
-      decay_envelope_.value(),
+      internal_envelope_amplitude_timbre * decay_envelope_.value(),
       0.0f,
       0.0f,
       1.0f);
@@ -195,11 +230,10 @@ void Voice::Render(
       1.0f);
 
   bool already_enveloped = pp_s.already_enveloped;
-
   e->Render(p, 
-    frame.out ? out_buffer_ : nullptr, 
-    frame.aux ? aux_buffer_ : nullptr, 
-    frame.size, 
+    out ? out_buffer_ : nullptr, 
+    aux ? aux_buffer_ : nullptr, 
+    size, 
     &already_enveloped);
   
   bool lpg_bypass = already_enveloped || \
@@ -217,9 +251,11 @@ void Voice::Render(
       const float attack = NoteToFrequency(p.note) * float(kBlockSize) * 2.0f;
       lpg_envelope_.ProcessPing(attack, short_decay, decay_tail, hf);
     }
+  } else {
+    lpg_envelope_.Init();
   }
   
-  if(frame.out)
+  if(out)
     out_post_processor_.Process(
         pp_s.out_gain,
         lpg_bypass,
@@ -227,11 +263,11 @@ void Voice::Render(
         lpg_envelope_.frequency(),
         lpg_envelope_.hf_bleed(),
         out_buffer_,
-        frame.out,
-        frame.size,
+        out,
+        size,
         1);
 
-  if(frame.aux)
+  if(aux)
     aux_post_processor_.Process(
         pp_s.aux_gain,
         lpg_bypass,
@@ -239,8 +275,8 @@ void Voice::Render(
         lpg_envelope_.frequency(),
         lpg_envelope_.hf_bleed(),
         aux_buffer_,
-        frame.aux,
-        frame.size,
+        aux,
+        size,
         1);
 }
   

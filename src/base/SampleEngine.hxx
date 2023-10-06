@@ -34,7 +34,7 @@ struct SampleEngine : public machine::Engine
     float start = 1;
     float end = 1;
 
-    uint16_t selection = 0;
+    uint8_t selection = 0;
     float pitch_coarse = 0;
 
     struct sample_spec
@@ -87,11 +87,17 @@ public:
     uint8_t rtrg2 = 0;
     uint32_t trg_next = 0;
 
-    SampleEngine(const sample_spec *samples, int select, int count) : machine::Engine()
+    SampleEngine() : machine::Engine()
+    {}
+
+    void setup(const sample_spec *samples, int select, int count)
     {
         ptr = samples;
         param[0].init("Pitch", &pitch_coarse, pitch_coarse, -.5f, .5f);
-        param[1].init("Sample", &selection, select, 0, count - 1);
+        param[1].init_presets(ptr[select].name, &selection, select, 0, count - 1);
+        param[1].value_changed = [&](){
+            param[1].name = ptr[selection].name;
+        };
         param[2].init("Start", &start, 0);
         param[3].init("End", &end, 1);
         // param[4].init("RTRG", &rtrg, 0, 0, 16);
@@ -108,7 +114,7 @@ public:
 
         this->default_inc = 1.0f / smpl.len * (smpl.sample_rate / (float)machine::SAMPLE_RATE);
 
-        this->default_inc *= stmlib::SemitonesToRatio(frame.cv_voltage() * 12);
+        this->default_inc *= stmlib::SemitonesToRatio(frame.qz_voltage(this->io, 0.f) * 12);
 
         float pitch_fine = 0;
         this->inc = (this->inc < 0 ? -1.f : 1.f) *
@@ -163,14 +169,6 @@ public:
         }
 
         of.out = buffer;
-    }
-
-    void onDisplay(uint8_t *buffer) override
-    {
-        auto &smpl = ptr[selection];
-        param[1].name = smpl.name;
-
-        gfx::drawEngine(buffer, this);
     }
 };
 

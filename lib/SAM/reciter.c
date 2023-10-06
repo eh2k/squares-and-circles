@@ -526,8 +526,9 @@ pos37455:
     Y = mem64;
     mem61 = mem60;
 
-    if (debug)
+#ifdef SAM_DEBUG
         PrintRule(mem62);
+#endif
 
 pos37461:
     //37461: LDA (62),y

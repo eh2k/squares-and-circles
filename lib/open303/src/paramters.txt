@@ -1,0 +1,66 @@
+// [eh2k] snippet form Open303VST.cpp
+
+
+void Open303VST::setParameter (VstInt32 index, float value)
+{
+  if( index < 0 || index >= OPEN303_NUM_PARAMETERS )
+    return;
+
+	Open303VSTProgram *ap = &programs[curProgram];
+  ap->parameters[index]  = value;
+	switch(index)
+	{
+  case WAVEFORM:
+    open303Core.setWaveform( linToLin(value, 0.0, 1.0,   0.0,      1.0) );
+    break;
+  case TUNING:
+    open303Core.setTuning(   linToLin(value, 0.0, 1.0,  400.0,    480.0) );
+    break;
+  case CUTOFF:
+    open303Core.setCutoff(   linToExp(value, 0.0, 1.0, 314.0,    2394.0) );
+    break;
+  case RESONANCE:
+    open303Core.setResonance(linToLin(value, 0.0, 1.0,   0.0,    100.0) );
+    break;
+  case ENVMOD:
+    open303Core.setEnvMod(   linToLin(value, 0.0, 1.0,    0.0,   100.0)  );
+    break;
+  case DECAY:
+    open303Core.setDecay(    linToExp(value, 0.0, 1.0,  200.0,  2000.0) );
+    break;
+  case ACCENT:
+    open303Core.setAccent(   linToLin(value, 0.0, 1.0,   0.0,    100.0) );
+    break;
+  case VOLUME:
+    open303Core.setVolume(   linToLin(value, 0.0, 1.0, -60.0,      0.0)  );
+    break;
+  case FILTER_TYPE:
+      open303Core.filter.setMode(  normalizedValueToIndex(value, TeeBeeFilter::NUM_MODES) );
+    break;
+
+#ifdef SHOW_INTERNAL_PARAMETERS
+  case AMP_SUSTAIN:
+    open303Core.setAmpSustain(        linToLin(value, 0.0, 1.0, -60.0,      0.0)  );
+    break;
+  case TANH_SHAPER_DRIVE:
+    open303Core.setTanhShaperDrive(   linToLin(value, 0.0, 1.0,   0.0,     60.0)  );
+    break;
+  case TANH_SHAPER_OFFSET:
+    open303Core.setTanhShaperOffset(  linToLin(value, 0.0, 1.0, -10.0,     10.0)  );
+    break;
+  case PRE_FILTER_HPF:
+    open303Core.setPreFilterHighpass( linToExp(value, 0.0, 1.0,  10.0,    500.0)  );
+    break;
+  case FEEDBACK_HPF:
+    open303Core.setFeedbackHighpass(  linToExp(value, 0.0, 1.0,  10.0,    500.0)  );
+    break;
+  case POST_FILTER_HPF:
+    open303Core.setPostFilterHighpass(linToExp(value, 0.0, 1.0,  10.0,    500.0)  );
+    break;
+  case SQUARE_PHASE_SHIFT:
+    open303Core.setSquarePhaseShift(  linToLin(value, 0.0, 1.0,   0.0,    360.0)  );
+    break;
+#endif
+
+	}
+}

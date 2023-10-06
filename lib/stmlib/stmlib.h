@@ -27,6 +27,7 @@
 
 #include <inttypes.h>
 #include <stddef.h>
+#include <cmath>
 
 #ifndef NULL
 #define NULL 0

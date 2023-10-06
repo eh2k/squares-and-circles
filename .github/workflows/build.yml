@@ -7,6 +7,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: codeberg_sync
+      run: |
+        git remote add --mirror=fetch secondary https://${{ secrets.CODEBERG_AUTH }}@codeberg.org/eh2k/squares-and-circles.git
+        git fetch origin
+        git push secondary --all --force
     - name: Set up Python
       uses: actions/setup-python@v2
     - name: Install PlatformIO
@@ -25,8 +32,8 @@ jobs:
           ZIP_FILE=./firmware_${FIRMWARE}_$hash.zip
           mv -v "$f" $HEX_FILE
           zip -j $ZIP_FILE $HEX_FILE ./LICENSE.txt
-          curl -X PUT -u ${{ secrets.UPLOAD_KEY }} ${{ secrets.LATEST_DROP_FOLDER }}/firmware_${FIRMWARE}_latest.zip --upload-file $ZIP_FILE || true
-          curl -X PUT -u ${{ secrets.UPLOAD_KEY }} ${{ secrets.LATEST_DROP_FOLDER }}/firmware_${FIRMWARE}_latest.sha -d "$hash"
+          curl -X PUT -u ${{ secrets.UPLOAD_KEY }} ${{ secrets.LATEST_DROP_FOLDER }}/${FIRMWARE}_latest.zip --upload-file $ZIP_FILE || true
+          curl -X PUT -u ${{ secrets.UPLOAD_KEY }} ${{ secrets.LATEST_DROP_FOLDER }}/${FIRMWARE}_latest.sha -d "$hash"
         done
     - name: firmware_artifacts
       uses: actions/upload-artifact@v2
@@ -35,12 +42,3 @@ jobs:
         path: |
           ./firmware*.hex
           ./LICENSE.txt
-    - name: Test
-      run: |
-        pio lib install
-        sh ./test/test.sh
-    - name: test.wav
-      uses: actions/upload-artifact@v2
-      with:
-        name: test_waves
-        path: .test/*.wav

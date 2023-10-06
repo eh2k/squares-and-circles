@@ -28,7 +28,8 @@
 #include "machine.h"
 #include <vector>
 
-extern "C" {
+extern "C"
+{
 #include "soundpipe/revsc.h"
 }
 
@@ -38,7 +39,8 @@ struct ReverbSC : public Engine
 {
     sp_data sp_data_;
     sp_revsc sp_revsc_;
-    uint8_t aux[107440]; //sp_revsc_.aux.size
+    static constexpr uint32_t AUX_SIZE = 107440; // sp_revsc_.aux.size
+    uint8_t *mem;
 
     float raw = 1.f;
     float reverb_amount;
@@ -50,18 +52,29 @@ struct ReverbSC : public Engine
 
     ReverbSC() : Engine(AUDIO_PROCESSOR)
     {
-        sp_data_.sr = machine::SAMPLE_RATE;
-        sp_data_.aux.ptr = &aux[0];
-        sp_data_.aux.size = sizeof(aux);
-        sp_revsc_init(&sp_data_, &sp_revsc_);
+        mem = (uint8_t *)machine::malloc(AUX_SIZE);
+        if (mem)
+        {
+            sp_data_.sr = machine::SAMPLE_RATE;
+            sp_data_.aux.ptr = &mem[0];
+            sp_data_.aux.size = AUX_SIZE;
+            sp_revsc_init(&sp_data_, &sp_revsc_);
+            param[0].init("D/W", &raw, raw);
+            param[1].init("Feedback", &sp_revsc_.feedback, 0.97f, 0, 1);
+            param[2].init("LpFreq", &sp_revsc_.lpfreq, 10000, 0, machine::SAMPLE_RATE / 2);
+        }
+    }
 
-        param[0].init("D/W", &raw, raw);
-        param[1].init("Feedback", &sp_revsc_.feedback, 0.97f, 0, 1);
-        param[2].init("LpFreq", &sp_revsc_.lpfreq, 10000, 0, machine::SAMPLE_RATE/2);
+    ~ReverbSC() override
+    {
+        machine::mfree(mem);
     }
 
     void process(const ControlFrame &frame, OutputFrame &of) override
     {
+        if (mem == nullptr)
+            return;
+
         float *ins[] = {machine::get_aux(AUX_L), machine::get_aux(AUX_R)};
 
         for (int i = 0; i < FRAME_BUFFER_SIZE; ++i)
@@ -73,6 +86,11 @@ struct ReverbSC : public Engine
 
         of.out = bufferL;
         of.aux = bufferR;
+    }
+
+    void display() override
+    {
+        gfx::drawEngine(this, mem ? nullptr : machine::OUT_OF_MEMORY);
     }
 };
 

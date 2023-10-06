@@ -10,7 +10,7 @@ struct PolyVAEngine : public machine::MidiEngine
 {
     plaits::VirtualAnalogEngine voice[6];
 
-    uint8_t buffer[LEN_OF(voice) * plaits::kBlockSize * sizeof(float) * 2];
+    uint8_t buffer[LEN_OF(voice) * 48 * sizeof(float)];
     stmlib::BufferAllocator buffAllocator;
 
     plaits::EngineParameters parameters[LEN_OF(voice)];
@@ -47,7 +47,7 @@ struct PolyVAEngine : public machine::MidiEngine
         param[5].init("Stereo", &stereo, 0.5f);
 
         memset(buffer, 0, sizeof(buffer));
-        buffAllocator.Init(buffer, 16384);
+        buffAllocator.Init(buffer, sizeof(buffer));
 
         for (size_t i = 0; i < LEN_OF(voice); i++)
         {
@@ -122,7 +122,7 @@ struct PolyVAEngine : public machine::MidiEngine
 
     void onMidiCC(uint8_t ccc, uint8_t value) override
     {
-        //nothing implemented..
+        // nothing implemented..
     }
 };
 

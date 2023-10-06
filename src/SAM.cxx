@@ -26,48 +26,45 @@
 #include "machine.h"
 #include "stmlib/dsp/dsp.h"
 #include "base/SampleEngine.hxx"
+#include <ctype.h>
+#include <stdlib.h>
 
-namespace sam
+extern "C"
 {
-#include "SAM/sam.c"
-#include "SAM/render.c"
-#include "SAM/reciter.c"
-#include "SAM/debug.c"
+#include "SAM/sam.h"
+#include "SAM/reciter.h"
 }
 
-using namespace sam;
 using namespace machine;
-
-static uint8_t *s_buffer;
-static int s_maxlen;
-static int s_len;
 
 struct SAM : public SampleEngine
 {
     uint8_t _buffer[48000];
-    tsample_spec<uint8_t> _sounds[6] = {
-        {">electro", _buffer, 0, 22050, 0},
-        {">techno", _buffer, 0, 22050, 0},
-        {">modular", _buffer, 0, 22050, 0},
-        {">synthesizer", _buffer, 0, 22050, 0},
-        {">oscillator", _buffer, 0, 22050, 0},
-        {">eurorack", _buffer, 0, 22050, 0},
+    tsample_spec<uint8_t> _sounds[7] = {
+        {"electro", _buffer, 0, 22050, 0},
+        {"techno", _buffer, 0, 22050, 0},
+        {"modular", _buffer, 0, 22050, 0},
+        {"synthesizer", _buffer, 0, 22050, 0},
+        {"oscillator", _buffer, 0, 22050, 0},
+        {"eurorack", _buffer, 0, 22050, 0},
+        {"RND_1-9", _buffer, 0, 22050, 0},
     };
 
-    int say(const char *text)
+    uint8_t _ti = 0;
+
+    void say(const char *text)
     {
+        static tsample_spec<uint8_t> *_sample = nullptr;
+        _sample = &_sounds[selection];
+
         SAM_write_buffer = [](int pos, char value)
         {
-            if (pos < s_maxlen)
+            if (pos < (int)LEN_OF(_buffer))
             {
-                s_len = pos + 1;
-                s_buffer[pos] = value;
+                _sample->len = pos + 1;
+                ((uint8_t *)_sample->data)[pos] = value;
             }
         };
-
-        s_len = 0;
-        s_maxlen = sizeof(_buffer);
-        s_buffer = _buffer;
 
         SetSpeed(64);
         SetMouth(128);
@@ -83,22 +80,28 @@ struct SAM : public SampleEngine
         TextToPhonemes((unsigned char *)input);
         SetInput(input);
         SAMMain();
-        return s_len;
     }
 
     int _lastSelection = 0;
 
 public:
-    SAM() : SampleEngine(&_sounds[0], 0, LEN_OF(_sounds))
+    SAM() : SampleEngine()
     {
-        _sounds[0].len = say(&_sounds[0].name[1]);
+        setup(&_sounds[0], 0, LEN_OF(_sounds));
+        say(_sounds[0].name);
     }
 
     void process(const ControlFrame &frame, OutputFrame &of) override
     {
-        if (_lastSelection != selection)
+        if (selection == LEN_OF(_sounds) - 1 && frame.trigger)
         {
-            _sounds[selection].len = say(&_sounds[selection].name[1]);
+            char tmp[20];
+            sprintf(tmp, "%d", rand() % 10);
+            say(tmp);
+        }
+        else if (_lastSelection != selection)
+        {
+            say(_sounds[selection].name);
             _lastSelection = selection;
         }
 
@@ -110,5 +113,3 @@ void init_sam()
 {
     machine::add<SAM>("SPEECH", "SAM");
 }
-
-MACHINE_INIT(init_sam);

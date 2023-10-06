@@ -104,15 +104,15 @@ public:
         of.push<int16_t>(&a, 1);
     }
 
-    void onDisplay(uint8_t *buffer) override
+    void display() override
     {
-        gfx::drawEngine(buffer, this);
+        gfx::drawEngine(this);
 
         char tmp[20];
         int bpm = machine::get_bpm();
         int bpm2 = ((bpm % 100) / 10);
         sprintf(tmp, " %d.%dbpm", bpm / 100, bpm2);
-        gfx::drawString(buffer, 58, 1, tmp, 0);
+        gfx::drawString(58, 1, tmp, 0);
     }
 };
 

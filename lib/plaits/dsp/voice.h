@@ -53,22 +53,22 @@
 #include "plaits/dsp/engine/waveshaping_engine.h"
 #include "plaits/dsp/engine/wavetable_engine.h"
 
+#include "plaits/dsp/engine2/chiptune_engine.h"
+#include "plaits/dsp/engine2/phase_distortion_engine.h"
+#include "plaits/dsp/engine2/six_op_engine.h"
+#include "plaits/dsp/engine2/string_machine_engine.h"
+#include "plaits/dsp/engine2/virtual_analog_vcf_engine.h"
+#include "plaits/dsp/engine2/wave_terrain_engine.h"
+
 #include "plaits/dsp/envelope.h"
 
 #include "plaits/dsp/fx/low_pass_gate.h"
 
 namespace plaits {
 
-const int kMaxEngines = 16;
+const int kMaxEngines = 24;
 const int kMaxTriggerDelay = 8;
-const int kTriggerDelay = 5;
-
-struct Frame {
-  float* out;
-  float* aux;
-  size_t size;
-};
-  
+const int kTriggerDelay = 0;
 
 class ChannelPostProcessor {
  public:
@@ -85,37 +85,6 @@ class ChannelPostProcessor {
   }
   
   void Process(
-      float gain,
-      bool bypass_lpg,
-      float low_pass_gate_gain,
-      float low_pass_gate_frequency,
-      float low_pass_gate_hf_bleed,
-      float* in,
-      short* out,
-      size_t size,
-      size_t stride) {
-    if (gain < 0.0f) {
-      limiter_.Process(-gain, in, size);
-    }
-    const float post_gain = (gain < 0.0f ? 1.0f : gain) * -32767.0f;
-    if (!bypass_lpg) {
-      lpg_.Process(
-          post_gain * low_pass_gate_gain,
-          low_pass_gate_frequency,
-          low_pass_gate_hf_bleed,
-          in,
-          out,
-          size,
-          stride);
-    } else {
-      while (size--) {
-        *out = stmlib::Clip16(1 + static_cast<int32_t>(*in++ * post_gain));
-        out += stride;
-      }
-    }
-  }
-  
-    void Process(
       float gain,
       bool bypass_lpg,
       float low_pass_gate_gain,
@@ -144,7 +113,7 @@ class ChannelPostProcessor {
         out += stride;
       }
     }
-  }
+  } 
  private:
   stmlib::Limiter limiter_;
   LowPassGate lpg_;
@@ -183,17 +152,25 @@ struct Modulations {
   bool level_patched;
 };
 
+// char (*__foo)[sizeof(HiHatEngine)] = 1;
+
+
 class Voice {
  public:
   Voice() { }
   ~Voice() { }
   
-  void Init(stmlib::BufferAllocator* allocator);
+  void Init();
+  void ReloadUserData() {
+    reload_user_data_ = true;
+  }
   void Render(
+      Engine* engine,
       const Patch& patch,
       const Modulations& modulations,
-      Frame& frame);
-  inline int active_engine() const { return previous_engine_index_; }
+      float* out,
+      float* aux,
+      size_t size);
     
  private:
   void ComputeDecayParameters(const Patch& settings);
@@ -219,28 +196,37 @@ class Voice {
     CONSTRAIN(value, minimum_value, maximum_value);
     return value;
   }
-  
-  AdditiveEngine additive_engine_;
-  BassDrumEngine bass_drum_engine_;
-  ChordEngine chord_engine_;
-  FMEngine fm_engine_;
-  GrainEngine grain_engine_;
-  HiHatEngine hi_hat_engine_;
-  ModalEngine modal_engine_;
-  NoiseEngine noise_engine_;
-  ParticleEngine particle_engine_;
-  SnareDrumEngine snare_drum_engine_;
-  SpeechEngine speech_engine_;
-  StringEngine string_engine_;
-  SwarmEngine swarm_engine_;
-  VirtualAnalogEngine virtual_analog_engine_;
-  WaveshapingEngine waveshaping_engine_;
-  WavetableEngine wavetable_engine_;
 
-  stmlib::HysteresisQuantizer engine_quantizer_;
+  // VirtualAnalogEngine virtual_analog_engine_;
+  // WaveshapingEngine waveshaping_engine_;
+  // FMEngine fm_engine_;
+  // GrainEngine grain_engine_;
+  // AdditiveEngine additive_engine_;
+  // WavetableEngine wavetable_engine_;
+  // ChordEngine chord_engine_;
+  // SpeechEngine speech_engine_;
+
+  // SwarmEngine swarm_engine_;
+  // NoiseEngine noise_engine_;
+  // ParticleEngine particle_engine_;
+  // StringEngine string_engine_;
+  // ModalEngine modal_engine_;
+  // BassDrumEngine bass_drum_engine_;
+  // SnareDrumEngine snare_drum_engine_;
+  // HiHatEngine hi_hat_engine_;
   
-  int previous_engine_index_;
-  float engine_cv_;
+  // VirtualAnalogVCFEngine virtual_analog_vcf_engine_;
+  // PhaseDistortionEngine phase_distortion_engine_;
+  // SixOpEngine six_op_engine_;
+  // WaveTerrainEngine wave_terrain_engine_;
+  // StringMachineEngine string_machine_engine_;
+  // ChiptuneEngine chiptune_engine_;
+
+  // stmlib::HysteresisQuantizer2 engine_quantizer_;
+  
+  bool reload_user_data_;
+  // int previous_engine_index_;
+  // float engine_cv_;
   
   float previous_note_;
   bool trigger_state_;
@@ -254,7 +240,7 @@ class Voice {
   ChannelPostProcessor out_post_processor_;
   ChannelPostProcessor aux_post_processor_;
   
-  EngineRegistry<kMaxEngines> engines_;
+  //EngineRegistry<kMaxEngines> engines_;
   
   float out_buffer_[kMaxBlockSize];
   float aux_buffer_[kMaxBlockSize];

@@ -25,24 +25,31 @@
 
 #include "machine.h"
 
+void init_engines()
+{
 #undef MACHINE_INIT
-#define MACHINE_INIT(init_fun) \
-    extern void init_fun();    \
+#define MACHINE_INIT(init_fun)             \
+    void init_fun() __attribute__((weak)); \
     init_fun();
 
-int main()
-{
     MACHINE_INIT(init_screensaver);
+    MACHINE_INIT(init_modulations);
+    MACHINE_INIT(init_quantizer);
+
     MACHINE_INIT(init_voltage);
     MACHINE_INIT(init_noise);
+    MACHINE_INIT(init_nes_noise);
+    MACHINE_INIT(init_808_squarenoise);
     MACHINE_INIT(init_midi_monitor);
     MACHINE_INIT(init_midi_clock);
-    MACHINE_INIT(init_quantizer);
+    
     MACHINE_INIT(init_peaks);
     MACHINE_INIT(init_braids);
     MACHINE_INIT(init_plaits);
+    MACHINE_INIT(init_tr909);
+    MACHINE_INIT(init_tr707);
     MACHINE_INIT(init_sample_roms);
-    MACHINE_INIT(init_clap);
+    MACHINE_INIT(init_claps);
     MACHINE_INIT(init_reverb);
     MACHINE_INIT(init_reverbSC);
     MACHINE_INIT(init_faust);
@@ -50,11 +57,21 @@ int main()
     MACHINE_INIT(init_speech);
     MACHINE_INIT(init_sam);
     MACHINE_INIT(init_delay);
-    MACHINE_INIT(init_modulations);
     MACHINE_INIT(init_fv1);
     MACHINE_INIT(init_midi_polyVA)
+    MACHINE_INIT(init_dxfm);
+    MACHINE_INIT(init_open303);
+    MACHINE_INIT(init_aux);
+    MACHINE_INIT(init_juno60_chorus);
+    MACHINE_INIT(init_plaits2);
 
-    machine::setup("0.0N4", 0);
+    MACHINE_INIT(init_acid_sequencer);
+    MACHINE_INIT(init_trig_sequencer);
+}
+
+int main()
+{
+    machine::setup(GIT_COMMIT_SHA, init_engines);
 
     while (true)
         machine::loop();

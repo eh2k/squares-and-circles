@@ -39,7 +39,7 @@ class VoltsPerOctave : public Engine
     float glide = 0;
 
 public:
-    VoltsPerOctave() : Engine(OUT_EQ_VOLT | VOCT_INPUT | TRANSPOSE_EQ_0)
+    VoltsPerOctave() : Engine(OUT_EQ_VOLT | VOCT_INPUT)
     {
         param[0].init_v_oct("Tone", &note);
         param[1].init("Fine", &tune, tune, 0, 64);
@@ -48,21 +48,22 @@ public:
 
     void process(const ControlFrame &frame, OutputFrame &of) override
     {
-        cv0 = frame.cv_voltage_ +
-              (((int)note - (DEFAULT_NOTE * machine::PITCH_PER_OCTAVE / 12))) +
-              (((int)tune - 32) << 4);
+        cv0 = frame.qz_voltage(this->io,
+                               (machine::PITCH_PER_OCTAVE * 2) +
+                                   ((int)note - (DEFAULT_NOTE * machine::PITCH_PER_OCTAVE / 12)) +
+                                   (((int)tune - 32) << 4));
 
         ONE_POLE(cv, cv0, powf(1 - glide, 10));
 
         of.push(&cv, 1);
     }
 
-    void onDisplay(uint8_t *display) override
+    void display() override
     {
         sprintf(tmp, "OUT: %.2fV", ((float)cv / machine::PITCH_PER_OCTAVE));
-        gfx::drawString(display, 4 + 64, 52, tmp, 0);
+        gfx::drawString(4 + 64, 52, tmp, 0);
 
-        gfx::drawEngine(display, this);
+        gfx::drawEngine(this);
     }
 };
 

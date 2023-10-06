@@ -26,10 +26,8 @@
 //
 // LPC10 encoded words extracted from various TI ROMs.
 
-#ifndef TEST
+#ifndef FLASHMEM
 #include "pgmspace.h"
-#else
-#define FLASHMEM
 #endif
 
 #include "plaits/dsp/speech/lpc_speech_synth_words.h"
@@ -1568,7 +1566,7 @@ const uint8_t FLASHMEM bank_4[] = {
 };
 
 /* extern */
-LPCSpeechSynthWordBankData word_banks_[] = {
+const LPCSpeechSynthWordBankData word_banks_[] = {
   { bank_0, 1233 },
   { bank_1, 900 },
   { bank_2, 1552 },

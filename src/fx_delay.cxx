@@ -43,20 +43,20 @@ struct Delay : public Engine
     float level = 0.5f;
     float pan = 0.5f;
 
-    constexpr static int delay_len = 48000; //1s
+    constexpr static int delay_len = 48000; // 1s
 
-    stmlib::DelayLine<uint16_t, delay_len> delay_mem[2];
+    stmlib::DelayLine<uint16_t, delay_len> *delay_mem[2];
     stmlib::OnePole filterLP[2];
     stmlib::OnePole filterHP[2];
 
-    inline const float DelayRead(stmlib::DelayLine<uint16_t, delay_len> &line_, float delay) const
+    inline const float DelayRead(stmlib::DelayLine<uint16_t, delay_len> *line_, float delay) const
     {
-        return static_cast<float>(static_cast<int16_t>(line_.Read(delay))) / 32768.0f;
+        return static_cast<float>(static_cast<int16_t>(line_->Read(delay))) / 32768.0f;
     }
 
-    inline void DelayWrite(stmlib::DelayLine<uint16_t, delay_len> &line_, const float sample)
+    inline void DelayWrite(stmlib::DelayLine<uint16_t, delay_len> *line_, const float sample)
     {
-        line_.Write(static_cast<uint16_t>(
+        line_->Write(static_cast<uint16_t>(
             stmlib::Clip16(static_cast<int32_t>(sample * 32768.0f))));
     }
 
@@ -65,13 +65,21 @@ struct Delay : public Engine
 
     Delay() : Engine(AUDIO_PROCESSOR)
     {
-        delay_mem[0].Init();
-        delay_mem[1].Init();
+        if (delay_mem[0] = (stmlib::DelayLine<uint16_t, delay_len> *)machine::malloc(sizeof(stmlib::DelayLine<uint16_t, delay_len>)))
+            delay_mem[0]->Init();
+        if (delay_mem[1] = (stmlib::DelayLine<uint16_t, delay_len> *)machine::malloc(sizeof(stmlib::DelayLine<uint16_t, delay_len>)))
+            delay_mem[1]->Init();
 
         param[0].init("Time", &time, time);
         param[1].init("Color", &color, color);
         param[2].init("Pan", &pan, pan);
         param[3].init("Feedb", &level, level);
+    }
+
+    ~Delay() override
+    {
+        machine::mfree(delay_mem[0]);
+        machine::mfree(delay_mem[1]);
     }
 
     float delay = 0;
@@ -96,6 +104,9 @@ struct Delay : public Engine
 
     void process(const ControlFrame &frame, OutputFrame &of) override
     {
+        if (delay_mem[0] == nullptr || delay_mem[1] == nullptr)
+            return;
+
         sync_params();
 
         int n = 1 + time / t_32;
@@ -135,7 +146,7 @@ struct Delay : public Engine
     void sync_params()
     {
         calc_t_step32();
-        param[0].setStepValue(t_32);
+        param[0].step.f = param[0].step2.f = t_32;
 
         float colorFreq = std::pow(100.f, 2.f * color - 1.f);
         float lowpassFreq = clamp(20000.f * colorFreq, 20.f, 20000.f) / machine::SAMPLE_RATE;
@@ -148,7 +159,7 @@ struct Delay : public Engine
     }
 
     char time_info[64] = "Time";
-    void onDisplay(uint8_t *buffer) override
+    void display() override
     {
         if (calc_t_step32())
         {
@@ -160,15 +171,18 @@ struct Delay : public Engine
 
         param[0].name = time_info;
 
-        gfx::drawEngine(buffer, this);
-
         float midi_bpm = 1.f / 100 * machine::get_bpm();
         if (midi_bpm > 0)
         {
             char tmp[16];
-            sprintf(tmp, "BPM:%.1f", midi_bpm); //dtostrf(midi_bpm, 2, 1, &tmp[4]);
-            gfx::drawString(buffer, 10, 28, tmp, 0);
+            sprintf(tmp, "BPM:%.1f", midi_bpm); // dtostrf(midi_bpm, 2, 1, &tmp[4]);
+            gfx::drawString(10, 28, tmp, 0);
         }
+
+        if (delay_mem[0] == nullptr || delay_mem[1] == nullptr)
+            gfx::drawEngine(this, machine::OUT_OF_MEMORY);
+        else
+            gfx::drawEngine(this);
     }
 };
 

@@ -58,7 +58,11 @@ struct PeaksEngine : public Engine
         if (std::is_same<T, peaks::FmDrum>::value)
         {
             auto bak = params_[P1];
-            params_[P1] += (frame.cv_voltage() * INT16_MAX / 3); // CV or Midi Pitch ?!
+            int val = params_[P1];
+            val += (frame.qz_voltage(this->io, 0.f) * INT16_MAX / 3); // CV or Midi Pitch ?!
+            val += (-2 * INT16_MAX / 3);
+            CONSTRAIN(val, 0, UINT16_MAX);
+            params_[P1] = val;
             _processor.Configure(params_, peaks::CONTROL_MODE_FULL);
             params_[P1] = bak;
         }
@@ -87,7 +91,7 @@ struct PeaksEngine : public Engine
         of.push(buffer, LEN_OF(buffer));
     }
 
-    void onDisplay(uint8_t *buffer) override
+    void display() override
     {
         if (std::is_same<T, peaks::Lfo>::value)
         {
@@ -115,7 +119,7 @@ struct PeaksEngine : public Engine
             }
         }
 
-        gfx::drawEngine(buffer, this);
+        gfx::drawEngine(this);
     }
 };
 
@@ -134,7 +138,7 @@ public:
 
 void init_peaks()
 {
-    add<PeaksEngine<peaks::FmDrum, TRIGGER_INPUT | VOCT_INPUT | TRANSPOSE_EQ_0, 0, 3, 1, 2>>(DRUM, "FM-Drum", INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX, "Freq.", "Noise", "FM", "Decay");
+    add<PeaksEngine<peaks::FmDrum, TRIGGER_INPUT | VOCT_INPUT, 0, 3, 1, 2>>(DRUM, "FM-Drum", INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX, "Freq.", "Noise", "FM", "Decay");
 
     add<PeaksEngine<peaks::BassDrum, TRIGGER_INPUT>>(DRUM, "808ish-BD", INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX, "Pitch", "Punch", "Tone", "Decay");
     add<PeaksEngine<peaks::SnareDrum, TRIGGER_INPUT, 0, 2, 1, 3>>(DRUM, "808ish-SD", INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX, "Pitch", "Snappy", "Tone", "Decay");

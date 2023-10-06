@@ -1,4941 +1,6265 @@
-	.syntax unified
+/*
+ * Copyright (C)2021 - Eduard Heidt
+ * Licensed for personal, non-commercial use only
+ */
 	.cpu cortex-m7
-	.eabi_attribute 28, 1
+	.arch armv7e-m
 	.fpu fpv5-d16
-	.eabi_attribute 20, 1
-	.eabi_attribute 21, 1
-	.eabi_attribute 23, 3
+	.eabi_attribute 28, 1
+	.eabi_attribute 23, 1
 	.eabi_attribute 24, 1
 	.eabi_attribute 25, 1
 	.eabi_attribute 26, 1
 	.eabi_attribute 30, 2
 	.eabi_attribute 34, 1
 	.eabi_attribute 18, 4
-	.thumb
-	.syntax unified
-	.file	"FV1.cpp"
+	.file	"FV1.S.cpp"
+	.text
 	.section	.flashmem,"ax",%progbits
-	.align	2
+	.align	1
+	.p2align 2,,3
 	.global	OEM1_4_spn
+	.syntax unified
 	.thumb
 	.thumb_func
 	.type	OEM1_4_spn, %function
 OEM1_4_spn:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 0, uses_anonymous_args = 0
-	ldr	r3, .L276
-	ldrb	r3, [r0, r3]	@ zero_extendqisi2
+	add	ip, r0, #131072
+	ldrb	r3, [ip, #328]	@ zero_extendqisi2
 	push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
 	sub	sp, sp, #12
 	cmp	r3, #0
-	bne	.L2
-	ldr	r2, .L276+4
-	ldr	r3, .L276+8
-	ldr	r7, [r0, r2]
-	ldr	r6, [r0]
-	subs	r3, r3, r7
-	asrs	r1, r7, #10
-	mov	r10, r7
-	asr	fp, r7, #31
-	mov	r4, r3
-	asrs	r5, r3, #31
-	adds	r6, r6, #1
-	ssat	r7, #25, r7
-	add	lr, r1, #1
-	str	r6, [r0]
-	strd	r4, [sp]
+	beq	.L30
+	movs	r3, #0
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r3
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r1, #24, r3
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movs	r4, #1
+	mov	r2, r3
+	ldr	r7, .L31
+	mov	r6, r3
+	str	r1, [r0, #32]
+	str	r3, [ip, #304]
 .L3:
-	ldr	ip, [r0, #96]
-	mov	r2, ip
-	lsl	r4, ip, #21
-	asrs	r3, r2, #31
-	cmp	r4, #0
-	lsl	r3, r3, #21
-	orr	r5, r3, ip, lsr #11
-	sbcs	r3, r5, #0
-	blt	.L197
-.L4:
-	lsrs	r4, r4, #23
-	asrs	r3, r5, #23
-	orr	r2, r4, r5, lsl #9
-	cmp	r2, #16777216
-	sbcs	r4, r3, #0
-	bge	.L149
-	cmp	r2, #-16777216
-	mov	ip, r2
-	it	lt
-	movlt	ip, #-16777216
-.L5:
-	ldr	r2, [r0, #100]
-	ldr	r3, [r0, #4]
-	asr	r9, r2, #31
-	add	ip, ip, r3
-	lsls	r4, r2, #21
-	lsl	r3, r9, #21
-	cmp	r4, #0
-	ssat	ip, #25, ip
-	orr	r5, r3, r2, lsr #11
-	sbcs	r3, r5, #0
-	blt	.L198
-.L6:
-	lsrs	r4, r4, #23
-	asrs	r3, r5, #23
-	orr	r2, r4, r5, lsl #9
-	cmp	r2, #16777216
-	sbcs	r4, r3, #0
-	bge	.L150
-	cmp	r2, #-16777216
-	it	lt
-	movlt	r2, #-16777216
-.L7:
-	ldr	r3, .L276+12
-	add	ip, ip, r2
-	ldr	r3, [r0, r3]
-	ssat	r2, #25, ip
+	ldr	r3, [r0]
+	mov	lr, #2097152
+	ldr	r5, [r0, #92]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r1, r8, r5, lr
+	mov      r8, r8, asl #9
+	orr      r1, r8, r1, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
 	add	r1, r1, r3
-	ubfx	r4, r3, #0, #15
-	ubfx	r1, r1, #0, #15
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r3, #24, r1
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r5, [r0, #96]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r1, r8, r5, lr
+	mov      r8, r8, asl #9
+	orr      r1, r8, r1, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r1, r1, r3
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r1, #24, r1
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r3, [ip, #268]
+	movs	r5, #0
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    lr, ip, r1, r5
+	mov      ip, ip, asl #9
+	orr      lr, ip, lr, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ubfx	ip, r3, #0, #15
+	add	ip, r0, ip, lsl #2
+	str	r1, [ip, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r1, #24, lr
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r2, r2, r3
+	ubfx	r2, r2, #0, #15
+	add	r2, r0, r2, lsl #2
+	ldr	r2, [r2, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat ip, #24, r2
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    ip, lr, r2, r7
+	mov      lr, lr, asl #9
+	orr      ip, lr, ip, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r2, r1, ip
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r4, r4, r3
+	str	r2, [r0, #4]
+	ubfx	r4, r4, #0, #15
 	add	r4, r0, r4, lsl #2
-	add	r1, r0, r1, lsl #2
-	str	r2, [r4, #272]
-	ldr	r2, [sp, #4]
-	ldr	r4, [r1, #272]
-	ldr	r1, [sp]
-	asr	r9, r4, #31
-	mul	r2, r4, r2
-	umull	r4, r5, r4, r1
-	mla	r2, r1, r9, r2
+	ldr	r4, [r4, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r1, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r1, [r0, #8]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r1, r7, r4, r6
+	mov      r7, r7, asl #9
+	orr      r1, r7, r1, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r1, r1, r2
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r1, #24, r1
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movw	r4, #4101
+	add	r4, r4, r3
+	ubfx	r4, r4, #0, #15
+	add	r4, r0, r4, lsl #2
+	str	r1, [r4, #268]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r2, r4, r1, r5
+	mov      r4, r4, asl #9
+	orr      r2, r4, r2, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r2
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r6, #24, r6
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r4, .L31+4
+	ldr	r7, [r0, #80]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r2, ip, r7, r4
+	mov      ip, ip, asl #9
+	orr      r2, ip, r2, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r2, r2, r6
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r2, [r0, #28]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r4, r6, r2, r5
+	mov      r6, r6, asl #9
+	orr      r4, r6, r4, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	mov	r6, #8388608
+	ldr	r5, [r0, #76]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r2, r7, r5, r6
+	mov      r7, r7, asl #9
+	orr      r2, r7, r2, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r2, r2, r4
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	and	r4, r2, #15728640
+	lsls	r2, r2, #8
+	it	mi
+	orrmi	r4, r4, #-16777216
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	mov	r6, #8388608
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r2, r5, r4, r6
+	mov      r5, r5, asl #9
+	orr      r2, r5, r2, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	sub	r2, r2, #7864320
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	cmp	r2, #0
+	mov	r5, r2
+	bgt	.L5
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r4, r5, r2, r6
+	mov      r5, r5, asl #9
+	orr      r4, r5, r4, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r2, r4, #524288
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	cmp	r2, #0
+	mov	r4, r2
+	bgt	.L6
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r4, r5, r2, r6
+	mov      r5, r5, asl #9
+	orr      r4, r5, r4, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r2, r4, #524288
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	cmp	r2, #0
+	mov	r5, r2
+	bgt	.L7
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r4, r5, r2, r6
+	mov      r5, r5, asl #9
+	orr      r4, r5, r4, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r2, r4, #524288
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	cmp	r2, #0
+	mov	r5, r2
+	bgt	.L8
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r4, r5, r2, r6
+	mov      r5, r5, asl #9
+	orr      r4, r5, r4, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r2, r4, #524288
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	cmp	r2, #0
+	mov	r4, r2
+	bgt	.L9
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r4, r5, r2, r6
+	mov      r5, r5, asl #9
+	orr      r4, r5, r4, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r2, r4, #524288
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	cmp	r2, #0
+	mov	r4, r2
+	bgt	.L10
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r4, r5, r2, r6
+	mov      r5, r5, asl #9
+	orr      r4, r5, r4, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r2, r4, #524288
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	cmp	r2, #0
+	mov	r5, r2
+	bgt	.L11
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r4, r5, r2, r6
+	mov      r5, r5, asl #9
+	orr      r4, r5, r4, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r2, r4, #524288
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	cmp	r2, #0
+	mov	r5, r2
+	bgt	.L12
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r4, r5, r2, r6
+	mov      r5, r5, asl #9
+	orr      r4, r5, r4, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r2, r4, #524288
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	cmp	r2, #0
+	mov	r4, r2
+	bgt	.L13
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r4, r5, r2, r6
+	mov      r5, r5, asl #9
+	orr      r4, r5, r4, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r4, r4, #524288
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
 	cmp	r4, #0
-	add	r5, r5, r2
-	sbcs	r2, r5, #0
-	blt	.L199
-.L8:
-	lsrs	r2, r4, #23
-	add	lr, lr, r3
-	mvn	ip, #-16777216
-	orr	r2, r2, r5, lsl #9
-	ubfx	lr, lr, #0, #15
-	cmp	r2, #-16777216
-	add	lr, r0, lr, lsl #2
-	it	lt
-	movlt	r2, #-16777216
-	ldr	r1, [lr, #272]
-	cmp	r2, ip
-	umull	r4, r5, r1, r10
-	asr	r9, r1, #31
-	mul	lr, r1, fp
-	it	ge
-	movge	r2, ip
-	cmp	r1, #-16777216
-	mla	r10, r10, r9, lr
-	it	lt
-	movlt	r1, #-16777216
-	add	r5, r5, r10
-	cmp	r1, ip
-	it	ge
-	movge	r1, ip
+	bgt	.L14
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r2, r5, r4, r6
+	mov      r5, r5, asl #9
+	orr      r2, r5, r2, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r2, r2, #524288
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	cmp	r2, #0
+	mov	r4, r2
+	bgt	.L15
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r4, r5, r2, r6
+	mov      r5, r5, asl #9
+	orr      r4, r5, r4, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r2, r4, #524288
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	cmp	r2, #0
+	mov	r5, r2
+	bgt	.L16
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r4, r5, r2, r6
+	mov      r5, r5, asl #9
+	orr      r4, r5, r4, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r2, r4, #524288
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	cmp	r2, #0
+	mov	r5, r2
+	bgt	.L17
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r4, r5, r2, r6
+	mov      r5, r5, asl #9
+	orr      r4, r5, r4, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r4, r4, #524288
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
 	cmp	r4, #0
-	str	r1, [r0, #12]
-	sbcs	r1, r5, #0
-	blt	.L200
-.L9:
-	lsr	ip, r4, #23
-	mvn	lr, #-16777216
-	movw	r1, #4101
-	ldr	r4, [r0, #84]
-	orr	ip, ip, r5, lsl #9
-	ldr	r5, .L276+16
-	add	r1, r1, r3
-	cmp	ip, #-16777216
-	smull	r8, r9, r4, r5
-	ubfx	r1, r1, #0, #15
-	it	lt
-	movlt	ip, #-16777216
-	add	r1, r0, r1, lsl #2
-	cmp	ip, lr
-	ite	le
-	addle	r2, r2, ip
-	addgt	r2, r2, lr
-	cmp	r2, #-16777216
-	it	lt
-	movlt	r2, #-16777216
-	cmp	r2, lr
-	it	ge
-	movge	r2, lr
-	cmp	r8, #0
-	str	r2, [r1, #272]
-	sbcs	r1, r9, #0
-	blt	.L201
-.L10:
-	lsr	r1, r8, #23
-	asr	r5, r9, #23
-	orr	r4, r1, r9, lsl #9
-	cmp	r4, #16777216
-	sbcs	r1, r5, #0
-	bge	.L151
-	cmp	r4, #-16777216
-	it	lt
-	movlt	r4, #-16777216
-.L11:
-	ldr	r1, [r0, #80]
-	add	r7, r7, r4
-	mvn	r5, #-16777216
-	cmp	r1, #-16777216
-	it	lt
-	movlt	r1, #-16777216
-	cmp	r7, #-16777216
-	it	lt
-	movlt	r7, #-16777216
-	cmp	r1, r5
-	it	ge
-	movge	r1, r5
-	cmp	r7, r5
-	and	r4, r1, #15728640
-	it	ge
-	movge	r7, r5
-	sub	lr, r4, #7864320
-	str	r7, [r0, #32]
-	cmp	lr, #0
-	str	lr, [r0, #4]
-	ble	.L12
-	movw	r1, #18435
-	ldr	r4, .L276+20
-	adds	r6, r6, #38
-	add	r1, r1, r3
-	str	r6, [r0]
-	ubfx	r1, r1, #0, #15
-	add	r1, r0, r1, lsl #2
-	ldr	r1, [r1, #272]
-	smull	r4, r5, r1, r4
+	mov	r2, r4
+	bgt	.L18
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r2, r5, r4, r6
+	mov      r5, r5, asl #9
+	orr      r2, r5, r2, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r4, r2, #524288
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
 	cmp	r4, #0
-	sbcs	r1, r5, #0
-	blt	.L202
-.L13:
-	lsrs	r1, r4, #23
-	asrs	r7, r5, #23
-	orr	r6, r1, r5, lsl #9
-	cmp	r6, #16777216
-	sbcs	r1, r7, #0
-	blt	.L14
-	mvn	r1, #-16777216
-.L15:
-	add	r1, r1, lr
-	ssat	r4, #25, r1
-.L16:
-	movw	r1, #18124
-	add	r1, r1, r3
-	ubfx	r1, r1, #0, #15
-	add	r1, r0, r1, lsl #2
-	ldr	r1, [r1, #272]
-	asr	r9, r1, #31
-	lsls	r6, r1, #22
-	lsl	r5, r9, #22
-	cmp	r6, #0
-	orr	r7, r5, r1, lsr #10
-	sbcs	r1, r7, #0
-	blt	.L203
-.L31:
-	lsrs	r1, r6, #23
-	asr	r9, r7, #23
-	orr	r8, r1, r7, lsl #9
-	cmp	r8, #16777216
-	sbcs	r1, r9, #0
-	bge	.L152
-	cmp	r8, #-16777216
-	mov	r1, r8
-	it	lt
-	movlt	r1, #-16777216
-.L32:
-	add	r1, r1, r4
-	ssat	r7, #25, r1
-.L17:
-	movw	r1, #17609
-	ldr	r4, .L276+20
-	add	r1, r1, r3
-	ubfx	r1, r1, #0, #15
-	add	r1, r0, r1, lsl #2
-	ldr	r1, [r1, #272]
-	smull	r4, r5, r1, r4
+	mov	r2, r4
+	bgt	.L19
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r2, r5, r4, r6
+	mov      r5, r5, asl #9
+	orr      r2, r5, r2, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r4, r2, #524288
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
 	cmp	r4, #0
-	sbcs	r1, r5, #0
-	blt	.L204
+	mov	r2, r4
+	bgt	.L20
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r2, r5, r4, r6
+	mov      r5, r5, asl #9
+	orr      r2, r5, r2, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r4, r2, #524288
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	cmp	r4, #0
+	mov	r2, r4
+	bgt	.L21
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r2, r5, r4, r6
+	mov      r5, r5, asl #9
+	orr      r2, r5, r2, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r2, r2, #524288
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	cmp	r2, #0
+	mov	r5, r2
+	bgt	.L22
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r4, r5, r2, r6
+	mov      r5, r5, asl #9
+	orr      r4, r5, r4, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r4, r4, #524288
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	cmp	r4, #0
+	mov	r2, r4
+	str	r4, [r0]
+	bgt	.L23
+	b	.L32
 .L33:
-	lsrs	r1, r4, #23
-	asr	r9, r5, #23
-	orr	r8, r1, r5, lsl #9
-	cmp	r8, #16777216
-	sbcs	r1, r9, #0
-	bge	.L153
-	cmp	r8, #-16777216
-	mov	r1, r8
-	it	lt
-	movlt	r1, #-16777216
-.L34:
-	add	r1, r1, r7
-	ssat	r4, #25, r1
-.L18:
-	movw	r1, #17202
-	add	r1, r1, r3
-	ubfx	r1, r1, #0, #15
-	add	r1, r0, r1, lsl #2
-	ldr	r1, [r1, #272]
-	asr	r9, r1, #31
-	lsls	r6, r1, #22
-	lsl	r5, r9, #22
-	cmp	r6, #0
-	orr	r7, r5, r1, lsr #10
-	sbcs	r1, r7, #0
-	blt	.L205
-.L35:
-	lsrs	r1, r6, #23
-	asr	r9, r7, #23
-	orr	r8, r1, r7, lsl #9
-	cmp	r8, #16777216
-	sbcs	r1, r9, #0
-	bge	.L154
-	cmp	r8, #-16777216
-	mov	r1, r8
-	it	lt
-	movlt	r1, #-16777216
-.L36:
-	add	r1, r1, r4
-	ssat	r5, #25, r1
-.L19:
-	movw	r4, #16861
-	add	r4, r4, r3
-	ubfx	r4, r4, #0, #15
-	add	r4, r0, r4, lsl #2
-	ldr	r1, [r4, #272]
-	asr	r9, r1, #31
-	lsls	r6, r1, #22
-	lsl	r4, r9, #22
-	cmp	r6, #0
-	orr	r7, r4, r1, lsr #10
-	sbcs	r1, r7, #0
-	blt	.L206
-.L37:
-	lsrs	r1, r6, #23
-	asr	r9, r7, #23
-	orr	r8, r1, r7, lsl #9
-	cmp	r8, #16777216
-	sbcs	r1, r9, #0
-	bge	.L155
-	cmp	r8, #-16777216
-	mov	r1, r8
-	it	lt
-	movlt	r1, #-16777216
-.L38:
-	add	r1, r1, r5
-	ssat	r7, #25, r1
-.L20:
-	movw	r4, #16221
-	ldr	r1, .L276+20
-	add	r4, r4, r3
-	ubfx	r4, r4, #0, #15
-	add	r4, r0, r4, lsl #2
-	ldr	r4, [r4, #272]
-	smull	r4, r5, r4, r1
-	cmp	r4, #0
-	sbcs	r1, r5, #0
-	blt	.L207
-	b	.L277
-.L278:
 	.align	2
-.L276:
-	.word	131404
-	.word	131380
+.L31:
 	.word	4194303
-	.word	131344
 	.word	-4194304
-	.word	3350528
-.L277:
-.L39:
-	lsrs	r1, r4, #23
-	asr	r9, r5, #23
-	orr	r8, r1, r5, lsl #9
-	cmp	r8, #16777216
-	sbcs	r1, r9, #0
-	bge	.L156
-	cmp	r8, #-16777216
-	mov	r1, r8
-	it	lt
-	movlt	r1, #-16777216
-.L40:
-	add	r1, r1, r7
-	ssat	r1, #25, r1
-.L21:
-	movw	r4, #15866
+.L32:
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r5, r2, r4, r6
+	mov      r2, r2, asl #9
+	orr      r5, r2, r5, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r4, [r0, #4]
+	add	r5, r5, #524288
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r5
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	cmp	r5, #0
+	str	r5, [r0]
+	bgt	.L24
+.L5:
+	movw	r2, #18435
+	add	r2, r2, r3
+	ubfx	r2, r2, #0, #15
+	add	r2, r0, r2, lsl #2
+	ldr	r2, [r2, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r6, .L34
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r4, r7, r2, r6
+	mov      r7, r7, asl #9
+	orr      r4, r7, r4, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r5, r5, r4
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r5
+@ 0 "" 2
+	.thumb
+	.syntax unified
+.L6:
+	movw	r2, #18124
+	add	r2, r2, r3
+	ubfx	r2, r2, #0, #15
+	add	r2, r0, r2, lsl #2
+	ldr	r2, [r2, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	mov	r6, #4194304
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r5, r7, r2, r6
+	mov      r7, r7, asl #9
+	orr      r5, r7, r5, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r5, r5, r4
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r5
+@ 0 "" 2
+	.thumb
+	.syntax unified
+.L7:
+	movw	r2, #17609
+	add	r2, r2, r3
+	ubfx	r2, r2, #0, #15
+	add	r2, r0, r2, lsl #2
+	ldr	r2, [r2, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r6, .L34
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r4, r7, r2, r6
+	mov      r7, r7, asl #9
+	orr      r4, r7, r4, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r4, r4, r5
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
+.L8:
+	movw	r2, #17202
+	add	r2, r2, r3
+	ubfx	r2, r2, #0, #15
+	add	r2, r0, r2, lsl #2
+	ldr	r2, [r2, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	mov	r6, #4194304
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r4, r7, r2, r6
+	mov      r7, r7, asl #9
+	orr      r4, r7, r4, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r4, r4, r5
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
+.L9:
+	movw	r2, #16861
+	add	r2, r2, r3
+	ubfx	r2, r2, #0, #15
+	add	r2, r0, r2, lsl #2
+	ldr	r2, [r2, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	mov	r6, #4194304
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r5, r7, r2, r6
+	mov      r7, r7, asl #9
+	orr      r5, r7, r5, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r5, r5, r4
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r5
+@ 0 "" 2
+	.thumb
+	.syntax unified
+.L10:
+	movw	r2, #16221
+	add	r2, r2, r3
+	ubfx	r2, r2, #0, #15
+	add	r2, r0, r2, lsl #2
+	ldr	r2, [r2, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r6, .L34
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r5, r7, r2, r6
+	mov      r7, r7, asl #9
+	orr      r5, r7, r5, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r5, r5, r4
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r5
+@ 0 "" 2
+	.thumb
+	.syntax unified
+.L11:
+	movw	r2, #15866
+	add	r2, r2, r3
+	ubfx	r2, r2, #0, #15
+	add	r2, r0, r2, lsl #2
+	ldr	r2, [r2, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	mov	r6, #4194304
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r4, r7, r2, r6
+	mov      r7, r7, asl #9
+	orr      r4, r7, r4, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r4, r4, r5
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
+.L12:
+	movw	r2, #15413
+	add	r2, r2, r3
+	ubfx	r2, r2, #0, #15
+	add	r2, r0, r2, lsl #2
+	ldr	r2, [r2, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	mov	r6, #4194304
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r4, r7, r2, r6
+	mov      r7, r7, asl #9
+	orr      r4, r7, r4, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r4, r4, r5
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
+.L13:
+	movw	r2, #14851
+	add	r2, r2, r3
+	ubfx	r2, r2, #0, #15
+	add	r2, r0, r2, lsl #2
+	ldr	r5, [r2, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r5
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	mov	r6, #4194304
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r2, r7, r5, r6
+	mov      r7, r7, asl #9
+	orr      r2, r7, r2, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r4, r4, r2
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
+.L14:
+	movw	r2, #14313
+	add	r2, r2, r3
+	ubfx	r2, r2, #0, #15
+	add	r2, r0, r2, lsl #2
+	ldr	r2, [r2, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	mov	r6, #4194304
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r5, r7, r2, r6
+	mov      r7, r7, asl #9
+	orr      r5, r7, r5, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r4, r4, r5
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
+.L15:
+	movw	r2, #13806
+	add	r2, r2, r3
+	ubfx	r2, r2, #0, #15
+	add	r2, r0, r2, lsl #2
+	ldr	r2, [r2, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	mov	r6, #4194304
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r5, r7, r2, r6
+	mov      r7, r7, asl #9
+	orr      r5, r7, r5, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r5, r5, r4
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r5
+@ 0 "" 2
+	.thumb
+	.syntax unified
+.L16:
+	movw	r4, #13468
 	add	r4, r4, r3
 	ubfx	r4, r4, #0, #15
 	add	r4, r0, r4, lsl #2
-	ldr	lr, [r4, #272]
-	mov	r6, lr
-	lsl	r4, lr, #22
-	asrs	r7, r6, #31
-	cmp	r4, #0
-	lsl	r6, r7, #22
-	orr	r5, r6, lr, lsr #10
-	sbcs	r6, r5, #0
-	blt	.L208
-.L41:
-	lsrs	r4, r4, #23
-	asrs	r7, r5, #23
-	orr	r6, r4, r5, lsl #9
-	cmp	r6, #16777216
-	sbcs	r4, r7, #0
-	bge	.L157
-	cmp	r6, #-16777216
-	mov	r5, r6
-	it	lt
-	movlt	r5, #-16777216
-.L42:
-	add	r5, r5, r1
-	ssat	r1, #25, r5
-.L22:
-	movw	r6, #15413
-	add	r6, r6, r3
-	ubfx	r6, r6, #0, #15
-	add	r6, r0, r6, lsl #2
-	ldr	lr, [r6, #272]
-	mov	r4, lr
-	lsl	r6, lr, #22
-	asrs	r5, r4, #31
-	cmp	r6, #0
-	lsl	r4, r5, #22
-	orr	r7, r4, lr, lsr #10
-	sbcs	r4, r7, #0
-	blt	.L209
-.L43:
-	lsrs	r6, r6, #23
-	asrs	r5, r7, #23
-	orr	r4, r6, r7, lsl #9
-	cmp	r4, #16777216
-	sbcs	r6, r5, #0
-	bge	.L158
-	cmp	r4, #-16777216
-	mov	r5, r4
-	it	lt
-	movlt	r5, #-16777216
-.L44:
-	add	r5, r5, r1
-	ssat	r5, #25, r5
-.L23:
-	movw	r1, #14851
-	add	r1, r1, r3
-	ubfx	r1, r1, #0, #15
-	add	r1, r0, r1, lsl #2
-	ldr	r1, [r1, #272]
-	asr	r9, r1, #31
-	lsls	r6, r1, #22
-	lsl	r4, r9, #22
-	cmp	r6, #0
-	orr	r7, r4, r1, lsr #10
-	sbcs	r1, r7, #0
-	blt	.L210
-.L45:
-	lsrs	r1, r6, #23
-	asr	r9, r7, #23
-	orr	r8, r1, r7, lsl #9
-	cmp	r8, #16777216
-	sbcs	r1, r9, #0
-	bge	.L159
-	cmp	r8, #-16777216
-	mov	r4, r8
-	it	lt
-	movlt	r4, #-16777216
-.L46:
-	add	r4, r4, r5
-	ssat	r4, #25, r4
-.L24:
-	movw	r1, #14313
-	add	r1, r1, r3
-	ubfx	r1, r1, #0, #15
-	add	r1, r0, r1, lsl #2
-	ldr	r1, [r1, #272]
-	asr	r9, r1, #31
-	lsls	r6, r1, #22
-	lsl	r5, r9, #22
-	cmp	r6, #0
-	orr	r7, r5, r1, lsr #10
-	sbcs	r1, r7, #0
-	blt	.L211
-.L47:
-	lsrs	r1, r6, #23
-	asr	r9, r7, #23
-	orr	r8, r1, r7, lsl #9
-	cmp	r8, #16777216
-	sbcs	r1, r9, #0
-	bge	.L160
-	cmp	r8, #-16777216
-	mov	r1, r8
-	it	lt
-	movlt	r1, #-16777216
-.L48:
-	add	r1, r1, r4
-	ssat	r1, #25, r1
-.L25:
-	movw	r4, #13806
+	ldr	r4, [r4, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	mov	r6, #4194304
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r2, r7, r4, r6
+	mov      r7, r7, asl #9
+	orr      r2, r7, r2, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r2, r2, r5
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+.L17:
+	movw	r4, #13006
 	add	r4, r4, r3
 	ubfx	r4, r4, #0, #15
 	add	r4, r0, r4, lsl #2
-	ldr	lr, [r4, #272]
-	mov	r4, lr
-	lsl	r6, lr, #22
-	asrs	r5, r4, #31
-	cmp	r6, #0
-	lsl	r4, r5, #22
-	orr	r7, r4, lr, lsr #10
-	sbcs	r4, r7, #0
-	blt	.L212
-.L49:
-	lsrs	r6, r6, #23
-	asrs	r5, r7, #23
-	orr	r4, r6, r7, lsl #9
-	cmp	r4, #16777216
-	sbcs	r6, r5, #0
-	bge	.L161
-	cmp	r4, #-16777216
-	mov	r5, r4
-	it	lt
-	movlt	r5, #-16777216
-.L50:
-	add	r5, r5, r1
-	ssat	r5, #25, r5
-.L26:
-	movw	r1, #13468
-	add	r1, r1, r3
-	ubfx	r1, r1, #0, #15
-	add	r1, r0, r1, lsl #2
-	ldr	r1, [r1, #272]
-	asr	r9, r1, #31
-	lsls	r6, r1, #22
-	lsl	r4, r9, #22
-	cmp	r6, #0
-	orr	r7, r4, r1, lsr #10
-	sbcs	r1, r7, #0
-	blt	.L213
-.L51:
-	lsrs	r1, r6, #23
-	asr	r9, r7, #23
-	orr	r8, r1, r7, lsl #9
-	cmp	r8, #16777216
-	sbcs	r1, r9, #0
-	bge	.L162
-	cmp	r8, #-16777216
-	mov	r4, r8
-	it	lt
-	movlt	r4, #-16777216
-.L52:
-	add	r4, r4, r5
-	ssat	r4, #25, r4
-.L27:
-	movw	r1, #13006
-	ldr	r5, .L279
-	add	r1, r1, r3
-	ubfx	r1, r1, #0, #15
-	add	r1, r0, r1, lsl #2
-	ldr	r6, [r1, #272]
-	smull	r6, r7, r6, r5
-	cmp	r6, #0
-	sbcs	r1, r7, #0
-	blt	.L214
-.L53:
-	lsrs	r1, r6, #23
-	asr	r9, r7, #23
-	orr	r8, r1, r7, lsl #9
-	cmp	r8, #16777216
-	sbcs	r1, r9, #0
-	bge	.L163
-	cmp	r8, #-16777216
-	mov	r1, r8
-	it	lt
-	movlt	r1, #-16777216
-.L54:
-	add	r1, r1, r4
-	ssat	r1, #25, r1
-.L28:
+	ldr	r4, [r4, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r6, .L34
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r2, r7, r4, r6
+	mov      r7, r7, asl #9
+	orr      r2, r7, r2, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r2, r2, r5
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+.L18:
 	movw	r4, #12676
 	add	r4, r4, r3
 	ubfx	r4, r4, #0, #15
 	add	r4, r0, r4, lsl #2
-	ldr	lr, [r4, #272]
-	mov	r4, lr
-	lsl	r6, lr, #22
-	asrs	r5, r4, #31
-	cmp	r6, #0
-	lsl	r4, r5, #22
-	orr	r7, r4, lr, lsr #10
-	sbcs	r4, r7, #0
-	blt	.L215
-.L55:
-	lsrs	r6, r6, #23
-	asrs	r5, r7, #23
-	orr	r4, r6, r7, lsl #9
-	cmp	r4, #16777216
-	sbcs	r6, r5, #0
-	bge	.L164
-	cmp	r4, #-16777216
-	mov	r5, r4
-	it	lt
-	movlt	r5, #-16777216
-.L56:
-	add	r5, r5, r1
-	ssat	r5, #25, r5
-.L29:
-	movw	r1, #12316
-	add	r1, r1, r3
-	ubfx	r1, r1, #0, #15
-	add	r1, r0, r1, lsl #2
-	ldr	r1, [r1, #272]
-	asr	r9, r1, #31
-	lsls	r6, r1, #22
-	lsl	r4, r9, #22
-	cmp	r6, #0
-	orr	r7, r4, r1, lsr #10
-	sbcs	r1, r7, #0
-	blt	.L216
-.L57:
-	lsrs	r1, r6, #23
-	asr	r9, r7, #23
-	orr	r8, r1, r7, lsl #9
-	cmp	r8, #16777216
-	sbcs	r1, r9, #0
-	bge	.L165
-	cmp	r8, #-16777216
-	mov	r4, r8
-	it	lt
-	movlt	r4, #-16777216
-.L58:
-	add	r4, r4, r5
-	ssat	r4, #25, r4
-.L30:
-	movw	r1, #11513
-	ldr	r5, .L279
-	add	r1, r1, r3
-	ubfx	r1, r1, #0, #15
-	add	r1, r0, r1, lsl #2
-	ldr	r6, [r1, #272]
-	smull	r6, r7, r6, r5
-	cmp	r6, #0
-	sbcs	r1, r7, #0
-	blt	.L217
-.L59:
-	lsrs	r1, r6, #23
-	asr	r9, r7, #23
-	orr	r8, r1, r7, lsl #9
-	cmp	r8, #16777216
-	sbcs	r1, r9, #0
-	bge	.L166
-	cmp	r8, #-16777216
-	mov	r1, r8
-	it	lt
-	movlt	r1, #-16777216
-.L60:
-	add	r1, r1, r4
-	ssat	r1, #25, r1
-.L61:
+	ldr	r4, [r4, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	mov	r5, #4194304
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r6, r7, r4, r5
+	mov      r7, r7, asl #9
+	orr      r6, r7, r6, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r2, r2, r6
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+.L19:
+	movw	r4, #12316
+	add	r4, r4, r3
+	ubfx	r4, r4, #0, #15
+	add	r4, r0, r4, lsl #2
+	ldr	r4, [r4, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	mov	r5, #4194304
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r6, r7, r4, r5
+	mov      r7, r7, asl #9
+	orr      r6, r7, r6, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r2, r2, r6
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+.L20:
+	movw	r4, #11513
+	add	r4, r4, r3
+	ubfx	r4, r4, #0, #15
+	add	r4, r0, r4, lsl #2
+	ldr	r4, [r4, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r5, .L34
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r6, r7, r4, r5
+	mov      r7, r7, asl #9
+	orr      r6, r7, r6, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r2, r2, r6
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+.L21:
 	movw	r4, #11245
 	add	r4, r4, r3
 	ubfx	r4, r4, #0, #15
 	add	r4, r0, r4, lsl #2
-	ldr	lr, [r4, #272]
-	mov	r6, lr
-	lsl	r4, lr, #22
-	asrs	r7, r6, #31
-	cmp	r4, #0
-	lsl	r6, r7, #22
-	orr	r5, r6, lr, lsr #10
-	sbcs	r6, r5, #0
-	blt	.L218
-.L62:
-	lsrs	r4, r4, #23
-	asrs	r7, r5, #23
-	orr	r6, r4, r5, lsl #9
-	cmp	r6, #16777216
-	sbcs	r4, r7, #0
-	bge	.L167
-	cmp	r6, #-16777216
-	mov	r5, r6
-	it	lt
-	movlt	r5, #-16777216
-.L63:
+	ldr	r4, [r4, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	mov	r6, #4194304
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r5, r7, r4, r6
+	mov      r7, r7, asl #9
+	orr      r5, r7, r5, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r2, r2, r5
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+.L22:
 	movw	r4, #10614
-	adds	r6, r5, r1
 	add	r4, r4, r3
-	ssat	r6, #25, r6
 	ubfx	r4, r4, #0, #15
 	add	r4, r0, r4, lsl #2
-	ldr	r1, [r4, #272]
-	asr	r9, r1, #31
-	lsls	r4, r1, #22
-	lsl	r7, r9, #22
-	cmp	r4, #0
-	orr	r5, r7, r1, lsr #10
-	sbcs	r1, r5, #0
-	blt	.L219
-.L64:
-	lsrs	r1, r4, #23
-	asr	r9, r5, #23
-	orr	r8, r1, r5, lsl #9
-	cmp	r8, #16777216
-	sbcs	r1, r9, #0
-	bge	.L168
-	cmp	r8, #-16777216
-	mov	r5, r8
-	it	lt
-	movlt	r5, #-16777216
-.L65:
+	ldr	r4, [r4, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	mov	r6, #4194304
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r2, r7, r4, r6
+	mov      r7, r7, asl #9
+	orr      r2, r7, r2, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r2, r2, r5
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+.L23:
 	movw	r4, #9923
-	add	r6, r6, r5
 	add	r4, r4, r3
-	ssat	r6, #25, r6
 	ubfx	r4, r4, #0, #15
 	add	r4, r0, r4, lsl #2
-	ldr	r1, [r4, #272]
-	asr	r9, r1, #31
-	lsls	r4, r1, #22
-	lsl	r7, r9, #22
-	cmp	r4, #0
-	orr	r5, r7, r1, lsr #10
-	sbcs	r1, r5, #0
-	blt	.L220
-.L66:
-	lsrs	r1, r4, #23
-	asr	r9, r5, #23
-	orr	r8, r1, r5, lsl #9
-	cmp	r8, #16777216
-	sbcs	r1, r9, #0
-	bge	.L169
-	cmp	r8, #-16777216
-	mov	r5, r8
-	it	lt
-	movlt	r5, #-16777216
-.L67:
-	movw	r4, #9421
-	add	r6, r6, r5
-	add	r4, r4, r3
-	ssat	r6, #25, r6
-	ubfx	r4, r4, #0, #15
-	add	r4, r0, r4, lsl #2
-	ldr	r1, [r4, #272]
-	asr	r9, r1, #31
-	lsls	r4, r1, #22
-	lsl	r7, r9, #22
-	cmp	r4, #0
-	orr	r5, r7, r1, lsr #10
-	sbcs	r1, r5, #0
-	blt	.L221
-.L68:
-	lsrs	r1, r4, #23
-	asr	r9, r5, #23
-	orr	r8, r1, r5, lsl #9
-	cmp	r8, #16777216
-	sbcs	r1, r9, #0
-	bge	.L170
-	cmp	r8, #-16777216
-	mov	r5, r8
-	it	lt
-	movlt	r5, #-16777216
-.L69:
-	movw	r4, #9239
-	add	r6, r6, r5
-	add	r4, r4, r3
-	ssat	r6, #25, r6
-	ubfx	r4, r4, #0, #15
-	add	r4, r0, r4, lsl #2
-	ldr	r1, [r4, #272]
-	asrs	r5, r1, #31
-	lsl	r8, r1, #22
-	lsls	r4, r5, #22
-	cmp	r8, #0
-	orr	r9, r4, r1, lsr #10
-	sbcs	r1, r9, #0
-	blt	.L222
-.L70:
-	lsr	r1, r8, #23
-	asr	r5, r9, #23
-	orr	r4, r1, r9, lsl #9
-	cmp	r4, #16777216
-	sbcs	r1, r5, #0
-	bge	.L171
-	cmp	r4, #-16777216
-	mov	r5, r4
-	it	lt
-	movlt	r5, #-16777216
-.L71:
-	movw	r4, #8677
-	add	r6, r6, r5
-	add	r4, r4, r3
-	ssat	r6, #25, r6
-	ubfx	r4, r4, #0, #15
-	add	r4, r0, r4, lsl #2
-	ldr	r1, [r4, #272]
-	asrs	r5, r1, #31
-	lsl	r8, r1, #22
-	lsls	r4, r5, #22
-	cmp	r8, #0
-	orr	r9, r4, r1, lsr #10
-	sbcs	r1, r9, #0
-	blt	.L223
-.L72:
-	lsr	r1, r8, #23
-	asr	r5, r9, #23
-	orr	r4, r1, r9, lsl #9
-	cmp	r4, #16777216
-	sbcs	r1, r5, #0
-	bge	.L172
-	cmp	r4, #-16777216
-	mov	r5, r4
-	it	lt
-	movlt	r5, #-16777216
-.L73:
-	movw	r1, #8008
-	ldr	r4, .L279
-	add	r6, r6, r5
-	add	r1, r1, r3
-	ssat	r6, #25, r6
-	ubfx	r1, r1, #0, #15
-	add	r1, r0, r1, lsl #2
-	ldr	r1, [r1, #272]
-	smull	r4, r5, r1, r4
-	cmp	r4, #0
-	sbcs	r1, r5, #0
-	blt	.L224
-.L74:
-	lsrs	r1, r4, #23
-	asr	r9, r5, #23
-	orr	r8, r1, r5, lsl #9
-	cmp	r8, #16777216
-	sbcs	r1, r9, #0
-	bge	.L173
-	cmp	r8, #-16777216
-	mov	r4, r8
-	it	lt
-	movlt	r4, #-16777216
-.L75:
-	movw	r1, #7521
-	adds	r5, r4, r6
-	add	r1, r1, r3
-	ssat	r5, #25, r5
-	ubfx	r1, r1, #0, #15
-	add	r1, r0, r1, lsl #2
-	ldr	r1, [r1, #272]
-	asr	r9, r1, #31
-	lsls	r6, r1, #22
-	lsl	r4, r9, #22
-	cmp	r6, #0
-	orr	r7, r4, r1, lsr #10
-	sbcs	r1, r7, #0
-	blt	.L225
-.L76:
-	lsrs	r1, r6, #23
-	asr	r9, r7, #23
-	orr	r8, r1, r7, lsl #9
-	cmp	r8, #16777216
-	sbcs	r1, r9, #0
-	bge	.L174
-	cmp	r8, #-16777216
-	mov	r4, r8
-	it	lt
-	movlt	r4, #-16777216
-.L77:
-	movw	r1, #7075
-	add	r5, r5, r4
-	add	r1, r1, r3
-	ssat	r5, #25, r5
-	ubfx	r1, r1, #0, #15
-	add	r1, r0, r1, lsl #2
-	ldr	r1, [r1, #272]
-	asr	r9, r1, #31
-	lsls	r6, r1, #22
-	lsl	r4, r9, #22
-	cmp	r6, #0
-	orr	r7, r4, r1, lsr #10
-	sbcs	r1, r7, #0
-	blt	.L226
-	b	.L280
-.L281:
+	ldr	r4, [r4, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	mov	r6, #4194304
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r5, r7, r4, r6
+	mov      r7, r7, asl #9
+	orr      r5, r7, r5, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r5, r5, r2
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r5
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	b	.L35
+.L36:
 	.align	2
-.L279:
+.L34:
 	.word	3350528
-.L280:
-.L78:
-	lsrs	r1, r6, #23
-	asr	r9, r7, #23
-	orr	r8, r1, r7, lsl #9
-	cmp	r8, #16777216
-	sbcs	r1, r9, #0
-	bge	.L175
-	cmp	r8, #-16777216
-	mov	r4, r8
-	it	lt
-	movlt	r4, #-16777216
-.L79:
-	movw	r1, #6631
-	add	r5, r5, r4
-	add	r1, r1, r3
-	ssat	r5, #25, r5
-	ubfx	r1, r1, #0, #15
-	add	r1, r0, r1, lsl #2
-	ldr	r1, [r1, #272]
-	asr	r9, r1, #31
-	lsls	r6, r1, #22
-	lsl	r4, r9, #22
-	cmp	r6, #0
-	orr	r7, r4, r1, lsr #10
-	sbcs	r1, r7, #0
-	blt	.L227
-.L80:
-	lsrs	r1, r6, #23
-	asr	r9, r7, #23
-	orr	r8, r1, r7, lsl #9
-	cmp	r8, #16777216
-	sbcs	r1, r9, #0
-	bge	.L176
-	cmp	r8, #-16777216
-	mov	r1, r8
-	it	lt
-	movlt	r1, #-16777216
-.L81:
-	movw	r4, #6211
-	add	r5, r5, r1
-	add	r4, r4, r3
-	ssat	r5, #25, r5
-	ubfx	r4, r4, #0, #15
-	add	r4, r0, r4, lsl #2
-	ldr	r1, [r4, #272]
-	asr	r9, r1, #31
-	lsls	r6, r1, #22
-	lsl	r4, r9, #22
-	cmp	r6, #0
-	orr	r7, r4, r1, lsr #10
-	sbcs	r1, r7, #0
-	blt	.L228
-.L82:
-	lsrs	r1, r6, #23
-	asr	r9, r7, #23
-	orr	r8, r1, r7, lsl #9
-	cmp	r8, #16777216
-	sbcs	r1, r9, #0
-	bge	.L177
-	cmp	r8, #-16777216
-	mov	r1, r8
-	it	lt
-	movlt	r1, #-16777216
-.L83:
-	movw	r4, #5441
-	add	r5, r5, r1
-	add	r4, r4, r3
-	ssat	r5, #25, r5
-	ubfx	r4, r4, #0, #15
-	add	r4, r0, r4, lsl #2
-	ldr	r1, [r4, #272]
-	asr	r9, r1, #31
-	lsls	r6, r1, #22
-	lsl	r4, r9, #22
-	cmp	r6, #0
-	orr	r7, r4, r1, lsr #10
-	sbcs	r1, r7, #0
-	blt	.L229
-.L84:
-	lsrs	r1, r6, #23
-	asr	r9, r7, #23
-	orr	r8, r1, r7, lsl #9
-	cmp	r8, #16777216
-	sbcs	r1, r9, #0
-	bge	.L178
-	cmp	r8, #-16777216
-	mov	r1, r8
-	it	lt
-	movlt	r1, #-16777216
-.L85:
-	add	r4, r3, #5024
-	add	r5, r5, r1
-	ubfx	r4, r4, #0, #15
-	ssat	r5, #25, r5
-	add	r4, r0, r4, lsl #2
-	ldr	r1, [r4, #272]
-	asr	r9, r1, #31
-	lsls	r6, r1, #22
-	lsl	r4, r9, #22
-	cmp	r6, #0
-	orr	r7, r4, r1, lsr #10
-	sbcs	r1, r7, #0
-	blt	.L230
-.L86:
-	lsrs	r1, r6, #23
-	asr	r9, r7, #23
-	orr	r8, r1, r7, lsl #9
-	cmp	r8, #16777216
-	sbcs	r1, r9, #0
-	bge	.L179
-	cmp	r8, #-16777216
-	mov	r1, r8
-	it	lt
-	movlt	r1, #-16777216
-.L87:
-	movw	r4, #4601
-	add	r5, r5, r1
-	add	r4, r4, r3
-	ssat	r5, #25, r5
-	ubfx	r4, r4, #0, #15
-	add	r4, r0, r4, lsl #2
-	ldr	r1, [r4, #272]
-	asrs	r7, r1, #31
-	lsl	r8, r1, #22
-	lsls	r4, r7, #22
-	cmp	r8, #0
-	orr	r9, r4, r1, lsr #10
-	sbcs	r1, r9, #0
-	blt	.L231
-.L88:
-	lsr	r1, r8, #23
-	asr	r7, r9, #23
-	orr	r6, r1, r9, lsl #9
-	cmp	r6, #16777216
-	sbcs	r1, r7, #0
-	bge	.L180
-	cmp	r6, #-16777216
-	mov	r1, r6
-	it	lt
-	movlt	r1, #-16777216
-.L89:
-	ldr	r4, .L282
-	add	r1, r1, r5
-	smull	r6, r7, r2, r4
-	ssat	r1, #25, r1
-	cmp	r6, #0
-	sbcs	r2, r7, #0
-	blt	.L232
-.L90:
-	lsrs	r5, r6, #23
-	movw	r4, #19336
-	mvn	lr, #-16777216
-	ldr	r6, .L282
-	orr	r5, r5, r7, lsl #9
-	add	r4, r4, r3
-	cmp	r5, #-16777216
-	ite	ge
-	addge	r2, r1, r5
-	addlt	r2, r1, #-16777216
-	ubfx	r4, r4, #0, #15
-	cmp	r2, #-16777216
-	add	r4, r0, r4, lsl #2
-	it	lt
-	movlt	r2, #-16777216
-	ldr	r1, [r4, #272]
-	cmp	r2, lr
-	mov	r4, r1
-	smull	r6, r7, r1, r6
-	it	ge
-	movge	r2, lr
-	cmp	r1, #-16777216
-	it	lt
-	movlt	r4, #-16777216
-	str	r2, [r0, #148]
-	cmp	r4, lr
-	it	ge
-	movge	r4, lr
-	cmp	r6, #0
-	sbcs	r1, r7, #0
-	blt	.L233
-.L91:
-	lsrs	r1, r6, #23
-	asr	r9, r7, #23
-	orr	r8, r1, r7, lsl #9
-	cmp	r8, #16777216
-	sbcs	r1, r9, #0
-	bge	.L181
-	cmp	r8, #-16777216
-	mov	r1, r8
-	it	lt
-	movlt	r1, #-16777216
-.L92:
-	movw	r5, #19102
-	add	r1, r1, r2
-	ldr	r6, .L282+4
-	ssat	r1, #25, r1
-	add	r5, r5, r3
-	smull	r6, r7, r1, r6
-	ubfx	r5, r5, #0, #15
-	cmp	r6, #0
-	add	r5, r0, r5, lsl #2
-	str	r1, [r5, #272]
-	sbcs	r1, r7, #0
-	blt	.L234
-.L93:
-	lsrs	r5, r6, #23
-	movw	r1, #19783
-	mvn	r6, #-16777216
-	ldr	r8, .L282
-	orr	r5, r5, r7, lsl #9
-	add	r1, r1, r3
-	adds	r7, r4, r5
-	ubfx	r1, r1, #0, #15
-	cmp	r7, #-16777216
-	add	r1, r0, r1, lsl #2
-	it	lt
-	movlt	r7, #-16777216
-	ldr	r4, [r1, #272]
-	cmp	r7, r6
-	mov	r1, r4
-	smull	r8, r9, r4, r8
-	it	ge
-	movge	r7, r6
-	cmp	r4, #-16777216
-	it	lt
-	movlt	r1, #-16777216
-	cmp	r1, r6
-	it	ge
-	movge	r1, r6
-	cmp	r8, #0
-	sbcs	r4, r9, #0
-	blt	.L235
-.L94:
-	lsr	r6, r8, #23
-	asr	r5, r9, #23
-	orr	r4, r6, r9, lsl #9
-	cmp	r4, #16777216
-	sbcs	r6, r5, #0
-	bge	.L182
-	cmp	r4, #-16777216
-	it	lt
-	movlt	r4, #-16777216
-.L95:
-	movw	r5, #19337
-	add	r4, r4, r7
-	ldr	r6, .L282+4
-	ssat	r4, #25, r4
-	add	r5, r5, r3
-	smull	r10, fp, r4, r6
-	ubfx	r5, r5, #0, #15
-	cmp	r10, #0
-	add	r5, r0, r5, lsl #2
-	str	r4, [r5, #272]
-	sbcs	r4, fp, #0
-	blt	.L236
-.L96:
-	lsr	r6, r10, #23
-	movw	r4, #20336
-	mvn	r5, #-16777216
-	ldr	r8, .L282
-	orr	r6, r6, fp, lsl #9
-	add	r4, r4, r3
-	add	r6, r6, r1
-	ubfx	r4, r4, #0, #15
-	cmp	r6, #-16777216
-	add	r4, r0, r4, lsl #2
-	it	lt
-	movlt	r6, #-16777216
-	ldr	r1, [r4, #272]
-	cmp	r6, r5
-	mov	r7, r1
-	smull	r8, r9, r1, r8
-	it	ge
-	movge	r6, r5
-	cmp	r1, #-16777216
-	it	lt
-	movlt	r7, #-16777216
-	cmp	r7, r5
-	it	ge
-	movge	r7, r5
-	cmp	r8, #0
-	sbcs	r1, r9, #0
-	blt	.L237
-.L97:
-	lsr	r1, r8, #23
-	asr	r5, r9, #23
-	orr	r4, r1, r9, lsl #9
-	cmp	r4, #16777216
-	sbcs	r1, r5, #0
-	bge	.L183
-	cmp	r4, #-16777216
-	mov	r1, r4
-	it	lt
-	movlt	r1, #-16777216
-.L98:
-	add	r1, r1, r6
-	movw	r5, #19784
-	ldr	r4, .L282+4
-	ssat	r1, #25, r1
-	add	r5, r5, r3
-	ubfx	r6, r5, #0, #15
-	smull	r4, r5, r1, r4
-	add	r6, r0, r6, lsl #2
-	cmp	r4, #0
-	str	r1, [r6, #272]
-	sbcs	r1, r5, #0
-	blt	.L238
-.L99:
-	lsrs	r1, r4, #23
-	movw	lr, #20538
-	mvn	r4, #-16777216
-	ldr	r6, .L282
-	orr	r1, r1, r5, lsl #9
-	add	lr, lr, r3
-	add	r1, r1, r7
-	ubfx	lr, lr, #0, #15
-	cmp	r1, #-16777216
-	add	lr, r0, lr, lsl #2
-	it	lt
-	movlt	r1, #-16777216
-	ldr	r5, [lr, #272]
-	cmp	r1, r4
-	mov	lr, r5
-	smull	r6, r7, r5, r6
-	it	ge
-	movge	r1, r4
-	cmp	r5, #-16777216
-	it	lt
-	movlt	lr, #-16777216
-	str	r1, [r0, #104]
-	cmp	lr, r4
-	it	ge
-	movge	lr, r4
-	cmp	r6, #0
-	sbcs	r1, r7, #0
-	blt	.L239
-.L100:
-	lsrs	r1, r6, #23
-	asrs	r5, r7, #23
-	orr	r4, r1, r7, lsl #9
-	cmp	r4, #16777216
-	sbcs	r1, r5, #0
-	bge	.L184
-	cmp	r4, #-16777216
-	it	lt
-	movlt	r4, #-16777216
-.L101:
-	add	r2, r2, r4
-	movw	r5, #20337
-	ldr	r4, .L282+4
-	ssat	r2, #25, r2
-	add	r5, r5, r3
-	ubfx	r1, r5, #0, #15
-	smull	r4, r5, r2, r4
-	add	r1, r0, r1, lsl #2
-	cmp	r4, #0
-	str	r2, [r1, #272]
-	sbcs	r2, r5, #0
-	blt	.L240
-.L102:
-	lsrs	r1, r4, #23
-	movw	r2, #20928
-	mvn	r4, #-16777216
-	ldr	r6, .L282
-	orr	r1, r1, r5, lsl #9
+.L35:
+.L24:
+	movw	r2, #9421
 	add	r2, r2, r3
-	add	lr, lr, r1
 	ubfx	r2, r2, #0, #15
-	cmp	lr, #-16777216
 	add	r2, r0, r2, lsl #2
-	it	lt
-	movlt	lr, #-16777216
-	ldr	r1, [r2, #272]
-	cmp	lr, r4
-	mov	r2, r1
-	smull	r6, r7, r1, r6
-	it	ge
-	movge	lr, r4
-	cmp	r1, #-16777216
-	it	lt
-	movlt	r2, #-16777216
-	cmp	r2, r4
-	it	ge
-	movge	r2, r4
-	cmp	r6, #0
-	sbcs	r1, r7, #0
-	blt	.L241
-.L103:
-	lsrs	r1, r6, #23
-	asrs	r5, r7, #23
-	orr	r4, r1, r7, lsl #9
-	cmp	r4, #16777216
-	sbcs	r1, r5, #0
-	bge	.L185
-	cmp	r4, #-16777216
-	mov	r1, r4
-	it	lt
-	movlt	r1, #-16777216
-.L104:
-	movw	r4, #20539
-	add	r1, r1, lr
-	ldr	r6, .L282+4
-	ssat	r1, #25, r1
-	add	r4, r4, r3
-	smull	r6, r7, r1, r6
-	ubfx	r4, r4, #0, #15
-	cmp	r6, #0
-	add	r4, r0, r4, lsl #2
-	str	r1, [r4, #272]
-	sbcs	r1, r7, #0
-	blt	.L242
-.L105:
-	lsr	lr, r6, #23
-	movw	r1, #21556
-	mvn	r4, #-16777216
-	ldr	r6, .L282
-	orr	lr, lr, r7, lsl #9
+	ldr	r2, [r2, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	mov	r4, #4194304
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r6, r7, r2, r4
+	mov      r7, r7, asl #9
+	orr      r6, r7, r6, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r5, r5, r6
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r6, #24, r5
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movw	r2, #9239
+	add	r2, r2, r3
+	ubfx	r2, r2, #0, #15
+	add	r2, r0, r2, lsl #2
+	ldr	r2, [r2, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r2
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r5, r7, r2, r4
+	mov      r7, r7, asl #9
+	orr      r5, r7, r5, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r5, r5, r6
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r6, #24, r5
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movw	r2, #8677
+	add	r2, r2, r3
+	ubfx	r2, r2, #0, #15
+	add	r2, r0, r2, lsl #2
+	ldr	r2, [r2, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r2
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r5, r7, r2, r4
+	mov      r7, r7, asl #9
+	orr      r5, r7, r5, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r5, r5, r6
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r5
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movw	r2, #8008
+	add	r2, r2, r3
+	ubfx	r2, r2, #0, #15
+	add	r2, r0, r2, lsl #2
+	ldr	r2, [r2, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r6, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r7, .L37
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r6, ip, r2, r7
+	mov      ip, ip, asl #9
+	orr      r6, ip, r6, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r6, r6, r5
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r6
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movw	r2, #7521
+	add	r2, r2, r3
+	ubfx	r2, r2, #0, #15
+	add	r2, r0, r2, lsl #2
+	ldr	r2, [r2, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r6, #24, r2
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r6, r7, r2, r4
+	mov      r7, r7, asl #9
+	orr      r6, r7, r6, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r6, r6, r5
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r6, #24, r6
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movw	r2, #7075
+	add	r2, r2, r3
+	ubfx	r2, r2, #0, #15
+	add	r2, r0, r2, lsl #2
+	ldr	r2, [r2, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r2
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r5, r7, r2, r4
+	mov      r7, r7, asl #9
+	orr      r5, r7, r5, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r5, r5, r6
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r6, #24, r5
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movw	r2, #6631
+	add	r2, r2, r3
+	ubfx	r2, r2, #0, #15
+	add	r2, r0, r2, lsl #2
+	ldr	r2, [r2, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r2
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r5, r7, r2, r4
+	mov      r7, r7, asl #9
+	orr      r5, r7, r5, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r5, r5, r6
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r5
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movw	r2, #6211
+	add	r2, r2, r3
+	ubfx	r2, r2, #0, #15
+	add	r2, r0, r2, lsl #2
+	ldr	r2, [r2, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r6, #24, r2
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r6, r7, r2, r4
+	mov      r7, r7, asl #9
+	orr      r6, r7, r6, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r6, r6, r5
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r6
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movw	r2, #5441
+	add	r2, r2, r3
+	ubfx	r2, r2, #0, #15
+	add	r2, r0, r2, lsl #2
+	ldr	r2, [r2, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r6, #24, r2
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r6, r7, r2, r4
+	mov      r7, r7, asl #9
+	orr      r6, r7, r6, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r6, r6, r5
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r6, #24, r6
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r2, r3, #5024
+	ubfx	r2, r2, #0, #15
+	add	r2, r0, r2, lsl #2
+	ldr	r2, [r2, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r2
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r5, r7, r2, r4
+	mov      r7, r7, asl #9
+	orr      r5, r7, r5, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r5, r5, r6
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r6, #24, r5
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movw	r2, #4601
+	add	r2, r2, r3
+	ubfx	r2, r2, #0, #15
+	add	r2, r0, r2, lsl #2
+	ldr	r2, [r2, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r2
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r5, r7, r2, r4
+	mov      r7, r7, asl #9
+	orr      r5, r7, r5, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r5, r5, r6
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r5
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r1
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r2, .L37+4
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r6, r7, r1, r2
+	mov      r7, r7, asl #9
+	orr      r6, r7, r6, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r6, r6, r5
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r6, #24, r6
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	mov	ip, #8388608
+	str	r6, [r0, #144]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r1, r5, r6, ip
+	mov      r5, r5, asl #9
+	orr      r1, r5, r1, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r7, #24, r1
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movw	r5, #19336
+	add	r5, r5, r3
+	ubfx	r5, r5, #0, #15
+	add	r5, r0, r5, lsl #2
+	ldr	r5, [r5, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat lr, #24, r5
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r1, r8, r5, r2
+	mov      r8, r8, asl #9
+	orr      r1, r8, r1, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r1, r1, r7
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r1, #24, r1
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movw	r5, #19102
+	add	r5, r5, r3
+	ubfx	r5, r5, #0, #15
+	add	r5, r0, r5, lsl #2
+	str	r1, [r5, #268]
+	ldr	r5, .L37+8
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r7, r8, r1, r5
+	mov      r8, r8, asl #9
+	orr      r7, r8, r7, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r7, #24, r7
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r7, r7, lr
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat lr, #24, r7
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movw	r1, #19783
 	add	r1, r1, r3
-	add	lr, lr, r2
 	ubfx	r1, r1, #0, #15
-	cmp	lr, #-16777216
 	add	r1, r0, r1, lsl #2
-	it	lt
-	movlt	lr, #-16777216
-	ldr	r2, [r1, #272]
-	cmp	lr, r4
-	mov	r5, r2
-	smull	r8, r9, r2, r6
-	it	ge
-	movge	lr, r4
-	cmp	r2, #-16777216
-	it	lt
-	movlt	r5, #-16777216
-	cmp	r5, r4
-	it	ge
-	movge	r5, r4
-	cmp	r8, #0
-	sbcs	r2, r9, #0
-	blt	.L243
-.L106:
-	lsr	r2, r8, #23
-	asr	r7, r9, #23
-	orr	r6, r2, r9, lsl #9
-	cmp	r6, #16777216
-	sbcs	r2, r7, #0
-	bge	.L186
-	cmp	r6, #-16777216
-	mov	r2, r6
-	it	lt
-	movlt	r2, #-16777216
-.L107:
-	movw	r4, #20929
-	add	r2, r2, lr
-	ldr	r6, .L282+4
-	ssat	r2, #25, r2
-	add	r4, r4, r3
-	smull	r6, r7, r2, r6
-	ubfx	r4, r4, #0, #15
-	cmp	r6, #0
-	add	r4, r0, r4, lsl #2
-	str	r2, [r4, #272]
-	sbcs	r2, r7, #0
-	blt	.L244
-.L108:
-	movw	r9, #6601
-	lsrs	r1, r6, #23
-	ldr	r4, .L282+8
-	add	r9, r9, r3
-	b	.L283
-.L284:
+	ldr	r1, [r1, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r8, #24, r1
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r7, r9, r1, r2
+	mov      r9, r9, asl #9
+	orr      r7, r9, r7, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r7, r7, lr
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r7, #24, r7
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movw	lr, #19337
+	add	lr, lr, r3
+	ubfx	lr, lr, #0, #15
+	add	lr, r0, lr, lsl #2
+	str	r7, [lr, #268]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r1, lr, r7, r5
+	mov      lr, lr, asl #9
+	orr      r1, lr, r1, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r1, #24, r1
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r1, r1, r8
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat lr, #24, r1
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movw	r7, #20336
+	add	r7, r7, r3
+	ubfx	r7, r7, #0, #15
+	add	r7, r0, r7, lsl #2
+	ldr	r7, [r7, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r8, #24, r7
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r1, r9, r7, r2
+	mov      r9, r9, asl #9
+	orr      r1, r9, r1, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r1, r1, lr
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r1, #24, r1
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movw	lr, #19784
+	add	lr, lr, r3
+	ubfx	lr, lr, #0, #15
+	add	lr, r0, lr, lsl #2
+	str	r1, [lr, #268]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r7, lr, r1, r5
+	mov      lr, lr, asl #9
+	orr      r7, lr, r7, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r7, #24, r7
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r7, r7, r8
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r7, #24, r7
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movs	r1, #0
+	str	r7, [r0, #100]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    lr, r8, r7, r1
+	mov      r8, r8, asl #9
+	orr      lr, r8, lr, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat lr, #24, lr
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r7, r8, r6, ip
+	mov      r8, r8, asl #9
+	orr      r7, r8, r7, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r6, r7, lr
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat lr, #24, r6
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movw	r7, #20538
+	add	r7, r7, r3
+	ubfx	r7, r7, #0, #15
+	add	r7, r0, r7, lsl #2
+	ldr	r7, [r7, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r8, #24, r7
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r6, r9, r7, r2
+	mov      r9, r9, asl #9
+	orr      r6, r9, r6, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r6, r6, lr
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r6, #24, r6
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movw	lr, #20337
+	add	lr, lr, r3
+	ubfx	lr, lr, #0, #15
+	add	lr, r0, lr, lsl #2
+	str	r6, [lr, #268]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r7, lr, r6, r5
+	mov      lr, lr, asl #9
+	orr      r7, lr, r7, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r7, #24, r7
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r7, r7, r8
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat lr, #24, r7
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movw	r6, #20928
+	add	r6, r6, r3
+	ubfx	r6, r6, #0, #15
+	add	r6, r0, r6, lsl #2
+	ldr	r6, [r6, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r8, #24, r6
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r7, r9, r6, r2
+	mov      r9, r9, asl #9
+	orr      r7, r9, r7, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r7, r7, lr
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r7, #24, r7
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movw	lr, #20539
+	add	lr, lr, r3
+	ubfx	lr, lr, #0, #15
+	add	lr, r0, lr, lsl #2
+	str	r7, [lr, #268]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r6, lr, r7, r5
+	mov      lr, lr, asl #9
+	orr      r6, lr, r6, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r6, #24, r6
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r6, r6, r8
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r8, #24, r6
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movw	r7, #21556
+	add	r7, r7, r3
+	ubfx	r7, r7, #0, #15
+	add	r7, r0, r7, lsl #2
+	ldr	lr, [r7, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r7, #24, lr
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r6, r9, lr, r2
+	mov      r9, r9, asl #9
+	orr      r6, r9, r6, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r6, r6, r8
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r6, #24, r6
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r2, lr, r6, r5
+	mov      lr, lr, asl #9
+	orr      r2, lr, r2, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movw	r5, #20929
+	add	r5, r5, r3
+	ubfx	r5, r5, #0, #15
+	add	r5, r0, r5, lsl #2
+	str	r6, [r5, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r2, r2, r7
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r2, [r0, #104]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r6, r5, r2, r1
+	mov      r5, r5, asl #9
+	orr      r6, r5, r6, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r6, #24, r6
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movw	r5, #6601
+	add	r5, r5, r3
+	ubfx	r5, r5, #0, #15
+	add	r5, r0, r5, lsl #2
+	ldr	r8, [r5, #268]
+	b	.L38
+.L39:
 	.align	2
-.L282:
+.L37:
+	.word	3350528
 	.word	5029888
 	.word	-5038080
-	.word	-8388608
-.L283:
-	orr	r1, r1, r7, lsl #9
-	ldr	r2, [r0, #152]
-	ubfx	r9, r9, #0, #15
-	add	r1, r1, r5
-	add	r9, r0, r9, lsl #2
-	ssat	r1, #25, r1
-	ldr	ip, [r9, #272]
-	str	r1, [r0, #108]
-	smull	r4, r5, ip, r4
-	cmp	ip, #-16777216
-	mov	r8, ip
-	it	lt
-	movlt	r8, #-16777216
-	cmp	r4, #0
-	sbcs	r1, r5, #0
-	blt	.L245
-.L109:
-	lsrs	r1, r4, #23
-	mvn	r4, #-16777216
-	orr	r1, r1, r5, lsl #9
-	cmp	r1, #-16777216
-	it	lt
-	movlt	r1, #-16777216
-	cmp	r1, r4
-	ite	le
-	rsble	r1, r2, r1
-	rsbgt	r1, r2, r4
-	cmp	r1, #-16777216
-	it	lt
-	movlt	r1, #-16777216
-	cmp	r1, r4
-	it	ge
-	movge	r1, r4
-	asrs	r5, r1, #31
-	lsls	r6, r1, #22
-	lsls	r4, r5, #22
-	cmp	r6, #0
-	orr	r7, r4, r1, lsr #10
-	sbcs	r1, r7, #0
-	blt	.L246
-.L110:
-	lsrs	r1, r6, #23
-	ldr	r4, .L285
-	orr	r1, r1, r7, lsl #9
-	add	r1, r1, r2
-	ssat	r1, #25, r1
-	smull	r4, r5, r1, r4
-	cmp	r4, #0
-	sbcs	r2, r5, #0
-	blt	.L247
-.L111:
-	lsrs	r4, r4, #23
-	ldr	r2, [r0, #8]
-	asrs	r7, r5, #23
-	ldr	lr, [r0, #88]
-	orr	r6, r4, r5, lsl #9
-	cmp	r7, #0
-	itt	eq
-	cmpeq	r6, #16777216
-	mvneq	r6, #-16777216
-	add	r6, r6, r2
-	ssat	r6, #25, r6
-	smull	r6, r7, r6, lr
-	cmp	r6, #0
-	sbcs	r4, r7, #0
-	blt	.L248
-.L113:
-	lsrs	r5, r6, #23
-	mvn	r4, #-16777216
-	ldr	r6, [r0, #156]
-	orr	r7, r5, r7, lsl #9
+.L38:
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r8
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r2, .L40
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r7, lr, r8, r2
+	mov      lr, lr, asl #9
+	orr      r7, lr, r7, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r7, r7, r6
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r6, #24, r7
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r7, [r0, #148]
+	sub	r9, r6, r7
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    lr, r10, r9, r4
+	mov      r10, r10, asl #9
+	orr      lr, r10, lr, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	lr, lr, r7
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat lr, #24, lr
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r7, r4, lr, r2
+	mov      r4, r4, asl #9
+	orr      r7, r4, r7, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r7, r7, r6
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r7, #24, r7
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r4, [r0, #84]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r6, r9, r7, r4
+	mov      r9, r9, asl #9
+	orr      r6, r9, r6, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r7, #24, r6
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r6, #24, r8
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r6, r9, r8, ip
+	mov      r9, r9, asl #9
+	orr      r6, r9, r6, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r6, r6, r7
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r6, #24, r6
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r6, [r5, #268]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r7, r5, r6, r1
+	mov      r5, r5, asl #9
+	orr      r7, r5, r7, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r8, #24, r7
+@ 0 "" 2
+	.thumb
+	.syntax unified
 	movw	r5, #8601
-	ldr	r10, .L285
-	cmp	r7, #-16777216
 	add	r5, r5, r3
-	str	r6, [sp]
-	it	lt
-	movlt	r7, #-16777216
-	cmp	ip, #16777216
 	ubfx	r5, r5, #0, #15
-	it	ge
-	movge	r8, r4
-	add	fp, r0, r5, lsl #2
-	cmp	r7, r4
-	ite	le
-	addle	r8, r8, r7
-	addgt	r8, r8, r4
-	cmp	r8, #-16777216
-	it	lt
-	movlt	r8, #-16777216
-	cmp	r4, r8
-	it	ge
-	movge	r4, r8
-	str	r4, [r9, #272]
-	ldr	ip, [fp, #272]
-	smull	r6, r7, ip, r10
-	cmp	ip, #-16777216
-	mov	r10, ip
-	it	lt
-	movlt	r10, #-16777216
-	cmp	r6, #0
-	sbcs	r4, r7, #0
-	blt	.L249
-.L115:
-	lsrs	r4, r6, #23
-	mvn	r5, #-16777216
-	ldr	r6, .L285+4
-	orr	r4, r4, r7, lsl #9
-	ldr	r7, [sp]
-	cmp	r4, #-16777216
-	it	lt
-	movlt	r4, #-16777216
-	cmp	r4, r5
-	ite	le
-	rsble	r7, r7, r4
-	rsbgt	r7, r7, r5
-	cmp	r7, #-16777216
-	mov	r4, r7
-	it	lt
-	movlt	r4, #-16777216
-	cmp	r4, r5
-	it	ge
-	movge	r4, r5
-	smull	r8, r9, r4, r6
-	cmp	r8, #0
-	sbcs	r4, r9, #0
-	blt	.L250
-.L116:
-	lsr	r4, r8, #23
-	ldr	r5, [sp]
-	ldr	r6, .L285
-	orr	r4, r4, r9, lsl #9
-	add	r5, r5, r4
-	ssat	r4, #25, r5
-	smull	r6, r7, r4, r6
-	str	r4, [r0, #156]
-	cmp	r6, #0
-	sbcs	r4, r7, #0
-	blt	.L251
-.L117:
-	lsrs	r6, r6, #23
-	asrs	r5, r7, #23
-	orr	r4, r6, r7, lsl #9
-	cmp	r5, #0
-	itet	eq
-	cmpeq	r4, #16777216
-	movne	r6, r4
-	mvneq	r6, #-16777216
-	add	r6, r6, r2
-	ssat	r6, #25, r6
-	smull	r6, r7, r6, lr
-	cmp	r6, #0
-	sbcs	r4, r7, #0
-	blt	.L252
-.L119:
-	lsrs	r5, r6, #23
-	mvn	r4, #-16777216
-	movw	r9, #11101
-	ldr	r6, .L285
-	orr	r5, r5, r7, lsl #9
-	add	r9, r9, r3
-	cmp	r5, #-16777216
-	ubfx	r9, r9, #0, #15
-	it	lt
-	movlt	r5, #-16777216
-	cmp	ip, #16777216
-	add	r9, r0, r9, lsl #2
-	it	ge
-	movge	r10, r4
-	cmp	r5, r4
-	ite	le
-	addle	r10, r10, r5
-	addgt	r10, r10, r4
-	cmp	r10, #-16777216
-	it	lt
-	movlt	r10, #-16777216
-	cmp	r4, r10
-	it	ge
-	movge	r4, r10
-	str	r4, [fp, #272]
-	ldr	ip, [r9, #272]
-	smull	r6, r7, ip, r6
-	cmp	ip, #-16777216
-	mov	r8, ip
-	it	lt
-	movlt	r8, #-16777216
-	cmp	r6, #0
-	sbcs	r4, r7, #0
-	blt	.L253
-.L121:
-	lsrs	r4, r6, #23
-	mvn	r5, #-16777216
-	ldr	r6, .L285+8
-	orr	r4, r4, r7, lsl #9
-	cmp	r4, #-16777216
-	it	lt
-	movlt	r4, #-16777216
-	cmp	r4, r5
-	ite	le
-	rsble	r4, r1, r4
-	rsbgt	r4, r1, r5
-	cmp	r4, #-16777216
-	it	lt
-	movlt	r4, #-16777216
-	cmp	r4, r5
-	it	ge
-	movge	r4, r5
-	smull	r6, r7, r4, r6
-	cmp	r6, #0
-	sbcs	r4, r7, #0
-	blt	.L254
-.L122:
-	lsrs	r4, r6, #23
-	ldr	r6, .L285
-	orr	r4, r4, r7, lsl #9
-	add	r1, r1, r4
-	ssat	r1, #25, r1
-	smull	r6, r7, r1, r6
-	cmp	r6, #0
-	sbcs	r4, r7, #0
-	blt	.L255
-.L123:
-	lsrs	r6, r6, #23
-	asrs	r5, r7, #23
-	orr	r4, r6, r7, lsl #9
-	cmp	r5, #0
-	itet	eq
-	cmpeq	r4, #16777216
-	movne	r6, r4
-	mvneq	r6, #-16777216
-	add	r6, r6, r2
-	ssat	r6, #25, r6
-	smull	r6, r7, r6, lr
-	cmp	r6, #0
-	sbcs	r4, r7, #0
-	blt	.L256
-.L125:
-	lsrs	r5, r6, #23
-	mvn	r4, #-16777216
-	movw	r10, #14101
-	ldr	r6, .L285
-	orr	r5, r5, r7, lsl #9
-	add	r10, r10, r3
-	cmp	r5, #-16777216
-	ubfx	r10, r10, #0, #15
-	it	lt
-	movlt	r5, #-16777216
-	cmp	ip, #16777216
-	add	r10, r0, r10, lsl #2
-	it	ge
-	movge	r8, r4
-	cmp	r5, r4
-	ite	le
-	addle	r3, r8, r5
-	addgt	r3, r8, r4
-	cmp	r3, #-16777216
-	it	lt
-	movlt	r3, #-16777216
-	cmp	r3, r4
-	it	ge
-	movge	r3, r4
-	str	r3, [r9, #272]
-	ldr	r3, [r10, #272]
-	cmp	r3, #-16777216
-	mov	ip, r3
-	smull	r6, r7, r3, r6
-	it	lt
-	movlt	ip, #-16777216
-	cmp	r4, ip
-	it	ge
-	movge	r4, ip
-	cmp	r6, #0
-	str	r4, [r0, #12]
-	sbcs	r4, r7, #0
-	blt	.L257
-.L127:
-	lsrs	r4, r6, #23
-	mvn	r5, #-16777216
-	ldr	r6, .L285+12
-	orr	r4, r4, r7, lsl #9
-	cmp	r4, #-16777216
-	it	lt
-	movlt	r4, #-16777216
-	cmp	r4, r5
-	ite	le
-	rsble	r4, r1, r4
-	rsbgt	r4, r1, r5
-	cmp	r4, #-16777216
-	it	lt
-	movlt	r4, #-16777216
-	cmp	r4, r5
-	it	ge
-	movge	r4, r5
-	smull	r4, r5, r4, r6
-	cmp	r4, #0
-	sbcs	r6, r5, #0
-	blt	.L258
-.L128:
-	lsrs	r6, r4, #23
-	ldr	r4, .L285
-	orr	r6, r6, r5, lsl #9
-	add	r1, r1, r6
-	ssat	r1, #25, r1
-	smull	r4, r5, r1, r4
-	str	r1, [r0, #152]
-	cmp	r4, #0
-	sbcs	r1, r5, #0
-	blt	.L259
-.L129:
-	asrs	r7, r5, #23
-	lsrs	r1, r4, #23
-	cmp	r7, #0
-	orr	r6, r1, r5, lsl #9
-	itt	eq
-	cmpeq	r6, #16777216
-	mvneq	r6, #-16777216
-	add	r6, r6, r2
-	ssat	r6, #25, r6
-	smull	r6, r7, r6, lr
-	cmp	r6, #0
-	sbcs	r2, r7, #0
-	blt	.L260
-.L131:
-	lsrs	r2, r6, #23
-	mvn	r1, #-16777216
-	orr	r2, r2, r7, lsl #9
-	cmp	r2, #-16777216
-	it	lt
-	movlt	r2, #-16777216
-	cmp	r2, r1
-	it	ge
-	movge	r2, r1
-	cmp	r3, #16777216
-	str	r2, [r0, #4]
-	bge	.L132
-	str	ip, [r0, #12]
-.L148:
-	add	r2, r2, ip
-	movs	r3, #0
-	ssat	r2, #25, r2
-	str	r2, [r10, #272]
+	add	r5, r0, r5, lsl #2
+	ldr	r6, [r5, #268]
+	str	r5, [sp, #4]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r7, #24, r6
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r7, r9, r6, r2
+	mov      r9, r9, asl #9
+	orr      r7, r9, r7, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r7, r7, r8
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r7, #24, r7
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r5, [r0, #152]
+	ldr	r9, .L40+8
+	sub	r8, r7, r5
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r10, fp, r8, r9
+	mov      fp, fp, asl #9
+	orr      r10, fp, r10, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r10, r10, r5
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r10, #24, r10
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r8, r9, r10, r2
+	mov      r9, r9, asl #9
+	orr      r8, r9, r8, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r10, [r0, #152]
+	add	r7, r7, r8
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r7, #24, r7
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r8, r9, r7, r4
+	mov      r9, r9, asl #9
+	orr      r8, r9, r8, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r8, #24, r8
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r7, #24, r6
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r7, r9, r6, ip
+	mov      r9, r9, asl #9
+	orr      r7, r9, r7, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r6, r7, r8
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r6, #24, r6
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r5, [sp, #4]
+	str	r6, [r5, #268]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r7, r5, r6, r1
+	mov      r5, r5, asl #9
+	orr      r7, r5, r7, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r6, #24, r7
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movw	r5, #11101
+	add	r5, r5, r3
+	ubfx	r5, r5, #0, #15
+	add	r5, r0, r5, lsl #2
+	ldr	r8, [r5, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r7, #24, r8
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r7, r9, r8, r2
+	mov      r9, r9, asl #9
+	orr      r7, r9, r7, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r7, r7, r6
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r9, #24, r7
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r10, .L40+12
+	sub	r7, r9, lr
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r6, fp, r7, r10
+	mov      fp, fp, asl #9
+	orr      r6, fp, r6, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	lr, lr, r6
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat lr, #24, lr
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r7, r6, lr, r2
+	mov      r6, r6, asl #9
+	orr      r7, r6, r7, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r7, r7, r9
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r7, #24, r7
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r6, r9, r7, r4
+	mov      r9, r9, asl #9
+	orr      r6, r9, r6, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r7, #24, r6
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r6, #24, r8
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r6, r9, r8, ip
+	mov      r9, r9, asl #9
+	orr      r6, r9, r6, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r6, r6, r7
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r6, #24, r6
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r6, [r5, #268]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r5, r7, r6, r1
+	mov      r7, r7, asl #9
+	orr      r5, r7, r5, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r7, #24, r5
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movw	r5, #14101
+	add	r5, r5, r3
+	ubfx	r5, r5, #0, #15
+	add	r5, r0, r5, lsl #2
+	ldr	r6, [r5, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r3, #24, r6
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r3, r8, r6, r2
+	mov      r8, r8, asl #9
+	orr      r3, r8, r3, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r3, r3, r7
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r8, #24, r3
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r9, .L40+16
+	sub	r7, r8, lr
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r3, r10, r7, r9
+	mov      r10, r10, asl #9
+	orr      r3, r10, r3, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	lr, lr, r3
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r3, #24, lr
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r7, lr, r3, r2
+	mov      lr, lr, asl #9
+	orr      r7, lr, r7, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r3, [r0, #148]
+	add	r2, r7, r8
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r2
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r3, r7, r2, r4
+	mov      r7, r7, asl #9
+	orr      r3, r7, r3, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r3
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r6
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r3, r7, r6, ip
+	mov      r7, r7, asl #9
+	orr      r3, r7, r3, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r4, [r0, #8]
+	add	r3, r3, r2
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r3, #24, r3
+@ 0 "" 2
+	.thumb
+	.syntax unified
 	str	r3, [r0, #4]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r2, r4, r3, r1
+	mov      r4, r4, asl #9
+	orr      r2, r4, r2, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r3, [r5, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r2, [r0]
 	add	sp, sp, #12
 	@ sp needed
 	pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
-.L2:
-	movs	r3, #0
-	ldr	r2, .L285+16
-	ldr	r6, [r0]
-	movs	r4, #0
-	str	r3, [r0, #36]
-	mov	r7, r3
-	str	r3, [r0, r2]
-	mov	r1, r3
-	ldr	r3, .L285+20
-	mov	r10, #0
-	mov	fp, #0
-	mov	lr, #1
-	strd	r3, [sp]
+.L30:
+	ldr	r6, [ip, #304]
+	ldr	r7, .L40+4
+	asrs	r2, r6, #10
+	subs	r7, r7, r6
+	adds	r4, r2, #1
 	b	.L3
-.L151:
-	mvn	r4, #-16777216
-	b	.L11
-.L150:
-	mvn	r2, #-16777216
-	b	.L7
-.L286:
+.L41:
 	.align	2
-.L285:
+.L40:
 	.word	-8388608
+	.word	4194303
 	.word	3355392
 	.word	2516480
 	.word	1677568
-	.word	131380
-	.word	4194303
-.L149:
-	mvn	ip, #-16777216
-	b	.L5
-.L14:
-	cmp	r6, #-16777216
-	mov	r1, r6
-	it	lt
-	movlt	r1, #-16777216
-	b	.L15
-.L132:
-	str	r1, [r0, #12]
-	mov	ip, r1
-	b	.L148
-.L186:
-	mvn	r2, #-16777216
-	b	.L107
-.L185:
-	mvn	r1, #-16777216
-	b	.L104
-.L184:
-	mvn	r4, #-16777216
-	b	.L101
-.L183:
-	mvn	r1, #-16777216
-	b	.L98
-.L182:
-	mvn	r4, #-16777216
-	b	.L95
-.L181:
-	mvn	r1, #-16777216
-	b	.L92
-.L180:
-	mvn	r1, #-16777216
-	b	.L89
-.L179:
-	mvn	r1, #-16777216
-	b	.L87
-.L178:
-	mvn	r1, #-16777216
-	b	.L85
-.L177:
-	mvn	r1, #-16777216
-	b	.L83
-.L176:
-	mvn	r1, #-16777216
-	b	.L81
-.L175:
-	mvn	r4, #-16777216
-	b	.L79
-.L174:
-	mvn	r4, #-16777216
-	b	.L77
-.L173:
-	mvn	r4, #-16777216
-	b	.L75
-.L172:
-	mvn	r5, #-16777216
-	b	.L73
-.L171:
-	mvn	r5, #-16777216
-	b	.L71
-.L170:
-	mvn	r5, #-16777216
-	b	.L69
-.L169:
-	mvn	r5, #-16777216
-	b	.L67
-.L168:
-	mvn	r5, #-16777216
-	b	.L65
-.L167:
-	mvn	r5, #-16777216
-	b	.L63
-.L166:
-	mvn	r1, #-16777216
-	b	.L60
-.L165:
-	mvn	r4, #-16777216
-	b	.L58
-.L164:
-	mvn	r5, #-16777216
-	b	.L56
-.L163:
-	mvn	r1, #-16777216
-	b	.L54
-.L162:
-	mvn	r4, #-16777216
-	b	.L52
-.L161:
-	mvn	r5, #-16777216
-	b	.L50
-.L160:
-	mvn	r1, #-16777216
-	b	.L48
-.L159:
-	mvn	r4, #-16777216
-	b	.L46
-.L158:
-	mvn	r5, #-16777216
-	b	.L44
-.L157:
-	mvn	r5, #-16777216
-	b	.L42
-.L156:
-	mvn	r1, #-16777216
-	b	.L40
-.L155:
-	mvn	r1, #-16777216
-	b	.L38
-.L154:
-	mvn	r1, #-16777216
-	b	.L36
-.L153:
-	mvn	r1, #-16777216
-	b	.L34
-.L12:
-	sub	r1, r4, #7340032
-	cmp	r1, #0
-	str	r1, [r0, #4]
-	ble	.L261
-	adds	r6, r6, #37
-	mov	r4, r1
-	str	r6, [r0]
-	b	.L16
-.L152:
-	mvn	r1, #-16777216
-	b	.L32
-.L209:
-	ldr	r4, .L287
-	movs	r5, #0
-	adds	r6, r6, r4
-	adcs	r7, r7, r5
-	b	.L43
-.L208:
-	ldr	r6, .L287
-	movs	r7, #0
-	adds	r4, r4, r6
-	adcs	r5, r5, r7
-	b	.L41
-.L211:
-	ldr	r8, .L287
-	mov	r9, #0
-	adds	r6, r6, r8
-	adc	r7, r7, r9
-	b	.L47
-.L210:
-	ldr	r8, .L287
-	mov	r9, #0
-	adds	r6, r6, r8
-	adc	r7, r7, r9
-	b	.L45
-.L213:
-	ldr	r8, .L287
-	mov	r9, #0
-	adds	r6, r6, r8
-	adc	r7, r7, r9
-	b	.L51
-.L212:
-	ldr	r4, .L287
-	movs	r5, #0
-	adds	r6, r6, r4
-	adcs	r7, r7, r5
-	b	.L49
-.L215:
-	ldr	r4, .L287
-	movs	r5, #0
-	adds	r6, r6, r4
-	adcs	r7, r7, r5
-	b	.L55
-.L214:
-	ldr	r8, .L287
-	mov	r9, #0
-	adds	r6, r6, r8
-	adc	r7, r7, r9
-	b	.L53
-.L217:
-	ldr	r8, .L287
-	mov	r9, #0
-	adds	r6, r6, r8
-	adc	r7, r7, r9
-	b	.L59
-.L216:
-	ldr	r8, .L287
-	mov	r9, #0
-	adds	r6, r6, r8
-	adc	r7, r7, r9
-	b	.L57
-.L219:
-	ldr	r8, .L287
-	mov	r9, #0
-	adds	r4, r4, r8
-	adc	r5, r5, r9
-	b	.L64
-.L218:
-	ldr	r6, .L287
-	movs	r7, #0
-	adds	r4, r4, r6
-	adcs	r5, r5, r7
-	b	.L62
-.L200:
-	ldr	r8, .L287
-	mov	r9, #0
-	adds	r4, r4, r8
-	adc	r5, r5, r9
-	b	.L9
-.L199:
-	ldr	r8, .L287
-	mov	r9, #0
-	adds	r4, r4, r8
-	adc	r5, r5, r9
-	b	.L8
-.L198:
-	ldr	r8, .L287
-	mov	r9, #0
-	adds	r4, r4, r8
-	adc	r5, r5, r9
-	b	.L6
-.L197:
-	ldr	r2, .L287
-	movs	r3, #0
-	adds	r4, r4, r2
-	adcs	r5, r5, r3
-	b	.L4
-.L260:
-	ldr	r4, .L287
-	movs	r5, #0
-	adds	r6, r6, r4
-	adcs	r7, r7, r5
-	b	.L131
-.L259:
-	ldr	r6, .L287
-	movs	r7, #0
-	adds	r4, r4, r6
-	adcs	r5, r5, r7
-	b	.L129
-.L258:
-	ldr	r6, .L287
-	movs	r7, #0
-	adds	r4, r4, r6
-	adcs	r5, r5, r7
-	b	.L128
-.L257:
-	ldr	r4, .L287
-	movs	r5, #0
-	adds	r6, r6, r4
-	adcs	r7, r7, r5
-	b	.L127
-.L256:
-	ldr	r4, .L287
-	movs	r5, #0
-	adds	r6, r6, r4
-	adcs	r7, r7, r5
-	b	.L125
-.L255:
-	ldr	r4, .L287
-	movs	r5, #0
-	adds	r6, r6, r4
-	adcs	r7, r7, r5
-	b	.L123
-.L254:
-	ldr	r4, .L287
-	movs	r5, #0
-	adds	r6, r6, r4
-	adcs	r7, r7, r5
-	b	.L122
-.L253:
-	ldr	r4, .L287
-	movs	r5, #0
-	adds	r6, r6, r4
-	adcs	r7, r7, r5
-	b	.L121
-.L252:
-	ldr	r4, .L287
-	movs	r5, #0
-	adds	r6, r6, r4
-	adcs	r7, r7, r5
-	b	.L119
-.L251:
-	ldr	r4, .L287
-	movs	r5, #0
-	adds	r6, r6, r4
-	adcs	r7, r7, r5
-	b	.L117
-.L250:
-	ldr	r4, .L287
-	movs	r5, #0
-	adds	r8, r8, r4
-	adc	r9, r9, r5
-	b	.L116
-.L249:
-	ldr	r4, .L287
-	movs	r5, #0
-	adds	r6, r6, r4
-	adcs	r7, r7, r5
-	b	.L115
-.L201:
-	ldr	r4, .L287
-	movs	r5, #0
-	adds	r8, r8, r4
-	adc	r9, r9, r5
-	b	.L10
-.L241:
-	ldr	r4, .L287
-	movs	r5, #0
-	adds	r6, r6, r4
-	adcs	r7, r7, r5
-	b	.L103
-.L240:
-	ldr	r6, .L287
-	movs	r7, #0
-	adds	r4, r4, r6
-	adcs	r5, r5, r7
-	b	.L102
-.L229:
-	ldr	r8, .L287
-	mov	r9, #0
-	adds	r6, r6, r8
-	adc	r7, r7, r9
-	b	.L84
-.L228:
-	ldr	r8, .L287
-	mov	r9, #0
-	adds	r6, r6, r8
-	adc	r7, r7, r9
-	b	.L82
-.L231:
-	ldr	r6, .L287
-	movs	r7, #0
-	adds	r8, r8, r6
-	adc	r9, r9, r7
-	b	.L88
-.L230:
-	ldr	r8, .L287
-	mov	r9, #0
-	adds	r6, r6, r8
-	adc	r7, r7, r9
-	b	.L86
-.L233:
-	ldr	r8, .L287
-	mov	r9, #0
-	adds	r6, r6, r8
-	adc	r7, r7, r9
-	b	.L91
-.L232:
-	ldr	r4, .L287
-	movs	r5, #0
-	adds	r6, r6, r4
-	adcs	r7, r7, r5
-	b	.L90
-.L239:
-	ldr	r4, .L287
-	movs	r5, #0
-	adds	r6, r6, r4
-	adcs	r7, r7, r5
-	b	.L100
-.L238:
-	ldr	r8, .L287
-	mov	r9, #0
-	adds	r4, r4, r8
-	adc	r5, r5, r9
-	b	.L99
-.L237:
-	ldr	r4, .L287
-	movs	r5, #0
-	adds	r8, r8, r4
-	adc	r9, r9, r5
-	b	.L97
-.L236:
-	ldr	r4, .L287
-	movs	r5, #0
-	adds	r10, r10, r4
-	adc	fp, fp, r5
-	b	.L96
-.L235:
-	ldr	r4, .L287
-	movs	r5, #0
-	adds	r8, r8, r4
-	adc	r9, r9, r5
-	b	.L94
-.L234:
-	ldr	r8, .L287
-	mov	r9, #0
-	adds	r6, r6, r8
-	adc	r7, r7, r9
-	b	.L93
-.L221:
-	ldr	r8, .L287
-	mov	r9, #0
-	adds	r4, r4, r8
-	adc	r5, r5, r9
-	b	.L68
-.L220:
-	ldr	r8, .L287
-	mov	r9, #0
-	adds	r4, r4, r8
-	adc	r5, r5, r9
-	b	.L66
-.L223:
-	ldr	r4, .L287
-	movs	r5, #0
-	adds	r8, r8, r4
-	adc	r9, r9, r5
-	b	.L72
-.L222:
-	ldr	r4, .L287
-	movs	r5, #0
-	adds	r8, r8, r4
-	adc	r9, r9, r5
-	b	.L70
-.L225:
-	ldr	r8, .L287
-	mov	r9, #0
-	adds	r6, r6, r8
-	adc	r7, r7, r9
-	b	.L76
-.L224:
-	ldr	r8, .L287
-	mov	r9, #0
-	adds	r4, r4, r8
-	adc	r5, r5, r9
-	b	.L74
-.L227:
-	ldr	r8, .L287
-	mov	r9, #0
-	adds	r6, r6, r8
-	adc	r7, r7, r9
-	b	.L80
-.L226:
-	ldr	r8, .L287
-	mov	r9, #0
-	adds	r6, r6, r8
-	adc	r7, r7, r9
-	b	.L78
-.L244:
-	ldr	r8, .L287
-	mov	r9, #0
-	adds	r6, r6, r8
-	adc	r7, r7, r9
-	b	.L108
-.L243:
-	ldr	r6, .L287
-	movs	r7, #0
-	adds	r8, r8, r6
-	adc	r9, r9, r7
-	b	.L106
-.L288:
-	.align	2
-.L287:
-	.word	8388607
-.L242:
-	ldr	r4, .L289
-	movs	r5, #0
-	adds	r6, r6, r4
-	adcs	r7, r7, r5
-	b	.L105
-.L248:
-	ldr	r4, .L289
-	movs	r5, #0
-	adds	r6, r6, r4
-	adcs	r7, r7, r5
-	b	.L113
-.L247:
-	ldr	r6, .L289
-	movs	r7, #0
-	adds	r4, r4, r6
-	adcs	r5, r5, r7
-	b	.L111
-.L246:
-	ldr	r4, .L289
-	movs	r5, #0
-	adds	r6, r6, r4
-	adcs	r7, r7, r5
-	b	.L110
-.L245:
-	ldr	r6, .L289
-	movs	r7, #0
-	adds	r4, r4, r6
-	adcs	r5, r5, r7
-	b	.L109
-.L207:
-	ldr	r8, .L289
-	mov	r9, #0
-	adds	r4, r4, r8
-	adc	r5, r5, r9
-	b	.L39
-.L206:
-	ldr	r8, .L289
-	mov	r9, #0
-	adds	r6, r6, r8
-	adc	r7, r7, r9
-	b	.L37
-.L205:
-	ldr	r8, .L289
-	mov	r9, #0
-	adds	r6, r6, r8
-	adc	r7, r7, r9
-	b	.L35
-.L204:
-	ldr	r8, .L289
-	mov	r9, #0
-	adds	r4, r4, r8
-	adc	r5, r5, r9
-	b	.L33
-.L203:
-	ldr	r8, .L289
-	mov	r9, #0
-	adds	r6, r6, r8
-	adc	r7, r7, r9
-	b	.L31
-.L202:
-	ldr	r6, .L289
-	movs	r7, #0
-	adds	r4, r4, r6
-	adcs	r5, r5, r7
-	b	.L13
-.L261:
-	sub	r1, r4, #6815744
-	cmp	r1, #0
-	str	r1, [r0, #4]
-	ble	.L262
-	adds	r6, r6, #36
-	mov	r7, r1
-	str	r6, [r0]
-	b	.L17
-.L262:
-	sub	r5, r4, #6291456
-	cmp	r5, #0
-	str	r5, [r0, #4]
-	ble	.L263
-	adds	r6, r6, #35
-	mov	r4, r5
-	str	r6, [r0]
-	b	.L18
-.L263:
-	sub	r5, r4, #5767168
-	cmp	r5, #0
-	str	r5, [r0, #4]
-	ble	.L264
-	adds	r6, r6, #34
-	str	r6, [r0]
-	b	.L19
-.L264:
-	sub	r1, r4, #5242880
-	cmp	r1, #0
-	str	r1, [r0, #4]
-	ble	.L265
-	adds	r6, r6, #33
-	mov	r7, r1
-	str	r6, [r0]
-	b	.L20
-.L265:
-	sub	r1, r4, #4718592
-	cmp	r1, #0
-	str	r1, [r0, #4]
-	ble	.L266
-	adds	r6, r6, #32
-	str	r6, [r0]
-	b	.L21
-.L266:
-	sub	r1, r4, #4194304
-	cmp	r1, #0
-	str	r1, [r0, #4]
-	ble	.L267
-	adds	r6, r6, #31
-	str	r6, [r0]
-	b	.L22
-.L267:
-	sub	r5, r4, #3670016
-	cmp	r5, #0
-	str	r5, [r0, #4]
-	ble	.L268
-	adds	r6, r6, #30
-	str	r6, [r0]
-	b	.L23
-.L268:
-	sub	r1, r4, #3145728
-	cmp	r1, #0
-	str	r1, [r0, #4]
-	ble	.L269
-	adds	r6, r6, #29
-	mov	r4, r1
-	str	r6, [r0]
-	b	.L24
-.L269:
-	sub	r1, r4, #2621440
-	cmp	r1, #0
-	str	r1, [r0, #4]
-	ble	.L270
-	adds	r6, r6, #28
-	str	r6, [r0]
-	b	.L25
-.L270:
-	sub	r5, r4, #2097152
-	cmp	r5, #0
-	str	r5, [r0, #4]
-	ble	.L271
-	adds	r6, r6, #27
-	str	r6, [r0]
-	b	.L26
-.L271:
-	sub	r5, r4, #1572864
-	cmp	r5, #0
-	str	r5, [r0, #4]
-	ble	.L272
-	adds	r6, r6, #26
-	mov	r4, r5
-	str	r6, [r0]
-	b	.L27
-.L272:
-	sub	r5, r4, #1048576
-	cmp	r5, #0
-	str	r5, [r0, #4]
-	ble	.L273
-	adds	r6, r6, #25
-	mov	r1, r5
-	str	r6, [r0]
-	b	.L28
-.L273:
-	sub	r5, r4, #524288
-	cmp	r5, #0
-	str	r5, [r0, #4]
-	ble	.L274
-	adds	r6, r6, #24
-	str	r6, [r0]
-	b	.L29
-.L274:
-	str	r4, [r0, #4]
-	cbz	r4, .L275
-	adds	r6, r6, #23
-	str	r6, [r0]
-	b	.L30
-.L275:
-	adds	r6, r6, #22
-	mov	r1, #524288
-	str	r6, [r0]
-	b	.L61
-.L290:
-	.align	2
-.L289:
-	.word	8388607
 	.size	OEM1_4_spn, .-OEM1_4_spn
+	.section	.text._Z15execute_programP3FV1,"ax",%progbits
+	.align	1
+	.p2align 2,,3
+	.global	_Z15execute_programP3FV1
+	.syntax unified
+	.thumb
+	.thumb_func
+	.type	_Z15execute_programP3FV1, %function
+_Z15execute_programP3FV1:
+	@ args = 0, pretend = 0, frame = 0
+	@ frame_needed = 0, uses_anonymous_args = 0
+	cmp	r0, #0
+	beq	.L208
+	add	r2, r0, #131072
+	vldr.32	s10, .L214
+	vldr.32	s11, .L214+4
+	ldr	r3, [r2, #336]
+	vldr.32	s12, .L214+8
+	ldr	r1, [r3]
+	orr	r1, r1, #1
+	push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+	ldr	r6, .L214+12
+	ldr	fp, .L214+32
+	bx	r1
+.L46:
+	ldr	r4, [r2, #268]
+	ldr	r1, [r3, #4]
+	ldr	r5, [r3, #8]
+	add	r1, r1, r4
+	ubfx	r1, r1, #0, #15
+	add	r1, r0, r1, lsl #2
+	ldr	r4, [r1, #268]
+	ldr	r1, [r0]
+	str	r1, [r0, #4]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat lr, #24, r4
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    ip, r8, r4, r5
+	mov      r8, r8, asl #9
+	orr      ip, r8, ip, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	lr, [r0, #8]
+.L189:
+	add	r1, r1, ip
+.L191:
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r1, #24, r1
+@ 0 "" 2
+	.thumb
+	.syntax unified
+.L188:
+	str	r1, [r0]
+.L190:
+	ldr	r1, [r3, #16]
+	adds	r3, r3, #16
+	orr	r1, r1, #1
+	bx	r1
+.L44:
+	pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+.L130:
+	ldr	r1, [r0]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r1, #24, r1
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r4, [r3, #4]
+	ldr	r5, [r3, #12]
+	str	r1, [r4]
+	ldr	r1, [r3, #8]
+	ldr	r4, [r1]
+.L187:
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r1, ip, r4, r5
+	mov      ip, ip, asl #9
+	orr      r1, ip, r1, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r1, #24, r1
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r1, [r0]
+	adds	r3, r3, #16
+	ldr	r1, [r3]
+	orr	r1, r1, #1
+	bx	r1
+.L129:
+	ldr	r4, [r3, #4]
+	adds	r3, r3, #16
+	ldr	r1, [r0]
+	str	r1, [r0, #4]
+	str	r1, [r4]
+	ldr	r1, [r3]
+	orr	r1, r1, #1
+	bx	r1
+.L128:
+	ldr	r4, [r3, #4]
+	ldr	r1, [r0]
+	str	r1, [r0, #4]
+	ldr	r4, [r4]
+.L186:
+	add	r1, r1, r4
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r1, #24, r1
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r1, [r0]
+	adds	r3, r3, #16
+	ldr	r1, [r3]
+	orr	r1, r1, #1
+	bx	r1
+.L131:
+	ldr	r1, [r3, #4]
+	adds	r3, r3, #16
+	ldr	r4, [r0]
+	str	r4, [r0, #4]
+	ldr	r1, [r1]
+	str	r1, [r0]
+	ldr	r1, [r3]
+	orr	r1, r1, #1
+	bx	r1
+.L125:
+	ldr	r1, [r0]
+	cmp	r1, #0
+	str	r1, [r0, #4]
+	blt	.L209
+	ldr	r1, .L214+16
+	b	.L188
+.L124:
+	ldr	r4, [r0]
+	ldr	r5, [r3, #4]
+	b	.L187
+.L123:
+	ldr	r1, [r3, #8]
+	ldr	r4, [r0]
+	b	.L186
+.L122:
+	ldr	r1, [r3, #8]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r1, #24, r1
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r1, [r0]
+	adds	r3, r3, #16
+	ldr	r1, [r3]
+	orr	r1, r1, #1
+	bx	r1
+.L109:
+	ldrd	r1, ip, [r3, #4]
+	ldr	r4, [r3, #12]
+	cmp	r1, #1
+	bls	.L210
+	subs	r1, r1, #2
+	cmp	r1, #1
+	bls	.L211
+	mov	lr, #0
+.L114:
+	ldr	r1, [r0]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r5, ip, r1, lr
+	mov      ip, ip, asl #9
+	orr      r5, ip, r5, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r1, [r0, #4]
+	add	r4, r4, r5
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r1, [r3, #16]
+	adds	r3, r3, #16
+	str	r4, [r0]
+	orr	r1, r1, #1
+	bx	r1
+.L121:
+	b	.L190
+.L100:
+	ldr	r1, [r3, #4]
+	ldr	r4, [r0]
+	str	r4, [r0, #4]
+	cmp	r1, #9
+	bhi	.L138
+	tbh	[pc, r1, lsl #1]
+.L103:
+	.2byte	(.L108-.L103)/2
+	.2byte	(.L107-.L103)/2
+	.2byte	(.L106-.L103)/2
+	.2byte	(.L105-.L103)/2
+	.2byte	(.L104-.L103)/2
+	.2byte	(.L102-.L103)/2
+	.2byte	(.L138-.L103)/2
+	.2byte	(.L138-.L103)/2
+	.2byte	(.L104-.L103)/2
+	.2byte	(.L102-.L103)/2
+	.p2align 1
+.L97:
+	ldr	r1, [r3, #12]
+	ldrd	r5, r4, [r3, #4]
+	lsls	r1, r1, #21
+	lsls	r4, r4, #8
+	cmp	r5, #0
+	bne	.L98
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r4, [r0, #28]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r1, #24, r1
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r1, [r0, #32]
+	str	r5, [r2, #304]
+	b	.L190
+.L82:
+	ldrd	r1, r4, [r3, #4]
+	ldr	ip, [r3, #12]
+	cmp	r1, #1
+	bls	.L212
+	subs	r1, r1, #2
+	cmp	r1, #1
+	bls	.L89
+	mov	lr, #0
+	and	r9, r4, #32
+	mov	r1, lr
+.L88:
+	cmp	r9, #0
+	bne	.L96
+.L133:
+	add	ip, ip, r1, asr #10
+.L96:
+	ldr	r1, [r2, #268]
+	add	r1, r1, ip
+	ubfx	r1, r1, #0, #15
+	add	r1, r0, r1, lsl #2
+	ldr	r4, [r1, #268]
+	ldr	r1, [r0]
+	str	r1, [r0, #4]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat ip, #24, r4
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r5, r8, r4, lr
+	mov      r8, r8, asl #9
+	orr      r5, r8, r5, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	ip, [r0, #8]
+	add	r1, r1, r5
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r1, #24, r1
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r1, [r0]
+	adds	r3, r3, #16
+	ldr	r1, [r3]
+	orr	r1, r1, #1
+	bx	r1
+.L81:
+	ldr	r1, [r3, #4]
+	movs	r5, #0
+	ldr	r4, .L214+20
+	adds	r3, r3, #16
+	add	r1, r1, r1, lsl #1
+	add	r1, r0, r1, lsl #2
+	str	r5, [r1, r4]
+	ldr	r1, [r3]
+	orr	r1, r1, #1
+	bx	r1
+.L78:
+	ldrd	r5, r4, [r3, #4]
+	ldr	r1, [r3, #12]
+	lsls	r4, r4, #14
+	cmp	r5, #0
+	bne	.L79
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	lsls	r1, r1, #8
+	str	r4, [r0, #12]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r1, #24, r1
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r1, [r0, #16]
+	ldr	r1, .L214+24
+	str	r5, [r2, #272]
+	str	r1, [r2, #276]
+	b	.L190
+.L71:
+	ldrd	r4, r5, [r3, #4]
+	ands	r1, r4, #16
+	beq	.L72
+	ldrb	r1, [r2, #328]	@ zero_extendqisi2
+	eor	r1, r1, #1
+.L72:
+	lsls	r7, r4, #29
+	bpl	.L73
+	ldr	r7, [r0]
+	cmp	r7, #0
+	it	eq
+	orreq	r1, r1, #1
+.L73:
+	lsls	r7, r4, #30
+	bpl	.L74
+	ldr	r7, [r0]
+	cmp	r7, #0
+	it	gt
+	orrgt	r1, r1, #1
+.L74:
+	lsls	r7, r4, #31
+	bpl	.L75
+	ldr	r7, [r0]
+	orr	r1, r1, r7, lsr #31
+.L75:
+	lsls	r4, r4, #28
+	bpl	.L76
+	ldrd	r4, r7, [r0]
+	eors	r4, r4, r7
+	ubfx	r4, r4, #23, #1
+	orrs	r1, r1, r4
+.L76:
+	cmp	r1, #0
+	beq	.L190
+	add	r3, r3, r5, lsl #4
+	b	.L190
+.L67:
+	ldr	r4, [r0]
+	ldr	r1, [r3, #4]
+	str	r4, [r0, #4]
+	orrs	r1, r1, r4
+	ldr	r4, .L214+28
+	ands	r4, r4, r1
+	cmp	r4, #0
+	beq	.L191
+	orr	r1, r1, #-16777216
+	b	.L191
+.L69:
+	ldr	r4, [r0]
+	ldr	r1, [r3, #4]
+	str	r4, [r0, #4]
+	eors	r1, r1, r4
+	ldr	r4, .L214+28
+	ands	r4, r4, r1
+	cmp	r4, #0
+	beq	.L191
+	orr	r1, r1, #-16777216
+	b	.L191
+.L215:
 	.align	2
+.L214:
+	.word	872415232
+	.word	-1096111445
+	.word	1059760811
+	.word	exp2tab
+	.word	8388607
+	.word	131376
+	.word	-8388607
+	.word	-8388608
+	.word	4194303
+.L65:
+	ldr	r4, [r0]
+	ldr	r1, [r3, #4]
+	str	r4, [r0, #4]
+	ands	r1, r1, r4
+	ldr	r4, .L216
+	ands	r4, r4, r1
+	cmp	r4, #0
+	beq	.L191
+	orr	r1, r1, #-16777216
+	b	.L191
+.L64:
+	ldr	r4, [r0]
+	ldr	r5, [r3, #4]
+	ldr	r1, [r3, #8]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    ip, lr, r4, r5
+	mov      lr, lr, asl #9
+	orr      ip, lr, ip, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r4, [r0, #4]
+	b	.L189
+.L61:
+	ldr	r4, [r0]
+	cmp	r4, #0
+	ldrd	ip, r5, [r3, #4]
+	str	r4, [r0, #4]
+	blt	.L213
+	ldr	r1, .L216+4
+.L62:
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r4, lr, r1, ip
+	mov      lr, lr, asl #9
+	orr      r4, lr, r4, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	adds	r1, r5, r4
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r1, #24, r1
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r1, [r0]
+	adds	r3, r3, #16
+	ldr	r1, [r3]
+	orr	r1, r1, #1
+	bx	r1
+.L58:
+	ldr	r1, [r0]
+	cmp	r1, #0
+	ldrd	r5, r4, [r3, #4]
+	str	r1, [r0, #4]
+	ble	.L59
+.L192:
+	vmov	s15, r1	@ int
+	vmov.f32	s13, #2.0e+0
+	vcvt.f32.s32	s15, s15
+	vmul.f32	s15, s15, s10
+	vmov	r1, s15
+	bic	ip, r1, #2139095040
+	ubfx	r1, r1, #23, #8
+	add	r7, ip, #1065353216
+	subs	r1, r1, #128
+	vmov	s14, r7	@ int
+	vmov	s15, r1	@ int
+	vfma.f32	s13, s14, s11
+	vcvt.f32.s32	s15, s15
+	vsub.f32	s15, s15, s12
+	vfma.f32	s15, s14, s13
+	vmov.f32	s14, s15
+	vcvt.s32.f32	s14, s14, #19
+	vmov	lr, s14	@ int
+.L60:
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r1, ip, lr, r5
+	mov      ip, ip, asl #9
+	orr      r1, ip, r1, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	b	.L186
+.L57:
+	ldr	r1, [r3, #4]
+	ldr	r4, [r0]
+	str	r4, [r0, #4]
+	ldr	r5, [r1]
+	b	.L187
+.L56:
+	ldr	r4, [r3, #4]
+	ldr	r1, [r0]
+	ldr	ip, [r3, #8]
+	str	r1, [r0, #4]
+	ldr	r5, [r4]
+	cmp	r5, #0
+	it	lt
+	rsblt	r5, r5, #0
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r4, lr, r5, ip
+	mov      lr, lr, asl #9
+	orr      r4, lr, r4, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	cmp	r1, #0
+	it	lt
+	rsblt	r1, r1, #0
+	cmp	r4, #0
+	it	lt
+	rsblt	r4, r4, #0
+	cmp	r1, r4
+	it	lt
+	movlt	r1, r4
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r1, #24, r1
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r1, [r0]
+	adds	r3, r3, #16
+	ldr	r1, [r3]
+	orr	r1, r1, #1
+	bx	r1
+.L55:
+	ldrd	r4, r1, [r0]
+	ldr	ip, [r3, #4]
+	ldr	r5, [r3, #8]
+	str	r4, [r0, #4]
+	str	r4, [ip]
+	ldr	r4, [r0]
+	subs	r4, r1, r4
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    ip, lr, r4, r5
+	mov      lr, lr, asl #9
+	orr      ip, lr, ip, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	b	.L189
+.L54:
+	ldr	ip, [r3, #4]
+	ldr	r4, [r0]
+	ldr	r5, [r3, #8]
+	ldr	r1, [r0, #4]
+	str	r4, [r0, #4]
+	str	r4, [ip]
+	ldr	r4, [r0]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    ip, lr, r4, r5
+	mov      lr, lr, asl #9
+	orr      ip, lr, ip, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	b	.L189
+.L53:
+	ldr	r4, [r3, #4]
+	ldr	r1, [r0]
+	ldr	r5, [r3, #8]
+	str	r1, [r0, #4]
+	str	r1, [r4]
+	ldr	r4, [r0]
+	b	.L187
+.L52:
+	ldr	r1, [r3, #4]
+	ldr	r4, [r0]
+	ldr	r5, [r3, #8]
+	str	r4, [r0, #4]
+	ldr	r1, [r1]
+	subs	r4, r4, r1
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    ip, lr, r4, r5
+	mov      lr, lr, asl #9
+	orr      ip, lr, ip, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	b	.L189
+.L51:
+	ldr	r4, [r3, #4]
+	ldr	r1, [r0]
+	ldr	r5, [r3, #8]
+	str	r1, [r0, #4]
+	ldr	r4, [r4]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    ip, lr, r4, r5
+	mov      lr, lr, asl #9
+	orr      ip, lr, ip, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	b	.L189
+.L50:
+	ldr	r4, [r2, #268]
+	ldr	r1, [r3, #4]
+	ldr	r5, [r3, #8]
+	add	r1, r1, r4
+	ldr	r4, [r0]
+	ubfx	r1, r1, #0, #15
+	str	r4, [r0, #4]
+	add	r1, r0, r1, lsl #2
+	str	r4, [r1, #268]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r1, ip, r4, r5
+	mov      ip, ip, asl #9
+	orr      r1, ip, r1, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r1, #24, r1
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r4, [r0, #8]
+	b	.L186
+.L47:
+	ldr	r1, [r2, #268]
+	ldr	r4, [r0, #108]
+	ldr	ip, [r3, #4]
+	add	r1, r1, r4, asr #8
+	ubfx	r1, r1, #0, #15
+	add	r1, r0, r1, lsl #2
+	ldr	r5, [r1, #268]
+	ldr	r1, [r0]
+	str	r1, [r0, #4]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r5
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r4, [r0, #8]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r4, lr, r5, ip
+	mov      lr, lr, asl #9
+	orr      r4, lr, r4, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	b	.L186
+.L49:
+	ldr	r4, [r2, #268]
+	ldr	r1, [r3, #4]
+	ldr	r5, [r3, #8]
+	add	r1, r1, r4
+	ldr	r4, [r0]
+	ubfx	r1, r1, #0, #15
+	str	r4, [r0, #4]
+	add	r1, r0, r1, lsl #2
+	str	r4, [r1, #268]
+	b	.L187
+.L79:
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	lsls	r1, r1, #8
+	str	r4, [r0, #20]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r1, #24, r1
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	ip, .L216+8
+	str	r1, [r0, #24]
+	movs	r1, #0
+	strd	r1, ip, [r2, #288]
+	b	.L190
+.L98:
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r4, [r0, #36]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r1, #24, r1
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r1, [r0, #40]
+	movs	r1, #0
+	str	r1, [r2, #316]
+	b	.L190
+.L212:
+	movw	r5, #8209
+	lsls	r7, r4, #31
+	and	r9, r4, #32
+	add	r5, r5, r1
+	add	r1, r0, r1, lsl #4
+	lsl	lr, r5, #4
+	add	r5, r0, r5, lsl #4
+	it	pl
+	ldrpl	r5, [r0, lr]
+	ldr	lr, .L216+12
+	it	mi
+	ldrmi	r5, [r5, #4]
+	lsls	r7, r4, #29
+	ldr	r1, [r1, lr]
+	ldr	lr, [r1]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r1, r8, r5, lr
+	mov      r8, r8, asl #9
+	orr      r1, r8, r1, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ite	mi
+	submi	lr, fp, r1
+	movpl	lr, r1
+	lsls	r5, r4, #28
+	it	mi
+	rsbmi	r1, r1, #0
+	b	.L88
+.L59:
+	beq	.L134
+	rsbs	r1, r1, #0
+	b	.L192
+.L213:
+	sbfx	lr, r4, #8, #19
+	movw	r1, #2046
+	lsls	r4, r4, #5
+	and	lr, lr, r1
+	ubfx	r1, r4, #0, #14
+	asrs	r4, r4, #24
+	ldr	r9, [r6, lr, lsl #2]
+	add	r8, lr, #1
+	rsb	r4, r4, #6
+	smull	lr, r9, r1, r9
+	ldr	r1, [r6, r8, lsl #2]
+	lsr	lr, lr, #14
+	orr	lr, lr, r9, lsl #18
+	add	r1, r1, lr
+	asrs	r1, r1, r4
+	it	mi
+	addmi	r1, r1, #1
+	asrs	r1, r1, #1
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r1, #24, r1
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	b	.L62
+.L217:
+	.align	2
+.L216:
+	.word	-8388608
+	.word	8388607
+	.word	-8388607
+	.word	131352
+.L210:
+	movw	r5, #8209
+	tst	ip, #1
+	add	r5, r5, r1
+	add	r1, r0, r1, lsl #4
+	lsl	lr, r5, #4
+	add	r5, r0, r5, lsl #4
+	it	eq
+	ldreq	r5, [r0, lr]
+	ldr	lr, .L218+16
+	it	ne
+	ldrne	r5, [r5, #4]
+	ldr	r1, [r1, lr]
+	ldr	r1, [r1]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    lr, r8, r5, r1
+	mov      r8, r8, asl #9
+	orr      lr, r8, lr, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+.L119:
+	tst	ip, #4
+	beq	.L114
+	sub	lr, fp, lr
+	b	.L114
+.L209:
+	sbfx	ip, r1, #8, #19
+	movw	r4, #2046
+	lsls	r1, r1, #5
+	and	ip, ip, r4
+	ubfx	r5, r1, #0, #14
+	asrs	r1, r1, #24
+	rsb	r4, r1, #6
+	ldr	r1, [r6, ip, lsl #2]
+	add	ip, ip, #1
+	smull	r5, lr, r5, r1
+	ldr	r1, [r6, ip, lsl #2]
+	lsrs	r5, r5, #14
+	orr	r5, r5, lr, lsl #18
+	add	r1, r1, r5
+	asrs	r1, r1, r4
+	it	mi
+	addmi	r1, r1, #1
+	asrs	r1, r1, #1
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r1, #24, r1
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	b	.L188
+.L208:
+	ldr	r3, .L218
+	ldr	r2, .L218+4
+	str	r2, [r3]
+	bx	lr
+.L102:
+	ldr	r1, [r2, #296]
+	ldr	r4, [r2, #292]
+	ldr	r5, [r1]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r1, ip, r4, r5
+	mov      ip, ip, asl #9
+	orr      r1, ip, r1, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	b	.L191
+.L104:
+	ldr	r1, [r2, #280]
+	ldr	r4, [r2, #276]
+	ldr	r5, [r1]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r1, ip, r4, r5
+	mov      ip, ip, asl #9
+	orr      r1, ip, r1, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	b	.L191
+.L134:
+	ldr	lr, .L218+20
+	b	.L60
+.L105:
+	ldr	r1, [r2, #316]
+	b	.L191
+.L107:
+	ldr	r1, [r2, #296]
+	ldr	r4, [r2, #288]
+	ldr	r5, [r1]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r1, ip, r4, r5
+	mov      ip, ip, asl #9
+	orr      r1, ip, r1, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	b	.L191
+.L106:
+	ldr	r1, [r2, #304]
+	b	.L191
+.L108:
+	ldr	r1, [r2, #280]
+	ldr	r4, [r2, #272]
+	ldr	r5, [r1]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r1, ip, r4, r5
+	mov      ip, ip, asl #9
+	orr      r1, ip, r1, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	b	.L191
+.L138:
+	movs	r1, #0
+	b	.L191
+.L211:
+	add	lr, r1, r1, lsl #1
+	ldr	r5, .L218+8
+	tst	ip, #16
+	lsl	r10, r1, #1
+	add	lr, r0, lr, lsl #2
+	ldr	r5, [lr, r5]
+	ldr	r5, [r5]
+	asr	r5, r5, #21
+	asr	r8, fp, r5
+	beq	.L115
+	cmp	r8, #0
+	ldr	r7, .L218+12
+	mov	r9, r8
+	ldr	lr, [lr, r7]
+	it	lt
+	addlt	r9, r8, #1
+	add	lr, lr, r9, asr #1
+	and	lr, lr, r8
+.L117:
+	tst	ip, #8
+	it	ne
+	subne	lr, r8, lr
+	tst	ip, #32
+	beq	.L119
+	add	r1, r1, r10
+	ldr	lr, .L218+12
+	add	r1, r0, r1, lsl #2
+	ldr	r1, [r1, lr]
+	cmp	r1, r8, asr #1
+	it	gt
+	subgt	r1, r8, r1
+	lsl	lr, r1, r5
+	b	.L119
+.L89:
+	add	lr, r1, r1, lsl #1
+	ldr	r5, .L218+8
+	lsls	r7, r4, #27
+	lsl	r10, r1, #1
+	add	lr, r0, lr, lsl #2
+	ldr	r5, [lr, r5]
+	ldr	r5, [r5]
+	asr	r5, r5, #21
+	asr	r8, fp, r5
+	bpl	.L90
+	cmp	r8, #0
+	ldr	r7, .L218+12
+	mov	r9, r8
+	ldr	lr, [lr, r7]
+	it	lt
+	addlt	r9, r8, #1
+	add	lr, lr, r9, asr #1
+	and	lr, lr, r8
+.L92:
+	lsls	r7, r4, #28
+	it	mi
+	submi	lr, r8, lr
+	ands	r9, r4, #32
+	beq	.L94
+	add	r1, r1, r10
+	ldr	lr, .L218+12
+	add	r1, r0, r1, lsl #2
+	ldr	r1, [r1, lr]
+	cmp	r1, r8, asr #1
+	it	gt
+	subgt	r1, r8, r1
+	lsls	r4, r4, #29
+	lsl	lr, r1, r5
+	bpl	.L96
+.L132:
+	mov	r1, lr
+	sub	lr, fp, lr
+	b	.L88
+.L94:
+	lsls	r1, r4, #29
+	bmi	.L132
+	mov	r1, lr
+	b	.L133
+.L90:
+	ldr	r9, .L218+12
+	ldr	lr, [lr, r9]
+	b	.L92
+.L115:
+	ldr	r9, .L218+12
+	ldr	lr, [lr, r9]
+	b	.L117
+.L219:
+	.align	2
+.L218:
+	.word	.LANCHOR0
+	.word	.LANCHOR1
+	.word	131380
+	.word	131376
+	.word	131352
+	.word	-8388607
+	.size	_Z15execute_programP3FV1, .-_Z15execute_programP3FV1
+	.section	.flashmem
+	.align	1
+	.p2align 2,,3
 	.global	dance_ir_h_l_spn
+	.syntax unified
 	.thumb
 	.thumb_func
 	.type	dance_ir_h_l_spn, %function
 dance_ir_h_l_spn:
-	@ args = 0, pretend = 0, frame = 32
+	@ args = 0, pretend = 0, frame = 24
 	@ frame_needed = 0, uses_anonymous_args = 0
 	push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
-	ldr	r3, [r0, #80]
-	sub	sp, sp, #36
-	ldr	r4, .L491
-	smull	r4, r5, r3, r4
-	cmp	r4, #0
-	sbcs	r2, r5, #0
-	blt	.L429
-.L292:
-	lsrs	r1, r4, #23
-	mvn	r6, #-16777216
-	ldr	r2, [r0, #4]
-	orr	r1, r1, r5, lsl #9
-	ldr	r4, .L491+4
-	cmp	r1, #-16777216
-	smull	r4, r5, r3, r4
-	it	lt
-	movlt	r1, #-16777216
-	cmp	r1, r6
-	ite	le
-	addle	r2, r2, r1
-	addgt	r2, r2, r6
-	cmp	r2, #-16777216
-	it	lt
-	movlt	r2, #-16777216
-	cmp	r2, r6
-	it	ge
-	movge	r2, r6
-	cmp	r4, #0
-	str	r2, [r0, #152]
-	sbcs	r2, r5, #0
-	blt	.L430
-.L293:
-	lsrs	r2, r4, #23
-	mvn	r4, #-16777216
-	ldr	r1, .L491+8
-	orr	r2, r2, r5, lsl #9
-	cmp	r2, #-16777216
-	it	lt
-	movlt	r2, #-16777216
-	cmp	r2, r4
-	it	ge
-	movge	r2, r4
-	add	r1, r1, r2
-	cmp	r1, #16777216
-	bge	.L390
-	ldr	r4, .L491
-	smull	r4, r5, r1, r4
-	cmp	r4, #0
-	sbcs	r2, r5, #0
-	blt	.L431
-.L295:
-	lsrs	r2, r4, #23
-	asrs	r7, r5, #23
-	orr	r6, r2, r5, lsl #9
-	cmp	r6, #16777216
-	sbcs	r2, r7, #0
-	bge	.L391
-	cmp	r6, #-16777216
-	it	lt
-	movlt	r6, #-16777216
-.L294:
-	ssat	r3, #25, r3
-	str	r6, [r0, #148]
-	sub	r2, r3, #4194304
-	str	r3, [r0, #4]
-	str	r3, [r0, #144]
-	cmp	r2, #-16777216
-	blt	.L296
-	cmp	r2, #0
-	str	r2, [r0, #4]
-	ble	.L296
-	ldr	r3, [r0]
-	adds	r3, r3, #2
-	str	r3, [r0]
-.L297:
-	ldr	r3, [r0, #84]
-	ssat	r3, #25, r3
-	asrs	r7, r3, #31
-	lsls	r4, r3, #22
-	lsls	r2, r7, #22
-	cmp	r4, #0
-	orr	r5, r2, r3, lsr #10
-	sbcs	r3, r5, #0
-	blt	.L432
-.L298:
-	lsrs	r3, r4, #23
-	orr	r3, r3, r5, lsl #9
+	ldr	r2, [r0]
+	sub	sp, sp, #28
+	ldr	r7, [r0, #76]
+	ldr	r6, .L231
+	str	r7, [sp]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r3, r1, r7, r6
+	mov      r1, r1, asl #9
+	orr      r3, r1, r3, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r3, r3, r2
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r3, #24, r3
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movs	r2, #0
+	str	r3, [r0, #148]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r4, r1, r3, r2
+	mov      r1, r1, asl #9
+	orr      r4, r1, r4, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r3, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r1, .L231+4
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r4, r5, r7, r1
+	mov      r5, r5, asl #9
+	orr      r4, r5, r4, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r4, r4, r3
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r1, .L231+8
+	mov	r3, #8388608
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r5, ip, r4, r3
+	mov      ip, ip, asl #9
+	orr      r5, ip, r5, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r1, r1, r5
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r1, #24, r1
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r5, r4, r1, r6
+	mov      r4, r4, asl #9
+	orr      r5, r4, r5, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r5
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r5, [r0, #144]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r6, r1, r5, r2
+	mov      r1, r1, asl #9
+	orr      r6, r1, r6, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r1, #24, r6
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r6, r4, r7, r3
+	mov      r4, r4, asl #9
+	orr      r6, r4, r6, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r6, r6, r1
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r6, #24, r6
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r6, [r0, #140]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r4, r1, r6, r3
+	mov      r1, r1, asl #9
+	orr      r4, r1, r4, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r4
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r1, ip, r4, r3
+	mov      ip, ip, asl #9
+	orr      r1, ip, r1, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	sub	r3, r1, #4194304
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r3, #24, r3
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	cmp	r3, r2
+	bgt	.L221
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r6, r1, r3, r2
+	mov      r1, r1, asl #9
+	orr      r6, r1, r6, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r6, r6, #4194304
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r6, #24, r6
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r6, [r0, #140]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r3, r1, r6, r2
+	mov      r1, r1, asl #9
+	orr      r3, r1, r3, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r3, #24, r3
+@ 0 "" 2
+	.thumb
+	.syntax unified
+.L221:
+	movs	r2, #0
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r3, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	mov	r1, #8388608
+	ldr	lr, [r0, #80]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r2, r4, lr, r1
+	mov      r4, r4, asl #9
+	orr      r2, r4, r2, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r2, r2, r3
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	mov	r1, #4194304
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r3, r4, r2, r1
+	mov      r4, r4, asl #9
+	orr      r3, r4, r3, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
 	sub	r3, r3, #4194304
-	vmov	s15, r3	@ int
-	str	r3, [r0, #4]
-	vcvt.f32.s32	s15, s15
-	vcmpe.f32	s15, #0
-	vmrs	APSR_nzcv, FPSCR
-	blt	.L433
-	ldr	r6, .L491+12
-.L299:
-	ldr	r1, [r0, #88]
-	str	r6, [r0, #188]
-	ssat	r7, #25, r1
-	asrs	r3, r7, #31
-	mov	r2, r7
-	lsls	r4, r7, #22
-	lsl	lr, r3, #22
-	cmp	r4, #0
-	orr	r5, lr, r7, lsr #10
-	sbcs	r7, r5, #0
-	blt	.L434
-.L300:
-	lsrs	r4, r4, #23
-	orr	r4, r4, r5, lsl #9
-	sub	r4, r4, #4194304
-	vmov	s15, r4	@ int
-	str	r4, [r0, #4]
-	vcvt.f32.s32	s15, s15
-	vcmpe.f32	s15, #0
-	vmrs	APSR_nzcv, FPSCR
-	blt	.L435
-	str	r6, [sp]
-	movs	r7, #0
-	ldr	r6, .L491+12
-	ldr	r5, .L491+12
-	strd	r6, [sp, #8]
-.L301:
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r3, #24, r3
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	cmp	r3, #0
+	blt	.L229
+	ldr	r3, .L231+12
+.L222:
+	mov	r1, #8388608
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r4, r2, r3, r1
+	mov      r2, r2, asl #9
+	orr      r4, r2, r4, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movs	r3, #0
+	mov	r4, r2
+	str	r2, [sp, #8]
+	str	r2, [r0, #184]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r2, ip, r4, r3
+	mov      ip, ip, asl #9
+	orr      r2, ip, r2, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r3, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
 	ldr	r4, [r0, #84]
-	ldr	r6, .L491+4
-	str	r5, [r0, #192]
-	smull	r6, r7, r4, r6
-	cmp	r6, #0
-	sbcs	r4, r7, #0
-	blt	.L436
-.L302:
-	lsrs	r5, r6, #23
-	mvn	r6, #-16777216
-	ldr	r4, .L491+8
-	orr	r5, r5, r7, lsl #9
-	cmp	r5, #-16777216
-	it	lt
-	movlt	r5, #-16777216
-	cmp	r5, r6
-	it	ge
-	movge	r5, r6
-	add	r4, r4, r5
-	cmp	r4, r6
-	it	ge
-	movge	r4, r6
-	smull	r8, r9, r4, r4
-	asrs	r5, r4, #31
-	cmp	r8, #0
-	sbcs	r6, r9, #0
-	blt	.L437
-.L303:
-	lsr	lr, r8, #23
-	mvn	r10, #-16777216
-	mov	fp, #0
-	asr	r7, r9, #23
-	orr	r6, lr, r9, lsl #9
-	cmp	r10, r6
-	sbcs	lr, fp, r7
-	blt	.L304
-	cmp	r6, #-16777216
-	it	lt
-	movlt	r6, #-16777216
-	mov	r10, r6
-	asr	fp, r6, #31
-.L304:
-	mul	r6, r4, fp
-	umull	r8, r9, r4, r10
-	mla	r10, r10, r5, r6
-	mov	r4, r8
-	add	r9, r9, r10
-	cmp	r4, #0
-	mov	r5, r9
-	sbcs	r6, r9, #0
-	blt	.L438
-.L305:
-	lsrs	r4, r4, #23
-	mvn	r8, #-16777216
-	mov	r9, #0
-	asrs	r7, r5, #23
-	orr	r6, r4, r5, lsl #9
-	cmp	r8, r6
-	sbcs	r4, r9, r7
-	blt	.L395
-	cmp	r6, #-16777216
-	it	lt
-	movlt	r6, #-16777216
-	mov	r4, r6
-	asrs	r5, r6, #31
-	strd	r4, [sp, #16]
-.L306:
-	mul	r3, r1, r3
-	asrs	r5, r1, #31
-	str	r6, [r0, #216]
-	mla	r4, r2, r5, r3
-	umull	r2, r3, r1, r2
-	add	r3, r3, r4
-	cmp	r2, #0
-	sbcs	r4, r3, #0
-	blt	.L439
-.L307:
-	lsrs	r2, r2, #23
-	orr	r2, r2, r3, lsl #9
-	ssat	r2, #25, r2
-	smull	r2, r3, r2, r1
-	cmp	r2, #0
-	sbcs	r4, r3, #0
-	blt	.L440
-.L308:
-	lsr	r8, r2, #23
-	orr	r8, r8, r3, lsl #9
-	ssat	r8, #25, r8
-	smull	r8, r9, r8, r1
-	cmp	r8, #0
-	sbcs	r3, r9, #0
-	blt	.L441
-.L309:
-	ldr	r10, [r0, #96]
-	lsr	r4, r8, #23
-	mov	r6, r10
-	orr	r1, r4, r9, lsl #9
-	lsl	r2, r10, #21
-	asrs	r7, r6, #31
-	mov	r4, r1
-	cmp	r2, #0
-	lsl	r1, r7, #21
-	ssat	r4, #25, r4
-	orr	r3, r1, r10, lsr #11
-	str	r4, [sp, #24]
-	str	r4, [r0, #220]
-	sbcs	r1, r3, #0
-	blt	.L442
-.L310:
-	lsrs	r2, r2, #23
-	asr	r9, r3, #23
-	orr	r8, r2, r3, lsl #9
-	cmp	r8, #16777216
-	sbcs	r3, r9, #0
-	bge	.L396
-	cmp	r8, #-16777216
-	mov	r1, r8
-	it	lt
-	movlt	r1, #-16777216
-.L311:
-	ldr	fp, [r0, #100]
-	mov	r4, fp
-	lsl	r2, fp, #21
-	asrs	r5, r4, #31
-	cmp	r2, #0
-	lsl	r4, r5, #21
-	orr	r3, r4, fp, lsr #11
-	sbcs	r4, r3, #0
-	blt	.L443
-.L312:
-	lsrs	r2, r2, #23
-	asr	r9, r3, #23
-	orr	r8, r2, r3, lsl #9
-	cmp	r8, #16777216
-	sbcs	r3, r9, #0
-	bge	.L397
-	cmp	r8, #-16777216
-	it	lt
-	movlt	r8, #-16777216
-.L313:
-	add	r8, r8, r1
-	ldr	r3, [r0, #148]
-	ssat	r8, #25, r8
-	smull	r8, r9, r8, r3
-	cmp	r8, #0
-	sbcs	r3, r9, #0
-	blt	.L444
-.L314:
-	ldr	r3, .L491+16
-	lsr	r1, r8, #23
-	mvn	r5, #-16777216
-	ldr	r6, .L491+20
-	ldr	r3, [r0, r3]
-	orr	r1, r1, r9, lsl #9
-	add	r2, r3, #202
-	cmp	r1, #-16777216
-	ubfx	r2, r2, #0, #15
-	it	lt
-	movlt	r1, #-16777216
-	add	r2, r0, r2, lsl #2
-	cmp	r1, r5
-	ldr	r4, [r2, #272]
-	it	ge
-	movge	r1, r5
-	cmp	r4, #-16777216
-	mov	r2, r4
-	smull	r6, r7, r4, r6
-	it	lt
-	movlt	r2, #-16777216
-	cmp	r2, r5
-	it	ge
-	movge	r2, r5
-	cmp	r6, #0
-	sbcs	r4, r7, #0
-	blt	.L445
-.L315:
-	lsrs	r6, r6, #23
-	asrs	r5, r7, #23
-	orr	r4, r6, r7, lsl #9
-	cmp	r4, #16777216
-	sbcs	r6, r5, #0
-	bge	.L398
-	cmp	r4, #-16777216
-	it	lt
-	movlt	r4, #-16777216
-.L316:
-	add	r1, r1, r4
-	ubfx	r5, r3, #0, #15
-	ldr	r4, .L491+24
-	ssat	r1, #25, r1
-	add	r5, r0, r5, lsl #2
-	str	r1, [r5, #272]
-	smull	r4, r5, r1, r4
-	cmp	r4, #0
-	sbcs	r1, r5, #0
-	blt	.L446
-	b	.L492
-.L493:
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r2, r8, r4, r1
+	mov      r8, r8, asl #9
+	orr      r2, r8, r2, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r2, r2, r3
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	mov	r1, #4194304
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r3, r8, r2, r1
+	mov      r8, r8, asl #9
+	orr      r3, r8, r3, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	sub	r3, r3, #4194304
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r3, #24, r3
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	cmp	r3, #0
+	blt	.L230
+	ldr	r2, .L231+12
+.L224:
+	mov	r3, #8388608
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r1, r8, r2, r3
+	mov      r8, r8, asl #9
+	orr      r1, r8, r1, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r1, #24, r1
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movs	r2, #0
+	mov	r7, r1
+	str	r1, [r0, #188]
+	str	r1, [sp, #12]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r9, r1, r7, r2
+	mov      r1, r1, asl #9
+	orr      r9, r1, r9, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r9, #24, r9
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	sub	r2, r2, #8388608
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r8, r10, lr, r2
+	mov      r10, r10, asl #9
+	orr      r8, r10, r8, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	lr, r8, r9
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat lr, #24, lr
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r7, .L231+8
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r8, r9, lr, r3
+	mov      r9, r9, asl #9
+	orr      r8, r9, r8, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r7, r7, r8
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat lr, #24, r7
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r9, r8, lr, r3
+	mov      r8, r8, asl #9
+	orr      r9, r8, r9, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r9, #24, r9
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r8, r10, r9, lr
+	mov      r10, r10, asl #9
+	orr      r8, r10, r8, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r8, #24, r8
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r9, r10, r8, lr
+	mov      r10, r10, asl #9
+	orr      r9, r10, r9, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r7, #24, r9
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	mov	r1, r7
+	str	r7, [r0, #212]
+	str	r7, [sp, #16]
+	movs	r7, #0
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    lr, r8, r1, r7
+	mov      r8, r8, asl #9
+	orr      lr, r8, lr, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r8, #24, lr
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    lr, r9, r4, r3
+	mov      r9, r9, asl #9
+	orr      lr, r9, lr, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	lr, lr, r8
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat lr, #24, lr
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r8, r9, lr, r4
+	mov      r9, r9, asl #9
+	orr      r8, r9, r8, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r8, #24, r8
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    lr, r9, r8, r4
+	mov      r9, r9, asl #9
+	orr      lr, r9, lr, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat lr, #24, lr
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r8, r9, lr, r4
+	mov      r9, r9, asl #9
+	orr      r8, r9, r8, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r8
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r4, [r0, #216]
+	str	r4, [sp, #20]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    ip, lr, r4, r7
+	mov      lr, lr, asl #9
+	orr      ip, lr, ip, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat ip, #24, ip
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r7, [r0, #92]
+	mov	r8, #2097152
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    lr, r9, r7, r8
+	mov      r9, r9, asl #9
+	orr      lr, r9, lr, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	mov	r1, r7
+	add	lr, lr, ip
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat lr, #24, lr
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r4, [r0, #96]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    ip, r9, r4, r8
+	mov      r9, r9, asl #9
+	orr      ip, r9, ip, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r4, [sp, #4]
+	add	ip, ip, lr
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat ip, #24, ip
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r8, lr, ip, r5
+	mov      lr, lr, asl #9
+	orr      r8, lr, r8, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r8, #24, r8
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r5, r0, #131072
+	ldr	r5, [r5, #268]
+	add	ip, r5, #202
+	ubfx	ip, ip, #0, #15
+	add	ip, r0, ip, lsl #2
+	ldr	r7, [ip, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r10, #24, r7
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r4, .L231+16
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    ip, lr, r7, r4
+	mov      lr, lr, asl #9
+	orr      ip, lr, ip, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	ip, ip, r8
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat ip, #24, ip
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ubfx	lr, r5, #0, #15
+	ldr	r7, .L231+20
+	add	lr, r0, lr, lsl #2
+	str	ip, [lr, #268]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    lr, r8, ip, r7
+	mov      r8, r8, asl #9
+	orr      lr, r8, lr, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat lr, #24, lr
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	lr, lr, r10
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat lr, #24, lr
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	ip, r5, #744
+	ubfx	ip, ip, #0, #15
+	add	ip, r0, ip, lsl #2
+	ldr	r9, [ip, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r10, #24, r9
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    ip, r8, r9, r4
+	mov      r8, r8, asl #9
+	orr      ip, r8, ip, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	ip, ip, lr
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat ip, #24, ip
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	lr, r5, #203
+	b	.L232
+.L233:
 	.align	2
-.L491:
+.L231:
 	.word	16768768
 	.word	-8388608
 	.word	8380160
 	.word	8388607
-	.word	131344
 	.word	5029888
 	.word	-5038080
-.L492:
-.L317:
-	lsrs	r1, r4, #23
-	add	lr, r3, #744
-	mvn	r6, #-16777216
-	ldr	r7, .L494
+.L232:
 	ubfx	lr, lr, #0, #15
-	orr	r1, r1, r5, lsl #9
 	add	lr, r0, lr, lsl #2
-	add	r1, r1, r2
-	ldr	r4, [lr, #272]
-	cmp	r1, #-16777216
-	it	lt
-	movlt	r1, #-16777216
-	cmp	r4, #-16777216
-	mov	r2, r4
-	smull	r8, r9, r4, r7
-	it	lt
-	movlt	r2, #-16777216
-	cmp	r1, r6
-	it	ge
-	movge	r1, r6
-	cmp	r2, r6
-	it	ge
-	movge	r2, r6
-	cmp	r8, #0
-	sbcs	r4, r9, #0
-	blt	.L447
-.L318:
-	lsr	r6, r8, #23
-	asr	r5, r9, #23
-	orr	r4, r6, r9, lsl #9
-	cmp	r4, #16777216
-	sbcs	r6, r5, #0
-	bge	.L399
-	cmp	r4, #-16777216
-	it	lt
-	movlt	r4, #-16777216
-.L319:
-	add	r1, r1, r4
-	ldr	r6, .L494+4
-	add	r4, r3, #203
-	ssat	r1, #25, r1
-	ubfx	r4, r4, #0, #15
-	smull	r6, r7, r1, r6
-	add	r4, r0, r4, lsl #2
-	cmp	r6, #0
-	str	r1, [r4, #272]
-	sbcs	r1, r7, #0
-	blt	.L448
-.L320:
-	lsrs	r1, r6, #23
-	addw	lr, r3, #1902
-	mvn	r4, #-16777216
-	ldr	r5, .L494
-	ubfx	lr, lr, #0, #15
-	orr	r1, r1, r7, lsl #9
-	add	lr, r0, lr, lsl #2
-	add	r1, r1, r2
-	ldr	r6, [lr, #272]
-	cmp	r1, #-16777216
-	it	lt
-	movlt	r1, #-16777216
-	cmp	r6, #-16777216
-	mov	r2, r6
-	smull	r8, r9, r6, r5
-	it	lt
-	movlt	r2, #-16777216
-	cmp	r1, r4
-	it	ge
-	movge	r1, r4
-	cmp	r2, r4
-	it	ge
-	movge	r2, r4
-	cmp	r8, #0
-	sbcs	r4, r9, #0
-	blt	.L449
-.L321:
-	lsr	r4, r8, #23
-	asr	r7, r9, #23
-	orr	r6, r4, r9, lsl #9
-	cmp	r6, #16777216
-	sbcs	r4, r7, #0
-	bge	.L400
-	cmp	r6, #-16777216
-	it	lt
-	movlt	r6, #-16777216
-.L322:
-	add	r1, r1, r6
-	addw	r4, r3, #745
-	ldr	r5, .L494+4
-	ssat	r1, #25, r1
-	ubfx	r4, r4, #0, #15
-	smull	r8, r9, r1, r5
-	add	r4, r0, r4, lsl #2
-	cmp	r8, #0
-	str	r1, [r4, #272]
-	sbcs	r1, r9, #0
-	blt	.L450
-.L323:
-	addw	r7, r3, #3806
-	lsr	r1, r8, #23
-	mvn	r5, #-16777216
-	ldr	r6, .L494
-	ubfx	r7, r7, #0, #15
-	orr	r1, r1, r9, lsl #9
-	add	r7, r0, r7, lsl #2
-	add	r1, r1, r2
-	ldr	r4, [r7, #272]
-	cmp	r1, #-16777216
-	it	lt
-	movlt	r1, #-16777216
-	cmp	r4, #-16777216
-	mov	r2, r4
-	smull	r6, r7, r4, r6
-	it	lt
-	movlt	r2, #-16777216
-	cmp	r1, r5
-	it	ge
-	movge	r1, r5
-	cmp	r2, r5
-	it	ge
-	movge	r2, r5
-	cmp	r6, #0
-	sbcs	r4, r7, #0
-	blt	.L451
-.L324:
-	lsrs	r6, r6, #23
-	asrs	r5, r7, #23
-	orr	r4, r6, r7, lsl #9
-	cmp	r4, #16777216
-	sbcs	r6, r5, #0
-	bge	.L401
-	cmp	r4, #-16777216
-	it	lt
-	movlt	r4, #-16777216
-.L325:
-	add	r1, r1, r4
-	ldr	r6, .L494+4
-	addw	r4, r3, #1903
-	ssat	r1, #25, r1
-	ubfx	r4, r4, #0, #15
-	smull	r6, r7, r1, r6
-	add	r4, r0, r4, lsl #2
-	cmp	r6, #0
-	str	r1, [r4, #272]
-	sbcs	r1, r7, #0
-	blt	.L452
-.L326:
-	lsrs	r4, r6, #23
-	movw	r1, #26831
-	mvn	r5, #-16777216
-	ldr	lr, [r0, #144]
-	orr	r4, r4, r7, lsl #9
-	add	r1, r1, r3
-	movs	r6, #0
-	add	r2, r2, r4
-	ubfx	r1, r1, #0, #15
-	str	r6, [r0, #4]
-	cmp	r2, #-16777216
-	add	r1, r0, r1, lsl #2
-	it	lt
-	movlt	r2, #-16777216
-	ldr	r4, [r1, #272]
-	cmp	r2, r5
-	it	ge
-	movge	r2, r5
-	cmp	r4, #-16777216
-	it	lt
-	movlt	r4, #-16777216
-	str	r2, [r0, #196]
-	cmp	r4, r5
-	it	ge
-	movge	r4, r5
-	smull	r4, r5, r4, lr
-	cmp	r4, #0
-	sbcs	r1, r5, #0
-	blt	.L453
-.L327:
-	lsr	ip, r4, #23
-	movw	r1, #6011
-	mvn	r4, #-16777216
-	ldr	r7, .L494
-	orr	ip, ip, r5, lsl #9
-	add	r1, r1, r3
-	cmp	ip, #-16777216
-	ubfx	r1, r1, #0, #15
-	it	lt
-	movlt	ip, #-16777216
-	add	r1, r0, r1, lsl #2
-	cmp	ip, r4
-	ite	le
-	addle	ip, r2, ip
-	addgt	ip, r2, r4
-	ldr	r5, [r1, #272]
-	cmp	ip, #-16777216
-	mov	r1, r5
-	smull	r8, r9, r5, r7
-	it	lt
-	movlt	ip, #-16777216
-	cmp	r5, #-16777216
-	it	lt
-	movlt	r1, #-16777216
-	cmp	ip, r4
-	it	ge
-	movge	ip, r4
-	cmp	r1, r4
-	it	ge
-	movge	r1, r4
-	cmp	r8, #0
-	sbcs	r4, r9, #0
-	blt	.L454
-.L328:
-	lsr	r4, r8, #23
-	asr	r7, r9, #23
-	orr	r6, r4, r9, lsl #9
-	cmp	r6, #16777216
-	sbcs	r4, r7, #0
-	bge	.L402
-	cmp	r6, #-16777216
-	it	lt
-	movlt	r6, #-16777216
-.L329:
-	add	r6, r6, ip
-	addw	r4, r3, #3807
-	ldr	r5, .L494+4
-	ssat	r6, #25, r6
-	ubfx	r4, r4, #0, #15
-	smull	r8, r9, r6, r5
-	add	r4, r0, r4, lsl #2
-	cmp	r8, #0
-	str	r6, [r4, #272]
-	sbcs	r4, r9, #0
-	blt	.L455
-.L330:
-	lsr	ip, r8, #23
-	movw	r7, #9313
-	mvn	r5, #-16777216
-	ldr	r6, .L494
-	orr	ip, ip, r9, lsl #9
-	add	r7, r7, r3
-	add	ip, ip, r1
-	ubfx	r7, r7, #0, #15
-	cmp	ip, #-16777216
-	add	r7, r0, r7, lsl #2
-	it	lt
-	movlt	ip, #-16777216
-	ldr	r4, [r7, #272]
-	cmp	ip, r5
-	mov	r1, r4
-	smull	r6, r7, r4, r6
-	it	ge
-	movge	ip, r5
-	cmp	r4, #-16777216
-	it	lt
-	movlt	r1, #-16777216
-	cmp	r1, r5
-	it	ge
-	movge	r1, r5
-	cmp	r6, #0
-	sbcs	r4, r7, #0
-	blt	.L456
-.L331:
-	lsrs	r6, r6, #23
-	asrs	r5, r7, #23
-	orr	r4, r6, r7, lsl #9
-	cmp	r4, #16777216
-	sbcs	r6, r5, #0
-	bge	.L403
-	cmp	r4, #-16777216
-	it	lt
-	movlt	r4, #-16777216
-.L332:
-	add	r4, r4, ip
-	movw	r5, #6012
-	ldr	r6, .L494+4
-	movw	ip, #9314
-	ssat	r4, #25, r4
-	add	r5, r5, r3
-	add	ip, ip, r3
-	smull	r6, r7, r4, r6
-	ubfx	r5, r5, #0, #15
+	str	ip, [lr, #268]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r8, lr, ip, r7
+	mov      lr, lr, asl #9
+	orr      r8, lr, r8, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r8, #24, r8
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r8, r8, r10
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r8, #24, r8
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	addw	ip, r5, #1902
 	ubfx	ip, ip, #0, #15
-	add	r5, r0, r5, lsl #2
-	cmp	r6, #0
 	add	ip, r0, ip, lsl #2
-	str	r4, [r5, #272]
-	sbcs	r4, r7, #0
-	blt	.L457
-.L333:
-	lsrs	r4, r6, #23
-	movw	r5, #13770
-	mvn	r6, #-16777216
-	orr	r4, r4, r7, lsl #9
-	add	r5, r5, r3
-	add	r1, r1, r4
-	ubfx	r5, r5, #0, #15
-	cmp	r1, #-16777216
-	add	r5, r0, r5, lsl #2
-	it	lt
-	movlt	r1, #-16777216
-	cmp	r1, r6
-	it	ge
-	movge	r1, r6
-	str	r1, [ip, #272]
-	ldr	r4, [r5, #272]
-	cmp	r4, #-16777216
-	it	lt
-	movlt	r4, #-16777216
-	cmp	r4, r6
-	it	ge
-	movge	r4, r6
-	smull	r4, r5, r4, lr
-	cmp	r4, #0
-	sbcs	r1, r5, #0
-	blt	.L458
-.L334:
-	lsrs	r6, r4, #23
-	movw	r1, #17303
-	mvn	r4, #-16777216
-	ldr	r7, .L494
-	orr	r6, r6, r5, lsl #9
-	add	r1, r1, r3
-	cmp	r6, #-16777216
-	ubfx	r1, r1, #0, #15
-	it	lt
-	movlt	r6, #-16777216
-	b	.L495
-.L496:
-	.align	2
-.L494:
-	.word	5029888
-	.word	-5038080
-.L495:
-	add	r1, r0, r1, lsl #2
-	cmp	r6, r4
-	ite	le
-	addle	r2, r2, r6
-	addgt	r2, r2, r4
-	ldr	r5, [r1, #272]
-	cmp	r2, #-16777216
-	mov	r1, r5
-	smull	r8, r9, r5, r7
-	it	lt
-	movlt	r2, #-16777216
-	cmp	r5, #-16777216
-	it	lt
-	movlt	r1, #-16777216
-	cmp	r2, r4
-	it	ge
-	movge	r2, r4
-	cmp	r1, r4
-	it	ge
-	movge	r1, r4
-	cmp	r8, #0
-	sbcs	r4, r9, #0
-	blt	.L459
-.L335:
-	lsr	r4, r8, #23
-	asr	r7, r9, #23
-	orr	r6, r4, r9, lsl #9
-	cmp	r6, #16777216
-	sbcs	r4, r7, #0
-	bge	.L404
-	cmp	r6, #-16777216
-	it	lt
-	movlt	r6, #-16777216
-.L336:
-	movw	r4, #13771
-	add	r2, r2, r6
-	ldr	r5, .L497
-	ssat	r2, #25, r2
-	add	r4, r4, r3
-	smull	r8, r9, r2, r5
-	ubfx	r4, r4, #0, #15
-	cmp	r8, #0
-	add	r4, r0, r4, lsl #2
-	str	r2, [r4, #272]
-	sbcs	r2, r9, #0
-	blt	.L460
-.L337:
-	lsr	r4, r8, #23
-	movw	r2, #20505
-	mvn	r5, #-16777216
-	ldr	r6, .L497+4
-	orr	r4, r4, r9, lsl #9
-	add	r2, r2, r3
-	add	r1, r1, r4
-	ubfx	r2, r2, #0, #15
-	cmp	r1, #-16777216
-	add	r2, r0, r2, lsl #2
-	it	lt
-	movlt	r1, #-16777216
-	ldr	r4, [r2, #272]
-	cmp	r1, r5
-	mov	r2, r4
-	smull	r6, r7, r4, r6
-	it	ge
-	movge	r1, r5
-	cmp	r4, #-16777216
-	it	lt
-	movlt	r2, #-16777216
-	cmp	r2, r5
-	it	ge
-	movge	r2, r5
-	cmp	r6, #0
-	sbcs	r4, r7, #0
-	blt	.L461
-.L338:
-	lsrs	r6, r6, #23
-	asrs	r5, r7, #23
-	orr	r4, r6, r7, lsl #9
-	cmp	r4, #16777216
-	sbcs	r6, r5, #0
-	bge	.L405
-	cmp	r4, #-16777216
-	it	lt
-	movlt	r4, #-16777216
-.L339:
-	movw	r5, #17304
-	add	r1, r1, r4
-	ldr	r6, .L497
-	ssat	r1, #25, r1
-	add	r5, r5, r3
-	smull	r6, r7, r1, r6
-	ubfx	r5, r5, #0, #15
-	cmp	r6, #0
-	add	r5, r0, r5, lsl #2
-	str	r1, [r5, #272]
-	sbcs	r1, r7, #0
-	blt	.L462
-.L340:
-	lsrs	r4, r6, #23
-	movw	r1, #20506
-	orr	r4, r4, r7, lsl #9
-	add	r1, r1, r3
-	ldr	r3, .L497+8
-	add	r2, r2, r4
-	ubfx	r1, r1, #0, #15
-	smull	r8, r9, r10, r3
-	add	r1, r0, r1, lsl #2
-	ssat	r2, #25, r2
-	cmp	r8, #0
-	str	r2, [r1, #272]
-	sbcs	r1, r9, #0
-	ldr	r3, [ip, #272]
-	blt	.L463
-.L341:
-	mov	r6, #12582912
-	lsr	r1, r8, #23
-	smull	r6, r7, r3, r6
-	orr	r1, r1, r9, lsl #9
-	cmp	r6, #0
-	ssat	r1, #25, r1
-	sbcs	r3, r7, #0
-	blt	.L464
-.L342:
-	lsrs	r4, r6, #23
-	mvn	r5, #-16777216
-	ldr	r3, [r0, #80]
-	orr	r4, r4, r7, lsl #9
-	cmp	r4, #-16777216
-	it	lt
-	movlt	r4, #-16777216
-	cmp	r4, r5
-	ite	le
-	addle	r4, r1, r4
-	addgt	r4, r1, r5
-	cmp	r4, #-16777216
-	it	lt
-	movlt	r4, #-16777216
-	cmp	r4, r5
-	it	ge
-	movge	r4, r5
-	smull	r4, r5, r4, r3
-	cmp	r4, #0
-	sbcs	r1, r5, #0
-	blt	.L465
-.L343:
-	cmp	r10, #-16777216
-	mvn	r1, #-16777216
-	lsr	r6, r4, #23
-	ldr	r4, .L497+8
-	it	lt
-	movlt	r10, #-16777216
-	orr	r6, r6, r5, lsl #9
-	smull	r4, r5, fp, r4
-	cmp	r10, r1
-	it	ge
-	movge	r10, r1
-	cmp	r6, #-16777216
-	it	lt
-	movlt	r6, #-16777216
-	cmp	r6, r1
-	ite	le
-	addle	ip, r10, r6
-	addgt	ip, r10, r1
-	cmp	ip, #-16777216
-	it	lt
-	movlt	ip, #-16777216
-	cmp	ip, r1
-	it	ge
-	movge	ip, r1
-	cmp	r4, #0
-	sbcs	r1, r5, #0
-	str	ip, [r0, #200]
-	blt	.L466
-.L344:
-	mov	r6, #12582912
-	lsrs	r1, r4, #23
-	str	r2, [r0, #12]
-	smull	r6, r7, r2, r6
-	orr	r1, r1, r5, lsl #9
-	cmp	r6, #0
-	ssat	r1, #25, r1
-	sbcs	r2, r7, #0
-	blt	.L467
-.L345:
-	lsrs	r2, r6, #23
-	asrs	r5, r7, #23
-	orr	r4, r2, r7, lsl #9
-	cmp	r4, #16777216
-	sbcs	r2, r5, #0
-	bge	.L406
-	cmp	r4, #-16777216
-	it	lt
-	movlt	r4, #-16777216
-.L346:
-	add	r4, r4, r1
-	ssat	r4, #25, r4
-	smull	r4, r5, r4, r3
-	cmp	r4, #0
-	sbcs	r3, r5, #0
-	blt	.L468
-.L347:
-	cmp	fp, #-16777216
-	mvn	r1, #-16777216
-	lsr	r6, r4, #23
-	ldr	r2, [r0, #156]
-	it	lt
-	movlt	fp, #-16777216
-	orr	r6, r6, r5, lsl #9
-	mov	r4, r2
-	cmp	fp, r1
-	ldr	r5, [sp]
-	it	ge
-	movge	fp, r1
-	cmp	r2, #-16777216
-	it	lt
-	movlt	r4, #-16777216
-	cmp	r6, #-16777216
-	it	lt
-	movlt	r6, #-16777216
-	cmp	r4, r1
-	it	ge
-	movge	r4, r1
-	cmp	r6, r1
-	ite	le
-	addle	r3, fp, r6
-	addgt	r3, fp, r1
-	cmp	r3, #-16777216
-	smull	r6, r7, r4, r5
-	it	lt
-	movlt	r3, #-16777216
-	cmp	r3, r1
-	it	ge
-	movge	r3, r1
-	cmp	r6, #0
-	sbcs	r1, r7, #0
-	str	r3, [r0, #204]
-	blt	.L469
-.L348:
-	ldr	r1, [r0, #160]
-	lsrs	r5, r6, #23
-	mvn	r6, #-16777216
-	orr	r5, r5, r7, lsl #9
-	cmp	r1, #-16777216
-	ldr	r7, .L497+8
-	it	lt
-	movlt	r1, #-16777216
-	cmp	r5, #-16777216
-	it	lt
-	movlt	r5, #-16777216
-	cmp	r1, r6
-	it	ge
-	movge	r1, r6
-	cmp	r5, r6
-	ite	le
-	addle	r1, r1, r5
-	addgt	r1, r1, r6
-	cmp	r1, #-16777216
-	it	lt
-	movlt	r1, #-16777216
-	cmp	r1, r6
-	it	ge
-	movge	r1, r6
-	smull	r10, fp, r1, r7
-	str	r1, [r0, #160]
-	cmp	r10, #0
-	sbcs	r1, fp, #0
-	blt	.L470
-.L349:
-	lsr	r5, r10, #23
-	ldr	r1, .L497+12
-	asr	r7, fp, #23
-	orr	r6, r5, fp, lsl #9
-	smull	r8, r9, r2, r1
-	cmp	r7, #0
-	itt	eq
-	cmpeq	r6, #16777216
-	mvneq	r6, #-16777216
-	cmp	r8, #0
-	sbcs	r2, r9, #0
-	blt	.L471
-.L351:
-	lsr	r2, r8, #23
-	asr	fp, r9, #23
-	orr	r10, r2, r9, lsl #9
-	cmp	r10, #16777216
-	sbcs	r2, fp, #0
-	bge	.L408
-	cmp	r10, #-16777216
-	it	lt
-	movlt	r10, #-16777216
-.L352:
-	add	r6, r6, r10
-	mvn	r1, #-16777216
-	cmp	r6, #-16777216
-	it	lt
-	movlt	r6, #-16777216
-	cmp	r6, r1
-	ite	le
-	addle	r2, ip, r6
-	addgt	r2, ip, r1
-	cmp	r2, #-16777216
-	it	lt
-	movlt	r2, #-16777216
-	cmp	r2, r1
-	it	ge
-	movge	r2, r1
-	ldr	r1, [sp]
-	smull	r6, r7, r2, r1
-	cmp	r6, #0
-	sbcs	r1, r7, #0
-	blt	.L472
-.L353:
-	lsrs	r1, r6, #23
-	ldr	lr, [r0, #172]
-	mvn	r6, #-16777216
-	orr	r1, r1, r7, lsl #9
-	cmp	r1, #-16777216
-	it	lt
-	movlt	r1, #-16777216
-	cmp	lr, #-16777216
+	ldr	r9, [ip, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r10, #24, r9
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    ip, lr, r9, r4
+	mov      lr, lr, asl #9
+	orr      ip, lr, ip, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	ip, ip, r8
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat ip, #24, ip
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	addw	lr, r5, #745
+	ubfx	lr, lr, #0, #15
+	add	lr, r0, lr, lsl #2
+	str	ip, [lr, #268]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    lr, r8, ip, r7
+	mov      r8, r8, asl #9
+	orr      lr, r8, lr, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat lr, #24, lr
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	lr, lr, r10
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat lr, #24, lr
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	addw	ip, r5, #3806
+	ubfx	ip, ip, #0, #15
+	add	ip, r0, ip, lsl #2
+	ldr	r8, [ip, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r9, #24, r8
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    ip, r10, r8, r4
+	mov      r10, r10, asl #9
+	orr      ip, r10, ip, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	ip, ip, lr
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat ip, #24, ip
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	addw	lr, r5, #1903
+	ubfx	lr, lr, #0, #15
+	add	lr, r0, lr, lsl #2
+	str	ip, [lr, #268]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    fp, lr, ip, r7
+	mov      lr, lr, asl #9
+	orr      fp, lr, fp, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat fp, #24, fp
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	fp, fp, r9
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat fp, #24, fp
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	mov	r8, #0
+	str	fp, [r0, #192]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    lr, ip, fp, r8
+	mov      ip, ip, asl #9
+	orr      lr, ip, lr, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat lr, #24, lr
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movw	ip, #26831
+	add	ip, ip, r5
+	ubfx	ip, ip, #0, #15
+	add	ip, r0, ip, lsl #2
+	ldr	r8, [ip, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat ip, #24, r8
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    ip, r9, r8, r3
+	mov      r9, r9, asl #9
+	orr      ip, r9, ip, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	ip, ip, lr
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat ip, #24, ip
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r8, lr, ip, r6
+	mov      lr, lr, asl #9
+	orr      r8, lr, r8, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat ip, #24, r8
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r8, lr, fp, r3
+	mov      lr, lr, asl #9
+	orr      r8, lr, r8, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r8, r8, ip
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r8, #24, r8
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movw	ip, #6011
+	add	ip, ip, r5
+	ubfx	ip, ip, #0, #15
+	add	ip, r0, ip, lsl #2
+	ldr	r9, [ip, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r10, #24, r9
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    ip, lr, r9, r4
+	mov      lr, lr, asl #9
+	orr      ip, lr, ip, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	ip, ip, r8
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat ip, #24, ip
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	addw	lr, r5, #3807
+	ubfx	lr, lr, #0, #15
+	add	lr, r0, lr, lsl #2
+	str	ip, [lr, #268]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    lr, r8, ip, r7
+	mov      r8, r8, asl #9
+	orr      lr, r8, lr, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat lr, #24, lr
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	lr, lr, r10
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat lr, #24, lr
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movw	ip, #9313
+	add	ip, ip, r5
+	ubfx	ip, ip, #0, #15
+	add	ip, r0, ip, lsl #2
+	ldr	r8, [ip, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r9, #24, r8
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    ip, r10, r8, r4
+	mov      r10, r10, asl #9
+	orr      ip, r10, ip, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	ip, ip, lr
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat ip, #24, ip
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movw	lr, #6012
+	add	lr, lr, r5
+	ubfx	lr, lr, #0, #15
+	add	lr, r0, lr, lsl #2
+	str	ip, [lr, #268]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r8, lr, ip, r7
+	mov      lr, lr, asl #9
+	orr      r8, lr, r8, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r8, #24, r8
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r9, r9, r8
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r9, #24, r9
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movw	ip, #9314
+	mov	r10, #0
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r8, lr, r9, r10
+	mov      lr, lr, asl #9
+	orr      r8, lr, r8, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	ip, ip, r5
+	ubfx	ip, ip, #0, #15
+	add	ip, r0, ip, lsl #2
+	str	r9, [ip, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r8, #24, r8
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movw	lr, #13770
+	add	lr, lr, r5
+	ubfx	lr, lr, #0, #15
+	add	lr, r0, lr, lsl #2
+	ldr	r9, [lr, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat lr, #24, r9
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    lr, r10, r9, r3
+	mov      r10, r10, asl #9
+	orr      lr, r10, lr, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	lr, lr, r8
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat lr, #24, lr
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r8, r9, lr, r6
+	mov      r9, r9, asl #9
+	orr      r8, r9, r8, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r8, #24, r8
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    lr, r6, fp, r3
+	mov      r6, r6, asl #9
+	orr      lr, r6, lr, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	lr, lr, r8
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat lr, #24, lr
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movw	r6, #17303
+	add	r6, r6, r5
+	ubfx	r6, r6, #0, #15
+	add	r6, r0, r6, lsl #2
+	ldr	r9, [r6, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r10, #24, r9
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r6, r8, r9, r4
+	mov      r8, r8, asl #9
+	orr      r6, r8, r6, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r6, r6, lr
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r6, #24, r6
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movw	lr, #13771
+	add	lr, lr, r5
+	ubfx	lr, lr, #0, #15
+	add	lr, r0, lr, lsl #2
+	str	r6, [lr, #268]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r8, lr, r6, r7
+	mov      lr, lr, asl #9
+	orr      r8, lr, r8, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r8, #24, r8
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r8, r8, r10
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r8, #24, r8
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movw	r6, #20505
+	add	r6, r6, r5
+	ubfx	r6, r6, #0, #15
+	add	r6, r0, r6, lsl #2
+	ldr	r9, [r6, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r10, #24, r9
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r6, lr, r9, r4
+	mov      lr, lr, asl #9
+	orr      r6, lr, r6, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r6, r6, r8
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r6, #24, r6
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movw	r9, #17304
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    lr, r8, r6, r7
+	mov      r8, r8, asl #9
+	orr      lr, r8, lr, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r9, r9, r5
+	ubfx	r9, r9, #0, #15
+	add	r9, r0, r9, lsl #2
+	str	r6, [r9, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat lr, #24, lr
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	lr, lr, r10
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat lr, #24, lr
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movw	r6, #20506
+	movs	r4, #0
+	add	r6, r6, r5
+	ubfx	r6, r6, #0, #15
+	add	r6, r0, r6, lsl #2
+	str	lr, [r6, #268]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r5, r6, lr, r4
+	mov      r6, r6, asl #9
+	orr      r5, r6, r5, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r5
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r6, r8, r1, r2
+	mov      r8, r8, asl #9
+	orr      r6, r8, r6, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
 	mov	r7, r1
-	mov	r1, lr
-	it	lt
-	movlt	r1, #-16777216
-	cmp	r7, r6
-	ite	le
-	addle	r7, r4, r7
-	addgt	r7, r4, r6
-	ldr	r4, [sp]
-	cmp	r1, r6
-	it	ge
-	movge	r1, r6
-	cmp	r7, #-16777216
-	it	lt
-	movlt	r7, #-16777216
-	smull	r4, r5, r1, r4
-	cmp	r6, r7
-	it	ge
-	movge	r6, r7
-	cmp	r4, #0
-	str	r6, [r0, #156]
-	sbcs	r6, r5, #0
-	blt	.L473
-.L354:
-	lsrs	r6, r4, #23
-	ldr	r4, [r0, #176]
-	ldr	r7, .L497+8
-	orr	r6, r6, r5, lsl #9
-	cmp	r4, #-16777216
-	mvn	r5, #-16777216
-	it	lt
-	movlt	r4, #-16777216
-	cmp	r6, #-16777216
-	it	lt
-	movlt	r6, #-16777216
-	cmp	r4, r5
-	it	ge
-	movge	r4, r5
-	b	.L498
-.L499:
-	.align	2
-.L497:
-	.word	-5038080
-	.word	5029888
-	.word	-8388608
-	.word	-1677824
-.L498:
-	cmp	r6, r5
-	ite	le
-	addle	r4, r4, r6
-	addgt	r4, r4, r5
-	cmp	r4, #-16777216
-	it	lt
-	movlt	r4, #-16777216
-	cmp	r4, r5
-	it	ge
-	movge	r4, r5
-	smull	r8, r9, r4, r7
-	str	r4, [r0, #176]
-	cmp	r8, #0
-	sbcs	r4, r9, #0
-	blt	.L474
-.L355:
-	lsr	r7, r8, #23
-	ldr	r6, .L500
-	asr	r5, r9, #23
-	orr	r4, r7, r9, lsl #9
-	smull	r6, r7, lr, r6
-	cmp	r5, #0
-	itt	eq
-	cmpeq	r4, #16777216
-	mvneq	r4, #-16777216
-	cmp	r6, #0
-	sbcs	r5, r7, #0
-	blt	.L475
-.L357:
-	lsrs	r5, r6, #23
-	asr	r9, r7, #23
-	orr	r8, r5, r7, lsl #9
-	cmp	r8, #16777216
-	sbcs	r5, r9, #0
-	bge	.L410
-	cmp	r8, #-16777216
-	it	lt
-	movlt	r8, #-16777216
-.L358:
-	add	r4, r4, r8
-	mvn	r5, #-16777216
-	cmp	r4, #-16777216
-	it	lt
-	movlt	r4, #-16777216
-	cmp	r4, r5
-	ite	le
-	addle	r4, r3, r4
-	addgt	r4, r3, r5
-	cmp	r4, #-16777216
-	it	lt
-	movlt	r4, #-16777216
-	cmp	r4, r5
-	it	ge
-	movge	r4, r5
-	ldr	r5, [sp]
-	smull	r6, r7, r4, r5
-	cmp	r6, #0
-	sbcs	r5, r7, #0
-	blt	.L476
-.L359:
-	lsrs	r5, r6, #23
-	mvn	r6, #-16777216
-	orr	r5, r5, r7, lsl #9
-	ldr	r7, .L500+4
-	cmp	r5, #-16777216
-	smull	r8, r9, r2, r7
-	it	lt
-	movlt	r5, #-16777216
-	cmp	r5, r6
-	ite	le
-	addle	r5, r1, r5
-	addgt	r5, r1, r6
-	cmp	r5, #-16777216
-	it	lt
-	movlt	r5, #-16777216
-	cmp	r5, r6
-	it	ge
-	movge	r5, r6
-	cmp	r8, #0
-	sbcs	r1, r9, #0
-	str	r5, [r0, #172]
-	blt	.L477
-.L360:
-	asr	r7, r9, #23
-	lsr	r1, r8, #23
-	cmp	r7, #0
-	orr	r6, r1, r9, lsl #9
-	itt	eq
-	cmpeq	r6, #16777216
-	mvneq	r6, #-16777216
-	ldrd	r10, [sp, #16]
-	add	r6, r6, ip
-	mov	r1, fp
-	ssat	r6, #25, r6
-	asr	r9, r6, #31
-	mul	r1, r6, r1
-	umull	r6, r7, r6, r10
-	mla	r1, r10, r9, r1
-	cmp	r6, #0
-	add	r7, r7, r1
-	sbcs	r1, r7, #0
-	blt	.L478
-.L362:
-	lsrs	r1, r6, #23
-	asr	fp, r7, #23
-	orr	r10, r1, r7, lsl #9
-	cmp	r10, #16777216
-	sbcs	r1, fp, #0
-	bge	.L412
-	cmp	r10, #-16777216
-	it	lt
-	movlt	r10, #-16777216
-.L363:
-	ldr	r6, .L500+4
-	add	r10, r10, r2
-	smull	r6, r7, r4, r6
-	ssat	r10, #25, r10
-	cmp	r6, #0
-	str	r10, [r0, #208]
-	sbcs	r2, r7, #0
-	blt	.L479
-.L364:
-	lsrs	r2, r6, #23
-	asr	r9, r7, #23
-	orr	r8, r2, r7, lsl #9
-	cmp	r9, #0
-	itt	eq
-	cmpeq	r8, #16777216
-	mvneq	r8, #-16777216
-	add	r8, r8, r3
-	ssat	r8, #25, r8
-	ldrd	r5, [sp, #16]
-	mov	r2, r8
-	asrs	r3, r2, #31
-	mul	r2, r8, r6
-	umull	r8, r9, r8, r5
-	mla	r3, r5, r3, r2
-	cmp	r8, #0
-	add	r9, r9, r3
-	sbcs	r3, r9, #0
-	blt	.L480
-.L366:
-	lsr	r1, r8, #23
-	asr	r3, r9, #23
-	orr	r2, r1, r9, lsl #9
-	cmp	r2, #16777216
-	sbcs	r1, r3, #0
-	bge	.L414
-	cmp	r2, #-16777216
-	it	lt
-	movlt	r2, #-16777216
-.L367:
-	ldr	r6, [r0, #164]
-	add	r4, r4, r2
-	mvn	r3, #-16777216
-	cmp	r6, #-16777216
-	mov	r5, r6
-	it	lt
-	movlt	r5, #-16777216
-	cmp	r4, #-16777216
-	ldrd	r8, [sp, #8]
-	it	lt
-	movlt	r4, #-16777216
-	cmp	r5, r3
-	mov	r1, r9
-	it	ge
-	movge	r5, r3
-	cmp	r4, r3
-	mul	r1, r5, r1
-	it	ge
-	movge	r4, r3
-	asrs	r3, r5, #31
-	str	r4, [sp, #16]
-	mla	r1, r8, r3, r1
-	umull	r2, r3, r5, r8
-	str	r4, [r0, #212]
-	add	r3, r3, r1
-	cmp	r2, #0
-	sbcs	r1, r3, #0
-	blt	.L481
-.L368:
-	lsrs	r2, r2, #23
-	asr	r9, r3, #23
-	orr	r8, r2, r3, lsl #9
-	cmp	r8, #16777216
-	sbcs	r3, r9, #0
-	bge	.L415
-	cmp	r8, #-16777216
-	it	lt
-	movlt	r8, #-16777216
-.L369:
-	ldr	r1, [r0, #168]
-	mvn	r3, #-16777216
-	ldr	r2, .L500+4
-	cmp	r1, #-16777216
-	it	lt
-	movlt	r1, #-16777216
-	cmp	r1, r3
-	ite	le
-	addle	r1, r8, r1
-	addgt	r1, r8, r3
-	cmp	r1, #-16777216
-	it	lt
-	movlt	r1, #-16777216
-	cmp	r1, r3
-	it	ge
-	movge	r1, r3
-	smull	r2, r3, r1, r2
-	str	r1, [r0, #168]
-	cmp	r2, #0
-	sbcs	r4, r3, #0
-	blt	.L482
-.L370:
-	lsrs	r7, r2, #23
-	ldr	r2, .L500
-	orr	r7, r7, r3, lsl #9
-	asrs	r3, r3, #23
-	str	r7, [sp]
-	str	r3, [sp, #4]
-	smull	r6, r7, r6, r2
-	ldrd	r3, [sp]
-	cmp	r4, #0
-	mov	fp, r3
-	itet	eq
-	cmpeq	r3, #16777216
-	movne	lr, r3
-	mvneq	lr, #-16777216
-	cmp	r6, #0
-	sbcs	r3, r7, #0
-	blt	.L483
-.L372:
-	lsrs	r6, r6, #23
-	asrs	r3, r7, #23
-	orr	r2, r6, r7, lsl #9
-	cmp	r2, #16777216
-	sbcs	r4, r3, #0
-	bge	.L417
-	cmp	r2, #-16777216
-	it	lt
-	movlt	r2, #-16777216
-.L373:
-	add	r2, r2, lr
-	mvn	r3, #-16777216
-	cmp	r2, #-16777216
-	it	lt
-	movlt	r2, #-16777216
-	cmp	r2, r3
-	ite	le
-	addle	r2, r10, r2
-	addgt	r2, r10, r3
-	cmp	r2, #-16777216
-	it	lt
-	movlt	r2, #-16777216
-	cmp	r2, r3
-	ldrd	r8, [sp, #8]
-	it	ge
-	movge	r2, r3
-	asrs	r7, r2, #31
-	mul	r6, r2, r9
-	umull	r2, r3, r2, r8
-	mla	r6, r8, r7, r6
-	cmp	r2, #0
-	add	r3, r3, r6
-	sbcs	r4, r3, #0
-	blt	.L484
-.L374:
-	lsrs	r2, r2, #23
-	asrs	r7, r3, #23
-	orr	r6, r2, r3, lsl #9
-	cmp	r6, #16777216
-	sbcs	r3, r7, #0
-	bge	.L418
-	cmp	r6, #-16777216
-	it	lt
-	movlt	r6, #-16777216
-.L375:
-	ldr	lr, [r0, #180]
+	add	r6, r6, r5
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r6, #24, r6
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	ip, [ip, #268]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, ip
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	mov	r8, #12582912
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r5, r9, ip, r8
+	mov      r9, r9, asl #9
+	orr      r5, r9, r5, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
 	add	r5, r5, r6
-	mvn	r3, #-16777216
-	cmp	lr, #-16777216
-	mov	ip, lr
-	it	lt
-	movlt	ip, #-16777216
-	cmp	r5, #-16777216
-	it	lt
-	movlt	r5, #-16777216
-	cmp	ip, r3
-	it	ge
-	movge	ip, r3
-	cmp	r5, r3
-	ldrd	r6, [sp, #8]
-	mov	r2, ip
-	it	ge
-	movge	r5, r3
-	asrs	r3, r2, #31
-	mul	r2, ip, r7
-	str	r5, [r0, #164]
-	mla	r5, r6, r3, r2
-	umull	r2, r3, ip, r6
-	add	r3, r3, r5
-	cmp	r2, #0
-	sbcs	r4, r3, #0
-	blt	.L485
-.L376:
-	lsrs	r2, r2, #23
-	asrs	r7, r3, #23
-	orr	r6, r2, r3, lsl #9
-	cmp	r6, #16777216
-	sbcs	r3, r7, #0
-	bge	.L419
-	cmp	r6, #-16777216
-	it	lt
-	movlt	r6, #-16777216
-.L377:
-	ldr	r5, [r0, #184]
-	mvn	r3, #-16777216
-	mov	r4, r6
-	ldr	r2, .L500+4
-	cmp	r5, #-16777216
-	it	lt
-	movlt	r5, #-16777216
-	cmp	r5, r3
-	ite	le
-	addle	r4, r4, r5
-	addgt	r4, r4, r3
-	cmp	r4, #-16777216
-	it	lt
-	movlt	r4, #-16777216
-	cmp	r4, r3
-	it	ge
-	movge	r4, r3
-	smull	r2, r3, r4, r2
-	str	r4, [sp, #28]
-	cmp	r2, #0
-	b	.L501
-.L502:
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r5
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r1, [sp]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r6, ip, r5, r1
+	mov      ip, ip, asl #9
+	orr      r6, ip, r6, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r6
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r6, ip, r7, r3
+	mov      ip, ip, asl #9
+	orr      r6, ip, r6, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r6, r6, r5
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r6, #24, r6
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movs	r4, #0
+	str	r6, [r0, #196]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r5, ip, r6, r4
+	mov      ip, ip, asl #9
+	orr      r5, ip, r5, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r5
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r4, [sp, #4]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    ip, r9, r4, r2
+	mov      r9, r9, asl #9
+	orr      ip, r9, ip, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	ip, ip, r5
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat ip, #24, ip
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r9, #24, lr
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r5, r10, lr, r8
+	mov      r10, r10, asl #9
+	orr      r5, r10, r5, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r9, [r0, #8]
+	add	ip, ip, r5
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat ip, #24, ip
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r5, lr, ip, r1
+	mov      lr, lr, asl #9
+	orr      r5, lr, r5, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r7, #24, r5
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r5, ip, r4, r3
+	mov      ip, ip, asl #9
+	orr      r5, ip, r5, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r5, r5, r7
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r5
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movs	r1, #0
+	str	r5, [r0, #200]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r7, ip, r5, r1
+	mov      ip, ip, asl #9
+	orr      r7, ip, r7, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat ip, #24, r7
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r8, [r0, #152]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r7, lr, r8, r3
+	mov      lr, lr, asl #9
+	orr      r7, lr, r7, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r7, r7, ip
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r7, #24, r7
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r4, [sp, #8]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    lr, ip, r7, r4
+	mov      ip, ip, asl #9
+	orr      lr, ip, lr, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat lr, #24, lr
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r7, [r0, #156]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    ip, r9, r7, r3
+	mov      r9, r9, asl #9
+	orr      ip, r9, ip, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	ip, ip, lr
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r7, #24, ip
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r7, [r0, #156]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    lr, ip, r7, r2
+	mov      ip, ip, asl #9
+	orr      lr, ip, lr, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat lr, #24, lr
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r7, .L234
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    ip, r9, r8, r7
+	mov      r9, r9, asl #9
+	orr      ip, r9, ip, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	ip, ip, lr
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat ip, #24, ip
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    lr, r9, r6, r3
+	mov      r9, r9, asl #9
+	orr      lr, r9, lr, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	lr, lr, ip
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat lr, #24, lr
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    ip, r9, lr, r3
+	mov      r9, r9, asl #9
+	orr      ip, r9, ip, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat ip, #24, ip
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r9, r10, ip, r4
+	mov      r10, r10, asl #9
+	orr      r9, r10, r9, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r9, #24, r9
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    ip, r10, r8, r3
+	mov      r10, r10, asl #9
+	orr      ip, r10, ip, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	ip, ip, r9
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r8, #24, ip
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movs	r1, #0
+	str	r8, [r0, #152]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r9, ip, r8, r1
+	mov      ip, ip, asl #9
+	orr      r9, ip, r9, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r9, #24, r9
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r8, [r0, #168]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    ip, r10, r8, r3
+	mov      r10, r10, asl #9
+	orr      ip, r10, ip, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	ip, ip, r9
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat ip, #24, ip
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r9, r10, ip, r4
+	mov      r10, r10, asl #9
+	orr      r9, r10, r9, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r9, #24, r9
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r1, [r0, #172]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    ip, r10, r1, r3
+	mov      r10, r10, asl #9
+	orr      ip, r10, ip, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	ip, ip, r9
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat ip, #24, ip
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	mov	r1, r2
+	str	ip, [r0, #172]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r9, r10, ip, r2
+	mov      r10, r10, asl #9
+	orr      r9, r10, r9, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r9, #24, r9
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    ip, r10, r8, r7
+	mov      r10, r10, asl #9
+	orr      ip, r10, ip, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	ip, ip, r9
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat ip, #24, ip
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r9, r10, r5, r3
+	mov      r10, r10, asl #9
+	orr      r9, r10, r9, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	ip, ip, r9
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat ip, #24, ip
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r9, r10, ip, r3
+	mov      r10, r10, asl #9
+	orr      r9, r10, r9, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r9, #24, r9
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r10, fp, r9, r4
+	mov      fp, fp, asl #9
+	orr      r10, fp, r10, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r10, #24, r10
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r4, r9, r8, r3
+	mov      r9, r9, asl #9
+	orr      r4, r9, r4, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r10, r10, r4
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r10
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movs	r2, #0
+	str	r4, [r0, #168]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r8, r9, r4, r2
+	mov      r9, r9, asl #9
+	orr      r8, r9, r8, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r8
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r8, r9, lr, r1
+	mov      r9, r9, asl #9
+	orr      r8, r9, r8, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	mov	r2, r1
+	add	r8, r8, r4
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r8, #24, r8
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r4, r9, r6, r3
+	mov      r9, r9, asl #9
+	orr      r4, r9, r4, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r4, r4, r8
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r1, [sp, #16]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r6, r8, r4, r1
+	mov      r8, r8, asl #9
+	orr      r6, r8, r6, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r6
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r6, r8, lr, r3
+	mov      r8, r8, asl #9
+	orr      r6, r8, r6, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r6, r6, r4
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r6, #24, r6
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	mov	r8, #0
+	str	r6, [r0, #204]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    lr, r4, r6, r8
+	mov      r4, r4, asl #9
+	orr      lr, r4, lr, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat lr, #24, lr
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r4, r8, ip, r2
+	mov      r8, r8, asl #9
+	orr      r4, r8, r4, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r4, r4, lr
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat lr, #24, r4
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r4, r8, r5, r3
+	mov      r8, r8, asl #9
+	orr      r4, r8, r4, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r4, r4, lr
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r4
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r5, lr, r4, r1
+	mov      lr, lr, asl #9
+	orr      r5, lr, r5, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r5
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r4, lr, ip, r3
+	mov      lr, lr, asl #9
+	orr      r4, lr, r4, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	ip, r4, r5
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat ip, #24, ip
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movs	r1, #0
+	str	ip, [r0, #208]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r4, r5, ip, r1
+	mov      r5, r5, asl #9
+	orr      r4, r5, r4, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat lr, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r5, [r0, #160]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r4, r8, r5, r3
+	mov      r8, r8, asl #9
+	orr      r4, r8, r4, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r4, r4, lr
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r1, [sp, #12]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    lr, r8, r4, r1
+	mov      r8, r8, asl #9
+	orr      lr, r8, lr, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r8, #24, lr
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r4, [r0, #164]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    lr, r9, r4, r3
+	mov      r9, r9, asl #9
+	orr      lr, r9, lr, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	lr, lr, r8
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat lr, #24, lr
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	lr, [r0, #164]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r4, r8, lr, r2
+	mov      r8, r8, asl #9
+	orr      r4, r8, r4, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r4
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r8, r9, r5, r7
+	mov      r9, r9, asl #9
+	orr      r8, r9, r8, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r8, r8, r4
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r8
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r8, r9, r6, r3
+	mov      r9, r9, asl #9
+	orr      r8, r9, r8, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r8, r8, r4
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r8, #24, r8
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r4, r9, r8, r1
+	mov      r9, r9, asl #9
+	orr      r4, r9, r4, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r8, #24, r4
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r4, r9, r5, r3
+	mov      r9, r9, asl #9
+	orr      r4, r9, r4, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r4, r4, r8
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	mov	r9, #0
+	str	r4, [r0, #160]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r5, r8, r4, r9
+	mov      r8, r8, asl #9
+	orr      r5, r8, r5, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r5
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r8, [r0, #176]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r5, r9, r8, r3
+	mov      r9, r9, asl #9
+	orr      r5, r9, r5, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r5, r5, r4
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r5
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r9, r4, r5, r1
+	mov      r4, r4, asl #9
+	orr      r9, r4, r9, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r9, #24, r9
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r5, [r0, #180]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r4, r10, r5, r3
+	mov      r10, r10, asl #9
+	orr      r4, r10, r4, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r4, r4, r9
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r4, #24, r4
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r4, [r0, #180]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r9, r5, r4, r2
+	mov      r5, r5, asl #9
+	orr      r9, r5, r9, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r9, #24, r9
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r5, r10, r8, r7
+	mov      r10, r10, asl #9
+	orr      r5, r10, r5, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r9, r9, r5
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r9
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r9, r7, ip, r3
+	mov      r7, r7, asl #9
+	orr      r9, r7, r9, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r9, r9, r5
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r9, #24, r9
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r5, r7, r9, r1
+	mov      r7, r7, asl #9
+	orr      r5, r7, r5, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r7, #24, r5
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r5, r9, r8, r3
+	mov      r9, r9, asl #9
+	orr      r5, r9, r5, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r5, r5, r7
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r5
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movs	r1, #0
+	str	r5, [r0, #176]
+	b	.L235
+.L236:
 	.align	2
-.L500:
+.L234:
 	.word	-1677824
-	.word	-8388608
-.L501:
-	str	r4, [r0, #184]
-	sbcs	r4, r3, #0
-	blt	.L486
-.L378:
-	asr	r9, r3, #23
-	lsrs	r6, r2, #23
-	ldr	r2, .L503
-	cmp	r9, #0
-	orr	r8, r6, r3, lsl #9
-	smull	r6, r7, lr, r2
-	it	eq
-	cmpeq	r8, #16777216
-	mov	lr, r8
-	ite	ne
-	movne	r3, r8
-	mvneq	r3, #-16777216
-	cmp	r6, #0
-	mov	r5, r3
-	sbcs	r3, r7, #0
-	blt	.L487
-.L380:
-	lsrs	r6, r6, #23
-	asrs	r3, r7, #23
-	orr	r2, r6, r7, lsl #9
-	cmp	r2, #16777216
-	sbcs	r4, r3, #0
-	bge	.L421
-	cmp	r2, #-16777216
-	it	lt
-	movlt	r2, #-16777216
-.L381:
-	add	r2, r2, r5
-	mvn	r3, #-16777216
-	ldr	r4, [sp, #16]
-	cmp	r2, #-16777216
-	it	lt
-	movlt	r2, #-16777216
-	cmp	r2, r3
-	ite	le
-	addle	r4, r4, r2
-	addgt	r4, r4, r3
-	cmp	r4, #-16777216
-	mov	r2, r4
-	it	lt
-	movlt	r2, #-16777216
-	cmp	r2, r3
-	ldrd	r4, [sp, #8]
-	it	ge
-	movge	r2, r3
-	asrs	r7, r2, #31
-	mul	r6, r2, r5
-	umull	r2, r3, r2, r4
-	mla	r6, r4, r7, r6
-	cmp	r2, #0
-	add	r3, r3, r6
-	sbcs	r4, r3, #0
-	blt	.L488
-.L382:
-	lsrs	r2, r2, #23
-	asrs	r7, r3, #23
-	orr	r6, r2, r3, lsl #9
-	cmp	r6, #16777216
-	sbcs	r3, r7, #0
-	bge	.L422
-	cmp	r6, #-16777216
-	it	lt
-	movlt	r6, #-16777216
-.L383:
-	add	r6, r6, ip
-	mvn	r3, #-16777216
-	cmp	r6, #-16777216
-	it	lt
-	movlt	r6, #-16777216
-	ldrd	r4, [sp]
-	cmp	r6, r3
-	it	ge
-	movge	r6, r3
-	cmp	r5, #0
-	it	eq
-	cmpeq	r4, #16777216
-	str	r6, [r0, #180]
-	it	eq
-	moveq	fp, r3
-	add	r2, fp, r10
-	cmp	r2, #-16777216
-	it	lt
-	movlt	r2, #-16777216
-	cmp	r2, r3
-	it	ge
-	movge	r2, r3
-	ldr	r3, [sp, #24]
-	smull	r2, r3, r2, r3
-	cmp	r2, #0
-	sbcs	r4, r3, #0
-	blt	.L489
-.L385:
-	lsrs	r2, r2, #23
-	asrs	r7, r3, #23
-	orr	r6, r2, r3, lsl #9
-	cmp	r6, #16777216
-	sbcs	r3, r7, #0
-	bge	.L424
-	cmp	r6, #-16777216
-	it	lt
-	movlt	r6, #-16777216
-.L386:
-	add	r1, r1, r6
-	mvn	r3, #-16777216
-	ldr	r2, [sp, #16]
-	cmp	r1, #-16777216
-	it	lt
-	movlt	r1, #-16777216
-	cmp	r1, r3
-	it	ge
-	movge	r1, r3
-	cmp	r9, #0
-	it	eq
-	cmpeq	r8, #16777216
-	str	r1, [r0, #104]
-	it	eq
-	moveq	lr, r3
-	add	r2, r2, lr
-	cmp	r2, #-16777216
-	mov	r4, r2
-	it	lt
-	movlt	r4, #-16777216
-	cmp	r4, r3
-	it	ge
-	movge	r4, r3
-	ldr	r3, [sp, #24]
-	smull	r2, r3, r4, r3
-	cmp	r2, #0
-	sbcs	r1, r3, #0
-	blt	.L490
-.L388:
-	lsrs	r2, r2, #23
-	asrs	r7, r3, #23
-	orr	r6, r2, r3, lsl #9
-	cmp	r6, #16777216
-	sbcs	r3, r7, #0
-	bge	.L426
-	cmp	r6, #-16777216
-	it	lt
-	movlt	r6, #-16777216
-.L389:
-	ldr	r3, [sp, #28]
-	add	r3, r3, r6
-	ssat	r5, #25, r3
-	str	r5, [r0, #108]
-	add	sp, sp, #36
+.L235:
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r7, r8, r5, r1
+	mov      r8, r8, asl #9
+	orr      r7, r8, r7, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r7
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r7, r8, lr, r2
+	mov      r8, r8, asl #9
+	orr      r7, r8, r7, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r7, r7, r5
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r7, #24, r7
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r5, r8, r6, r3
+	mov      r8, r8, asl #9
+	orr      r5, r8, r5, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	adds	r6, r5, r7
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r6, #24, r6
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r2, [sp, #20]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r5, r7, r6, r2
+	mov      r7, r7, asl #9
+	orr      r5, r7, r5, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r6, #24, r5
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r5, r7, lr, r3
+	mov      r7, r7, asl #9
+	orr      r5, r7, r5, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r5, r5, r6
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r5
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movs	r1, #0
+	str	r5, [r0, #100]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r6, r7, r5, r1
+	mov      r7, r7, asl #9
+	orr      r6, r7, r6, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r6, #24, r6
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	sub	r1, r1, #8388608
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r5, r7, r4, r1
+	mov      r7, r7, asl #9
+	orr      r5, r7, r5, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	adds	r1, r5, r6
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r1
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r1, r6, ip, r3
+	mov      r6, r6, asl #9
+	orr      r1, r6, r1, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r1, r1, r5
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r1, #24, r1
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r5, r6, r1, r2
+	mov      r6, r6, asl #9
+	orr      r5, r6, r5, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r5, #24, r5
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r1, r6, r4, r3
+	mov      r6, r6, asl #9
+	orr      r1, r6, r1, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	adds	r3, r1, r5
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r3, #24, r3
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	movs	r2, #0
+	str	r3, [r0, #4]
+	str	r3, [r0, #104]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r1, r4, r3, r2
+	mov      r4, r4, asl #9
+	orr      r1, r4, r1, lsr #23
+	
+@ 0 "" 2
+@ 65 "./FV1.hpp" 1
+	ssat r1, #24, r1
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r1, [r0]
+	add	sp, sp, #28
 	@ sp needed
 	pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
-.L296:
-	mov	r3, #4194304
-	str	r3, [r0, #144]
-	b	.L297
-.L426:
-	mvn	r6, #-16777216
-	b	.L389
-.L424:
-	mvn	r6, #-16777216
-	b	.L386
-.L422:
-	mvn	r6, #-16777216
-	b	.L383
-.L421:
-	mvn	r2, #-16777216
-	b	.L381
-.L419:
-	mvn	r6, #-16777216
-	b	.L377
-.L418:
-	mvn	r6, #-16777216
-	b	.L375
-.L417:
-	mvn	r2, #-16777216
-	b	.L373
-.L415:
-	mvn	r8, #-16777216
-	b	.L369
-.L414:
-	mvn	r2, #-16777216
-	b	.L367
-.L412:
-	mvn	r10, #-16777216
-	b	.L363
-.L410:
-	mvn	r8, #-16777216
-	b	.L358
-.L408:
-	mvn	r10, #-16777216
-	b	.L352
-.L406:
-	mvn	r4, #-16777216
-	b	.L346
-.L405:
-	mvn	r4, #-16777216
-	b	.L339
-.L404:
-	mvn	r6, #-16777216
-	b	.L336
-.L403:
-	mvn	r4, #-16777216
-	b	.L332
-.L402:
-	mvn	r6, #-16777216
-	b	.L329
-.L401:
-	mvn	r4, #-16777216
-	b	.L325
-.L400:
-	mvn	r6, #-16777216
-	b	.L322
-.L399:
-	mvn	r4, #-16777216
-	b	.L319
-.L398:
-	mvn	r4, #-16777216
-	b	.L316
-.L397:
-	mvn	r8, #-16777216
-	b	.L313
-.L396:
-	mvn	r1, #-16777216
-	b	.L311
-.L395:
-	strd	r8, [sp, #16]
-	mvn	r6, #-16777216
-	b	.L306
-.L449:
-	ldr	r4, .L503+4
-	movs	r5, #0
-	adds	r8, r8, r4
-	adc	r9, r9, r5
-	b	.L321
-.L448:
-	ldr	r4, .L503+4
-	movs	r5, #0
-	adds	r6, r6, r4
-	adcs	r7, r7, r5
-	b	.L320
-.L447:
-	ldr	r6, .L503+4
-	movs	r7, #0
-	adds	r8, r8, r6
-	adc	r9, r9, r7
-	b	.L318
-.L446:
-	ldr	r6, .L503+4
-	movs	r7, #0
-	adds	r4, r4, r6
-	adcs	r5, r5, r7
-	b	.L317
-.L443:
-	ldr	r4, .L503+4
-	movs	r5, #0
-	adds	r2, r2, r4
-	adcs	r3, r3, r5
-	b	.L312
-.L438:
-	ldr	r6, .L503+4
-	movs	r7, #0
-	adds	r4, r8, r6
-	adc	r5, r9, r7
-	b	.L305
-.L440:
-	ldr	r4, .L503+4
-	movs	r5, #0
-	adds	r2, r2, r4
-	adcs	r3, r3, r5
-	b	.L308
-.L439:
-	ldr	r4, .L503+4
-	movs	r5, #0
-	adds	r2, r2, r4
-	adcs	r3, r3, r5
-	b	.L307
-.L445:
-	ldr	r8, .L503+4
-	mov	r9, #0
-	adds	r6, r6, r8
-	adc	r7, r7, r9
-	b	.L315
-.L444:
-	ldr	r2, .L503+4
-	movs	r3, #0
-	adds	r8, r8, r2
-	adc	r9, r9, r3
-	b	.L314
-.L442:
-	ldr	r4, .L503+4
-	movs	r5, #0
-	adds	r2, r2, r4
-	adcs	r3, r3, r5
-	b	.L310
-.L441:
-	ldr	r2, .L503+4
-	movs	r3, #0
-	adds	r8, r8, r2
-	adc	r9, r9, r3
-	b	.L309
-.L459:
-	ldr	r4, .L503+4
-	movs	r5, #0
-	adds	r8, r8, r4
-	adc	r9, r9, r5
-	b	.L335
-.L456:
-	ldr	r8, .L503+4
-	mov	r9, #0
-	adds	r6, r6, r8
-	adc	r7, r7, r9
-	b	.L331
-.L451:
-	ldr	r8, .L503+4
-	mov	r9, #0
-	adds	r6, r6, r8
-	adc	r7, r7, r9
-	b	.L324
-.L450:
-	ldr	r4, .L503+4
-	movs	r5, #0
-	adds	r8, r8, r4
-	adc	r9, r9, r5
-	b	.L323
-.L455:
-	ldr	r4, .L503+4
-	movs	r5, #0
-	adds	r8, r8, r4
-	adc	r9, r9, r5
-	b	.L330
-.L452:
-	ldr	r4, .L503+4
-	movs	r5, #0
-	adds	r6, r6, r4
-	adcs	r7, r7, r5
-	b	.L326
-.L454:
-	ldr	r4, .L503+4
-	movs	r5, #0
-	adds	r8, r8, r4
-	adc	r9, r9, r5
-	b	.L328
-.L504:
+.L229:
+	sbfx	r4, r3, #8, #19
+	movw	r2, #2046
+	lsls	r3, r3, #5
+	ands	r4, r4, r2
+	ldr	r2, .L237
+	ubfx	r1, r3, #0, #14
+	asrs	r3, r3, #24
+	ldr	ip, [r2, r4, lsl #2]
+	adds	r4, r4, #1
+	rsb	r3, r3, #6
+	smull	r1, ip, r1, ip
+	ldr	r2, [r2, r4, lsl #2]
+	lsrs	r1, r1, #14
+	orr	r1, r1, ip, lsl #18
+	add	r2, r2, r1
+	asrs	r3, r2, r3
+	it	mi
+	addmi	r3, r3, #1
+	asrs	r3, r3, #1
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r3, #24, r3
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	b	.L222
+.L230:
+	sbfx	r8, r3, #8, #19
+	movw	r2, #2046
+	lsls	r3, r3, #5
+	and	r8, r8, r2
+	ldr	r2, .L237
+	ubfx	r1, r3, #0, #14
+	asrs	r3, r3, #24
+	ldr	r9, [r2, r8, lsl #2]
+	add	r8, r8, #1
+	rsb	r3, r3, #6
+	smull	r1, r9, r1, r9
+	ldr	r2, [r2, r8, lsl #2]
+	lsrs	r1, r1, #14
+	orr	r1, r1, r9, lsl #18
+	add	r2, r2, r1
+	asrs	r2, r2, r3
+	it	mi
+	addmi	r2, r2, #1
+	asrs	r2, r2, #1
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	b	.L224
+.L238:
 	.align	2
-.L503:
-	.word	-1677824
-	.word	8388607
-.L453:
-	ldr	r6, .L505
-	movs	r7, #0
-	adds	r4, r4, r6
-	adcs	r5, r5, r7
-	b	.L327
-.L475:
-	ldr	r10, .L505
-	mov	fp, #0
-	adds	r6, r6, r10
-	adc	r7, r7, fp
-	b	.L357
-.L472:
-	ldr	r8, .L505
-	mov	r9, #0
-	adds	r6, r6, r8
-	adc	r7, r7, r9
-	b	.L353
-.L471:
-	ldr	r10, .L505
-	mov	fp, #0
-	adds	r8, r8, r10
-	adc	r9, r9, fp
-	b	.L351
-.L470:
-	ldr	r6, .L505
-	movs	r7, #0
-	adds	r10, r10, r6
-	adc	fp, fp, r7
-	b	.L349
-.L469:
-	ldr	r8, .L505
-	mov	r9, #0
-	adds	r6, r6, r8
-	adc	r7, r7, r9
-	b	.L348
-.L468:
-	ldr	r2, .L505
-	movs	r3, #0
-	adds	r4, r4, r2
-	adcs	r5, r5, r3
-	b	.L347
-.L458:
-	ldr	r6, .L505
-	movs	r7, #0
-	adds	r4, r4, r6
-	adcs	r5, r5, r7
-	b	.L334
-.L457:
-	ldr	r4, .L505
-	movs	r5, #0
-	adds	r6, r6, r4
-	adcs	r7, r7, r5
-	b	.L333
-.L467:
-	ldr	r8, .L505
-	mov	r9, #0
-	adds	r6, r6, r8
-	adc	r7, r7, r9
-	b	.L345
-.L462:
-	ldr	r4, .L505
-	movs	r5, #0
-	adds	r6, r6, r4
-	adcs	r7, r7, r5
-	b	.L340
-.L461:
-	ldr	r8, .L505
-	mov	r9, #0
-	adds	r6, r6, r8
-	adc	r7, r7, r9
-	b	.L338
-.L460:
-	ldr	r4, .L505
-	movs	r5, #0
-	adds	r8, r8, r4
-	adc	r9, r9, r5
-	b	.L337
-.L466:
-	ldr	r6, .L505
-	movs	r7, #0
-	adds	r4, r4, r6
-	adcs	r5, r5, r7
-	b	.L344
-.L465:
-	ldr	r6, .L505
-	movs	r7, #0
-	adds	r4, r4, r6
-	adcs	r5, r5, r7
-	b	.L343
-.L464:
-	ldr	r8, .L505
-	mov	r9, #0
-	adds	r6, r6, r8
-	adc	r7, r7, r9
-	b	.L342
-.L463:
-	ldr	r4, .L505
-	movs	r5, #0
-	adds	r8, r8, r4
-	adc	r9, r9, r5
-	b	.L341
-.L430:
-	ldr	r6, .L505
-	movs	r7, #0
-	adds	r4, r4, r6
-	adcs	r5, r5, r7
-	b	.L293
-.L429:
-	ldr	r6, .L505
-	movs	r7, #0
-	adds	r4, r4, r6
-	adcs	r5, r5, r7
-	b	.L292
-.L490:
-	ldr	r6, .L505
-	movs	r7, #0
-	adds	r2, r2, r6
-	adcs	r3, r3, r7
-	b	.L388
-.L437:
-	ldr	r6, .L505
-	movs	r7, #0
-	adds	r8, r8, r6
-	adc	r9, r9, r7
-	b	.L303
-.L432:
-	ldr	r2, .L505
-	movs	r3, #0
-	adds	r4, r4, r2
-	adcs	r5, r5, r3
-	b	.L298
-.L436:
-	ldr	r4, .L505
-	movs	r5, #0
-	adds	r6, r6, r4
-	adcs	r7, r7, r5
-	b	.L302
-.L434:
-	ldr	r8, .L505
-	mov	r9, #0
-	adds	r4, r4, r8
-	adc	r5, r5, r9
-	b	.L300
-.L480:
-	ldr	r2, .L505
-	movs	r3, #0
-	adds	r8, r8, r2
-	adc	r9, r9, r3
-	b	.L366
-.L479:
-	ldr	r8, .L505
-	mov	r9, #0
-	adds	r6, r6, r8
-	adc	r7, r7, r9
-	b	.L364
-.L474:
-	ldr	r4, .L505
-	movs	r5, #0
-	adds	r8, r8, r4
-	adc	r9, r9, r5
-	b	.L355
-.L473:
-	ldr	r6, .L505
-	movs	r7, #0
-	adds	r4, r4, r6
-	adcs	r5, r5, r7
-	b	.L354
-.L481:
-	ldr	r8, .L505
-	mov	r9, #0
-	adds	r2, r2, r8
-	adc	r3, r3, r9
-	b	.L368
-.L478:
-	ldr	r8, .L505
-	mov	r9, #0
-	adds	r6, r6, r8
-	adc	r7, r7, r9
-	b	.L362
-.L477:
-	ldr	r6, .L505
-	movs	r7, #0
-	adds	r8, r8, r6
-	adc	r9, r9, r7
-	b	.L360
-.L476:
-	ldr	r8, .L505
-	mov	r9, #0
-	adds	r6, r6, r8
-	adc	r7, r7, r9
-	b	.L359
-.L489:
-	ldr	r6, .L505
-	movs	r7, #0
-	adds	r2, r2, r6
-	adcs	r3, r3, r7
-	b	.L385
-.L488:
-	ldr	r6, .L505
-	movs	r7, #0
-	adds	r2, r2, r6
-	adcs	r3, r3, r7
-	b	.L382
-.L487:
-	ldr	r2, .L505
-	movs	r3, #0
-	adds	r6, r6, r2
-	adcs	r7, r7, r3
-	b	.L380
-.L486:
-	ldr	r6, .L505
-	movs	r7, #0
-	adds	r2, r2, r6
-	adcs	r3, r3, r7
-	b	.L378
-.L483:
-	ldr	r8, .L505
-	mov	r9, #0
-	adds	r6, r6, r8
-	adc	r7, r7, r9
-	b	.L372
-.L482:
-	ldr	r8, .L505
-	mov	r9, #0
-	adds	r2, r2, r8
-	adc	r3, r3, r9
-	b	.L370
-.L485:
-	ldr	r6, .L505
-	movs	r7, #0
-	adds	r2, r2, r6
-	adcs	r3, r3, r7
-	b	.L376
-.L484:
-	ldr	r6, .L505
-	movs	r7, #0
-	adds	r2, r2, r6
-	adcs	r3, r3, r7
-	b	.L374
-.L431:
-	ldr	r6, .L505
-	movs	r7, #0
-	adds	r4, r4, r6
-	adcs	r5, r5, r7
-	b	.L295
-.L435:
-	vldr.32	s14, .L505+4
-	vmov.f32	s0, #1.6e+1
-	str	r0, [sp]
-	mvn	r4, #-16777216
-	vmul.f32	s15, s15, s14
-	vmul.f32	s0, s15, s0
-	bl	exp2f
-	vmov.f32	s15, s0
-	ldr	r0, [sp]
-	vcvt.s32.f32	s15, s15, #23
-	ldr	r1, [r0, #88]
-	ldr	r3, [r0, #188]
-	mov	r2, r1
-	vmov	r5, s15	@ int
-	str	r3, [sp]
-	cmp	r5, #-16777216
-	it	lt
-	movlt	r5, #-16777216
-	cmp	r1, #-16777216
-	it	lt
-	movlt	r2, #-16777216
-	cmp	r5, r4
-	it	ge
-	movge	r5, r4
-	cmp	r2, r4
-	it	ge
-	movge	r2, r4
-	cmp	r5, #-16777216
-	it	lt
-	movlt	r5, #-16777216
-	asrs	r3, r2, #31
-	cmp	r5, r4
-	it	ge
-	movge	r5, r4
-	mov	r6, r5
-	asrs	r7, r5, #31
-	strd	r6, [sp, #8]
-	b	.L301
-.L433:
-	vldr.32	s14, .L505+4
-	vmov.f32	s0, #1.6e+1
-	str	r0, [sp]
-	vmul.f32	s15, s15, s14
-	vmul.f32	s0, s15, s0
-	bl	exp2f
-	vmov.f32	s15, s0
-	mvn	r3, #-16777216
-	ldr	r0, [sp]
-	vcvt.s32.f32	s15, s15, #23
-	vmov	r6, s15	@ int
-	cmp	r6, #-16777216
-	it	lt
-	movlt	r6, #-16777216
-	cmp	r6, r3
-	it	ge
-	movge	r6, r3
-	cmp	r6, #-16777216
-	it	lt
-	movlt	r6, #-16777216
-	cmp	r6, r3
-	it	ge
-	movge	r6, r3
-	b	.L299
-.L391:
-	mvn	r6, #-16777216
-	b	.L294
-.L390:
-	mov	r6, r4
-	b	.L294
-.L506:
-	.align	2
-.L505:
-	.word	8388607
-	.word	872415232
+.L237:
+	.word	exp2tab
 	.size	dance_ir_h_l_spn, .-dance_ir_h_l_spn
-	.section	.text.fv1_init,"ax",%progbits
+	.section	.text.fv1_load,"ax",%progbits
+	.align	1
+	.p2align 2,,3
+	.global	fv1_load
+	.syntax unified
+	.thumb
+	.thumb_func
+	.type	fv1_load, %function
+fv1_load:
+	@ args = 0, pretend = 0, frame = 16
+	@ frame_needed = 0, uses_anonymous_args = 0
+	ldr	r3, .L318
+	cmp	r2, #0
+	push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+	mov	r10, r0
+	sub	sp, sp, #20
+	it	eq
+	moveq	r2, r3
+	mov	r0, #2064
+	mov	r4, r1
+	blx	r2
+	add	r3, r10, #131072
+	mov	r6, r0
+	movs	r0, #0
+	str	r6, [r3, #336]
+	str	r3, [sp, #12]
+	bl	_Z15execute_programP3FV1
+	cmp	r4, #0
+	beq	.L241
+	ldr	r3, .L318+4
+	add	r7, r4, #512
+	mov	r1, r4
+	ldr	r5, [r3]
+	mov	lr, r7
+.L287:
+	ldrb	r3, [r1, #1]	@ zero_extendqisi2
+	ldrb	r2, [r1]	@ zero_extendqisi2
+	lsls	r3, r3, #16
+	orr	r3, r3, r2, lsl #24
+	ldrb	r2, [r1, #3]	@ zero_extendqisi2
+	orrs	r3, r3, r2
+	ldrb	r2, [r1, #2]	@ zero_extendqisi2
+	orr	r3, r3, r2, lsl #8
+	cmp	r3, #17
+	beq	.L242
+	and	ip, r3, #31
+	cmp	ip, #20
+	bhi	.L292
+	tbh	[pc, ip, lsl #1]
+.L245:
+	.2byte	(.L252-.L245)/2
+	.2byte	(.L253-.L245)/2
+	.2byte	(.L252-.L245)/2
+	.2byte	(.L252-.L245)/2
+	.2byte	(.L251-.L245)/2
+	.2byte	(.L251-.L245)/2
+	.2byte	(.L251-.L245)/2
+	.2byte	(.L251-.L245)/2
+	.2byte	(.L251-.L245)/2
+	.2byte	(.L251-.L245)/2
+	.2byte	(.L251-.L245)/2
+	.2byte	(.L250-.L245)/2
+	.2byte	(.L250-.L245)/2
+	.2byte	(.L250-.L245)/2
+	.2byte	(.L249-.L245)/2
+	.2byte	(.L249-.L245)/2
+	.2byte	(.L249-.L245)/2
+	.2byte	(.L248-.L245)/2
+	.2byte	(.L247-.L245)/2
+	.2byte	(.L246-.L245)/2
+	.2byte	(.L244-.L245)/2
+	.p2align 1
+.L251:
+	ldr	r7, .L318+8
+	ubfx	r2, r3, #5, #6
+	mov	r4, ip
+	ands	r7, r7, r3
+	cmp	r7, #0
+	it	lt
+	addlt	r7, r7, #255
+	asrs	r7, r7, #8
+	lsls	r3, r7, #1
+	str	r3, [sp, #4]
+	movs	r3, #0
+	str	r3, [sp, #8]
+.L261:
+	cmp	r4, #4
+	beq	.L312
+	cmp	r4, #6
+	bne	.L313
+	ldr	r3, [sp, #4]
+	mov	ip, r0
+	cmp	r3, #8388608
+	itte	eq
+	moveq	r4, #31
+	moveq	r8, #124
+	movne	r8, #24
+	b	.L272
+.L252:
+	ldr	r7, .L318+12
+	ubfx	r2, r3, #5, #16
+	mov	r4, ip
+	lsl	r8, ip, #2
+	ands	r3, r3, r7
+	mov	ip, r0
+	it	mi
+	addmi	r3, r3, #255
+	asrs	r3, r3, #8
+	lsls	r3, r3, #1
+	str	r3, [sp, #4]
+	movs	r3, #0
+	str	r3, [sp, #8]
+	b	.L272
+.L249:
+	lsrs	r2, r3, #8
+	movs	r3, #0
+	mov	r4, ip
+	lsl	r8, ip, #2
+	str	r3, [sp, #8]
+	mov	ip, r0
+	str	r3, [sp, #4]
+	b	.L272
+.L250:
+	ldr	r2, .L318+8
+	mov	r4, ip
+	ldr	r7, .L318+12
+	ands	r2, r2, r3
+	cmp	r2, #0
+	it	lt
+	addlt	r2, r2, #255
+	ands	r3, r7, r3, lsl #16
+	it	mi
+	addmi	r3, r3, #255
+	asrs	r2, r2, #8
+	asrs	r3, r3, #8
+	lsls	r2, r2, #1
+	str	r3, [sp, #4]
+	movs	r3, #0
+	str	r3, [sp, #8]
+.L259:
+	cmp	r4, #13
+	bne	.L274
+	cmp	r2, #0
+	beq	.L314
+	cmp	r2, #8388608
+	beq	.L315
+	ldr	r3, [sp, #4]
+	mov	ip, r0
+	cmp	r3, #0
+	itte	eq
+	moveq	r4, #28
+	moveq	r8, #112
+	movne	r8, #52
+	b	.L272
+.L247:
+	ldr	r2, .L318+16
+	movs	r4, #29
+	bics	r2, r2, r3
+	and	r2, r3, #536870912
+	beq	.L265
+.L267:
+	subs	r4, r4, #1
+	lsr	r2, r2, #1
+	bne	.L267
+	ldr	r7, .L318+20
+	movs	r4, #20
+	ands	r7, r7, r3
+.L268:
+	subs	r4, r4, #1
+	lsr	r7, r7, #1
+	bne	.L268
+	ubfx	r3, r3, #5, #15
+	mov	r8, #72
+	movs	r4, #18
+	mov	ip, r0
+	str	r7, [sp, #4]
+	str	r3, [sp, #8]
+	b	.L272
+.L265:
+	subs	r4, r4, #1
+	lsr	r2, r2, #1
+	bne	.L265
+	ubfx	r4, r3, #13, #16
+	ubfx	r3, r3, #5, #2
+	str	r4, [sp, #4]
+	str	r3, [sp, #8]
+.L266:
+	mov	ip, r0
+	mov	r8, #84
+	movs	r4, #21
+	b	.L272
+.L248:
+	and	r2, r3, #-134217728
+	movs	r4, #27
+.L254:
+	subs	r4, r4, #1
+	lsr	r2, r2, #1
+	bne	.L254
+	and	r7, r3, #132120576
+	movs	r3, #21
+.L255:
+	subs	r3, r3, #1
+	lsr	r7, r7, #1
+	bne	.L255
+	mov	r8, #68
+	movs	r4, #17
+	mov	ip, r0
+	strd	r7, r3, [sp, #4]
+	b	.L272
+.L253:
+	ldr	r2, .L318+12
+	mov	r8, #4
+	movs	r4, #1
+	mov	ip, r0
+	ands	r3, r3, r2
+	it	mi
+	addmi	r3, r3, #255
+	asrs	r3, r3, #8
+	lsls	r2, r3, #1
+	movs	r3, #0
+	str	r3, [sp, #8]
+	str	r3, [sp, #4]
+	b	.L272
+.L244:
+	ldr	r4, .L318+24
+	and	r2, r3, #6291456
+	movs	r7, #21
+	ands	r4, r4, r3
+.L269:
+	subs	r7, r7, #1
+	lsr	r2, r2, #1
+	bne	.L269
+	and	r7, r3, #1056964608
+	mov	ip, #24
+.L270:
+	subs	ip, ip, #1
+	lsr	r7, r7, #1
+	bne	.L270
+	str	r7, [sp, #4]
+	ubfx	r3, r3, #5, #16
+	ldr	r7, .L318+16
+	str	r3, [sp, #8]
+	cmp	r4, r7
+	beq	.L266
+	ldr	r7, .L318+28
+	cmp	r4, r7
+	bne	.L273
+	mov	ip, r0
+	mov	r8, #88
+	movs	r4, #22
+.L272:
+	ldr	r9, [r5, r8]
+	subs	r4, r4, #4
+	add	r8, r6, ip, lsl #4
+	ldr	r3, [sp, #4]
+	lsl	fp, ip, #4
+	cmp	r4, #29
+	add	r0, r0, #1
+	str	r9, [r6, fp]
+	str	r3, [r8, #8]
+	ldr	r3, [sp, #8]
+	str	r2, [r8, #4]
+	str	r3, [r8, #12]
+	bhi	.L283
+	movs	r3, #1
+	lsl	r4, r3, r4
+	ldr	r3, .L318+32
+	tst	r4, r3
+	beq	.L283
+	adds	r2, r2, #3
+	add	r2, r10, r2, lsl #2
+	str	r2, [r8, #4]
+.L283:
+	adds	r1, r1, #4
+	cmp	lr, r1
+	bne	.L287
+.L242:
+	lsls	r0, r0, #4
+.L288:
+	ldr	r3, [r5, #96]
+	movs	r1, #0
+	ldr	r4, [sp, #12]
+	movs	r2, #124
+	str	r3, [r6, r0]
+	add	r0, r0, r6
+	movs	r3, #1
+	str	r1, [r0, #12]
+	strd	r1, r1, [r0, #4]
+	strb	r3, [r4, #328]
+	add	r0, r10, #140
+	strd	r1, r1, [r10]
+	bl	memset
+	ldr	r3, .L318+36
+	ldr	r0, [r4, #336]
+	str	r3, [r4, #332]
+	add	sp, sp, #20
+	@ sp needed
+	pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+.L246:
+	ubfx	r2, r3, #6, #1
+	movs	r3, #0
+	mov	r8, #76
+	movs	r4, #19
+	mov	ip, r0
+	str	r3, [sp, #8]
+	str	r3, [sp, #4]
+	b	.L272
+.L273:
+	ldr	r7, .L318+40
+	cmp	r4, r7
+	bne	.L259
+	mov	ip, r0
+	mov	r8, #92
+	movs	r4, #23
+	b	.L272
+.L274:
+	cmp	r4, #12
+	bne	.L261
+	cmp	r2, #8388608
+	beq	.L278
+	mov	ip, r0
+	mov	r8, #48
+	b	.L272
+.L314:
+	mov	ip, r0
+	mov	r8, #104
+	movs	r4, #26
+	b	.L272
+.L319:
 	.align	2
+.L318:
+	.word	malloc
+	.word	.LANCHOR0
+	.word	-65536
+	.word	-2097152
+	.word	1073741842
+	.word	535822336
+	.word	-1073741793
+	.word	-2147483628
+	.word	738197631
+	.word	_Z15execute_programP3FV1
+	.word	-1073741804
+.L313:
+	cmp	r4, #5
+	bne	.L308
+	ldr	r3, [sp, #4]
+	mov	ip, r0
+	cmp	r3, #0
+	itte	eq
+	moveq	r4, #33
+	moveq	r8, #132
+	movne	r8, #20
+	b	.L272
+.L278:
+	ldr	r3, [sp, #4]
+	mov	ip, r0
+	cmp	r3, #0
+	itte	eq
+	moveq	r4, #29
+	moveq	r8, #116
+	movne	r8, #48
+	b	.L272
+.L312:
+	ldr	r3, [sp, #4]
+	cmp	r3, #8388608
+	beq	.L316
+	mvn	r8, #-268435456
+	ldr	r3, [r5, #24]
+	mov	ip, r0
+	add	r8, r8, r0
+	lsl	r9, r8, #4
+	add	r8, r6, r8, lsl #4
+	ldr	r7, [r6, r9]
+	cmp	r7, r3
+	beq	.L317
+.L294:
+	mov	r8, #16
+	b	.L272
+.L241:
+	ldr	r3, .L320
+	add	r1, r6, #2048
+	ldr	r5, [r3]
+	mov	r3, r6
+.L289:
+	adds	r3, r3, #16
+	ldr	r2, [r5, #100]
+	cmp	r3, r1
+	str	r2, [r3, #-16]
+	str	r4, [r3, #-4]
+	strd	r4, r4, [r3, #-12]
+	bne	.L289
+	mov	r0, #2048
+	b	.L288
+.L292:
+	movs	r4, #0
+	mov	r2, r4
+	strd	r4, r4, [sp, #4]
+.L308:
+	mov	ip, r0
+	lsl	r8, r4, #2
+	b	.L272
+.L315:
+	mov	ip, r0
+	mov	r8, #108
+	movs	r4, #27
+	b	.L272
+.L316:
+	mov	ip, r0
+	mov	r8, #120
+	movs	r4, #30
+	b	.L272
+.L317:
+	ldr	r3, [r8, #8]
+	cmp	r3, #0
+	bne	.L294
+	ldr	r3, [r5, #128]
+	adds	r2, r2, #3
+	str	r3, [r6, r9]
+	add	r2, r10, r2, lsl #2
+	ldr	r3, [sp, #4]
+	str	r2, [r8, #8]
+	str	r3, [r8, #12]
+	b	.L283
+.L321:
+	.align	2
+.L320:
+	.word	.LANCHOR0
+	.size	fv1_load, .-fv1_load
+	.section	.text.fv1_init,"ax",%progbits
+	.align	1
+	.p2align 2,,3
 	.global	fv1_init
+	.syntax unified
 	.thumb
 	.thumb_func
 	.type	fv1_init, %function
 fv1_init:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
-	push	{r4, r5, r6, r7, r8, lr}
-	ldr	r0, .L509
-	movs	r5, #0
-	bl	_Znwj
+	push	{r3, r4, r5, lr}
+	mov	r3, r0
+	ldr	r2, .L329
+	ldr	r0, .L329+4
+	cmp	r3, #0
+	it	eq
+	moveq	r3, r2
+	blx	r3
 	mov	r4, r0
-	mov	r1, r5
+	cmp	r0, #0
+	beq	.L322
+	movs	r5, #0
 	mov	r2, #131072
-	str	r5, [r4]
-	add	r0, r0, #272
-	str	r5, [r4, #4]
-	add	r8, r4, #20
-	str	r5, [r4, #8]
-	add	r7, r4, #32
-	str	r5, [r4, #12]
-	str	r5, [r4, #16]
-	str	r5, [r4, #20]
-	str	r5, [r4, #24]
-	str	r5, [r4, #28]
-	str	r5, [r4, #32]
-	str	r5, [r4, #36]
-	str	r5, [r4, #40]
-	str	r5, [r4, #44]
-	str	r5, [r4, #48]
-	str	r5, [r4, #52]
-	str	r5, [r4, #56]
-	str	r5, [r4, #60]
-	str	r5, [r4, #64]
-	str	r5, [r4, #68]
-	str	r5, [r4, #72]
-	str	r5, [r4, #76]
-	str	r5, [r4, #80]
-	str	r5, [r4, #84]
-	str	r5, [r4, #88]
-	str	r5, [r4, #92]
-	str	r5, [r4, #96]
-	str	r5, [r4, #100]
-	str	r5, [r4, #104]
-	str	r5, [r4, #108]
-	str	r5, [r4, #112]
-	str	r5, [r4, #116]
-	str	r5, [r4, #120]
-	str	r5, [r4, #124]
-	str	r5, [r4, #128]
-	str	r5, [r4, #132]
-	str	r5, [r4, #136]
-	str	r5, [r4, #140]
-	str	r5, [r4, #144]
-	str	r5, [r4, #148]
-	str	r5, [r4, #152]
-	str	r5, [r4, #156]
-	str	r5, [r4, #160]
-	str	r5, [r4, #164]
-	str	r5, [r4, #168]
-	str	r5, [r4, #172]
-	str	r5, [r4, #176]
-	str	r5, [r4, #180]
-	str	r5, [r4, #184]
-	str	r5, [r4, #188]
-	str	r5, [r4, #192]
-	str	r5, [r4, #196]
-	str	r5, [r4, #200]
-	str	r5, [r4, #204]
-	str	r5, [r4, #208]
-	str	r5, [r4, #212]
-	str	r5, [r4, #216]
-	str	r5, [r4, #220]
-	str	r5, [r4, #224]
-	str	r5, [r4, #228]
-	str	r5, [r4, #232]
-	str	r5, [r4, #236]
-	str	r5, [r4, #240]
-	str	r5, [r4, #244]
-	str	r5, [r4, #248]
-	str	r5, [r4, #252]
-	str	r5, [r4, #256]
-	str	r5, [r4, #260]
+	add	r0, r0, #268
+	mov	r1, r5
+	strd	r5, r5, [r4]
+	strd	r5, r5, [r4, #8]
+	strd	r5, r5, [r4, #16]
+	strd	r5, r5, [r4, #24]
+	strd	r5, r5, [r4, #32]
+	strd	r5, r5, [r4, #40]
+	strd	r5, r5, [r4, #48]
+	strd	r5, r5, [r4, #56]
+	strd	r5, r5, [r4, #64]
+	strd	r5, r5, [r4, #72]
+	strd	r5, r5, [r4, #80]
+	strd	r5, r5, [r4, #88]
+	strd	r5, r5, [r4, #96]
+	strd	r5, r5, [r4, #104]
+	strd	r5, r5, [r4, #112]
+	strd	r5, r5, [r4, #120]
+	strd	r5, r5, [r4, #128]
+	strd	r5, r5, [r4, #136]
+	strd	r5, r5, [r4, #144]
+	strd	r5, r5, [r4, #152]
+	strd	r5, r5, [r4, #160]
+	strd	r5, r5, [r4, #168]
+	strd	r5, r5, [r4, #176]
+	strd	r5, r5, [r4, #184]
+	strd	r5, r5, [r4, #192]
+	strd	r5, r5, [r4, #200]
+	strd	r5, r5, [r4, #208]
+	strd	r5, r5, [r4, #216]
+	strd	r5, r5, [r4, #224]
+	strd	r5, r5, [r4, #232]
+	strd	r5, r5, [r4, #240]
+	strd	r5, r5, [r4, #248]
+	strd	r5, r5, [r4, #256]
 	str	r5, [r4, #264]
-	str	r5, [r4, #268]
 	bl	memset
-	ldr	r1, .L509+4
-	ldr	r3, .L509+8
+	add	r3, r4, #131072
 	movs	r2, #1
-	str	r5, [r4, r1]
-	mvn	r1, #274
-	str	r5, [r4, r3]
-	sub	r3, r3, #8519680
-	ldr	r6, .L509+12
-	add	r0, r4, #16
-	add	r3, r3, r1
-	add	ip, r4, #28
-	add	r1, r4, #36
-	add	lr, r4, #24
-	str	r3, [r4, r6]
-	adds	r6, r6, #12
-	str	r5, [r4, r6]
-	adds	r6, r6, #4
-	str	r3, [r4, r6]
-	add	r6, r4, #44
-	ldr	r3, .L509+16
-	str	r5, [r4, r3]
-	adds	r3, r3, #12
-	str	r5, [r4, r3]
-	adds	r3, r3, #12
-	strb	r2, [r4, r3]
-	adds	r3, r3, #4
-	add	r2, r4, #40
-	str	r5, [r4, r3]
-	subs	r3, r3, #52
-	ldr	r5, .L509+20
-	str	r8, [r4, r3]
-	adds	r3, r3, #4
-	str	r0, [r4, r3]
-	adds	r3, r3, #12
+	ldr	r1, .L329+8
+	add	r0, r4, #12
+	str	r5, [r3, #268]
+	strb	r2, [r3, #328]
+	add	r2, r4, #16
+	str	r0, [r3, #284]
+	add	r0, r4, #28
+	str	r2, [r3, #280]
+	add	r2, r4, #24
+	str	r5, [r3, #304]
+	str	r2, [r3, #296]
+	add	r2, r4, #32
+	str	r5, [r3, #316]
+	str	r2, [r3, #308]
+	add	r2, r4, #36
+	str	r0, [r3, #312]
+	strd	r5, r1, [r3, #272]
+	strd	r5, r1, [r3, #288]
+	add	r1, r4, #20
+	str	r1, [r3, #300]
+	add	r1, r4, #40
+	strd	r5, r5, [r3, #332]
+	strd	r1, r2, [r3, #320]
+.L322:
 	mov	r0, r4
-	str	ip, [r4, r3]
-	adds	r3, r3, #12
-	str	lr, [r4, r5]
-	adds	r5, r5, #12
-	str	r1, [r4, r3]
-	adds	r3, r3, #16
-	ldr	r1, .L509+24
-	str	r7, [r4, r5]
-	str	r6, [r4, r1]
-	str	r2, [r4, r3]
-	pop	{r4, r5, r6, r7, r8, pc}
-.L510:
+	pop	{r3, r4, r5, pc}
+.L330:
 	.align	2
-.L509:
+.L329:
+	.word	malloc
 	.word	131412
-	.word	131344
-	.word	131348
-	.word	131352
-	.word	131380
-	.word	131376
-	.word	131396
+	.word	-8388607
 	.size	fv1_init, .-fv1_init
-	.section	.text.fv1_free,"ax",%progbits
-	.align	2
-	.global	fv1_free
-	.thumb
-	.thumb_func
-	.type	fv1_free, %function
-fv1_free:
-	@ args = 0, pretend = 0, frame = 0
-	@ frame_needed = 0, uses_anonymous_args = 0
-	@ link register save eliminated.
-	cbz	r0, .L511
-	ldr	r1, .L513
-	b	_ZdlPvj
-.L511:
-	bx	lr
-.L514:
-	.align	2
-.L513:
-	.word	131412
-	.size	fv1_free, .-fv1_free
 	.section	.text.fv1_set_fx,"ax",%progbits
-	.align	2
+	.align	1
+	.p2align 2,,3
 	.global	fv1_set_fx
+	.syntax unified
 	.thumb
 	.thumb_func
 	.type	fv1_set_fx, %function
 fv1_set_fx:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
-	cbz	r0, .L521
-	movs	r3, #0
-	ldr	r2, .L522
-	push	{r4, r5, r6, lr}
-	ldr	r5, .L522+4
-	movs	r6, #1
-	mov	r4, r0
-	ldr	r5, [r5, r1, lsl #2]
-	mov	r1, r3
-	strb	r6, [r0, r2]
+	cbz	r0, .L337
+	ldr	r2, .L340
+	push	{r3, r4, r5, lr}
+	ldr	r5, [r2, r1, lsl #2]
+	add	r4, r0, #131072
+	movs	r3, #1
+	movs	r1, #0
 	movs	r2, #124
-	str	r3, [r0, #4]
-	str	r3, [r0, #8]
-	str	r3, [r0], #144
+	strb	r3, [r4, #328]
+	strd	r1, r1, [r0]
+	adds	r0, r0, #140
 	bl	memset
-	ldr	r3, .L522+8
-	str	r5, [r4, r3]
-	pop	{r4, r5, r6, pc}
-.L521:
+	str	r5, [r4, #332]
+	pop	{r3, r4, r5, pc}
+.L337:
 	bx	lr
-.L523:
+.L341:
 	.align	2
-.L522:
-	.word	131404
-	.word	.LANCHOR0
-	.word	131408
+.L340:
+	.word	.LANCHOR2
 	.size	fv1_set_fx, .-fv1_set_fx
 	.section	.text.fv1_process,"ax",%progbits
-	.align	2
+	.align	1
+	.p2align 2,,3
 	.global	fv1_process
+	.syntax unified
 	.thumb
 	.thumb_func
 	.type	fv1_process, %function
 fv1_process:
-	@ args = 8, pretend = 0, frame = 64
+	@ args = 8, pretend = 0, frame = 16
 	@ frame_needed = 0, uses_anonymous_args = 0
 	cmp	r0, #0
-	beq	.L536
+	beq	.L353
 	push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
 	vpush.64	{d8}
-	sub	sp, sp, #68
-	ldr	r4, [sp, #116]
-	cmp	r4, #0
-	beq	.L524
-	vldr.32	s16, .L540
-	mov	lr, r1
-	mvn	r5, #-16777216
-	str	r2, [sp, #24]
-	vmul.f32	s0, s0, s16
-	mov	r4, r0
-	vmul.f32	s2, s2, s16
-	movs	r0, #0
-	vmul.f32	s1, s1, s16
-	str	r3, [sp, #20]
-	vcvt.s32.f32	s15, s0
-	str	r0, [sp, #4]
-	ldr	r0, .L540+4
-	ldr	r3, .L540+8
-	vstr.32	s15, [sp, #32]	@ int
-	vcvt.s32.f32	s15, s2
-	ldr	r6, [sp, #32]
-	ldr	r7, .L540+12
-	cmp	r6, #-16777216
-	vstr.32	s15, [sp, #36]	@ int
-	vcvt.s32.f32	s15, s1
-	ldr	fp, .L540+36
-	it	lt
-	movlt	r6, #-16777216
-	ldr	r8, .L540+40
-	ldr	r10, .L540+44
-	add	r7, r7, r4
-	str	r6, [sp, #32]
-	add	fp, fp, r4
-	ldr	r6, [sp, #36]
-	add	r8, r8, r4
-	ldr	r2, [sp, #32]
-	add	r10, r10, r4
-	mov	r1, r6
-	cmp	r6, #-16777216
-	vmov	r6, s15	@ int
-	ldr	r9, .L540+48
-	it	lt
-	movlt	r1, #-16777216
-	str	lr, [sp, #12]
-	cmp	r6, #-16777216
-	ldr	r6, .L540+16
-	str	r1, [sp, #36]
-	vmov	r1, s15	@ int
-	it	lt
-	movlt	r1, #-16777216
-	cmp	r2, r5
-	add	r6, r6, r4
-	add	r9, r9, r4
-	it	ge
-	movge	r2, r5
-	str	r1, [sp, #28]
-	ldr	r1, .L540+20
-	str	r2, [sp, #32]
-	ldr	r2, [sp, #36]
-	vldr.32	s17, .L540+24
-	cmp	r2, r5
-	str	r6, [sp, #60]
-	str	r7, [sp, #8]
-	it	ge
-	movge	r2, r5
-	str	r2, [sp, #36]
-	ldr	r2, [sp, #28]
-	cmp	r2, r5
-	it	ge
-	movge	r2, r5
-	str	r2, [sp, #28]
-	adds	r2, r4, r0
-	str	r2, [sp, #52]
-	adds	r2, r4, r3
-	subs	r3, r3, #60
-	str	r2, [sp, #48]
-	adds	r2, r4, r3
-	adds	r3, r3, #40
-	adds	r3, r4, r3
-	str	r2, [sp, #56]
-	str	r3, [sp, #40]
-	adds	r3, r4, r1
-	str	r3, [sp, #44]
-	ldr	r3, [sp, #112]
-	str	r3, [sp, #16]
-	b	.L531
-.L527:
-	lsrs	r2, r6, #23
-	ldr	r1, [r8]
-	orr	r2, r2, r7, lsl #9
-	add	r1, r1, r2
-	cmp	r1, #-16777216
-	it	lt
-	movlt	r1, #-16777216
-	cmp	r1, r5
-	it	ge
-	movge	r1, r5
-	smull	r2, r3, lr, r1
-	str	r1, [r8]
-	cmp	r2, #0
-	mov	r7, r3
-	mov	r6, r2
-	sbcs	r3, r3, #0
-	blt	.L537
-.L528:
-	lsrs	r2, r6, #23
-	ldr	r3, [sp, #8]
-	orr	r2, r2, r7, lsl #9
-	ldr	r3, [r3, #12]
-	subs	r0, r0, r2
-	ldr	r2, [sp, #8]
-	cmp	r0, #-16777216
-	it	lt
-	movlt	r0, #-16777216
-	cmp	r0, r5
-	it	ge
-	movge	r0, r5
-	str	r0, [fp]
-	ldr	r0, [r2]
-	ldr	r2, [r3]
-	asr	lr, r2, #8
-	smull	r2, r3, r0, lr
-	cmp	r2, #0
-	mov	r7, r3
-	mov	r6, r2
-	sbcs	r3, r3, #0
-	blt	.L538
-.L529:
-	lsrs	r2, r6, #23
-	ldr	r1, [r10]
-	orr	r2, r2, r7, lsl #9
-	add	r1, r1, r2
-	cmp	r1, #-16777216
-	it	lt
-	movlt	r1, #-16777216
-	cmp	r1, r5
-	it	ge
-	movge	r1, r5
-	smull	r2, r3, lr, r1
-	str	r1, [r10]
-	cmp	r2, #0
-	mov	r7, r3
-	mov	r6, r2
-	sbcs	r3, r3, #0
-	blt	.L539
-.L530:
-	lsr	lr, r6, #23
-	ldr	r3, [sp, #40]
-	ldr	r6, [sp, #44]
-	orr	lr, lr, r7, lsl #9
-	ldr	r1, [r3]
-	ldr	ip, [r6]
-	rsb	r0, lr, r0
-	ldr	r7, [sp, #60]
-	ldr	r6, [sp, #8]
-	cmp	r0, #-16777216
-	ldr	r3, [r9]
-	ldr	r2, [r9, #8]
-	it	lt
-	movlt	r0, #-16777216
-	ldr	lr, [r7, #8]
-	cmp	r0, r5
-	it	ge
-	movge	r0, r5
-	str	r0, [r6]
-	ldr	r1, [r1]
-	ldr	r2, [r2]
-	ldr	r6, .L540+28
-	asrs	r1, r1, #21
-	sub	r2, r3, r2, asr #12
-	ldr	r0, [ip]
-	asr	r1, r6, r1
-	vldr.32	s14, [r4, #104]	@ int
-	ldr	r3, [lr]
-	asrs	r0, r0, #21
-	ands	r1, r1, r2
-	vldr.32	s15, [r4, #108]	@ int
-	vcvt.f32.s32	s14, s14
-	asr	r0, r6, r0
-	str	r1, [r9]
-	vcvt.f32.s32	s15, s15
-	ldr	r2, [r7]
-	vmul.f32	s14, s14, s17
-	sub	r3, r2, r3, asr #12
-	vmul.f32	s15, s15, s17
-	ldr	r2, [sp, #4]
-	ands	r0, r0, r3
-	ldr	r3, [sp, #20]
-	str	r0, [r7]
-	vstmia.32	r3!, {s14}
-	str	r3, [sp, #20]
-	ldr	r3, [sp, #16]
-	vstmia.32	r3!, {s15}
-	str	r3, [sp, #16]
-	ldr	r3, [sp, #116]
-	cmp	r3, r2
-	beq	.L524
-.L531:
-	ldr	r3, [sp, #12]
-	mov	r0, r4
-	vldmia.32	r3!, {s14}
-	str	r3, [sp, #12]
-	vmul.f32	s14, s14, s16
-	ldr	r3, [sp, #24]
-	vldmia.32	r3!, {s15}
-	vcvt.s32.f32	s14, s14
-	vmul.f32	s15, s15, s16
-	str	r3, [sp, #24]
+	sub	sp, sp, #20
+	mov	r5, r0
+	ldr	r0, [sp, #68]
+	cmp	r0, #0
+	beq	.L342
+	vmov.f32	s15, s0
+	mov	r9, r1
+	mov	r8, r2
+	vldr.32	s16, .L356
+	ldr	fp, [sp, #64]
+	movs	r6, #0
+	vcvt.s32.f32	s15, s15, #23
+	add	r4, r5, #131072
+	ldr	r10, .L356+4
+	str	r3, [sp]
+	vstr.32	s15, [sp, #4]	@ int
+	vmov.f32	s15, s1
+	vcvt.s32.f32	s15, s15, #23
+	vstr.32	s15, [sp, #8]	@ int
+	vmov.f32	s15, s2
+	vcvt.s32.f32	s15, s15, #23
+	vstr.32	s15, [sp, #12]	@ int
+.L344:
+	vldmia.32	r9!, {s15}
+	vcvt.s32.f32	s15, s15, #23
+	vmov	r3, s15	@ int
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r3, #24, r3
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	vldmia.32	r8!, {s15}
+	str	r3, [r5, #92]
+	vcvt.s32.f32	s15, s15, #23
+	vmov	r3, s15	@ int
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r3, #24, r3
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r3, [r5, #96]
 	ldr	r3, [sp, #4]
-	vmov	r1, s14	@ int
-	vcvt.s32.f32	s15, s15
-	adds	r3, r3, #1
-	cmp	r1, #-16777216
-	str	r3, [sp, #4]
-	mov	r3, #0
-	vmov	r2, s15	@ int
-	it	lt
-	movlt	r1, #-16777216
-	str	r3, [r4]
-	cmp	r2, #-16777216
-	ldr	r3, [sp, #32]
-	it	lt
-	movlt	r2, #-16777216
-	str	r3, [r4, #80]
-	cmp	r1, r5
-	ldr	r3, [sp, #28]
-	it	ge
-	movge	r1, r5
-	str	r3, [r4, #84]
-	cmp	r2, r5
-	ldr	r3, [sp, #36]
-	it	ge
-	movge	r2, r5
-	str	r3, [r4, #88]
-	ldr	r3, [sp, #52]
-	ldr	r3, [r3]
-	str	r1, [r4, #96]
-	str	r2, [r4, #100]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r3, #24, r3
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r3, [r5, #76]
+	ldr	r3, [sp, #8]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r3, #24, r3
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r3, [r5, #80]
+	ldr	r3, [sp, #12]
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r3, #24, r3
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	mov	r0, r5
+	str	r3, [r5, #84]
+	ldr	r3, [r4, #332]
 	blx	r3
-	ldr	r3, [r4, #4]
-	ldr	r0, [sp, #56]
-	mov	lr, #0
-	cmp	r3, #-16777216
-	ldr	r6, [sp, #48]
-	ldr	r2, [r0]
-	it	lt
-	movlt	r3, #-16777216
-	ldr	r1, [fp, #12]
-	subs	r2, r2, #1
-	strb	lr, [r6]
-	cmp	r3, r5
-	str	r2, [r0]
-	it	ge
-	movge	r3, r5
-	str	r3, [r4, #8]
+	ldr	r3, [r4, #268]
+	subs	r3, r3, #1
+	str	r3, [r4, #268]
+	ldr	r3, [r4, #284]
+	ldr	r0, [r3]
 	movs	r3, #0
-	str	r3, [r4, #4]
-	ldr	r2, [r1]
-	ldr	r0, [fp]
-	asr	lr, r2, #8
-	smull	r2, r3, r0, lr
-	cmp	r2, #0
-	mov	r7, r3
-	mov	r6, r2
-	sbcs	r3, r3, #0
-	bge	.L527
-	ldr	r2, .L540+32
-	movs	r3, #0
-	adds	r6, r6, r2
-	adcs	r7, r7, r3
-	b	.L527
-.L539:
-	ldr	r2, .L540+32
-	movs	r3, #0
-	adds	r6, r6, r2
-	adcs	r7, r7, r3
-	b	.L530
-.L538:
-	ldr	r2, .L540+32
-	movs	r3, #0
-	adds	r6, r6, r2
-	adcs	r7, r7, r3
-	b	.L529
-.L537:
-	ldr	r2, .L540+32
-	movs	r3, #0
-	adds	r6, r6, r2
-	adcs	r7, r7, r3
-	b	.L528
-.L524:
-	add	sp, sp, #68
+	strb	r3, [r4, #328]
+	asrs	r0, r0, #8
+	ldrd	r2, r3, [r4, #272]
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r1, ip, r2, r0
+	mov      ip, ip, asl #9
+	orr      r1, ip, r1, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r3, r3, r1
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r3, #24, r3
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r1, ip, r3, r0
+	mov      ip, ip, asl #9
+	orr      r1, ip, r1, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r3, [r4, #276]
+	subs	r2, r2, r1
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r3, [r4, #300]
+	str	r2, [r4, #272]
+	ldr	r0, [r3]
+	ldrd	r2, r3, [r4, #288]
+	asrs	r0, r0, #8
+	.syntax unified
+@ 75 "./FV1.hpp" 1
+	smull    r1, ip, r2, r0
+	mov      ip, ip, asl #9
+	orr      r1, ip, r1, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	add	r3, r3, r1
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r3, #24, r3
+@ 0 "" 2
+@ 75 "./FV1.hpp" 1
+	smull    r1, ip, r3, r0
+	mov      ip, ip, asl #9
+	orr      r1, ip, r1, lsr #23
+	
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	str	r3, [r4, #292]
+	subs	r2, r2, r1
+	.syntax unified
+@ 65 "./FV1.hpp" 1
+	ssat r2, #24, r2
+@ 0 "" 2
+	.thumb
+	.syntax unified
+	ldr	r3, [r4, #308]
+	adds	r6, r6, #1
+	str	r2, [r4, #288]
+	ldr	r0, [r3]
+	ldr	r3, [r4, #320]
+	ldr	r7, [r4, #304]
+	asrs	r0, r0, #21
+	ldr	r1, [r3]
+	ldr	r3, [r4, #312]
+	asr	r0, r10, r0
+	vldr.32	s15, [r5, #100]	@ int
+	asrs	r1, r1, #21
+	ldr	r2, [r3]
+	ldr	r3, [r4, #324]
+	vcvt.f32.s32	s14, s15
+	sub	r2, r7, r2, asr #12
+	vldr.32	s15, [r5, #104]	@ int
+	ldr	r3, [r3]
+	asr	r1, r10, r1
+	ands	r2, r2, r0
+	vmul.f32	s14, s14, s16
+	vcvt.f32.s32	s15, s15
+	str	r2, [r4, #304]
+	ldr	r2, [r4, #316]
+	vmul.f32	s15, s15, s16
+	sub	r3, r2, r3, asr #12
+	ands	r1, r1, r3
+	ldr	r3, [sp]
+	str	r1, [r4, #316]
+	vstmia.32	r3!, {s14}
+	str	r3, [sp]
+	ldr	r3, [sp, #68]
+	vstmia.32	fp!, {s15}
+	cmp	r3, r6
+	bne	.L344
+.L342:
+	add	sp, sp, #20
 	@ sp needed
 	vldm	sp!, {d8}
 	pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
-.L536:
+.L353:
 	bx	lr
-.L541:
+.L357:
 	.align	2
-.L540:
-	.word	1258291200
-	.word	131408
-	.word	131404
-	.word	131364
-	.word	131392
-	.word	131396
+.L356:
 	.word	872415232
 	.word	4194303
-	.word	8388607
-	.word	131348
-	.word	131352
-	.word	131368
-	.word	131380
 	.size	fv1_process, .-fv1_process
-	.global	programs
-	.section	.data.programs,"aw",%progbits
+	.section	.text.fv1_random,"ax",%progbits
+	.align	1
+	.p2align 2,,3
+	.global	fv1_random
+	.syntax unified
+	.thumb
+	.thumb_func
+	.type	fv1_random, %function
+fv1_random:
+	@ args = 0, pretend = 0, frame = 0
+	@ frame_needed = 0, uses_anonymous_args = 0
+	@ link register save eliminated.
+	push	{r4, r5}
+	ldr	r5, .L360
+	ldrd	r0, [r5]
+	lsrs	r3, r0, #12
+	eor	r2, r1, r1, lsr #12
+	orr	r3, r3, r1, lsl #20
+	lsls	r1, r2, #25
+	eors	r3, r3, r0
+	eor	r4, r3, r3, lsl #25
+	orr	r1, r1, r3, lsr #7
+	lsrs	r0, r4, #27
+	eors	r1, r1, r2
+	orr	r0, r0, r1, lsl #5
+	eor	r3, r1, r1, lsr #27
+	eor	r2, r0, r4
+	ldr	r0, .L360+4
+	ldr	r4, .L360+8
+	mul	r0, r2, r0
+	strd	r2, [r5]
+	mla	r0, r4, r3, r0
+	umull	r2, r4, r2, r4
+	add	r0, r0, r4
+	pop	{r4, r5}
+	bx	lr
+.L361:
+	.align	2
+.L360:
+	.word	.LANCHOR3
+	.word	625341585
+	.word	1332534557
+	.size	fv1_random, .-fv1_random
+	.section	.text.fv1_fake_cv_trig,"ax",%progbits
+	.align	1
+	.p2align 2,,3
+	.global	fv1_fake_cv_trig
+	.syntax unified
+	.thumb
+	.thumb_func
+	.type	fv1_fake_cv_trig, %function
+fv1_fake_cv_trig:
+	@ args = 0, pretend = 0, frame = 0
+	@ frame_needed = 0, uses_anonymous_args = 0
+	cbz	r0, .L363
+	cmp	r2, #0
+	beq	.L376
+	mov	r3, #1065353216
+	add	r0, r1, r2, lsl #2
+.L365:
+	str	r3, [r1], #4	@ float
+	cmp	r0, r1
+	bne	.L365
+	bx	lr
+.L363:
+	cbz	r2, .L376
+	vmov.f32	s14, #5.0e-1
+	add	r0, r1, r2, lsl #2
+	ldr	ip, .L379+8
+	push	{r4, r5, r6, r7, r8, r9, lr}
+	ldr	r7, .L379
+	ldr	lr, .L379+12
+	ldr	r6, .L379+4
+.L366:
+	ldrd	r2, [r7]
+	lsr	r9, r2, #12
+	eor	r8, r3, r3, lsr #12
+	orr	r9, r9, r3, lsl #20
+	lsl	r3, r8, #25
+	eor	r2, r2, r9
+	eor	r9, r2, r2, lsl #25
+	orr	r3, r3, r2, lsr #7
+	lsr	r2, r9, #27
+	eor	r3, r8, r3
+	orr	r2, r2, r3, lsl #5
+	eor	r5, r3, r3, lsr #27
+	eor	r4, r9, r2
+	mul	r3, ip, r4
+	umull	r8, r2, r4, r6
+	mla	r3, r6, r5, r3
+	add	r3, r3, r2
+	and	r3, r3, #63
+	add	r3, lr, r3, lsl #2
+	vldr.32	s15, [r3]
+	vmul.f32	s15, s15, s14
+	strd	r4, [r7]
+	vstmia.32	r1!, {s15}
+	cmp	r1, r0
+	bne	.L366
+	pop	{r4, r5, r6, r7, r8, r9, pc}
+.L376:
+	bx	lr
+.L380:
+	.align	2
+.L379:
+	.word	.LANCHOR3
+	.word	1332534557
+	.word	625341585
+	.word	.LANCHOR4
+	.size	fv1_fake_cv_trig, .-fv1_fake_cv_trig
+	.global	fv1_programs
+	.section	.bss._ZL15_dispatch_table,"aw",%nobits
 	.align	2
 	.set	.LANCHOR0,. + 0
-	.type	programs, %object
-	.size	programs, 8
-programs:
+	.type	_ZL15_dispatch_table, %object
+	.size	_ZL15_dispatch_table, 4
+_ZL15_dispatch_table:
+	.space	4
+	.section	.data._ZL10prng_state,"aw"
+	.align	3
+	.set	.LANCHOR3,. + 0
+	.type	_ZL10prng_state, %object
+	.size	_ZL10prng_state, 8
+_ZL10prng_state:
+	.word	1234
+	.word	0
+	.section	.data._ZZ15execute_programP3FV1E14dispatch_table,"aw"
+	.align	2
+	.set	.LANCHOR1,. + 0
+	.type	_ZZ15execute_programP3FV1E14dispatch_table, %object
+	.size	_ZZ15execute_programP3FV1E14dispatch_table, 136
+_ZZ15execute_programP3FV1E14dispatch_table:
+	.word	.L46
+	.word	.L47
+	.word	.L49
+	.word	.L50
+	.word	.L51
+	.word	.L52
+	.word	.L53
+	.word	.L54
+	.word	.L55
+	.word	.L56
+	.word	.L57
+	.word	.L58
+	.word	.L61
+	.word	.L64
+	.word	.L65
+	.word	.L67
+	.word	.L69
+	.word	.L71
+	.word	.L78
+	.word	.L81
+	.word	.L82
+	.word	.L97
+	.word	.L109
+	.word	.L100
+	.word	.L44
+	.word	.L121
+	.word	.L122
+	.word	.L123
+	.word	.L124
+	.word	.L125
+	.word	.L128
+	.word	.L129
+	.word	.L130
+	.word	.L131
+	.section	.data.fv1_programs,"aw"
+	.align	2
+	.set	.LANCHOR2,. + 0
+	.type	fv1_programs, %object
+	.size	fv1_programs, 1024
+fv1_programs:
 	.word	dance_ir_h_l_spn
 	.word	OEM1_4_spn
-	.ident	"GCC: (GNU Tools for ARM Embedded Processors) 5.4.1 20160919 (release) [ARM/embedded-5-branch revision 240496]"
+	.space	1016
+	.section	.rodata._ZZ16fv1_fake_cv_trigE8trig_wav,"a"
+	.align	2
+	.set	.LANCHOR4,. + 0
+	.type	_ZZ16fv1_fake_cv_trigE8trig_wav, %object
+	.size	_ZZ16fv1_fake_cv_trigE8trig_wav, 256
+_ZZ16fv1_fake_cv_trigE8trig_wav:
+	.word	-1111036177
+	.word	-1110896367
+	.word	-1110896367
+	.word	-1111036177
+	.word	-1110896367
+	.word	-1111036177
+	.word	-1110896367
+	.word	-1111036177
+	.word	-1111141035
+	.word	-1111036177
+	.word	-1111036177
+	.word	-1111141035
+	.word	-1111036177
+	.word	-1111036177
+	.word	-1111280845
+	.word	-1111141035
+	.word	-1111141035
+	.word	-1111036177
+	.word	-1110756557
+	.word	-1111141035
+	.word	-1111141035
+	.word	-1111036177
+	.word	-1110896367
+	.word	-1111036177
+	.word	-1111280845
+	.word	-1111280845
+	.word	-1110511889
+	.word	-1110896367
+	.word	-1111036177
+	.word	-1110896367
+	.word	-1111036177
+	.word	-1111141035
+	.word	-1110896367
+	.word	-1111141035
+	.word	-1111036177
+	.word	-1110896367
+	.word	-1110896367
+	.word	-1111141035
+	.word	-1111141035
+	.word	-1110896367
+	.word	-1111141035
+	.word	-1111036177
+	.word	-1110896367
+	.word	-1111141035
+	.word	-1110896367
+	.word	-1111141035
+	.word	-1110756557
+	.word	-1110896367
+	.word	-1111036177
+	.word	-1111280845
+	.word	-1110896367
+	.word	-1110756557
+	.word	-1110756557
+	.word	-1111036177
+	.word	-1110756557
+	.word	-1111036177
+	.word	-1110756557
+	.word	-1110896367
+	.word	-1110756557
+	.word	-1111665323
+	.word	-1111036177
+	.word	-1110896367
+	.word	-1111141035
+	.word	-1110896367
+	.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 10.3.1 20210824 (release)"
