@@ -32,7 +32,6 @@ void init_engines()
     void init_fun() __attribute__((weak)); \
     init_fun();
 
-    MACHINE_INIT(init_screensaver);
     MACHINE_INIT(init_modulations);
     MACHINE_INIT(init_quantizer);
 
@@ -42,7 +41,7 @@ void init_engines()
     MACHINE_INIT(init_808_squarenoise);
     MACHINE_INIT(init_midi_monitor);
     MACHINE_INIT(init_midi_clock);
-    
+    MACHINE_INIT(init_peaks_drums);
     MACHINE_INIT(init_peaks);
     MACHINE_INIT(init_braids);
     MACHINE_INIT(init_plaits);
@@ -65,11 +64,6 @@ void init_engines()
     MACHINE_INIT(init_juno60_chorus);
     MACHINE_INIT(init_plaits2);
 
-    // MACHINE_INIT(init_fft);
-    // MACHINE_INIT(init_scope)
-    // MACHINE_INIT(init_tb_3po);
-    MACHINE_INIT(init_acid_sequencer);
-    MACHINE_INIT(init_trig_sequencer);
 }
 
 int main()

@@ -71,5 +71,3 @@ void init_voltage()
 {
     machine::add<VoltsPerOctave>(CV, "V/OCT");
 }
-
-MACHINE_INIT(init_voltage);

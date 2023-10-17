@@ -1,7 +1,18 @@
 > WORK-IN-PROGRESS: Feel free to leave me a message / feedback or any hints in the ["BETA TEST - FEEDBACK"](https://github.com/eh2k/squares-and-circles/issues/1) issue.
 
+# □︎●︎ [![CI](https://github.com/eh2k/squares-and-circles/actions/workflows/build.yml/badge.svg)](https://github.com/eh2k/squares-and-circles/actions/workflows/build.yml) [![WebFlasher](https://img.shields.io/badge/Firmware-WebFlasher-blue)](https://eh2k.github.io/□●/flash/?firmware) [![MODULAGrid](https://img.shields.io/badge/MODULAR-Grid-white)](https://www.modulargrid.net/e/modules/browser?SearchName=squares+and+circles&SearchShowothers=1)
+
+<!-- ⧉⦾ ⧇ ⟥⧂ -->
+**squares-and-circles** is an alternate firmware for the Eurorack module O_C, targeting Teensy 4.0.
+
+<details>
+  <summary><b>ChangeLog</b></summary>
+  
 ````
-CHANGES:
+== 2023-11-04 ==
+ * Bugfix: CV/Voltage modulation
+== 2023-10-14 ==
+ * Bugfix: CV/LFO shape selection
 == 2023-10-07 ==
  * Bugfix:
    - crash in dac calibration 
@@ -38,11 +49,7 @@ CHANGES:
  * Audio routing refactoring 
  * Optimizations and bugfixes
 ````
-
-# □︎●︎ [![PlatformIO CI](https://github.com/eh2k/squares-and-circles/actions/workflows/build.yml/badge.svg)](https://github.com/eh2k/squares-and-circles/actions/workflows/build.yml) [![WebFlasher](https://img.shields.io/badge/Firmware-WebFlasher-blue)](https://eh2k.github.io/□●/flash/?firmware) [![MODULAGrid](https://img.shields.io/badge/MODULAR-Grid-white)](https://www.modulargrid.net/e/modules/browser?SearchName=squares+and+circles&SearchShowothers=1)
-
-<!-- ⧉⦾ ⧇ ⟥⧂ -->
-**squares-and-circles** is an alternate firmware for the Eurorack module O_C, targeting Teensy 4.0.
+</details>
 
 ## ■ Demos 
 
@@ -52,7 +59,7 @@ CHANGES:
 ## Acknowledgments & Credits
 
 Big thanks to the creators of ornament & crime (o_C) and PJRC for the Teensy and also to all those who have worked on the [code and algorithms](https://github.com/eh2k/squares-and-circles/wiki/credits) partly reused here, especially Mutable Instruments.
-They served a great source of learning and provided a huge plaground and the foundation for this project.
+They served a great source of learning and provided a huge playground and the foundation for this project.
 
 ## Motivation / Challenge
 
@@ -174,7 +181,7 @@ For each parameter a modulation can be assigned:
     * RELEASE
  >`!` = current engine trigger
  
- All modulatiuonation have an attenuverter parameter (-/+).
+ All modulations have an attenuverter parameter (-/+).
   * The modulation-voltage is attenuverted/multiplied by -1..+1;
 
 <div style="page-break-after: always;"></div>
@@ -233,7 +240,7 @@ The I/O-Configuration page lets you virtually patch the engine with the hardware
    * `-`, `A`, `A+B`, `B`, `C`, `C+D`, `D`
      - The option `-(no output)` is useful if the signal is to be routed into an AUDIO_PROCESSOR engine
  * **Stereo**  
-   * Experimanal stereo feature - see STERIOLIZED Flag ;-)
+   * Experimental stereo feature - see STERIOLIZED Flag ;-)
 <br/>
 <div style="page-break-after: always;"></div>
 
@@ -266,34 +273,10 @@ The MIDI-Settings page lets you select the MIDI-Input. MIDI via USB is active by
     |  26 |  38 |        6        |  * |
     |  27 |  39 |        7        |  * |
     ````
-
-#### **⦾ Midi-Expander**
-   
-   Trigger-port TR1 is also suitable for Midi-In.
-   Although the connection does not comply with the [MIDI standard](https://minimidi.world/?fbclid=IwAR31TqOyRkvdwaLYCxoU2a89hcy2PF3hltCtRKD7IzD5HbZqzn3m9NmiZzc#types) - for me this solution is more practical than the alternative via USB.
-   <img src="doc/midi2ts.png" width=80% />
-
-<div style="page-break-after: always;"></div>
-
 # Supported Hardware  
 
-## Ornament-and-Crime
-### Build-guide
-  * http://ornament-and-cri.me/ 
-  * https://github.com/jakplugg/uO_c
-
-### Teensy4.x - required drop-in replacement for Teensy3
-  * CPU speed at 500MHz (~100mA power draw on +12V bus)
-  * DAC operation at 48kHz per channel
-  * ADC 12-bit (10bit + noise)
-> **HINT**:
-  if the [POGO Pin](https://www.modwiggler.com/forum/viewtopic.php?p=2867702#p2867702) is soldered - cover the bottom of the teensy with insulating tape - all other pins are compatible with T4 to T3 (see pjrc). Be careful with connecting USB and power at the same time - if you have VIN/VUSB connected.
-
-### Optional DAC-voltage-range-mod (-5V..+5V Range)
-  * O_C DAC was initially designed for CV-control within range from -3.75V to +6.25V. 
-  * The range is not ideal for audio A/C signals in the Eurorack. However, it is easily possible to lower the range to -5V..+5V.
-    * 
-  * In the same way as raising the level ([see description](https://ornament-and-cri.me/hardware-basics/)), you can bring the V_bias (default 1.25V) to ~1.0V by modifying the voltage divider. Instead of the two 47K resistors, the ratio should be about 47K / 31.2K - one possibility would be to [solder a 100K resistor in parallel to the lower 47K resistor (uO_C:R14).](http://lushprojects.com/circuitjs/circuitjs.html?ctz=CQAgjCAMB0l3BWEBmATNA7AhAOBjVIAWfbEInEJfKgUwFowwAoAJXFUqdRADYjwYHpHDkRYaKiQSpUKNATMAhiCm8OlImg0guPRjzDx44WELABOZFuRwcnPKcjmSGChZwY8W8McjMAJx1uVUguITlUIgs4ZgB3UPCeNUFhQNUEdRForLkjY2YAYwz1bS0ebRF0Swtauvq6nAYmKkwcSAQLBCIMfmQcVyQYOBYElJCU-ih4kr4BFIppsczyShTKmfKUHi2p-wTdgS2hSn3yC3UTqgtDTmmg47ucnSrCGfXklZEz56vn7-eKzARAEYEuIPuIHo2mBAmhhhuch68HS8JAFyhMIh2QwKIA5piEfptIRTtN2GiMfQphjvmJVAo5N8FOkweAIWzLMJfAUEpzEWiuUtwOC4ViBP4APZyParXgYXzyeCWBDIIRDVRyZDMaUtWVESC1UJK+AWXqZWQQUEQZDgDVgJDaoA) 
+ * [Ornament-and-Crime](https://github.com/eh2k/squares-and-circles/wiki/Ornament%E2%80%90and%E2%80%90Crime)
+ * [Squares-and-Circles DSM0](https://github.com/eh2k/squares-and-circles/wiki/Squares&Circles-D_SM-Prototype)
 
 ## Hardware setup procedure 
   > Use [![WebFlasher](https://img.shields.io/badge/Firmware-WebFlasher-blue)](https://eh2k.github.io/□●/flash/?firmware)  to enter callibration mode, or execute advanced setup commands </br>
@@ -328,7 +311,7 @@ Start with DAC1 (channel A) - connect the multimeter typically using alligator c
 
 <img align="right" src="doc/adc_calib.bmp" width=196px />
 
-To callibrate the ADC `0V` reference, remove all patch cables from the module. Use the right encoder to adjust the offset (press the encoder for fast adjustment). Do it on all cv-inputs, select the channel with the left encoder. Press [right] to enter the `-2V` calibration. Now you need to connect the DAC outputs to the cv-inputs. The DAC output produces the reference voltage, that is calibrated on the input. Repeat the calibration procedure and step to the `+2V` calibration.
+To calibrate the ADC `0V` reference, remove all patch cables from the module. Use the right encoder to adjust the offset (press the encoder for fast adjustment). Do it on all cv-inputs, select the channel with the left encoder. Press [right] to enter the `-2V` calibration. Now you need to connect the DAC outputs to the cv-inputs. The DAC output produces the reference voltage, that is calibrated on the input. Repeat the calibration procedure and step to the `+2V` calibration.
 
 ### I/O Test: 
 
@@ -341,14 +324,14 @@ To callibrate the ADC `0V` reference, remove all patch cables from the module. U
 
 ## ⧉ Conclusions and the future 
  
-The project was originally a kind of research in embedded DSP that I did over half a year. Interestingly, it turned out by chance that the O_C was very well suited for this by only upgrading the Teensy. Aside from the DAC voltage range, which can be easily [modified](#optional-dac-voltage-range-mod--5v5v-range), the current O_C hardware unfortunately has some unchangeable limitations for audio application. As you know, the DAC and the display share the SPI port - that is not ideal for simultaneous operation. Furthermore, the Teensy 4.0 doesn't have "high-end" ADCs and a limited amount of RAM.
+The project started as a kind of personal research in embedded DSP that I did over half a year. At some point, it turned out by chance that the O_C was very well suited for this by only upgrading the Teensy. Apart from the small optional [mod](https://github.com/eh2k/squares-and-circles/wiki/Ornament%E2%80%90and%E2%80%90Crime#optional-dac-voltage-range-mod--5v5v-range) on the DAC voltage range, the current O_C hardware unfortunately has some unchangeable limitations for audio applications. As you know, the Teensy 4.0 doesn't have "high-end" ADCs and a limited amount of RAM. On the other hand, it is the the combination of limitations that make the project unique.
 
 Regarding the user interface and the concept of firmware, I am a bit torn. On the one hand, the two buttons and the two encoders are sufficient and actually practical for a multifunction module, but on the other hand, something is missing. Additional buttons/encoders could definitely simplify the operation/interaction - let's see if this [puzzle](https://github.com/eh2k/squares-and-circles/wiki/Squares&Circles-D_SM-Prototype) can be solved.
 
 ## License
 
-The application code respectively the suite of machines/engines and the third-party source files are published under permissive software licences.
-For the exact licence and copyright holder - see the header of individual source code files or readme/license file in the sub folder.
+The application code respectively the suite of machines/engines and the third-party source files are published under permissive software licenses.
+For the exact license and copyright holder - see the header of individual source code files or readme/license file in the sub folder.
 
 The firmware as a whole and the hardware abstraction layer "libmachine" is for personal non-commercial use only. 
 If you are considering commercial distributing hardware with this firmware, please contact me (eh2k◯gmx.de). 

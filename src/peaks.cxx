@@ -17,7 +17,7 @@
 
 using namespace machine;
 
-template <class T, uint32_t engine_props, int P1 = 0, int P2 = 1, int P3 = 2, int P4 = 3>
+template <class T, uint32_t engine_props>
 struct PeaksEngine : public Engine
 {
     T _processor;
@@ -40,13 +40,35 @@ struct PeaksEngine : public Engine
         _processor.Init();
         std::fill(&flags[0], &flags[FRAME_BUFFER_SIZE], peaks::GATE_FLAG_LOW);
 
+        int P1 = 0;
+        int P2 = 1;
+        int P3 = 2;
+        int P4 = 3;
+
+        if (std::is_same<T, peaks::FmDrum>::value)
+        {
+            P2 = 3;
+            P3 = 1;
+            P4 = 2;
+        }
+        else if (std::is_same<T, peaks::SnareDrum>::value)
+        {
+            P2 = 2;
+            P3 = 1;
+            P4 = 3;
+        }
+
         param[0].init(param1, &params_[P1], p1);
         param[1].init(param2, &params_[P2], p2);
 
         if (std::is_same<T, peaks::Lfo>::value)
         {
-            param[1].step.i = UINT16_MAX / (peaks::LFO_SHAPE_LAST - 1);
-            param[1].step2 = param[1].step;
+            param[1].init_presets(param2, (uint8_t *)&params_[P2], p2, 0, (peaks::LFO_SHAPE_LAST - 1));
+            param[1].value_changed = [&]()
+            {
+                const char *shapes[] = {"Sine", "Triangle", "Square", "Steps", "Noise"};
+                param[1].name = shapes[*param[1].value.u8p];
+            };
         }
 
         param[2].init(param3, &params_[P3], p3);
@@ -55,21 +77,7 @@ struct PeaksEngine : public Engine
 
     void process(const ControlFrame &frame, OutputFrame &of) override
     {
-        if (std::is_same<T, peaks::FmDrum>::value)
-        {
-            auto bak = params_[P1];
-            int val = params_[P1];
-            val += (frame.qz_voltage(this->io, 0.f) * INT16_MAX / 3); // CV or Midi Pitch ?!
-            val += (-2 * INT16_MAX / 3);
-            CONSTRAIN(val, 0, UINT16_MAX);
-            params_[P1] = val;
-            _processor.Configure(params_, peaks::CONTROL_MODE_FULL);
-            params_[P1] = bak;
-        }
-        else
-        {
-            _processor.Configure(params_, peaks::CONTROL_MODE_FULL);
-        }
+        _processor.Configure(params_, peaks::CONTROL_MODE_FULL);
 
         if (frame.trigger)
         {
@@ -90,38 +98,65 @@ struct PeaksEngine : public Engine
 
         of.push(buffer, LEN_OF(buffer));
     }
-
-    void display() override
-    {
-        if (std::is_same<T, peaks::Lfo>::value)
-        {
-            auto shape = static_cast<peaks::LfoShape>(params_[P2] * peaks::LFO_SHAPE_LAST >> 16);
-            switch (shape)
-            {
-            case peaks::LFO_SHAPE_SINE:
-                param[1].name = "Sine";
-                break;
-            case peaks::LFO_SHAPE_TRIANGLE:
-                param[1].name = "Triangle";
-                break;
-            case peaks::LFO_SHAPE_SQUARE:
-                param[1].name = "Square";
-                break;
-            case peaks::LFO_SHAPE_STEPS:
-                param[1].name = "Steps";
-                break;
-            case peaks::LFO_SHAPE_NOISE:
-                param[1].name = "Noise";
-                break;
-            default:
-                param[1].name = "Shape";
-                break;
-            }
-        }
-
-        gfx::drawEngine(this);
-    }
 };
+
+template <>
+void PeaksEngine<peaks::FmDrum, TRIGGER_INPUT | VOCT_INPUT>::process(const ControlFrame &frame, OutputFrame &of)
+{
+    auto bak = params_[0];
+    int val = params_[0];
+    val += (frame.qz_voltage(this->io, 0.f) * INT16_MAX / 3); // CV or Midi Pitch ?!
+    val += (-2 * INT16_MAX / 3);
+    CONSTRAIN(val, 0, UINT16_MAX);
+    params_[0] = val;
+    _processor.Configure(params_, peaks::CONTROL_MODE_FULL);
+    params_[0] = bak;
+
+    if (frame.trigger)
+    {
+        flags[0] = peaks::GATE_FLAG_RISING;
+        std::fill(&flags[1], &flags[FRAME_BUFFER_SIZE], peaks::GATE_FLAG_HIGH);
+    }
+    else if (frame.gate)
+    {
+        std::fill(&flags[0], &flags[FRAME_BUFFER_SIZE], peaks::GATE_FLAG_HIGH);
+    }
+    else
+    {
+        flags[0] = flags[0] == peaks::GATE_FLAG_HIGH ? peaks::GATE_FLAG_FALLING : peaks::GATE_FLAG_LOW;
+        std::fill(&flags[1], &flags[FRAME_BUFFER_SIZE], peaks::GATE_FLAG_LOW);
+    }
+
+    _processor.Process(flags, buffer, FRAME_BUFFER_SIZE);
+
+    of.push(buffer, LEN_OF(buffer));
+}
+
+template <>
+void PeaksEngine<peaks::Lfo, TRIGGER_INPUT | OUT_EQ_VOLT_INT16>::process(const ControlFrame &frame, OutputFrame &of)
+{
+    _processor.Configure(params_, peaks::CONTROL_MODE_FULL);
+    _processor.set_shape((peaks::LfoShape)*param[1].value.u8p);
+
+    if (frame.trigger)
+    {
+        flags[0] = peaks::GATE_FLAG_RISING;
+        std::fill(&flags[1], &flags[FRAME_BUFFER_SIZE], peaks::GATE_FLAG_HIGH);
+    }
+    else if (frame.gate)
+    {
+        std::fill(&flags[0], &flags[FRAME_BUFFER_SIZE], peaks::GATE_FLAG_HIGH);
+    }
+    else
+    {
+        flags[0] = flags[0] == peaks::GATE_FLAG_HIGH ? peaks::GATE_FLAG_FALLING : peaks::GATE_FLAG_LOW;
+        std::fill(&flags[1], &flags[FRAME_BUFFER_SIZE], peaks::GATE_FLAG_LOW);
+    }
+
+    _processor.Process(flags, buffer, FRAME_BUFFER_SIZE);
+
+    of.push(buffer, LEN_OF(buffer));
+}
 
 class Hihat808 : public HiHatsEngine
 {
@@ -138,16 +173,15 @@ public:
 
 void init_peaks()
 {
-    add<PeaksEngine<peaks::FmDrum, TRIGGER_INPUT | VOCT_INPUT, 0, 3, 1, 2>>(DRUM, "FM-Drum", INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX, "Freq.", "Noise", "FM", "Decay");
-
-    add<PeaksEngine<peaks::BassDrum, TRIGGER_INPUT>>(DRUM, "808ish-BD", INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX, "Pitch", "Punch", "Tone", "Decay");
-    add<PeaksEngine<peaks::SnareDrum, TRIGGER_INPUT, 0, 2, 1, 3>>(DRUM, "808ish-SD", INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX, "Pitch", "Snappy", "Tone", "Decay");
-
-    add<Hihat808>(DRUM, "808ish-HiHat");
-
-    // add<PeaksEngine<peaks::HighHat, TRIGGER_INPUT>>(DRUM, "808ish-HiHat", INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX, "Decay");
     add<PeaksEngine<peaks::MultistageEnvelope, TRIGGER_INPUT | OUT_EQ_VOLT_INT16>>(CV, "Envelope", 0, INT16_MAX, INT16_MAX, INT16_MAX, "Attack", "Decay", "Sustain", "Release");
     add<PeaksEngine<peaks::Lfo, TRIGGER_INPUT | OUT_EQ_VOLT_INT16>>(CV, "LFO", 0, 0, INT16_MAX, 0, "Freq.", "Shape", "Param", "Phase");
 }
 
-MACHINE_INIT(init_peaks);
+void init_peaks_drums()
+{
+    add<PeaksEngine<peaks::FmDrum, TRIGGER_INPUT | VOCT_INPUT>>(DRUM, "FM-Drum", INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX, "Freq.", "Noise", "FM", "Decay");
+    add<PeaksEngine<peaks::BassDrum, TRIGGER_INPUT>>(DRUM, "808ish-BD", INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX, "Pitch", "Punch", "Tone", "Decay");
+    add<PeaksEngine<peaks::SnareDrum, TRIGGER_INPUT>>(DRUM, "808ish-SD", INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX, "Pitch", "Snappy", "Tone", "Decay");
+    // add<PeaksEngine<peaks::HighHat, TRIGGER_INPUT>>(DRUM, "808ish-HiHat", INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX, "Decay");
+    add<Hihat808>(DRUM, "808ish-HiHat");
+}
