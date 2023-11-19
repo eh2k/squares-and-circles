@@ -27,13 +27,53 @@
 #include "machine.h"
 #include "stmlib/dsp/dsp.h"
 
+namespace gfx
+{
+    void drawEngine2(machine::Engine *engine)
+    {
+        float dummy;
+        for (int i = 0; i < 5; i++)
+        {
+            if (engine->param[i].name == nullptr)
+                engine->param[i].init(".", &dummy);
+        }
+
+        gfx::drawEngine(engine);
+
+        for (int i = 0; i < 5; i++)
+        {
+            if (engine->param[i].name[0] == '.')
+                engine->param[i] = {};
+        }
+    }
+
+    void drawEngineWithScope(machine::Engine *engine, int8_t scope[128], int i, int y)
+    {
+        for (int x = 0; x < 127; x++)
+        {
+            if (x % 3 == 0)
+                gfx::drawPixel(x, y);
+            gfx::drawLine(x, y - scope[(i + x) % 128], x + 1, y - scope[(1 + i + x) % 128]);
+        }
+
+        drawEngine2(engine);
+    }
+
+    void push_scope(int8_t scope[128], uint8_t &i, int8_t y)
+    {
+        scope[i++ % 128] = y;
+        if (i > 128)
+            i = 0;
+    }
+}
+
 using namespace machine;
 
 class VoltsPerOctave : public Engine
 {
     char tmp[64];
     uint16_t note = DEFAULT_NOTE * machine::PITCH_PER_OCTAVE / 12;
-    uint8_t tune = 32;
+    uint8_t tune = 128;
     int32_t cv0 = 0;
     int32_t cv = 0;
     float glide = 0;
@@ -42,32 +82,190 @@ public:
     VoltsPerOctave() : Engine(OUT_EQ_VOLT | VOCT_INPUT)
     {
         param[0].init_v_oct("Tone", &note);
-        param[1].init("Fine", &tune, tune, 0, 64);
+        param[1].init("Fine", &tune, tune, 0, 254);
         param[2].init("Slew", &glide, 0, 0, 0.5f);
     }
 
     void process(const ControlFrame &frame, OutputFrame &of) override
     {
-        cv0 = frame.qz_voltage(this->io,
-                               (machine::PITCH_PER_OCTAVE * 2) +
-                                   ((int)note - (DEFAULT_NOTE * machine::PITCH_PER_OCTAVE / 12)) +
-                                   (((int)tune - 32) << 4));
+        cv0 = frame.qz_voltage(this->io, (machine::PITCH_PER_OCTAVE * 2) + ((int)note - (DEFAULT_NOTE * machine::PITCH_PER_OCTAVE / 12))) +
+              (((int)tune - 128) << 2);
 
         ONE_POLE(cv, cv0, powf(1 - glide, 10));
 
-        of.push(&cv, 1);
+        of.push_voltage(&cv, 1);
+
+        if ((frame.t % 50) == 0)
+            gfx::push_scope(scope, i, (float)cv / machine::PITCH_PER_OCTAVE * 4);
+    }
+
+    int8_t scope[128] = {};
+    uint8_t i = 0;
+    void display() override
+    {
+        sprintf(tmp, "OUT:%.2fV", ((float)cv / machine::PITCH_PER_OCTAVE));
+        gfx::drawString(4 + 64, 32, tmp, 0);
+        gfx::drawEngineWithScope(this, scope, i, 50);
+    }
+};
+
+class LFOEngine : public Engine
+{
+    Parameter output;
+    ModulationSource *_mod = nullptr;
+    float cv = 0;
+
+public:
+    LFOEngine() : Engine(OUT_EQ_VOLT | TRIGGER_INPUT)
+    {
+        _mod = machine::create_modulation("LFO");
+        if (_mod)
+        {
+            *_mod->param[0].value.u8p = 1; // set trigger source
+            param[0] = _mod->param[2];     // Freq
+            param[1] = _mod->param[1];     // Shape
+            // param[2] = _mod->param[3];     // Attenuverter
+            *_mod->param[3].value.fp = 0.8f; // param[2].name = "+-";
+
+            output.init(".", &cv, 0, -1.f, 1.f);
+        }
+    }
+
+    ~LFOEngine() override
+    {
+        machine::mfree(_mod);
+    }
+
+    int8_t scope[128] = {};
+    uint8_t i = 0;
+    void process(const ControlFrame &frame, OutputFrame &of) override
+    {
+        cv = 0.f;
+        _mod->process(output, (ControlFrame &)frame);
+
+        int32_t v = 5.f * cv * machine::PITCH_PER_OCTAVE;
+        of.push_voltage(&v, 1);
+
+        if ((frame.t % 50) == 0)
+            gfx::push_scope(scope, i, cv * 10);
     }
 
     void display() override
     {
-        sprintf(tmp, "OUT: %.2fV", ((float)cv / machine::PITCH_PER_OCTAVE));
-        gfx::drawString(4 + 64, 52, tmp, 0);
-
-        gfx::drawEngine(this);
+        gfx::drawEngineWithScope(this, scope, i, 44);
     }
 };
+
+class ADEnvelope : public Engine
+{
+    Parameter output;
+    ModulationSource *_mod = nullptr;
+    float cv = 0;
+
+public:
+    ADEnvelope() : Engine(OUT_EQ_VOLT | TRIGGER_INPUT)
+    {
+        _mod = machine::create_modulation("ENV");
+        if (_mod)
+        {
+            *_mod->param[0].value.u8p = 0; // set trigger source
+            param[0] = _mod->param[1];     // Attack
+            param[0].name = "Attack";
+            param[1] = _mod->param[2]; // Decay
+            param[1].name = "Decay";
+            *_mod->param[3].value.fp = 0.8f; // Attenuverter param[2].name = "+-";
+            output.init(".", &cv, 0, -1.f, 1.f);
+        }
+    }
+
+    ~ADEnvelope() override
+    {
+        machine::mfree(_mod);
+    }
+
+    int8_t scope[128] = {};
+    float y = 0;
+    uint8_t i = 0;
+    void process(const ControlFrame &frame, OutputFrame &of) override
+    {
+        cv = 0.f;
+        _mod->process(output, (ControlFrame &)frame);
+
+        int32_t v = 5.f * cv * machine::PITCH_PER_OCTAVE;
+        of.push_voltage(&v, 1);
+
+        if ((frame.t % 50) == 0)
+        {
+            gfx::push_scope(scope, i, y * 20);
+            y = 0;
+        }
+        else
+            y = std::max(y, cv);
+    }
+
+    void display() override
+    {
+        gfx::drawEngineWithScope(this, scope, i, 54);
+    }
+};
+
+class EFEngine : public Engine
+{
+    Parameter output;
+    ModulationSource *_mod = nullptr;
+    float cv = 0;
+
+public:
+    EFEngine() : Engine(OUT_EQ_VOLT | AUDIO_PROCESSOR_MONO)
+    {
+        _mod = machine::create_modulation("EF");
+        if (_mod)
+        {
+            *_mod->param[0].value.u8p = 0;   // set trigger source
+            param[0] = _mod->param[1];       // Attack
+            param[1] = _mod->param[2];       // Decay
+            *_mod->param[3].value.fp = 0.8f; // Attenuverter param[2].name = "+-";
+
+            output.init(".", &cv, 0, -1.f, 1.f);
+        }
+    }
+
+    ~EFEngine() override
+    {
+        machine::mfree(_mod);
+    }
+
+    int8_t scope[128] = {};
+    uint8_t i = 0;
+    void process(const ControlFrame &frame, OutputFrame &of) override
+    {
+        cv = 0.f;
+        if (this->io->aux > 0)
+        {
+            *_mod->param[0].value.u8p = this->io->aux - 1;
+            _mod->process(output, (ControlFrame &)frame);
+        }
+
+        int32_t v = 5.f * cv * machine::PITCH_PER_OCTAVE;
+        of.push_voltage(&v, 1);
+
+        if ((frame.t % 50) == 0)
+            gfx::push_scope(scope, i, cv * 20);
+    }
+
+    void display() override
+    {
+        gfx::drawEngineWithScope(this, scope, i, 54);
+    }
+};
+
+void init_cv_peaks();
 
 void init_voltage()
 {
     machine::add<VoltsPerOctave>(CV, "V/OCT");
+    machine::add<ADEnvelope>(CV, "EnvGen_AD");
+    init_cv_peaks();
+    machine::add<LFOEngine>(CV, "LFO");
+    machine::add<EFEngine>(CV, "EnvFollower");
 }

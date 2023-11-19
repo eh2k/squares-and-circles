@@ -64,6 +64,21 @@ namespace rosic { //[eh2k] start namespace
   {
     return fmodf(x, y);
   }
+
+  INLINE real_t atan(real_t x)
+  {
+    return atanf(x);
+  }
+
+  INLINE real_t tan(real_t x)
+  {
+    return tanf(x);
+  }
+
+  INLINE real_t ceil(real_t x)
+  {
+    return ceilf(x);
+  }
   #endif
   //<[eh2k]
 

@@ -16,6 +16,8 @@
 
 // Low frequency oscillator, compatible with DX7
 
+#pragma once
+
 class Lfo {
  public:
   static void init(float sample_rate);

@@ -246,7 +246,7 @@ struct LFO : ModulationBase
         _processor.set_parameter(INT16_MAX - 32768);
         _processor.set_reset_phase(INT16_MAX - 32768);
 
-        param[0].init("TRIG", &tr_channel, tr_channel, 0, 1 + machine::get_io_info(0));
+        param[0].init_presets("TRIG", &tr_channel, tr_channel, 0, 1 + machine::get_io_info(0));
         param[0].print_value = [&](char *tmp)
         {
             if (tr_channel == 0)
@@ -258,7 +258,31 @@ struct LFO : ModulationBase
         };
 
         _processor.set_shape(peaks::LFO_SHAPE_SINE);
-        param[1].init("Shape", &shape, shape, 0, peaks::LFO_SHAPE_LAST - 1);
+        param[1].init_presets("Shape", &shape, shape, 0, peaks::LFO_SHAPE_LAST - 1);
+        param[1].print_value = [&](char *tmp)
+        {
+            switch (shape)
+            {
+            case peaks::LFO_SHAPE_SINE:
+                sprintf(tmp, ">Sine");
+                break;
+            case peaks::LFO_SHAPE_TRIANGLE:
+                sprintf(tmp, ">Triangle");
+                break;
+            case peaks::LFO_SHAPE_SQUARE:
+                sprintf(tmp, ">Square");
+                break;
+            case peaks::LFO_SHAPE_STEPS:
+                sprintf(tmp, ">Steps");
+                break;
+            case peaks::LFO_SHAPE_NOISE:
+                sprintf(tmp, ">Noise");
+                break;
+            default:
+                sprintf(tmp, ">?????");
+                break;
+            }
+        };
         param[1].step2 = param[1].step;
         param[2].init("Freq.", &rate, INT16_MAX);
         param[3].init(".", &attenuverter, attenuverter, -1, +1);
@@ -297,33 +321,6 @@ struct LFO : ModulationBase
         _processor.Process(flags, &ivalue, 1);
         value = (float)ivalue / INT16_MAX * 10.f;
         target.modulate(value * this->attenuverter);
-    }
-
-    void display(int x, int y) override
-    {
-        switch (shape)
-        {
-        case peaks::LFO_SHAPE_SINE:
-            param[1].name = ">Sine";
-            break;
-        case peaks::LFO_SHAPE_TRIANGLE:
-            param[1].name = ">Triangle";
-            break;
-        case peaks::LFO_SHAPE_SQUARE:
-            param[1].name = ">Square";
-            break;
-        case peaks::LFO_SHAPE_STEPS:
-            param[1].name = ">Steps";
-            break;
-        case peaks::LFO_SHAPE_NOISE:
-            param[1].name = ">Noise";
-            break;
-        default:
-            param[1].name = ">?????";
-            break;
-        }
-
-        ModulationBase::display(x, y);
     }
 };
 

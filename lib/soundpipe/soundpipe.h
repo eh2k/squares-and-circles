@@ -19,5 +19,3 @@ typedef struct {
     uint32_t rand;
     sp_auxdata aux;
 } sp_data; 
-
-uint32_t sp_rand(sp_data *sp);

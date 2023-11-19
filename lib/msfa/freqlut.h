@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#pragma once
+
 class Freqlut {
  public:
   static void init(float sample_rate);

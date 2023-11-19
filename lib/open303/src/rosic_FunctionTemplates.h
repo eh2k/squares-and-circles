@@ -4,7 +4,6 @@
 // rosic includes:
 //#include "GlobalDefinitions.h"
 #include "rosic_RealFunctions.h"
-#include <algorithm>
 #include <string.h>
 
 namespace rosic

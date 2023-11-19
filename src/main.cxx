@@ -41,8 +41,7 @@ void init_engines()
     MACHINE_INIT(init_808_squarenoise);
     MACHINE_INIT(init_midi_monitor);
     MACHINE_INIT(init_midi_clock);
-    MACHINE_INIT(init_peaks_drums);
-    MACHINE_INIT(init_peaks);
+    MACHINE_INIT(init_drums_peaks);
     MACHINE_INIT(init_braids);
     MACHINE_INIT(init_plaits);
     MACHINE_INIT(init_tr909);

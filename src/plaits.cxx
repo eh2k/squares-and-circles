@@ -282,6 +282,10 @@ struct PlaitsEngine : public Engine
             modulations.level = patch.decay;
             patch.decay = 0.001f;
         }
+        else
+        {
+            modulations.trigger_patched = true;
+        }
 
         modulations.note = 0;
         voice.Render(_plaitsEngine, patch, modulations, bufferOut, bufferAux, machine::FRAME_BUFFER_SIZE);

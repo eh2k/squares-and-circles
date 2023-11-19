@@ -49,10 +49,6 @@ static int init_delay_line(sp_revsc *p, sp_revsc_dl *lp, int n);
 static int delay_line_bytes_alloc(SPFLOAT sr, SPFLOAT iPitchMod, int n);
 static const SPFLOAT outputGain  = 0.35;
 static const SPFLOAT jpScale     = 0.25;
-int sp_revsc_create(sp_revsc **p){
-    *p = malloc(sizeof(sp_revsc));
-    return SP_OK;
-}
 
 int sp_revsc_init(sp_data *sp, sp_revsc *p)
 {
@@ -82,19 +78,11 @@ int sp_revsc_init(sp_data *sp, sp_revsc *p)
 
     nBytes = 0;
     for (i = 0; i < 8; i++) {
-        p->delayLines[i].buf = (p->aux.ptr) + nBytes;
+        p->delayLines[i].buf = (SPFLOAT*)((p->aux.ptr) + nBytes);
         init_delay_line(p, &p->delayLines[i], i);
         nBytes += delay_line_bytes_alloc(sp->sr, 1, i);
     }
 
-    return SP_OK;
-}
-
-
-int sp_revsc_destroy(sp_revsc **p)
-{
-    sp_revsc *pp = *p;
-    free(*p);
     return SP_OK;
 }
 

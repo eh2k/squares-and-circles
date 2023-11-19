@@ -17,8 +17,39 @@
 #include "wavetable_gen/rosic_MipMappedWaveTable.h"
 #endif
 
-#include <list>
-using namespace std; // for the noteList
+// #include <list>
+// using namespace std; // for the noteList
+template <class T>
+struct list
+{
+  T _front;
+
+  bool empty()
+  {
+    return _front == T();
+  }
+
+  void clear()
+  {
+    _front = T();
+  }
+
+  T &front()
+  {
+    return _front;
+  }
+
+  void push_front(T &e)
+  {
+    _front = e;
+  }
+
+  void remove(T &e)
+  {
+    if (_front == e)
+      _front = T();
+  }
+};
 
 namespace rosic
 {

@@ -9,6 +9,15 @@
   <summary><b>ChangeLog</b></summary>
   
 ````
+== 2023-11-19 ==
+ * Refactoring CV-Engines (based on modulations)
+   - CV-Output Scope-View
+ * New CV-Engines: 
+   - EnvGen_AD
+   - EnvFollower
+ * Bugfix: CV-Engine (fine-tune after quantizer)
+ * Bugfix: #57
+ * Bugfix: plaits engines trigger_patched reset
 == 2023-11-04 ==
  * Bugfix: CV/Voltage modulation
 == 2023-10-14 ==
@@ -100,7 +109,11 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
 * **GND**
   * `---`
 * **CV**
-  * V/OCT, Envelope, LFO
+  * [V/OCT](https://github.com/eh2k/squares-and-circles/wiki/V_OCT)
+  * EnvGen_AD
+  * EnvGen_ADSR
+  * LFO
+  * EnvFollower
 * **Drums** 
   * Analog-BD, Analog SD, Analog HH, Analog HH2
   * 909ish-BD, 909ish-SD, [TR909-HiHat, TR909-Ride](https://github.com/eh2k/squares-and-circles/wiki/TR909_HiHats) <img align="right" src="doc/engine.bmp" width=196px />

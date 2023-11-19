@@ -25,7 +25,5 @@ typedef struct  {
     sp_auxdata aux;
 } sp_revsc;
 
-int sp_revsc_create(sp_revsc **p);
-int sp_revsc_destroy(sp_revsc **p);
 int sp_revsc_init(sp_data *sp, sp_revsc *p);
 int sp_revsc_compute(sp_data *sp, sp_revsc *p, SPFLOAT *in1, SPFLOAT *in2, SPFLOAT *out1, SPFLOAT *out2);
