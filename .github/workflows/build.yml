@@ -20,10 +20,22 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install --upgrade platformio
-    - name: build
+    - name: build_SC_DSM0
+      run: |
+        set -x
+        git submodule update --init
+        pio pkg install --environment SC_DSM0
+        pio run -v --environment SC_DSM0
+        pio run -v --environment SC_DSM0 -t upload || true
+        hex=$(echo .pio/build/*/*.hex)
+        rm -f $hex;
+        mv .pio/build/*/*.eh2k $hex;
+    - name: build_OC_T40
       run: |
         git submodule update --init
-        pio run
+        pio run --environment OC_T40
+    - name: pack_artifacts
+      run: |
         export hash=$(git rev-parse --short HEAD)
         mv .github/workflows/LICENSE.txt ./LICENSE.txt
         for f in .pio/build/*/*.hex; do
@@ -32,8 +44,9 @@ jobs:
           ZIP_FILE=./firmware_${FIRMWARE}_$hash.zip
           mv -v "$f" $HEX_FILE
           zip -j $ZIP_FILE $HEX_FILE ./LICENSE.txt
-          curl -X PUT -u ${{ secrets.UPLOAD_KEY }} ${{ secrets.LATEST_DROP_FOLDER }}/${FIRMWARE}_latest.zip --upload-file $ZIP_FILE || true
-          curl -X PUT -u ${{ secrets.UPLOAD_KEY }} ${{ secrets.LATEST_DROP_FOLDER }}/${FIRMWARE}_latest.sha -d "$hash"
+          sha256sum $ZIP_FILE
+          curl -fs -X PUT -u ${{ secrets.UPLOAD_KEY }} ${{ secrets.LATEST_DROP_FOLDER }}/${FIRMWARE}_latest.zip --upload-file $ZIP_FILE || true
+          curl -fs -X PUT -u ${{ secrets.UPLOAD_KEY }} ${{ secrets.LATEST_DROP_FOLDER }}/${FIRMWARE}_latest.sha -d "$hash"
         done
     - name: firmware_artifacts
       uses: actions/upload-artifact@v2
