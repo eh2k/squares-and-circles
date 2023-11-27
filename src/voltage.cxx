@@ -29,24 +29,6 @@
 
 namespace gfx
 {
-    void drawEngine2(machine::Engine *engine)
-    {
-        float dummy;
-        for (int i = 0; i < 5; i++)
-        {
-            if (engine->param[i].name == nullptr)
-                engine->param[i].init(".", &dummy);
-        }
-
-        gfx::drawEngine(engine);
-
-        for (int i = 0; i < 5; i++)
-        {
-            if (engine->param[i].name[0] == '.')
-                engine->param[i] = {};
-        }
-    }
-
     void drawEngineWithScope(machine::Engine *engine, int8_t scope[128], int i, int y)
     {
         for (int x = 0; x < 127; x++)
@@ -56,7 +38,7 @@ namespace gfx
             gfx::drawLine(x, y - scope[(i + x) % 128], x + 1, y - scope[(1 + i + x) % 128]);
         }
 
-        drawEngine2(engine);
+        gfx::drawEngineCompact(engine);
     }
 
     void push_scope(int8_t scope[128], uint8_t &i, int8_t y)

@@ -25,7 +25,7 @@
 
 #include "machine.h"
 
-void init_engines()
+void init_engines2()
 {
 #undef MACHINE_INIT
 #define MACHINE_INIT(init_fun)             \
@@ -67,7 +67,7 @@ void init_engines()
 
 int main()
 {
-    machine::setup(GIT_COMMIT_SHA, init_engines);
+    machine::setup(GIT_COMMIT_SHA, init_engines2);
 
     while (true)
         machine::loop();
