@@ -24,6 +24,9 @@
 //
 
 #include "machine.h"
+#include "plaits/resources.h"
+
+void init_engines();
 
 void init_engines2()
 {
@@ -31,6 +34,15 @@ void init_engines2()
 #define MACHINE_INIT(init_fun)             \
     void init_fun() __attribute__((weak)); \
     init_fun();
+
+    static uint32_t p[5];
+    p[0] = (uint32_t)plaits::fm_patches_table[0];
+    p[1] = (uint32_t)plaits::fm_patches_table[1];
+    p[2] = (uint32_t)plaits::fm_patches_table[2];
+    p[3] = (uint32_t)machine::flash_read("DXFMSYX0");
+    p[4] = 0;
+
+    machine::register_symbol("fm_patches_table", p);
 
     MACHINE_INIT(init_modulations);
     MACHINE_INIT(init_quantizer);
@@ -62,7 +74,7 @@ void init_engines2()
     MACHINE_INIT(init_aux);
     MACHINE_INIT(init_juno60_chorus);
     MACHINE_INIT(init_plaits2);
-
+    init_engines();
 }
 
 int main()

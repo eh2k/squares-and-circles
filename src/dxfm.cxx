@@ -186,8 +186,6 @@ struct DxFMEngine : public MidiEngine
         if (_bnkNum < 0)
         {
             sysexData = machine::flash_read(DXFM_PATCH);
-            if (sysexData)
-                sysexData -= 128; // start with index 1
         }
         else
         {
@@ -202,6 +200,9 @@ struct DxFMEngine : public MidiEngine
 
             if (valid)
             {
+                if (_bnkNum < 0)
+                    sysexData -= 128;
+
                 memcpy(patch, (const char *)sysexData + (prog * 128), sizeof(patch));
                 UnpackPatch(patch, (char *)data);
                 sprintf(patch_name, "%.10s", NAME());

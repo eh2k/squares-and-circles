@@ -9,6 +9,9 @@
   <summary><b>ChangeLog</b></summary>
   
 ````
+== 2023-12-03 ==
+ * Bugfix: DxFM custom syx didnt work
+ * DevSync: DSM0 perf+wdt
 == 2023-11-19 ==
  * Refactoring CV-Engines (based on modulations)
    - CV-Output Scope-View
