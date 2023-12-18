@@ -36,7 +36,7 @@ struct ModulationBase : machine::ModulationSource
     {
         if (src > 0)
         {
-            gfx::drawRect(x + 1, y + 32, 63, 6);
+            gfx::drawLine(x + 1, y + 32, x + 64, y + 32);
             auto m = value / 10.f * 32;
 
             gfx::drawLine(x + 32, y + 34, x + 32 + m, y + 34);

@@ -9,6 +9,10 @@
   <summary><b>ChangeLog</b></summary>
   
 ````
+== 2023-12-18
+ * DevSync: DSM0 ITCM usage + Bugfix DSM0 calibration
+ * Enhancements/BreakingChanges: 
+   * Danamic Loader (apps as header includes for now) - Noise, SAM, Faust engines ported
 == 2023-12-03 ==
  * Bugfix: DxFM custom syx didnt work
  * DevSync: DSM0 perf+wdt

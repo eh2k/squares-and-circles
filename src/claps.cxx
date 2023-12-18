@@ -25,6 +25,7 @@
 
 #include "machine.h"
 #include "drumsynth/drumsynth.h"
+#include "drumsynth/drumsynth_claps.h"
 #include "misc/noise.hxx"
 
 using namespace machine;
@@ -269,8 +270,6 @@ public:
 
 //     TR808_CP() : SampleEngine(&_sound, 0, 1) {}
 // };
-
-extern const uint8_t *drum_synth_claps;
 
 void init_claps()
 {

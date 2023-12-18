@@ -23,50 +23,42 @@
 // See http://creativecommons.org/licenses/MIT/ for more information.
 //
 
-#include "machine.h"
+//ENGINE_NAME:NOISE/White/Pink
+
+#include "../squares-and-circles-api.h"
 #include "misc/noise.hxx"
+#include <stdio.h>
 
-using namespace machine;
+float buffer[FRAME_BUFFER_SIZE];
+const char *modes[2] = {">White", ">Pink"};
+char mode_txt[6] = {};
+PinkNoise<> pink;
+float gain = 1.f;
+uint8_t mode = 0;
 
-struct NoiseEngine : public Engine
+DSP_SETUP
+void setup()
 {
-    const char *modes[2] = {">White", ">Pink"};
-    PinkNoise<> pink;
-    float gain;
-    uint8_t mode;
+    dsp_param_f("Level", &gain);
+    dsp_param_u8(mode_txt, &mode, 0, LEN_OF(modes) - 1);
 
-    NoiseEngine() : Engine(0)
-    {
-        param[0].init("Level", &gain, 1);
-        param[1].init(">Type", &mode, 0, 0, LEN_OF(modes) - 1);
-    };
-
-    float buffer[machine::FRAME_BUFFER_SIZE];
-
-    void process(const ControlFrame &frame, OutputFrame &of) override
-    {
-        for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
-        {
-            if (mode == 0)
-                buffer[i] = pink.white.nextf(-1.f, 1.f) * gain;
-            else
-                buffer[i] = pink.nextf(-1.f, 1.f) * gain;
-        }
-
-        of.push(buffer, machine::FRAME_BUFFER_SIZE);
-    }
-
-    void display() override
-    {
-        param[1].name = modes[mode];
-
-        gfx::drawEngine(this);
-    }
+    dsp_frame_f(OUTPUT_L, buffer);
 };
 
-void init_noise()
+DSP_PROCESS
+void process()
 {
-    machine::add<NoiseEngine>(NOISE, "White/Pink");
+    for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
+    {
+        if (mode == 0)
+            buffer[i] = pink.white.nextf(-1.f, 1.f) * gain;
+        else
+            buffer[i] = pink.nextf(-1.f, 1.f) * gain;
+    }
 }
 
-MACHINE_INIT(init_noise);
+GFX_DISPLAY
+void display()
+{
+    sprintf(mode_txt, modes[mode]);
+}

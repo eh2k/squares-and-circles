@@ -34,7 +34,7 @@ namespace gfx
         for (int x = 0; x < 127; x++)
         {
             if (x % 3 == 0)
-                gfx::drawPixel(x, y);
+                gfx::setPixel(x, y);
             gfx::drawLine(x, y - scope[(i + x) % 128], x + 1, y - scope[(1 + i + x) % 128]);
         }
 

@@ -29,7 +29,7 @@ struct MidiMonitor : public machine::MidiEngine
         gfx::drawString(66, 12, "CONTROL", 0);
 
         for (int x = 0; x < 128; x += 3)
-            gfx::drawPixel(x, 18);
+            gfx::setPixel(x, 18);
 
         char tmp[30];
         for (size_t i = 0; i < LEN_OF(voice); i++)
@@ -39,7 +39,7 @@ struct MidiMonitor : public machine::MidiEngine
         }
 
         for (int y = 12; y < 60; y += 3)
-            gfx::drawPixel(64, y);
+            gfx::setPixel(64, y);
 
         int bpm = machine::get_bpm();
         int bpm2 = ((bpm % 100) / 10);

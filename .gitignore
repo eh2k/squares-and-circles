@@ -1,3 +1,7 @@
 .pio
 .vscode
 .test
+*.elf
+*.log
+*.txt
+*.bin

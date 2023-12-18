@@ -26,6 +26,17 @@
 #include "machine.h"
 #include "plaits/resources.h"
 
+#ifndef FLASHMEM
+#include "pgmspace.h"
+#endif
+
+#include "../app/DRUMS/Djembe.bin.h"
+#include "../app/NOISE/NES.bin.h"
+#include "../app/NOISE/808_squares.bin.h"
+#include "../app/NOISE/WhitePink.bin.h"
+#include "../app/FX/Rev-Dattorro.bin.h"
+#include "../app/SPEECH/SAM.bin.h"
+
 void init_engines();
 
 void init_engines2()
@@ -48,9 +59,9 @@ void init_engines2()
     MACHINE_INIT(init_quantizer);
 
     MACHINE_INIT(init_voltage);
-    MACHINE_INIT(init_noise);
-    MACHINE_INIT(init_nes_noise);
-    MACHINE_INIT(init_808_squarenoise);
+    machine::add(__NOISE_WhitePink_bin, __NOISE_WhitePink_bin_len);
+    machine::add(__NOISE_NES_bin, __NOISE_NES_bin_len);
+    machine::add(__NOISE_808_squares_bin, __NOISE_808_squares_bin_len);
     MACHINE_INIT(init_midi_monitor);
     MACHINE_INIT(init_midi_clock);
     MACHINE_INIT(init_drums_peaks);
@@ -58,14 +69,15 @@ void init_engines2()
     MACHINE_INIT(init_plaits);
     MACHINE_INIT(init_tr909);
     MACHINE_INIT(init_tr707);
-    MACHINE_INIT(init_sample_roms);
+
     MACHINE_INIT(init_claps);
     MACHINE_INIT(init_reverb);
     MACHINE_INIT(init_reverbSC);
-    MACHINE_INIT(init_faust);
+    machine::add(__FX_Rev_Dattorro_bin, __FX_Rev_Dattorro_bin_len);
+    machine::add(__DRUMS_Djembe_bin, __DRUMS_Djembe_bin_len);
     MACHINE_INIT(init_rings);
     MACHINE_INIT(init_speech);
-    MACHINE_INIT(init_sam);
+    machine::add(__SPEECH_SAM_bin, __SPEECH_SAM_bin_len);
     MACHINE_INIT(init_delay);
     MACHINE_INIT(init_fv1);
     MACHINE_INIT(init_midi_polyVA)
