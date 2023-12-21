@@ -9,10 +9,12 @@
   <summary><b>ChangeLog</b></summary>
   
 ````
+== 2023-12-21
+ * DevSync: Fix DSM0 Callibration + Voltage engines
 == 2023-12-18
  * DevSync: DSM0 ITCM usage + Bugfix DSM0 calibration
  * Enhancements/BreakingChanges: 
-   * Danamic Loader (apps as header includes for now) - Noise, SAM, Faust engines ported
+   * Dynamic Loader (apps as header includes for now) - Noise, SAM, Faust engines ported
 == 2023-12-03 ==
  * Bugfix: DxFM custom syx didnt work
  * DevSync: DSM0 perf+wdt
@@ -103,20 +105,19 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
 <br/>
 <div style="page-break-after: always;"></div>
 
-# Machines <sup>[wiki](https://github.com/eh2k/squares-and-circles/wiki/%E2%96%A1%EF%B8%8E%E2%97%8F%EF%B8%8E-Machines-&-Engines)</sup>
+# Machines <sup>[wiki](https://github.com/eh2k/squares-and-circles/wiki/%E2%96%A1%EF%B8%8E%E2%97%8F%EF%B8%8E-Machines-&-Engines)</sup> 
 
+<img align="right" src="doc/menu.bmp" width=196px /> 
 
 >[Long press [LEFT]] enters the machine-selection-page.<br/>
 >[Short press [R-ENCODER]] loads the selected engine.<br/>
 >[Long press [R-ENCODER]] loads the selected engine (default IO-settings).<br/>
 
-<img align="right" src="doc/menu.bmp" width=196px /> 
-
-
 * **GND**
   * `---`
 * **CV**
-  * [V/OCT](https://github.com/eh2k/squares-and-circles/wiki/V_OCT)
+  * [V/OCT](https://github.com/eh2k/squares-and-circles/wiki/V_OCT) <img align="right" src="doc/cv_voltage.png" width=196px /> 
+
   * EnvGen_AD
   * EnvGen_ADSR
   * LFO
@@ -136,35 +137,34 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
 * **SYNTH**
   * [DxFM](https://github.com/eh2k/squares-and-circles/wiki/DxFM)
   * [DxFM_BNK1-3](lib/plaits/resources.cc#L41)
-  * [Open303](https://github.com/eh2k/squares-and-circles/wiki/Open303)
+  * [Open303](https://github.com/eh2k/squares-and-circles/wiki/Open303) <img align="right" src="doc/synth_open303.png" width=196px />
   * [ClassicVAVCF](lib/plaits/dsp/engine2/virtual_analog_vcf_engine.cc)
 * **Stereo-FX**
   * [Reverb](https://github.com/eh2k/squares-and-circles/wiki/clouds_reverb)
   * ReverbSC
-  * Rev-Dattorro
+  * Rev-Dattorro <img align="right" src="doc/fx_rev_dattorro.png" width=196px />
   * Delay
   * Gated-Reverb
   * Reverb-HP-LP
   * [JU60_chorus](https://github.com/eh2k/squares-and-circles/wiki/JU60_chorus)
 * **NOISE**
   * [White/Pink](https://github.com/eh2k/squares-and-circles/wiki/White_Pink_noise)
-  * [NES_noise](https://github.com/eh2k/squares-and-circles/wiki/NES_noise)
+  * [NES_noise](https://github.com/eh2k/squares-and-circles/wiki/NES_noise) <img align="right" src="doc/noise_nes.png" width=196px />
   * [808_squares](https://github.com/eh2k/squares-and-circles/wiki/808_squares)
 * **SPEECH**
   * LPC
   * [SAM](https://github.com/eh2k/squares-and-circles/wiki/SAM)
 * **MIDI**
-  * Monitor, Clock, VAx6
+  * Monitor <img align="right" src="doc/midi_monitor.png" width=196px />
+  * Clock
+  * VAx6
 
 ## Machine/Engine  
 
-<img align="right" src="doc/engine.bmp" width=196px />
-
 Machines/Engines are controlled by individual parameters.
 
-* [Short press left/right [ENCODER]] changes parameter selection
-
-* [Rotate left/right [ENCODER]] changes parameter value
+>[Short press left/right [ENCODER]] changes parameter selection<br/>
+>[Rotate left/right [ENCODER]] changes parameter value
 
 ### Modulations 
 
