@@ -46,14 +46,9 @@ void init_engines2()
     void init_fun() __attribute__((weak)); \
     init_fun();
 
-    static uint32_t p[5];
-    p[0] = (uint32_t)plaits::fm_patches_table[0];
-    p[1] = (uint32_t)plaits::fm_patches_table[1];
-    p[2] = (uint32_t)plaits::fm_patches_table[2];
-    p[3] = (uint32_t)machine::flash_read("DXFMSYX0");
-    p[4] = 0;
-
-    machine::register_symbol("fm_patches_table", p);
+    // machine::register_flash_blob("DXFMSYXA", plaits::fm_patches_table[0]);
+    // machine::register_flash_blob("DXFMSYXB", plaits::fm_patches_table[1]);
+    // machine::register_flash_blob("DXFMSYXC", plaits::fm_patches_table[2]);
 
     MACHINE_INIT(init_modulations);
     MACHINE_INIT(init_quantizer);

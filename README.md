@@ -9,6 +9,8 @@
   <summary><b>ChangeLog</b></summary>
   
 ````
+== 2024-01-14
+ * DevSync: Fix DSM0 audio clipping
 == 2023-12-21
  * DevSync: Fix DSM0 Callibration + Voltage engines
 == 2023-12-18
