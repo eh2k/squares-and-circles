@@ -123,7 +123,7 @@ struct PlaitsEngine : public Engine
 
             auto &chord = static_cast<plaits::ChordEngine *>(_plaitsEngine)->chords_.chord_index_quantizer_.quantized_value_;
             param[1].init_presets("Chord", (uint8_t *)&chord, 8, 0,
-                          static_cast<plaits::ChordEngine *>(_plaitsEngine)->chords_.chord_index_quantizer_.num_steps() - 1);
+                                  static_cast<plaits::ChordEngine *>(_plaitsEngine)->chords_.chord_index_quantizer_.num_steps() - 1);
             param[1].print_value = [&](char *tmp)
             {
                 const int chord_index = static_cast<plaits::ChordEngine *>(_plaitsEngine)->chords_.chord_index();
@@ -315,12 +315,18 @@ struct PlaitsEngine : public Engine
 
     void display() override
     {
-        if (param[4].value.fp == &patch.decay)
+        for (auto &p : param)
         {
-            if (!this->io->tr)
-                param[4].name = "Level";
-            else
-                param[4].name = "Decay";
+            if (p.name == nullptr)
+                break;
+
+            if (p.value.fp == &patch.decay)
+            {
+                if (!this->io->tr)
+                    p.name = "Level";
+                else
+                    p.name = "Decay";
+            }
         }
 
         gfx::drawEngine(this);

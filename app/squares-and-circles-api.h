@@ -47,96 +47,30 @@
 #define WASM_CONSTRUCTOR
 #endif
 
-#define DSP_PROCESS WASM_EXPORT_AS("_process")
-#define DSP_SETUP WASM_EXPORT_AS("_setup")
-#define GFX_DISPLAY WASM_EXPORT_AS("_display")
-#define GFX_SCREENSAVER WASM_EXPORT_AS("_screensaver")
-
-#define FRAME_BUFFER_SIZE 24
-
-extern "C"
-{
-    WASM_IMPORT("gfx", "clear")
-    void gfx_clear();
-
-    WASM_IMPORT("gfx", "draw_xbm")
-    void gfx_draw_xbm(int x, int y, int width, int height, const uint8_t *xbm);
-
-    WASM_IMPORT("gfx", "draw_circle")
-    void gfx_draw_circle(int x, int y, int r);
-
-    WASM_IMPORT("gfx", "draw_rect")
-    void gfx_draw_rect(int x, int y, int w, int h);
-
-    WASM_IMPORT("gfx", "fill_rect")
-    void gfx_fill_rect(int x, int y, int w, int h);
-
-    WASM_IMPORT("gfx", "draw_string")
-    void gfx_draw_string(int32_t x, int32_t y, const char *s, int32_t font = 1);
-
-    WASM_IMPORT("gfx", "draw_line")
-    void gfx_draw_line(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
-
-    WASM_IMPORT("gfx", "message")
-    void gfx_message(const char *msg);
-
-    WASM_IMPORT("dsp", "frame_f")
-    void dsp_frame_f(const char *name, float frame[FRAME_BUFFER_SIZE]); // len == 24
-
-    WASM_IMPORT("dsp", "frame_i16")
-    void dsp_frame_i16(const char *name, const int16_t out[FRAME_BUFFER_SIZE]); // len == 24
-
-    WASM_IMPORT("dsp", "param_f")
-    void dsp_param_f(const char *name, float *value); // 0...1
-
-    WASM_IMPORT("dsp", "param_f2")
-    void dsp_param_f2(const char *name, float *value, float min, float max); // min...max
-
-    WASM_IMPORT("dsp", "param_u8")
-    void dsp_param_u8(const char *name, uint8_t *value, int32_t min, int32_t max); // 0...max
-
-    WASM_IMPORT("fs", "fs_read")
-    const uint8_t *fs_read(const char *blobName);
-
-    WASM_IMPORT("dsp", "sample_u8")
-    void *dsp_sample_u8(const uint8_t *data, int len, int sample_rate, int addr_shift);
-    void *dsp_sample_Am6070(const uint8_t *data, int len, int sample_rate, int amp_mul);
-
-    WASM_IMPORT("dsp", "process_sample")
-    void dsp_process_sample(void *smpl, float start, float end, float pitch, float output[FRAME_BUFFER_SIZE]);
-
-    WASM_IMPORT("dsp", "process_hihats")
-    void dsp_process_hihats(void *ch, void *oh, float ch_vol, float ch_dec, float oh_dec, float output[FRAME_BUFFER_SIZE]);
-}
-
-extern uint8_t *__display_buffer_u8_p;
-extern float *__adc_voltage_f_p;
-extern float **__dac_voltage_fp_p;
-extern uint32_t *__digital_inputs_u32_p;
-
-#define gfx_display_buffer __display_buffer_u8_p
-#define adc_voltage __adc_voltage_f_p
-#define dac_buffer __dac_voltage_fp_p
-#define digital_inputs __digital_inputs_u32_p
-
+#ifndef FLASHMEM
 #define FLASHMEM __attribute__((section(".text")))
+#endif
 #define LEN_OF(x) (sizeof(x) / sizeof(x[0]))
-#define ONE_POLE(out, in, coefficient) out += (coefficient) * ((in)-out);
-#define DEFAULT_NOTE 60
-#define SAMPLE_RATE 48000
+#define MOD(x, y) ((x) % (y))
 
-#define BPM ".BPM"
-#define CV ".CV"
-#define TRIG ".TRIG"
-#define GATE ".GATE"
+#ifndef ONE_POLE
+#define ONE_POLE(out, in, coefficient) out += (coefficient) * ((in)-out);
+#endif
+#ifndef CONSTRAIN
+#define CONSTRAIN(var, min, max) \
+    if (var < (min))             \
+    {                            \
+        var = (min);             \
+    }                            \
+    else if (var > (max))        \
+    {                            \
+        var = (max);             \
+    }
+
+#endif
+
 #define V_OCT "_V_OCT"
 #define IO_STEREOLIZE ".IO_STEREO"
-
-#define OUTPUT_L ".OUTPUT_L"
-#define OUTPUT_R ".OUTPUT_R"
-#define INPUT_L ".INPUT_L"
-#define INPUT_R ".INPUT_R"
-#define INPUT_CV0 ".CV0"
 
 #ifdef __cplusplus
 #ifdef __GNUC__
@@ -145,6 +79,8 @@ extern uint32_t *__digital_inputs_u32_p;
 // #   pragma GCC poison new delete
 // #   pragma GCC poison malloc new
 #endif
+
+#ifndef EMSCRIPTEN
 
 #include <stdlib.h>
 #include <new>
@@ -180,25 +116,49 @@ void operator delete[](void *ptr, std::size_t size) noexcept
 {
     free(ptr);
 }
+
+extern "C" uint32_t micros();
+extern "C" uint32_t millis();
+
 #endif
+#endif
+
+#ifndef DEFAULT_NOTE
+#define DEFAULT_NOTE 60
+#endif
+#ifndef SAMPLE_RATE
+#define SAMPLE_RATE 48000
+#endif
+#ifndef FRAME_BUFFER_SIZE
+#define FRAME_BUFFER_SIZE 24
+#endif
+
+#ifndef engine
 
 extern "C"
 {
-    uint32_t micros();
-    uint32_t millis();
+    extern uint32_t *__t;
+    extern uint8_t *__clock;
+    extern uint8_t *__trig;
+    extern uint8_t *__gate;
+    extern uint8_t *__accent;
+    extern float *__cv;
 
-    enum EventType : uint16_t
-    {
-        EVENT_NONE,
-        EVENT_BUTTON_UP = 2,
-        EVENT_BUTTON_HOLD,
-        EVENT_ENCODER,
-    };
+    extern float *__output_l_fp;
+    extern float *__output_r_fp;
+    extern int16_t *__output_l_i16p;
+    extern int16_t *__output_r_i16p;
 
-#define BUTTON_L (1 << 0)
-#define BUTTON_R (1 << 1)
-#define ENCODER_L (1 << 8)
-#define ENCODER_R (1 << 9)
+    extern float **__audio_in_l_fpp;
+    extern float **__audio_in_r_fpp;
+
+    extern uint8_t *__display_buffer_u8_p;
+    extern uint32_t *__engine_props;
+
+    extern float *__adc_voltage_f_p;
+    extern float **__dac_voltage_fp_p;
+    extern uint32_t *__digital_inputs_u32_p;
+    extern uint32_t *__bpm;
 
     extern struct
     {
@@ -208,9 +168,161 @@ extern "C"
         uint16_t mask;
         bool handled;
     } *__ui_event;
+
+    bool (*__ui_event_handler_ptr)(uint16_t type, uint16_t control, int16_t value, uint16_t mask) = nullptr;
+    void __ui_event_handler()
+    {
+        if (__ui_event_handler_ptr)
+            __ui_event->handled = __ui_event_handler_ptr(__ui_event->type, __ui_event->control, __ui_event->value, __ui_event->mask);
+    }
 }
 
-#define UI_HANDLER                                                                 \
-    bool uiHandler(uint16_t type, uint16_t control, int16_t value, uint16_t mask); \
-    WASM_EXPORT_AS("_ui_handler")                                                  \
-    void __ui_event_handler() { __ui_event->handled = uiHandler(__ui_event->type, __ui_event->control, __ui_event->value, __ui_event->mask); }
+namespace engine
+{
+    inline uint32_t t() { return *__accent; }
+    inline uint8_t clock() { return *__clock; }
+    inline uint8_t trig() { return *__trig; }
+    inline uint8_t gate() { return *__gate; }
+    inline uint8_t accent() { return *__accent; }
+    inline float cv() { return *__cv; }
+
+    template <int channel>
+    inline float *outputBuffer();
+
+    template <>
+    inline float *outputBuffer<0>() { return __output_l_fp; }
+
+    template <>
+    inline float *outputBuffer<1>() { return __output_r_fp; }
+
+    template <int channel>
+    inline int16_t *outputBuffer_i16();
+
+    template <>
+    inline int16_t *outputBuffer_i16<0>() { return __output_l_i16p; }
+
+    template <>
+    inline int16_t *outputBuffer_i16<1>() { return __output_r_i16p; }
+
+    template <int channel>
+    inline float *inputBuffer();
+
+    template <>
+    inline float *inputBuffer<0>() { return *__audio_in_l_fpp; }
+
+    template <>
+    inline float *inputBuffer<1>() { return *__audio_in_r_fpp; }
+
+    extern "C" void setup();
+    extern "C" void process();
+    extern "C" void draw();
+    extern "C" void screensaver();
+
+    /////
+    typedef bool (*uiHandler)(uint16_t type, uint16_t control, int16_t value, uint16_t mask);
+
+    inline void setUIHandler(uiHandler handler)
+    {
+        __ui_event_handler_ptr = nullptr;
+        __ui_event_handler();
+        __ui_event_handler_ptr = handler;
+    }
+    extern "C" void addParam_f32(const char *name, float *value, float min = 0.f, float max = 1.f);                  // min...max
+    extern "C" void addParam_i32(const char *name, int32_t *value, int32_t min, int32_t max, const char **valueMap); // 0...max
+
+    void addParam(const char *name, int32_t *value, int32_t min, int32_t max, const char **valueMap = nullptr) // 0...max
+    {
+        addParam_i32(name, value, min, max, &valueMap[0]);
+    }
+
+    void addParam(const char *name, float *value, float min = 0.f, float max = 1.f) // 0...max
+    {
+        addParam_f32(name, value, min, max);
+    }
+
+    inline void setUIMode(uint32_t mode) // 1: compact_mode, 2: sample_view
+    {
+        if (mode == 1)
+            *__engine_props |= 32;
+    }
+
+    constexpr uint32_t PARAM_SELECTED = 0x1;
+    constexpr uint32_t PARAM_MODULATION = 0x2;
+
+    extern "C" uint32_t getParamFlags(const void *valuePtr);
+    inline uint32_t isParamSelected(const void *valuePtr)
+    {
+        return getParamFlags(valuePtr) & PARAM_SELECTED;
+    }
+
+    extern "C"
+    {
+        void *dsp_sample_u8(const uint8_t *data, int len, int sample_rate, int addr_shift);
+        void *dsp_sample_Am6070(const uint8_t *data, int len, int sample_rate, int amp_mul);
+        void dsp_process_sample(void *smpl, float start, float end, float pitch, float output[FRAME_BUFFER_SIZE]);
+        void dsp_process_hihats(void *ch, void *oh, float ch_vol, float ch_dec, float oh_dec, float output[FRAME_BUFFER_SIZE]);
+    }
+}
+
+enum EventType : uint16_t
+{
+    EVENT_NONE,
+    EVENT_BUTTON_UP = 2,
+    EVENT_BUTTON_HOLD,
+    EVENT_ENCODER,
+};
+
+constexpr uint16_t BUTTON_L = (1 << 0);
+constexpr uint16_t BUTTON_R = (1 << 1);
+constexpr uint16_t ENCODER_L = (1 << 8);
+constexpr uint16_t ENCODER_R = (1 << 9);
+
+namespace machine
+{
+    extern "C" const uint8_t *fs_read(const char *blobName);
+
+    inline uint32_t midi_bpm()
+    {
+        return *__bpm;
+    }
+    inline uint32_t raw_digital_inputs()
+    {
+        return *__digital_inputs_u32_p;
+    }
+
+    inline float raw_adc_voltage(uint32_t index)
+    {
+        return __adc_voltage_f_p[index];
+    }
+
+    inline float *raw_dac_buffer(uint32_t index)
+    {
+        return __dac_voltage_fp_p[index];
+    }
+};
+#else
+using namespace ui;
+using namespace UI;
+#endif
+
+#ifndef __no_gfx
+namespace gfx
+{
+    extern "C" void drawCircle(int x, int y, int r);
+    extern "C" void fillCircle(int x, int y, int r);
+    extern "C" void clearCircle(int x, int y, int r);
+    extern "C" void drawRect(int x, int y, int w, int h);
+    extern "C" void fillRect(int x, int y, int w, int h);
+    extern "C" void clearRect(int x, int y, int w, int h);
+    extern "C" void invertRect(int x, int y, int w, int h);
+    extern "C" void drawString(int32_t x, int32_t y, const char *s, int32_t font = 1);
+    extern "C" void drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
+    extern "C" void drawXbm(int x, int y, int width, int height, const uint8_t *xbm);
+    extern "C" void message(const char *msg);
+
+    inline uint8_t *displayBuffer()
+    {
+        return __display_buffer_u8_p;
+    }
+}
+#endif

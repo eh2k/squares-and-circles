@@ -9,6 +9,16 @@
   <summary><b>ChangeLog</b></summary>
   
 ````
+== 2024-01-20
+ * DevSync: 
+   * Bugfix T4X: CV input > 6 V is received as negative voltage bug
+   * Bugfix: ClassicVAVCF -> param change Decay/Level
+   * Enhancement: Modualtion attenuverter resolution 1/2000
+   * Enhancement/Bugfix: Modulation ranges..
+   * Enhancement: NEw Modulation CV src aka "+" constant voltage
+   * Enhancement: Visualizing parameter modulations (moving knobs) 
+   * Enhancement: squares-and-circles app
+   * Enhancement DSM: Support MID Button (ui navigaten - mid botton back function)
 == 2024-01-14
  * DevSync: Fix DSM0 audio clipping
 == 2023-12-21
@@ -99,7 +109,6 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
 * [Short Press [LEFT]/[RIGHT]] scrolls through the 4 machine-tracks.
 * [Long press [LEFT]] enters the machine-selection-page.
 * [Long press [RIGHT]] enters the I/O-configuration-page.
-* [Long press [LEFT] + [RIGHT]] enters the MIDI-settings-page.
 * [Long press left or right [ENCODER]] shows the modulation popup
 * [Long press [L-ENCODER] + [R-ENCODER]] saves the patch - will be restored at startup 
   - DEBUG: skip restore - press [RIGHT] button while startup ).
@@ -178,11 +187,14 @@ Machines/Engines are controlled by individual parameters.
 
 For each parameter a modulation can be assigned:
   * **CV**:
-    * SRC: `C1`, `C2`, `C3`, `C4`
-    * OP: `THRU`, `S&H-T1`, `S&H-T2`, `S&H-T3`, `S&H-T4`, `T&H-T1`, `T&H-T2`, `T&H-T3`, `T&H-T4`
-      * THRU - Thru Input
-      * S&H - Sample and Hold
-      * T&H - Track and Hold
+    * SRC: 
+      * `C1`, `C2`, `C3`, `C4` - Analog inputs
+        * OP: `THRU`, `S&H-T1`, `S&H-T2`, `S&H-T3`, `S&H-T4`, `T&H-T1`, `T&H-T2`, `T&H-T3`, `T&H-T4`
+          * THRU - Thru Input
+          * S&H - Sample and Hold
+          * T&H - Track and Hold
+      * `+` - Constant internal voltage
+        * 10V with 1/1000 resolution - nice for fine adjustments (detuning etc)
     * Hints:
       * Parameter 0 (top-left) is mainly used for V/OCT control. Thus, one single V/OCT signal / CV-Input can be shared by using modulation on parameter-0 with attenuverter = +1 (-3V..+6V) range. It is also possible to select the V/OCT input in the io-configuration page.
       * All other parameters can be modulated via CV-input with a assumed voltage-range of -4V..4V at 2kHz sample rate.
@@ -268,7 +280,7 @@ The I/O-Configuration page lets you virtually patch the engine with the hardware
 
 ## MIDI-Settings 
 
->[Long press [LEFT] + [RIGHT]] enters the MIDI-Settings page.
+>[Long press [LEFT] + [RIGHT]] for getting to the MIDI-Settings page.
 
 The MIDI-Settings page lets you select the MIDI-Input. MIDI via USB is active by default - alternatively the [T1 input can be used as MIDI-Input](#-midi-expander). Each engine can be assigned to a MIDI-Channel - it is possible to control single mono engines together polyphonically (for this all engines have to be set to the same midi channel). [Midi-Engines](src/polyVA.cxx) consume the MIDI-Stream directly, therefore the MIDI-Messages are not converted as incoming CVs or triggers.
 

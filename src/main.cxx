@@ -35,6 +35,7 @@
 #include "../app/NOISE/808_squares.bin.h"
 #include "../app/NOISE/WhitePink.bin.h"
 #include "../app/FX/Rev-Dattorro.bin.h"
+#include "../app//FX/Delay.bin.h"
 #include "../app/SPEECH/SAM.bin.h"
 
 void init_engines();
@@ -73,7 +74,7 @@ void init_engines2()
     MACHINE_INIT(init_rings);
     MACHINE_INIT(init_speech);
     machine::add(__SPEECH_SAM_bin, __SPEECH_SAM_bin_len);
-    MACHINE_INIT(init_delay);
+    machine::add(__FX_Delay_bin, __FX_Delay_bin_len);
     MACHINE_INIT(init_fv1);
     MACHINE_INIT(init_midi_polyVA)
     MACHINE_INIT(init_dxfm);

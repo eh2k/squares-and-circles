@@ -37,9 +37,6 @@ extern "C"
 #include "SAM/reciter.c"
 }
 
-static float _cv = 0;
-static float frame[FRAME_BUFFER_SIZE];
-
 // static const char *_words[2];
 static const char *_words[] = {
     "ELECTRO",
@@ -72,13 +69,11 @@ static void init_phenoms()
   }
 }
 
-static uint8_t _word = 0;
+static int32_t _word = 0;
 static float _speed = 0.75f;
 static float _mouth = 0.5f;
 static float _pitch = 0.5f;
 static float _throat = 0.5f;
-
-static char _word_text[16] = {};
 
 static uint8_t _buffer[48000];
 static size_t _buffer_len = 0;
@@ -111,37 +106,22 @@ void say()
   _buffer_pos = 0;
 }
 
-GFX_DISPLAY
-void display()
-{
-  memcpy(_word_text, _words[_word], strlen(_words[_word]) + 1);
-}
-
-static float trig;
-static float cv;
-
-DSP_SETUP
-void setup()
+void engine::setup()
 {
   // param_init("PTICH", &_pitch);
-  dsp_param_f("Speed", &_speed);
-  dsp_param_u8(_word_text, &_word, 0, LEN_OF(_words) - 1);
-  dsp_param_f("Mouth", &_mouth);
-  dsp_param_f("Throat", &_throat);
+  engine::addParam("Speed", &_speed);
+  engine::addParam("@Words", &_word, 0, LEN_OF(_words) - 1, _words);
+  engine::addParam("Mouth", &_mouth);
+  engine::addParam("Throat", &_throat);
 
-  dsp_param_f(CV, &cv);
-  dsp_param_f(TRIG, &trig);
-
-  dsp_frame_f(OUTPUT_L, frame);
   init_phenoms();
 }
 
-DSP_PROCESS
-void process()
+void engine::process()
 {
-  _cv = cv;
+  auto outputL = engine::outputBuffer<0>();
 
-  if (trig > 0)
+  if (engine::trig())
   {
     say();
   }
@@ -151,10 +131,10 @@ void process()
     for (int j = 0; j < 24; j += 2)
     {
       float sample = ((float)_buffer[_buffer_pos] - 127) / 128;
-      frame[j] = frame[j + 1] = sample;
+      outputL[j] = outputL[j + 1] = sample;
       ++_buffer_pos;
     }
   }
   else
-    memset(frame, 0, sizeof(frame));
+    std::fill_n(outputL, FRAME_BUFFER_SIZE, 0);
 }

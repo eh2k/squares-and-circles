@@ -4,9 +4,12 @@
 #include "faust/ui.hxx"
 #include "faust/djembe.dsp.h"
 
+static float *_trig = nullptr;
+
 void UIGlue::addButton(const char *ui, const char *label, float *zone)
 {
-    dsp_param_f(TRIG, zone);
+    if (_trig == nullptr)
+        _trig = zone;
 }
 
 void UIGlue::addNumEntry(const char *ui, const char *label, float *zone, float init, float min, float max, float step)
@@ -28,29 +31,25 @@ void UIGlue::addHorizontalSlider(const char *ui, const char *label, float *zone,
     if (zone)
     {
         *zone = init;
-        dsp_param_f2(label, zone, min, max);
-        //dsp_param_step_f(label, step);
+        engine::addParam(label, zone, min, max);
     }
 }
 
 static FAUSTCLASS dsp;
 
-static float outputL[FRAME_BUFFER_SIZE];
-
-DSP_SETUP
-void setup()
+void engine::setup()
 {
     initmydsp(&dsp, SAMPLE_RATE);
 
     UIGlue ui;
     buildUserInterfacemydsp(&dsp, &ui);
-
-    dsp_frame_f(OUTPUT_L, outputL);
 }
 
-DSP_PROCESS
-void process()
+void engine::process()
 {
+    if (_trig != nullptr)
+        *_trig = engine::trig();
+    auto outputL = engine::outputBuffer<0>();
     float *outputs[] = {outputL, nullptr};
     computemydsp(&dsp, FRAME_BUFFER_SIZE, nullptr, &outputs[0]);
 }

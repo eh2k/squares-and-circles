@@ -29,25 +29,28 @@
 
 static NESNoise _nes_noise;
 static stmlib::DCBlocker _dc_blocker;
-static const uint8_t max_level = 15;
-static uint8_t gain = max_level;
-static float buffer[FRAME_BUFFER_SIZE];
+static const int32_t max_level = 15;
+static int32_t gain = max_level;
+static int32_t period_index = _nes_noise.period_index;
+static int32_t mode_bit = _nes_noise.mode_bit;
 
-DSP_SETUP
-void setup()
+void engine::setup()
 {
-    dsp_param_u8("Level", &gain, 0, max_level);
-    dsp_param_u8("@Period", &_nes_noise.period_index, 0, 15);
-    dsp_param_u8("ModeBit", &_nes_noise.mode_bit, 0, 1);
+    engine::addParam("@Level", &gain, 0, max_level);
+    engine::addParam("@Period", &period_index, 0, 15);
+    engine::addParam("@ModeBit", &mode_bit, 0, 1);
 
-    dsp_frame_f(OUTPUT_L, buffer);
     _nes_noise.init(1);
     _dc_blocker.Init(0.999f);
 };
 
-DSP_PROCESS
-void process()
+void engine::process()
 {
+    _nes_noise.period_index = period_index;
+    _nes_noise.mode_bit = mode_bit;
+    
+    auto buffer = engine::outputBuffer<0>();
+
     for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
     {
         buffer[i] = _nes_noise.generateSample(1.f / max_level) * gain;
@@ -56,14 +59,13 @@ void process()
     _dc_blocker.Process(&buffer[0], FRAME_BUFFER_SIZE);
 }
 
-GFX_DISPLAY
-void display()
+void engine::draw()
 {
-    gfx_draw_rect(75, 37, 47, 14);
+    gfx::drawRect(75, 37, 47, 14);
 
     for (size_t bit = 0; bit < 15; bit++)
     {
         if ((_nes_noise.shift_reg & (1 << bit)) != 0)
-            gfx_fill_rect(76 + (bit * 3), 38, 3, 12);
+            gfx::fillRect(76 + (bit * 3), 38, 3, 12);
     }
 }

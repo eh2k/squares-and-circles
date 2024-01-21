@@ -54,7 +54,6 @@ public:
 
         param[1].init("Impulse", &impulse, 10, 1, 100);
         param[1].step.i = 1;
-        param[1].step2.i = 5;
         param[1].print_value = [&](char *tmp)
         {
             sprintf(tmp, "Impulse\n%dms", impulse);

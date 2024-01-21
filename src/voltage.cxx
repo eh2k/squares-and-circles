@@ -107,7 +107,7 @@ public:
             param[0] = _mod->param[2];     // Freq
             param[1] = _mod->param[1];     // Shape
             // param[2] = _mod->param[3];     // Attenuverter
-            *_mod->param[3].value.fp = 0.8f; // param[2].name = "+-";
+            *_mod->param[3].value.fp = 0.5f; // param[2].name = "+-";
 
             output.init(".", &cv, 0, -1.f, 1.f);
         }
@@ -155,7 +155,7 @@ public:
             param[0].name = "Attack";
             param[1] = _mod->param[2]; // Decay
             param[1].name = "Decay";
-            *_mod->param[3].value.fp = 0.8f; // Attenuverter param[2].name = "+-";
+            *_mod->param[3].value.fp = 0.5f; // Attenuverter param[2].name = "+-";
             output.init(".", &cv, 0, -1.f, 1.f);
         }
     }
@@ -206,7 +206,7 @@ public:
             *_mod->param[0].value.u8p = 0;   // set trigger source
             param[0] = _mod->param[1];       // Attack
             param[1] = _mod->param[2];       // Decay
-            *_mod->param[3].value.fp = 0.8f; // Attenuverter param[2].name = "+-";
+            *_mod->param[3].value.fp = 0.5f; // Attenuverter param[2].name = "+-";
 
             output.init(".", &cv, 0, -1.f, 1.f);
         }

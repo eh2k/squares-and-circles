@@ -71,9 +71,6 @@ private:
     float pw_ = 0.5f;
 };
 
-float buffer[FRAME_BUFFER_SIZE];
-float cv;
-
 SquareOscillator _osc[6] = {};
 stmlib::DCBlocker _dc_blocker;
 float f = 1.f;
@@ -81,7 +78,7 @@ float f0 = 540;
 float f1 = 800;
 float gain = 1.f;
 float duty = 0.5f;
-uint8_t n = 6;
+int32_t n = 6;
 
 void update_oscillators()
 {
@@ -95,23 +92,22 @@ void update_oscillators()
         _osc[i].freq(_808[i] * f);
 }
 
-DSP_SETUP
-void setup()
+void engine::setup()
 {
     _dc_blocker.Init(0.999f);
-    dsp_param_f(CV, &cv);
-    dsp_frame_f(OUTPUT_L, buffer);
 
-    dsp_param_f("Level", &gain);
-    dsp_param_u8("@N", &n, 2, 6);
-    dsp_param_f2("F0", &f0, 254.3f, 627.2f);
-    dsp_param_f2("F1", &f1, 359.4f, 1149.9f);
+    engine::addParam("Level", &gain);
+    engine::addParam("@N", &n, 2, 6);
+    engine::addParam("F0", &f0, 254.3f, 627.2f);
+    engine::addParam("F1", &f1, 359.4f, 1149.9f);
     update_oscillators();
 };
 
-DSP_PROCESS
-void process()
+void engine::process()
 {
+    float cv = engine::cv();
+    auto buffer = engine::outputBuffer<0>();
+
     f = powf(2.f, cv);
     update_oscillators();
 

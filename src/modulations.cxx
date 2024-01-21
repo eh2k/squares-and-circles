@@ -37,136 +37,26 @@ struct ModulationBase : machine::ModulationSource
         if (src > 0)
         {
             gfx::drawLine(x + 1, y + 32, x + 64, y + 32);
-            auto m = value / 10.f * 32;
+            auto m = (value) * 3.1;
 
-            gfx::drawLine(x + 32, y + 34, x + 32 + m, y + 34);
-            gfx::drawLine(x + 32, y + 35, x + 32 + m, y + 35);
-        }
-
-        x += 20;
-
-        size_t attenuverter_index = 0;
-        while (this->param[attenuverter_index].value.fp != &attenuverter && attenuverter_index < LEN_OF(param))
-            attenuverter_index++;
-
-        bool sel = this->param[attenuverter_index].flags & machine::Parameter::IS_SELECTED;
-
-        gfx::DrawKnob(x + 30, y + 7, sel ? "~" : " ", this->param[attenuverter_index].to_uint16(), sel);
-        gfx::drawString(x + 18, y - 3, "-  +", 1);
-        // if (std::fabs(attenuverter) < 0.01f)
-        //     gfx::drawString(buffer, x + 19, y - 7, "|", 0);
-
-        x -= 24;
-
-        ModulationSource::display(x, y + 2);
-    }
-};
-
-struct CV : ModulationBase
-{
-    const int n_trigs = 4;
-    uint8_t cv_channel = 0;
-    uint8_t tr_channel = 0;
-    void eeprom(std::function<void(void *, size_t)> read_write) override
-    {
-        read_write(&cv_channel, sizeof(cv_channel));
-        read_write(&tr_channel, sizeof(tr_channel));
-        read_write(&attenuverter, sizeof(attenuverter));
-    }
-
-    CV()
-    {
-        param[0].init("SRC", &cv_channel, cv_channel, 0, machine::get_io_info(1) - 1);
-        param[0].print_value = [&](char *tmp)
-        {
-            machine::get_io_info(1, cv_channel, tmp);
-        };
-
-        param[1].init("OP", &tr_channel, tr_channel, 0, 2 * n_trigs);
-        param[1].print_value = [&](char *tmp)
-        {
-            if (tr_channel == 0)
-                sprintf(tmp, "Thru");
-            else if (tr_channel <= n_trigs)
-                sprintf(tmp, "S&H-T%d", tr_channel);
-            else if (tr_channel <= (n_trigs * 2))
-                sprintf(tmp, "T&H-T%d", tr_channel - n_trigs);
+            if (m >= 0)
+            {
+                gfx::drawLine(x + 32, y + 34, x + 32 + m, y + 34);
+                gfx::drawLine(x + 32, y + 35, x + 32 + m, y + 35);
+            }
             else
-                machine::get_io_info(0, tr_channel - 1, tmp);
-        };
-
-        param[2].init(".", &attenuverter, attenuverter, -1, +1);
-    }
-
-    void process(machine::Parameter &target, machine::ControlFrame &frame) override
-    {
-        if (tr_channel == 0) // THRU
-            value = machine::get_cv(cv_channel);
-        else if (tr_channel >= 1 && tr_channel <= n_trigs && machine::get_trigger(tr_channel - 1)) // Sample&Hold
-            value = machine::get_cv(cv_channel);
-        else if (tr_channel >= (1 + n_trigs) && tr_channel <= (n_trigs * 2) && machine::get_gate(tr_channel - 5)) // Track&Hold
-            value = machine::get_cv(cv_channel);
-
-        float a = attenuverter;
-
-        if (!(target.flags & machine::Parameter::IS_V_OCT))
-            a *= 3; // ADC is -3...6V ...faktor 3 for non V/OCT
-
-        target.modulate(value * a);
-    }
-};
-
-struct RND : ModulationBase
-{
-    uint8_t tr_channel = 0;
-
-    float randomf(float min, float max)
-    {
-        return stmlib::Random::GetFloat() * (max - min) + min;
-    }
-
-    void eeprom(std::function<void(void *, size_t)> read_write) override
-    {
-        read_write(&tr_channel, sizeof(tr_channel));
-        read_write(&attenuverter, sizeof(attenuverter));
-    }
-
-    RND()
-    {
-        stmlib::Random::Seed(reinterpret_cast<uint32_t>(this));
-
-        param[0].init("TRIG", &tr_channel, tr_channel, 0, machine::get_io_info(0));
-        param[0].print_value = [&](char *tmp)
-        {
-            if (tr_channel == 0)
-                sprintf(tmp, "!");
-            else
-                machine::get_io_info(0, tr_channel - 1, tmp);
-        };
-        param[1].init(".", &attenuverter, attenuverter, -1, +1);
-    }
-
-    void process(machine::Parameter &target, machine::ControlFrame &frame) override
-    {
-        if (tr_channel == 0)
-        {
-            if (frame.trigger)
-                this->value = randomf(-10, 10);
-        }
-        else
-        {
-            if (machine::get_trigger(tr_channel - 1))
-                this->value = randomf(-10, 10);
+            {
+                gfx::drawLine(x + 32 + m, y + 34, x + 32, y + 34);
+                gfx::drawLine(x + 32 + m, y + 35, x + 32, y + 35);
+            }
         }
 
-        target.modulate(this->value * this->attenuverter);
+        ModulationSource::display(x - 4, y + 2);
     }
 };
 
 #include "peaks/modulations/lfo.h"
-
 #include "peaks/modulations/multistage_envelope.h"
-
 #include "braids/envelope.h"
 
 struct Envelope : ModulationBase
@@ -241,7 +131,7 @@ struct LFO : ModulationBase
     LFO()
     {
         _processor.Init();
-        _processor.set_level(40960);
+        _processor.set_level(UINT16_MAX);
         _processor.set_rate(rate);
         _processor.set_parameter(INT16_MAX - 32768);
         _processor.set_reset_phase(INT16_MAX - 32768);
@@ -264,26 +154,25 @@ struct LFO : ModulationBase
             switch (shape)
             {
             case peaks::LFO_SHAPE_SINE:
-                sprintf(tmp, ">Sine");
+                sprintf(tmp, "SIN");
                 break;
             case peaks::LFO_SHAPE_TRIANGLE:
-                sprintf(tmp, ">Triangle");
+                sprintf(tmp, "TRI");
                 break;
             case peaks::LFO_SHAPE_SQUARE:
-                sprintf(tmp, ">Square");
+                sprintf(tmp, "SQR");
                 break;
             case peaks::LFO_SHAPE_STEPS:
-                sprintf(tmp, ">Steps");
+                sprintf(tmp, "STEPS");
                 break;
             case peaks::LFO_SHAPE_NOISE:
-                sprintf(tmp, ">Noise");
+                sprintf(tmp, "NOISE");
                 break;
             default:
                 sprintf(tmp, ">?????");
                 break;
             }
         };
-        param[1].step2 = param[1].step;
         param[2].init("Freq.", &rate, INT16_MAX);
         param[3].init(".", &attenuverter, attenuverter, -1, +1);
     }
@@ -412,11 +301,9 @@ struct EF : ModulationBase
 
 void init_modulations()
 {
-    machine::add_modulation_source<CV>("CV");
-    machine::add_modulation_source<RND>("RND");
     machine::add_modulation_source<Envelope>("ENV");
     machine::add_modulation_source<LFO>("LFO");
-    machine::add_modulation_source<EF>("EF");
+    // machine::add_modulation_source<EF>("EF");
 }
 
 MACHINE_INIT(init_modulations);
