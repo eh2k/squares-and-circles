@@ -9,6 +9,8 @@
   <summary><b>ChangeLog</b></summary>
   
 ````
+== 2024-01-23
+   * Bugfix: Black screen ?!
 == 2024-01-20
  * DevSync: 
    * Bugfix T4X: CV input > 6 V is received as negative voltage bug
@@ -17,7 +19,7 @@
    * Enhancement/Bugfix: Modulation ranges..
    * Enhancement: NEw Modulation CV src aka "+" constant voltage
    * Enhancement: Visualizing parameter modulations (moving knobs) 
-   * Enhancement: squares-and-circles app
+   * Enhancement: squares-and-circles api
    * Enhancement DSM: Support MID Button (ui navigaten - mid botton back function)
 == 2024-01-14
  * DevSync: Fix DSM0 audio clipping
