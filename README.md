@@ -1,4 +1,4 @@
-> WORK-IN-PROGRESS: Feel free to leave me a message / feedback or any hints in the ["BETA TEST - FEEDBACK"](https://github.com/eh2k/squares-and-circles/issues/1) issue.
+> WORK-IN-PROGRESS: Feel free to leave me a message / feedback or any hints in the ["General Feedback"](https://github.com/eh2k/squares-and-circles/issues/1) issue.
 
 # □︎●︎ [![CI](https://github.com/eh2k/squares-and-circles/actions/workflows/build.yml/badge.svg)](https://github.com/eh2k/squares-and-circles/actions/workflows/build.yml) [![WebFlasher](https://img.shields.io/badge/Firmware-WebFlasher-blue)](https://eh2k.github.io/□●/flash/?firmware) [![MODULAGrid](https://img.shields.io/badge/MODULAR-Grid-white)](https://www.modulargrid.net/e/modules/browser?SearchName=squares+and+circles&SearchShowothers=1)
 
@@ -9,6 +9,10 @@
   <summary><b>ChangeLog</b></summary>
   
 ````
+== 2024-02-07
+   * Enhancement/Bugfix: DXFM (custom syx handling)
+   * Enhancement: FV1emu / FX-Compiler (using 16bit delay buffer for less memory consumption)
+   * Enhancement: UI - one pixel left another up - bigger modulation popup
 == 2024-01-23
    * Bugfix: Black screen ?!
 == 2024-01-20
@@ -183,12 +187,9 @@ Machines/Engines are controlled by individual parameters.
 
 >[Long press left or right [ENCODER]] shows/hides the modulation popup*
 
-<img align="right" src="doc/modulation.bmp" width=196px />
-
-
 
 For each parameter a modulation can be assigned:
-  * **CV**:
+  * **CV**: <img align="right" src="doc/mod_cv.png" width=196px />
     * SRC: 
       * `C1`, `C2`, `C3`, `C4` - Analog inputs
         * OP: `THRU`, `S&H-T1`, `S&H-T2`, `S&H-T3`, `S&H-T4`, `T&H-T1`, `T&H-T2`, `T&H-T3`, `T&H-T4`
@@ -203,7 +204,8 @@ For each parameter a modulation can be assigned:
       * Be aware the CV-range is probably limited by hardware to: -3.5v..6.5V
   * **RND**: Trigger generates a random voltage
     * TRIG: `!`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`
-  * **ENV**: Triggered Envelope (Attack, Decay)
+  * **ENV**: Triggered Envelope (Attack, Decay) <img align="right" src="doc/mod_env.bmp" width=196px />
+
     * TRIG: `!`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`
     * ATTACK
     * DECAY

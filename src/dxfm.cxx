@@ -160,7 +160,7 @@ struct DxFMEngine : public MidiEngine
         param[0].init_v_oct("Freq", &_pitch);
 
         sprintf(patch_name, ">%.10s", NAME());
-        param[1].init_presets(patch_name, &_prog, 0, 0, (_bnkNum < 0) ? 32 : 95);
+        param[1].init_presets(patch_name, &_prog, 0, 0, (_bnkNum < 0) ? 31 : 95);
         param[1].value_changed = [&]()
         {
             loadPatch = true;
@@ -173,16 +173,15 @@ struct DxFMEngine : public MidiEngine
         param[3].init("Hold", &_hold, 0, 0, SAMPLE_RATE / FRAME_BUFFER_SIZE);
 
         UnpackPatch(patch, (char *)data);
-        loadDXPatch((_bnkNum < 0) ? 1 : 0); // If patch available, select first
+        loadDXPatch(0);
     }
 
     const int _bnkNum = -1;
     const char DXFM_PATCH[8] = {'D', 'X', 'F', 'M', 'S', 'Y', 'X', '0'};
+    const uint8_t *sysexData = nullptr;
 
     void loadDXPatch(uint8_t prog)
     {
-        const uint8_t *sysexData = nullptr;
-
         if (_bnkNum < 0)
         {
             sysexData = machine::flash_read(DXFM_PATCH);
@@ -200,9 +199,6 @@ struct DxFMEngine : public MidiEngine
 
             if (valid)
             {
-                if (_bnkNum < 0)
-                    sysexData -= 128;
-
                 memcpy(patch, (const char *)sysexData + (prog * 128), sizeof(patch));
                 UnpackPatch(patch, (char *)data);
                 sprintf(patch_name, "%.10s", NAME());
@@ -233,9 +229,8 @@ struct DxFMEngine : public MidiEngine
 
     void display() override
     {
-        if (_bnkNum < 0 && _prog == 0)
+        if (_bnkNum < 0 && sysexData == nullptr)
         {
-            char tmp[64];
             auto bak = param[0].name;
             param[0].name = nullptr;
             gfx::drawEngine(this);
@@ -243,15 +238,9 @@ struct DxFMEngine : public MidiEngine
 
             gfx::drawRect(4, 16, 120, 38);
             gfx::drawRect(5, 17, 118, 36);
-            machine::get_io_info(1, 0, name);
-            sprintf(tmp, "  Listening on [%s]", name);
-            gfx::drawString(0, 22, tmp, 1);
-            sprintf(tmp, "  Data %.4d of 4096", dmod_received);
-            gfx::drawString(0, 32, tmp, 1);
-
-            // level = std::max(level, fabsf(machine::get_cv<float>(dmod_port) * 51));
-            gfx::drawRect(13, 42, 102, 6);
-            gfx::fillRect(13, 42, ((float)dmod_received / 4096) * 101, 6);
+            gfx::drawStringCenter(64, 26, "NO DXFM.SYX FOUND!", 1);
+            gfx::drawString(10, 38, "Please load a syx file", 0);
+            gfx::drawString(10, 38 + 7, " with the Webflasher! ", 0);
             return;
         }
 
@@ -264,41 +253,10 @@ struct DxFMEngine : public MidiEngine
     uint8_t trig = 0;
     bool loadPatch = true;
 
-    int16_t dmod_samples[machine::FRAME_BUFFER_SIZE];
-    float dmod_in[machine::FRAME_BUFFER_SIZE];
-    const int dmod_port = 0;
-    size_t dmod_received = 0;
-
-    void dmod_listen(OutputFrame &of)
-    {
-        if (loadPatch)
-        {
-            loadPatch = false;
-            machine::dmod_init_reception(DXFM_PATCH, 4096);
-        }
-
-        memset(dmod_in, 0, sizeof(dmod_in));
-        machine::get_audio(dmod_port, dmod_in, 1.f);
-
-        for (size_t i = 0; i < machine::FRAME_BUFFER_SIZE; i++)
-            dmod_samples[i] = dmod_in[i] * INT16_MAX;
-
-        if (machine::dmod_process(dmod_samples, dmod_received))
-        {
-            machine::message("..loading patch.");
-
-            _prog = 1;
-            loadPatch = true;
-        }
-
-        of.push(dmod_samples, machine::FRAME_BUFFER_SIZE);
-    }
-
     void process(const ControlFrame &frame, OutputFrame &of) override
     {
         if (_bnkNum < 0 && _prog == 0)
         {
-            dmod_listen(of);
             return;
         }
         int velo = 127;

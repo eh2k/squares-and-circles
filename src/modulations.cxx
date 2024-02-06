@@ -27,6 +27,11 @@
 #include <cmath>
 #include "stmlib/utils/random.h"
 
+namespace gfx
+{
+    void modulation_source_display(const machine::ModulationSource *mod, int x, int y);
+}
+
 struct ModulationBase : machine::ModulationSource
 {
     float value;
@@ -34,24 +39,27 @@ struct ModulationBase : machine::ModulationSource
 
     void display(int x, int y) override
     {
+        gfx::modulation_source_display(this, x, y);
+
+        y += 6;
+
         if (src > 0)
         {
             gfx::drawLine(x + 1, y + 32, x + 64, y + 32);
-            auto m = (value) * 3.1;
 
-            if (m >= 0)
+            if (value >= 0)
             {
-                gfx::drawLine(x + 32, y + 34, x + 32 + m, y + 34);
-                gfx::drawLine(x + 32, y + 35, x + 32 + m, y + 35);
+                auto m = (value) * 3.1;
+                for (int yy = 34; yy < 38; yy++)
+                    gfx::drawLine(x + 32, y + yy, x + 32 + m, y + yy);
             }
             else
             {
-                gfx::drawLine(x + 32 + m, y + 34, x + 32, y + 34);
-                gfx::drawLine(x + 32 + m, y + 35, x + 32, y + 35);
+                auto m = (value) * 3.0;
+                for (int yy = 34; yy < 38; yy++)
+                    gfx::drawLine(x + 33 + m, y + yy, x + 31, y + yy);
             }
         }
-
-        ModulationSource::display(x - 4, y + 2);
     }
 };
 
@@ -88,7 +96,8 @@ struct Envelope : ModulationBase
         };
         param[1].init("Att.", &attack, 0);
         param[2].init("Dec.", &decay);
-        param[3].init(".", &attenuverter, attenuverter, -1, +1);
+        param[3].init("%", &attenuverter, attenuverter, -1, +1);
+        param[3].flags |= machine::Parameter::IS_HIRES;
     }
 
     void process(machine::Parameter &target, machine::ControlFrame &frame) override
@@ -174,7 +183,8 @@ struct LFO : ModulationBase
             }
         };
         param[2].init("Freq.", &rate, INT16_MAX);
-        param[3].init(".", &attenuverter, attenuverter, -1, +1);
+        param[3].init("%", &attenuverter, attenuverter, -1, +1);
+        param[3].flags |= machine::Parameter::IS_HIRES;
     }
 
     uint32_t last_trig = 0;
@@ -280,7 +290,8 @@ struct EF : ModulationBase
         };
         param[2].value_changed();
 
-        param[3].init(".", &attenuverter, attenuverter, -1, +1);
+        param[3].init("%", &attenuverter, attenuverter, -1, +1);
+        param[3].flags |= machine::Parameter::IS_HIRES;
     }
 
     void process(machine::Parameter &target, machine::ControlFrame &frame) override
@@ -303,7 +314,7 @@ void init_modulations()
 {
     machine::add_modulation_source<Envelope>("ENV");
     machine::add_modulation_source<LFO>("LFO");
-    // machine::add_modulation_source<EF>("EF");
+#ifndef MACHINE_TU_REV12
+    machine::add_modulation_source<EF>("EF");
+#endif
 }
-
-MACHINE_INIT(init_modulations);
