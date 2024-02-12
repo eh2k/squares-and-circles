@@ -48,10 +48,3 @@ jobs:
           curl -fs -X PUT -u ${{ secrets.UPLOAD_KEY }} ${{ secrets.LATEST_DROP_FOLDER }}/${FIRMWARE}_latest.zip --upload-file $ZIP_FILE || true
           curl -fs -X PUT -u ${{ secrets.UPLOAD_KEY }} ${{ secrets.LATEST_DROP_FOLDER }}/${FIRMWARE}_latest.sha -d "$hash"
         done
-    - name: firmware_artifacts
-      uses: actions/upload-artifact@v2
-      with:
-        name: firmware-${{ github.sha }}
-        path: |
-          ./firmware*.hex
-          ./LICENSE.txt

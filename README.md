@@ -10,6 +10,8 @@
   
 ````
 == 2024-02-07
+   * Enhancement/Bugfix: Unique midi device names (support multiple S&C devices for WebMidi #66)
+== 2024-02-07
    * Enhancement/Bugfix: DXFM (custom syx handling)
    * Enhancement: FV1emu / FX-Compiler (using 16bit delay buffer for less memory consumption)
    * Enhancement: UI - one pixel left another up - bigger modulation popup
