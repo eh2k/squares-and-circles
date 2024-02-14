@@ -9,7 +9,9 @@
   <summary><b>ChangeLog</b></summary>
   
 ````
-== 2024-02-07
+== 2024-02-14
+   * Enhancement/Bugfix: No usb midi response while 5sec startup #66
+== 2024-02-12
    * Enhancement/Bugfix: Unique midi device names (support multiple S&C devices for WebMidi #66)
 == 2024-02-07
    * Enhancement/Bugfix: DXFM (custom syx handling)
