@@ -1,4 +1,4 @@
-name: PlatformIO CI
+name: Build
 
 on: [push]
 
@@ -16,35 +16,32 @@ jobs:
         git push secondary --all --force
     - name: Set up Python
       uses: actions/setup-python@v2
-    - name: Install PlatformIO
-      run: |
-        python -m pip install --upgrade pip
-        pip install --upgrade platformio
-    - name: build_SC_DSM0
+    - name: build
       run: |
         set -x
-        git submodule update --init
-        pio pkg install --environment SC_DSM0
-        pio run -v --environment SC_DSM0
-        pio run -v --environment SC_DSM0 -t upload || true
-        hex=$(echo .pio/build/*/*.hex)
-        rm -f $hex;
-        mv .pio/build/*/*.eh2k $hex;
-    - name: build_OC_T40
-      run: |
-        git submodule update --init
-        pio run --environment OC_T40
+        python -m pip install --upgrade pip
+        curl -fLO https://github.com/xpack-dev-tools/arm-none-eabi-gcc-xpack/releases/download/v10.3.1-2.1/xpack-arm-none-eabi-gcc-10.3.1-2.1-linux-x64.tar.gz
+        cat xpack-arm-none-eabi-gcc-10.3.1-2.1-linux-x64.tar.gz  | tar xvz -C . > /dev/null
+        export GCC_PATH=/$(realpath .)/xpack-arm-none-eabi-gcc-10.3.1-2.1/bin/
+        export PATH="${PATH}:/$(realpath .)/xpack-arm-none-eabi-gcc-10.3.1-2.1/bin/"
+        arm-none-eabi-gcc --version
+        pip install intelhex subprocess32 pyelftools Jinja2
+        find ./app -type f -name *.bin -exec touch {} +
+        git submodule update --init 
+        sh ./app/build.sh
+        git status
+        pip install --upgrade platformio mido python-rtmidi intelhex
+        pio run -v --environment squares-and-circles
     - name: pack_artifacts
       run: |
         export hash=$(git rev-parse --short HEAD)
-        mv .github/workflows/LICENSE.txt ./LICENSE.txt
         for f in .pio/build/*/*.hex; do
           FIRMWARE=$(basename $(dirname ${f%.*}))
-          HEX_FILE=./firmware_${FIRMWARE}_$hash.hex
-          ZIP_FILE=./firmware_${FIRMWARE}_$hash.zip
+          HEX_FILE=./${FIRMWARE}_engines_$hash.hex
+          ZIP_FILE=./${FIRMWARE}_engines_$hash.zip
           mv -v "$f" $HEX_FILE
-          zip -j $ZIP_FILE $HEX_FILE ./LICENSE.txt
+          zip -j -9 $ZIP_FILE $HEX_FILE .github/workflows/LICENSE.txt $(dirname ${f%.*})/loader.sha
           sha256sum $ZIP_FILE
-          curl -fs -X PUT -u ${{ secrets.UPLOAD_KEY }} ${{ secrets.LATEST_DROP_FOLDER }}/${FIRMWARE}_latest.zip --upload-file $ZIP_FILE || true
-          curl -fs -X PUT -u ${{ secrets.UPLOAD_KEY }} ${{ secrets.LATEST_DROP_FOLDER }}/${FIRMWARE}_latest.sha -d "$hash"
+          curl -fs -X PUT -u ${{ secrets.UPLOAD_KEY }} ${{ secrets.LATEST_DROP_FOLDER }}/${FIRMWARE}_engines_latest.zip --upload-file $ZIP_FILE || true
+          curl -fs -X PUT -u ${{ secrets.UPLOAD_KEY }} ${{ secrets.LATEST_DROP_FOLDER }}/${FIRMWARE}_engines_latest.sha -d "$hash"
         done

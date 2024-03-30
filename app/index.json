@@ -1,0 +1,38 @@
+{
+    "apps": [
+        "NOISE/WhitePink.bin",
+        "NOISE/NES.bin",
+        "NOISE/808_squares.bin",
+	    "MIDI/Monitor.bin",
+	    "MIDI/Clock.bin",
+		
+		"DRUMS/TR909-HiHat.bin",
+        "DRUMS/TR909-Ride.bin",
+		"DRUMS/TR707.bin",
+        "DRUMS/TR707-HiHat.bin",
+ 	    
+		"DRUMS/Vint.Samples.bin",		   
+
+        "FX/Reverb.bin",
+        "FX/ReverbSC.bin",
+        "FX/Rev-Dattorro.bin",
+		
+        "DRUMS/Djembe.bin",
+	    "SYNTH/Resonator.bin",
+			
+        "SPEECH/LPC.bin",
+        "SPEECH/SAM.bin",
+		
+        "FX/Delay.bin",
+        "FX/Gated-Reverb.bin",
+		"FX/Reverb-HP-LP.bin",
+	   
+        "MIDI/VAx6.bin",
+		
+        "SYNTH/Open303.bin",
+        "FX/JU60_chorus.bin",
+
+        "GND/Scope.bin",
+        "GND/FFT.bin"
+    ]
+}

@@ -73,13 +73,14 @@ void engine::setup()
 float delay = 0;
 float t_32 = 0;
 
+
 bool calc_t_step32()
 {
-    uint32_t midi_bpm = machine::midi_bpm();// / 100;
-    if (midi_bpm > 0)
+    uint32_t clk_bpm = machine::clk_bpm();// / 100;
+    if (clk_bpm > 0)
     {
         engine::addParam(time_info, &time_steps, 1, 128);
-        uint32_t bpm = midi_bpm;
+        uint32_t bpm = clk_bpm;
         auto t_per_beat = 6000.f / bpm; // * machine::SAMPLE_RATE
         t_32 = t_per_beat / 32;
         return true;

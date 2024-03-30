@@ -1,6 +1,6 @@
-> WORK-IN-PROGRESS: Feel free to leave me a message / feedback or any hints in the ["General Feedback"](https://github.com/eh2k/squares-and-circles/issues/1) issue.
+> Feedback welcome: Feel free to leave me a message or any hints in the ["General Feedback"](https://github.com/eh2k/squares-and-circles/issues/1) issue.
 
-# □︎●︎ [![CI](https://github.com/eh2k/squares-and-circles/actions/workflows/build.yml/badge.svg)](https://github.com/eh2k/squares-and-circles/actions/workflows/build.yml) [![WebFlasher](https://img.shields.io/badge/Firmware-WebFlasher-blue)](https://eh2k.github.io/□●/flash/?firmware) [![MODULAGrid](https://img.shields.io/badge/MODULAR-Grid-white)](https://www.modulargrid.net/e/modules/browser?SearchName=squares+and+circles&SearchShowothers=1)
+# □︎●︎ [![WebFlasher](https://img.shields.io/badge/Web-Flasher-blue)](https://eh2k.github.io/□●/flash/?firmware) [![MODULAGrid](https://img.shields.io/badge/MODULAR-Grid-white)](https://www.modulargrid.net/e/modules/browser?SearchName=squares+and+circles&SearchShowothers=1) 
 
 <!-- ⧉⦾ ⧇ ⟥⧂ -->
 **squares-and-circles** is an alternate firmware for the Eurorack module O_C, targeting Teensy 4.0.
@@ -9,6 +9,14 @@
   <summary><b>ChangeLog</b></summary>
   
 ````
+== 2024-03-28
+   * Enhancement: Turing Machine Modulation
+   * Enhancement: FV1emu (cleanup + 16bit delay optimization)
+   * Bugfix: Crash on Midi-CC
+   * Refactoring MIDI-Settings / Clock-Settings
+   * Enhancement: Midi-Channel moved to IO-Settings
+   * ***New Analysis Engines: GND/Scope, GND/FFT 
+   * OC_T41 Support
 == 2024-02-14
    * Enhancement/Bugfix: No usb midi response while 5sec startup #66
 == 2024-02-12
@@ -128,55 +136,63 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
 
 # Machines <sup>[wiki](https://github.com/eh2k/squares-and-circles/wiki/%E2%96%A1%EF%B8%8E%E2%97%8F%EF%B8%8E-Machines-&-Engines)</sup> 
 
-<img align="right" src="doc/menu.bmp" width=196px /> 
+<img align="right" src="doc/menu_engines.png" width=196px /> 
 
 >[Long press [LEFT]] enters the machine-selection-page.<br/>
->[Short press [R-ENCODER]] loads the selected engine.<br/>
+>[Short press [R-ENCODER]] loads the selected engine.<br/> 
 >[Long press [R-ENCODER]] loads the selected engine (default IO-settings).<br/>
 
-* **GND**
-  * `---`
-* **CV**
-  * [V/OCT](https://github.com/eh2k/squares-and-circles/wiki/V_OCT) <img align="right" src="doc/cv_voltage.png" width=196px /> 
+---
+###### Screenshots
+<img src="doc/engines.png" />
 
+---
+
+## Engines
+* **GND** 
+  * `---`
+  * Scope
+  * FFT  
+* **CV**
+  * [V/OCT](https://github.com/eh2k/squares-and-circles/wiki/V_OCT) 
   * EnvGen_AD
   * EnvGen_ADSR
   * LFO
   * EnvFollower
 * **Drums** 
   * Analog-BD, Analog SD, Analog HH, Analog HH2
-  * 909ish-BD, 909ish-SD, [TR909-HiHat, TR909-Ride](https://github.com/eh2k/squares-and-circles/wiki/TR909_HiHats) <img align="right" src="doc/engine.bmp" width=196px />
+  * 909ish-BD, 909ish-SD, [TR909-HiHat, TR909-Ride](https://github.com/eh2k/squares-and-circles/wiki/TR909_HiHats)
   * 808ish-BD, 808ish-SD, 808ish-HiHat 
   * TR707, TR707-HiHat
   * [FM-Drum](https://github.com/eh2k/squares-and-circles/wiki/FM-Drum) 
   * Djembe
   * [Claps](https://github.com/eh2k/squares-and-circles/wiki/Claps) 
-* **M-OSC** <img align="right" src="doc/osc.bmp" width=196px />
+* **M-OSC**
   * [Waveforms](https://github.com/eh2k/squares-and-circles/wiki/Waveforms) 
   * Virt.Analog, Waveshaping, FM, Grain, Additive, Wavetable, Chord
-  * Resonator
 * **SYNTH**
+  * Resonator
   * [DxFM](https://github.com/eh2k/squares-and-circles/wiki/DxFM)
   * [DxFM_BNK1-3](lib/plaits/resources.cc#L41)
-  * [Open303](https://github.com/eh2k/squares-and-circles/wiki/Open303) <img align="right" src="doc/synth_open303.png" width=196px />
+  * [Open303](https://github.com/eh2k/squares-and-circles/wiki/Open303) 
   * [ClassicVAVCF](lib/plaits/dsp/engine2/virtual_analog_vcf_engine.cc)
 * **Stereo-FX**
   * [Reverb](https://github.com/eh2k/squares-and-circles/wiki/clouds_reverb)
   * ReverbSC
-  * Rev-Dattorro <img align="right" src="doc/fx_rev_dattorro.png" width=196px />
+  * Rev-Dattorro
   * Delay
   * Gated-Reverb
   * Reverb-HP-LP
   * [JU60_chorus](https://github.com/eh2k/squares-and-circles/wiki/JU60_chorus)
 * **NOISE**
   * [White/Pink](https://github.com/eh2k/squares-and-circles/wiki/White_Pink_noise)
-  * [NES_noise](https://github.com/eh2k/squares-and-circles/wiki/NES_noise) <img align="right" src="doc/noise_nes.png" width=196px />
+  * [NES_noise](https://github.com/eh2k/squares-and-circles/wiki/NES_noise)
   * [808_squares](https://github.com/eh2k/squares-and-circles/wiki/808_squares)
 * **SPEECH**
   * LPC
   * [SAM](https://github.com/eh2k/squares-and-circles/wiki/SAM)
 * **MIDI**
-  * Monitor <img align="right" src="doc/midi_monitor.png" width=196px />
+  * Monitor
   * Clock
   * VAx6
 
@@ -206,23 +222,29 @@ For each parameter a modulation can be assigned:
       * Parameter 0 (top-left) is mainly used for V/OCT control. Thus, one single V/OCT signal / CV-Input can be shared by using modulation on parameter-0 with attenuverter = +1 (-3V..+6V) range. It is also possible to select the V/OCT input in the io-configuration page.
       * All other parameters can be modulated via CV-input with a assumed voltage-range of -4V..4V at 2kHz sample rate.
       * Be aware the CV-range is probably limited by hardware to: -3.5v..6.5V
-  * **RND**: Trigger generates a random voltage
+  * **RND**: Trigger generates a random voltage <img align="right" src="doc/mod_rnd.png" width=196px />
     * TRIG: `!`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`
-  * **ENV**: Triggered Envelope (Attack, Decay) <img align="right" src="doc/mod_env.bmp" width=196px />
+    <br/>
+     <br/>
+  * **ENV**: Triggered Envelope (Attack, Decay) <img align="right" src="doc/mod_env.png" width=196px />
 
     * TRIG: `!`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`
     * ATTACK
     * DECAY
- * **LFO**: Free/Triggered Sine-LFO
+ * **LFO**: Free/Triggered Sine-LFO <img align="right" src="doc/mod_lfo.png" width=196px />
     * TRIG: `-`, `!`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`
     * SHAPE
     * FREQUENCY
-  * **EF**: Envelope Follower
+  * **EF**: Envelope Follower <img align="right" src="doc/mod_ef.png" width=196px />
     * SRC: `C1`, `C2`, `C3`, `C4`
     * ATTACK
     * RELEASE
- >`!` = current engine trigger
- 
+  * **TM**: Turing Machine  <img align="right" src="doc/mod_tm.png" width=196px />
+    * TRIG: `!`, `CLK`, `T1`, `T2`, `T3`, `T4`   
+    * PROB: `0-9` (0-100%)
+    * STEPS: `1-16`
+ >`!` = current engine trigger<br/>
+ >`CLK` = internal clock<br/>
  All modulations have an attenuverter parameter (-/+).
   * The modulation-voltage is attenuverted/multiplied by -1..+1;
 
@@ -251,7 +273,7 @@ The I/O-Configuration page lets you virtually patch the engine with the hardware
  * **Quantizer**: [Off, Semitones, Ionian, Dorian, ...](lib/braids/quantizer_scales.h)
  * **Transpose**: -48 to 24  (default -24)
 
-*In case the Engine supports Accents (Closed/Open HighHat) - Accent Input is configurable:*
+*In case the Engine supports Accents (Closed/Open HiHat) - Accent Input is configurable:*
 
  * **Accent-Input**: 
    * `-`
@@ -286,19 +308,33 @@ The I/O-Configuration page lets you virtually patch the engine with the hardware
 <br/>
 <div style="page-break-after: always;"></div>
 
-## MIDI-Settings 
+## MIDI/CLOCK-Settings 
 
 >[Long press [LEFT] + [RIGHT]] for getting to the MIDI-Settings page.
+ 
+The MIDI&Clock-Settings page lets you select the MIDI-Control. 
 
-The MIDI-Settings page lets you select the MIDI-Input. MIDI via USB is active by default - alternatively the [T1 input can be used as MIDI-Input](#-midi-expander). Each engine can be assigned to a MIDI-Channel - it is possible to control single mono engines together polyphonically (for this all engines have to be set to the same midi channel). [Midi-Engines](src/polyVA.cxx) consume the MIDI-Stream directly, therefore the MIDI-Messages are not converted as incoming CVs or triggers.
+<img align="right" src="doc/config_midi0.png" width=196px />
 
-<img align="right" src="doc/config_midi.bmp" width=196px />
+- **MIDI-Control**:
+  - `-` disabled
+  - In case OC_T40
+    - `USB+T1` [T1 input can be used as MIDI-Input](#-midi-expander)
+  - else
+    - `MIDI/USB` the USB-MIDI and/or hardware Midi-Input
 
- * **MIDI-CLK/INT-CLK**: BPM
-   * *In case clock is send via MIDI the internal clock is feed by midi, else the internal clock is active and can be set*
- * **MIDI-Input**: USB, T1 
-   * *In case T1 is set - T1 is working in Midi-Mode (Serial) - Triggering is not available on T1*
- * **MIDI_CH #**: 1-16, single channel on multiple engines, for polyphony
+In case the MIDI-Control is enabled, you can setup the Midi-Channel in the engine IO-settings.
+> Each engine can be assigned to a MIDI-Channel - it is possible to control single mono engines together polyphonically (for this all engines have to be set to the same midi channel). [Midi-Engines](app/MIDI/VAx6.cpp) consume the MIDI-Stream directly, therefore the MIDI-Messages are not converted as incoming CVs or triggers.
+
+<img align="right" src="doc/config_midi1.png" width=196px />
+
+ * **CLOCK-Source**: BPM
+   * `-` none
+   * `INT` Internal Clock-Source (BPM)
+   * `T1` T1 as Clock-Input (4ppqn)
+   * `MIDI` Clock received from MIDI
+
+> Clock-Source is used by engines like `FX/Delay` (clocked sync) or `MIDI/Clock` 
 
 #### Midi-Control
   * Engines can be loaded/selected by midi program change
@@ -317,23 +353,24 @@ The MIDI-Settings page lets you select the MIDI-Input. MIDI via USB is active by
     ````
 # Supported Hardware  
 
- * [Ornament-and-Crime](https://github.com/eh2k/squares-and-circles/wiki/Ornament%E2%80%90and%E2%80%90Crime)
+ * [Ornament-and-Crime T4.0](https://github.com/eh2k/squares-and-circles/wiki/Ornament%E2%80%90and%E2%80%90Crime)
  * [Squares-and-Circles DSM0](https://github.com/eh2k/squares-and-circles/wiki/Squares&Circles-D_SM-Prototype)
+ * [O_C T4.1](https://github.com/eh2k/squares-and-circles/wiki/OC_T41)
 
 ## Hardware setup procedure 
-  > Use [![WebFlasher](https://img.shields.io/badge/Firmware-WebFlasher-blue)](https://eh2k.github.io/□●/flash/?firmware)  to enter callibration mode, or execute advanced setup commands </br>
+  > Use [![WebFlasher](https://img.shields.io/badge/Web-Flasher-blue)](https://eh2k.github.io/□●/flash/?firmware)  to enter callibration mode, or execute advanced setup commands </br>
   >Power on the module with the [LEFT] button pressed for entering the setup procedure.
 
 ### Display setup
 
-<img align="right" src="doc/display_setup.bmp" width=196px />
+<img align="right" src="doc/display_setup.png" width=196px />
 
 * Press left encoder to flip180.
 * Press right encoder for changing display brightness (50%, maximal). 
 
 ### Encoder setup
 
-<img align="right" src="doc/encoder_setup.bmp" width=196px />
+<img align="right" src="doc/encoder_setup.png" width=196px />
 
 * Check the encoder rotation direction.
 * Press encoder for reversed setup. 
@@ -343,7 +380,7 @@ The MIDI-Settings page lets you select the MIDI-Input. MIDI via USB is active by
 
 ### DAC calibration
 
-<img align="right" src="doc/dac_calib.bmp" width=196px />
+<img align="right" src="doc/dac_calib.png" width=196px />
 
 To calibrate the DAC, you need a multimeter. Besides the reference voltage of `0V`, the voltages `-2V` and `+2V` should be calibrated as accurately as possible.
 Start with DAC1 (channel A) - connect the multimeter typically using alligator clip on a patch cable inserted in the jack. Use the right encoder to set the voltage as accurately as possible (press the encoder for coarse adjustment). Do it on all outputs - use the left encoder for channel selection. After calibrating `0V` on all outputs, press [right] to step to the `-2V` calibration. Repeat the procedure and press [right] to calibrating `+2V`. 
@@ -351,13 +388,13 @@ Start with DAC1 (channel A) - connect the multimeter typically using alligator c
 
 ### ADC calibration
 
-<img align="right" src="doc/adc_calib.bmp" width=196px />
+<img align="right" src="doc/adc_calib.png" width=196px />
 
 To calibrate the ADC `0V` reference, remove all patch cables from the module. Use the right encoder to adjust the offset (press the encoder for fast adjustment). Do it on all cv-inputs, select the channel with the left encoder. Press [right] to enter the `-2V` calibration. Now you need to connect the DAC outputs to the cv-inputs. The DAC output produces the reference voltage, that is calibrated on the input. Repeat the calibration procedure and step to the `+2V` calibration.
 
 ### I/O Test: 
 
-<img align="right" src="doc/io_test.bmp" width=196px />
+<img align="right" src="doc/io_test.png" width=196px />
   
 * Test/Verify your TRIG or CV inputs. 
 * The output voltage is set by the cv input voltage (DACx = ADCx).
@@ -375,7 +412,7 @@ Regarding the user interface and the concept of firmware, I am a bit torn. On th
 The application code respectively the suite of machines/engines and the third-party source files are published under permissive software licenses.
 For the exact license and copyright holder - see the header of individual source code files or readme/license file in the sub folder.
 
-The firmware as a whole and the hardware abstraction layer "libmachine" is for personal non-commercial use only. 
+The firmware as a whole is for personal use only. 
 If you are considering commercial distributing hardware with this firmware, please contact me (eh2k◯gmx.de). 
 
 <!--
@@ -399,4 +436,3 @@ If you are considering commercial distributing hardware with this firmware, plea
 |_______________|
 ````
 -->
-

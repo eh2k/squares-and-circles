@@ -1,3 +1,4 @@
+#!/usr/bin/bash
 
 set -e #-eo pipefail
 cd $(dirname $0)
@@ -35,7 +36,7 @@ echo "BUILD_FLAGS:$BUILD_FLAGS"
 $mkmodule $X.cpp \
     --no-opt \
     --build_flags="-fsingle-precision-constant -DNDEBUG -O3 $BUILD_FLAGS -I. -I../lib/ " \
-    --public-symbols="setup,process,draw,screensaver,__ui_event_handler" \
+    --public-symbols="setup,process,draw,screensaver,__ui_event_handler,__midi_event_handler" \
     --name="$NAME" > $X.log
 
 touch -d "$(date -R -r $X.cpp)" $X.bin

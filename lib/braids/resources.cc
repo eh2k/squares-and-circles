@@ -33,7 +33,7 @@
 #include "braids/resources.h"
 
 #ifndef FLASHMEM
-#include "pgmspace.h"
+#define FLASHMEM
 #endif
 
 namespace braids {
