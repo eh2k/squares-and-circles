@@ -9,6 +9,10 @@
   <summary><b>ChangeLog</b></summary>
   
 ````
+== 2024-04-14
+   * Enhancement: Patch storage (managment)
+   * Bugfix: 
+      * tinyusb buffer/optimization
 == 2024-03-28
    * Enhancement: Turing Machine Modulation
    * Enhancement: FV1emu (cleanup + 16bit delay optimization)
@@ -126,7 +130,7 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
 
 * [Short Press [LEFT]/[RIGHT]] scrolls through the 4 machine-tracks.
 * [Long press [LEFT]] enters the machine-selection-page.
-* [Long press [RIGHT]] enters the I/O-configuration-page.
+* [Long press [RIGHT]] enters the menu-page.
 * [Long press left or right [ENCODER]] shows the modulation popup
 * [Long press [L-ENCODER] + [R-ENCODER]] saves the patch - will be restored at startup 
   - DEBUG: skip restore - press [RIGHT] button while startup ).
@@ -351,6 +355,16 @@ In case the MIDI-Control is enabled, you can setup the Midi-Channel in the engin
     |  26 |  38 |        6        |  * |
     |  27 |  39 |        7        |  * |
     ````
+# Patch Storage 
+<img align="right" src="doc/patch_storage_load.png" width=196px /> 
+
+> [Press `L-ENC + R-ENC`] to enter the patch storage page 
+
+
+* Use `L-ENC` for patch slot selection
+* Use `R-ENC` for LOAD/SAVE  
+  * Load `empty` - restores all engines to `GND/-`  
+
 # Supported Hardware  
 
  * [Ornament-and-Crime T4.0](https://github.com/eh2k/squares-and-circles/wiki/Ornament%E2%80%90and%E2%80%90Crime)
