@@ -35,6 +35,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifndef MACHINE_INTERNAL
+
 #if 0
 #define WASM_EXPORT extern "C" __attribute__((used)) __attribute__((visibility("default")))
 #define WASM_EXPORT_AS(NAME) WASM_EXPORT __attribute__((export_name(NAME)))
@@ -83,43 +85,9 @@
 
 #ifndef EMSCRIPTEN
 
-#include <stdlib.h>
-#include <new>
-
-void *operator new(std::size_t sz)
-{
-    void *out = malloc(sz);
-    return out;
-}
-
-void *operator new[](std::size_t sz)
-{
-    void *out = malloc(sz);
-    return out;
-}
-
-void operator delete(void *ptr) noexcept
-{
-    free(ptr);
-}
-
-void operator delete(void *ptr, std::size_t size) noexcept
-{
-    free(ptr);
-}
-
-void operator delete[](void *ptr) noexcept
-{
-    free(ptr);
-}
-
-void operator delete[](void *ptr, std::size_t size) noexcept
-{
-    free(ptr);
-}
-
 extern "C" uint32_t micros();
 extern "C" uint32_t millis();
+extern "C" uint32_t crc32(uint32_t crc, const void *buf, size_t size);
 
 #endif
 #endif
@@ -199,6 +167,8 @@ extern "C"
 
 namespace engine
 {
+    constexpr uint8_t CLOCK_RESET = 97;
+
     inline uint32_t t() { return *__t; }
     inline uint8_t clock() { return *__clock; }
     inline uint8_t trig() { return *__trig; }
@@ -366,7 +336,6 @@ using namespace ui;
 using namespace UI;
 #endif
 
-#ifndef __no_gfx
 namespace gfx
 {
     extern "C" void drawCircle(int x, int y, int r);
@@ -390,4 +359,65 @@ namespace gfx
         return __display_buffer_u8_p;
     }
 }
-#endif
+
+namespace machine
+{
+    extern "C"
+    {
+        extern void serial_write(void const *buffer, uint32_t bufsiz);
+        extern uint32_t serial_read(void *buffer, uint32_t length);
+        extern uint32_t serial_available();
+
+        extern void get_device_id(uint8_t *mac);
+
+        extern float cpu_load_percent();
+
+        extern uint8_t *engine_malloc(uint32_t size);
+        extern void engine_start(uint32_t args);
+        extern void engine_stop(uint32_t result);
+    }
+}
+
+#endif // MACHINE_INTERNAL
+
+// fatfs api -- ff.h
+
+enum FRESULT : int
+{
+    FR_OK = 0,
+    FR_DISK_ERR = 1,
+    FR_NO_FILE = 4,
+};
+
+typedef struct
+{
+    void *impl;
+} FIL;
+
+typedef unsigned int UINT;  /* int must be 16-bit or 32-bit */
+typedef unsigned char BYTE; /* char must be 8-bit */
+typedef uint16_t WORD;      /* 16-bit unsigned integer */
+typedef uint32_t DWORD;     /* 32-bit unsigned integer */
+typedef uint64_t QWORD;     /* 64-bit unsigned integer */
+typedef WORD WCHAR;         /* UTF-16 character type */
+typedef DWORD FSIZE_t;
+
+#define FA_READ 0x01
+#define FA_WRITE 0x02
+#define FA_OPEN_EXISTING 0x00
+#define FA_CREATE_NEW 0x04
+#define FA_CREATE_ALWAYS 0x08
+#define FA_OPEN_ALWAYS 0x10
+#define FA_OPEN_APPEND 0x30
+
+extern "C"
+{
+    FRESULT f_open(FIL *f, const char *name, uint32_t mode);
+    FRESULT f_read(FIL *f, void *p, UINT size, UINT *bytes_read);
+    FSIZE_t f_tell(FIL *fp);
+    FSIZE_t f_size(FIL *fp);
+    FRESULT f_truncate(FIL *fp);
+    FRESULT f_lseek(FIL *fp, FSIZE_t ofs);
+    FRESULT f_close(FIL *f);
+    FRESULT f_write(FIL *fp, const void *buff, UINT btw, UINT *bw);
+}

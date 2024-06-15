@@ -9,6 +9,16 @@
   <summary><b>ChangeLog</b></summary>
   
 ````
+== 2024-06-15
+   * Enhancement: 
+     * T1 Clock - resets to begin after 200milis silence
+     * internal crc32 checks for debugging
+     * midi response optimization
+     * squares-and-circles api
+      * serial
+      * fs
+   * Bugfixes
+     * out of memory handling - prevent crashing
 == 2024-04-19
    * Enhancement: Engine Load "Options" (Reset IO + Copy From) #74
    * SD Format - preserves stored patches
@@ -147,7 +157,7 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
 
 >[Long press [LEFT]] enters the machine-selection-page.<br/>
 >[Short press [R-ENCODER]] loads the selected engine.<br/> 
->[Long press [R-ENCODER]] loads the selected engine extended mode.<br/>
+>[Long press [R-ENCODER]] loads the selected engine - extended mode.<br/>
    * Load & reset I/O settings 
    * Load & keep IO settings <img align="right" src="doc/engine_load_resetio.png" width=196px />
    * Copy #1-4 (parameter values + modulations + I/O settings)

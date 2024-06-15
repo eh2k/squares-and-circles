@@ -4,8 +4,6 @@
 
 void BBD_Line::setup(unsigned ns, const BBD_Filter_Coef &fin, const BBD_Filter_Coef &fout)
 {
-    mem_.reserve(8192);
-
     fin_ = &fin;
     fout_ = &fout;
 
@@ -17,12 +15,6 @@ void BBD_Line::setup(unsigned ns, const BBD_Filter_Coef &fin, const BBD_Filter_C
     Gin_.reset(new cdouble[Min]);
     Gout_.reset(new cdouble[Mout]);
 
-    set_delay_size(ns);
-    clear();
-}
-
-void BBD_Line::set_delay_size(unsigned ns)
-{
     mem_.clear();
     mem_.resize(ns);
     imem_ = 0;
@@ -59,21 +51,25 @@ void BBD_Line::process(unsigned n, const float *input, float *output, const floa
     cdouble *Gin = Gin_.get(), *Gout = Gout_.get();
     const cdouble *Pin = fin.P.get(), *Pout = fout.P.get();
 
-    for (unsigned i = 0; i < n; ++i) {
+    for (unsigned i = 0; i < n; ++i)
+    {
         double fclk = clock[i];
 
         for (unsigned m = 0; m < Mout; ++m)
             Xout[m] = 0;
 
-        if (fclk > 0) {
+        if (fclk > 0)
+        {
             auto pclk_old = pclk;
             pclk += fclk;
             unsigned tick_count = (unsigned)pclk;
             pclk -= tick_count;
-            for (unsigned tick = 0; tick < tick_count; ++tick) {
+            for (unsigned tick = 0; tick < tick_count; ++tick)
+            {
                 auto d = (1 - pclk_old + tick) * (1 / fclk);
                 d -= (unsigned)d;
-                if ((ptick & 1) == 0) {
+                if ((ptick & 1) == 0)
+                {
                     fin.interpolate_G(d, Gin);
                     cdouble s = 0;
                     for (unsigned m = 0; m < Min; ++m)
@@ -81,7 +77,8 @@ void BBD_Line::process(unsigned n, const float *input, float *output, const floa
                     mem[imem] = s.real();
                     imem = ((imem + 1) < ns) ? (imem + 1) : 0;
                 }
-                else {
+                else
+                {
                     fout.interpolate_G(d, Gout);
                     auto ybbd = mem[imem];
                     auto delta = ybbd - ybbd_old;
@@ -97,7 +94,8 @@ void BBD_Line::process(unsigned n, const float *input, float *output, const floa
             Xin[m] = Pin[m] * Xin[m] + cdouble(input[i]);
 
         cdouble y = fout.H * ybbd_old;
-        for (unsigned m = 0; m < Mout; ++m) {
+        for (unsigned m = 0; m < Mout; ++m)
+        {
             cdouble xout = Pout[m] * Xout_mem[m] + Xout[m];
             Xout_mem[m] = xout;
             y += xout;

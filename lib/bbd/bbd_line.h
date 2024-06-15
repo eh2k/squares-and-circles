@@ -7,6 +7,10 @@
 
 class BBD_Line {
 public:
+
+    BBD_Line():mem_(0)
+    {}
+    
     /**
      * Initialize a delay line with the specified parameters. (non-RT)
      * @param fs audio sampling rate
@@ -15,13 +19,6 @@ public:
      * @param fsout analog specification of the output filter
      */
     void setup(unsigned ns, const BBD_Filter_Coef &fin, const BBD_Filter_Coef &fout);
-
-    /**
-     * Change the number of stages. (RT?)
-     * @note It guarantees not to reallocate the buffer for \f$ns \leq 8192\f$.
-     * @param ns number of stages / length of the virtual capacitor array
-     */
-    void set_delay_size(unsigned ns);
 
     /**
      * Reinitialize all the internal state to zero. (RT)

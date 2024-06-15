@@ -34,10 +34,19 @@ def make_engines_hex(apps_json, ih = intelhex.IntelHex(), offset= 0):
                 if not os.path.exists(bin_file):
                     continue
                 bin_size=os.path.getsize(bin_file)
-                print("0x%x" % offset, bin_file, bin_size, udynlink_size(bin_file) % 4)
+                
                 ih.loadbin(bin_file,offset=offset)
+                bin_offset = offset
                 offset += bin_size
+                with open(bin_file, "rb") as f:
+                    crc32sum = zlib.crc32(f.read())
+                    ih.puts(offset, crc32sum.to_bytes(4, 'little') )
+                    offset += 4
+
+                print("0x%x" % bin_offset, bin_file, bin_size, udynlink_size(bin_file) % 4, "CRC32: %x" % crc32sum)
+    
                 offset += 4 - (offset % 4)
+                
     ih.puts(offset, 0xffff.to_bytes(4, 'little') )
     return ih
 
@@ -55,18 +64,21 @@ env.Append(
 midi_out = None
 midi_in = None
 
-try:
-    for mo in mido.get_output_names():
-        if "S&C" in mo:
-            midi_out = mido.open_output(mo)
-            break
+def midi_init():
+    global midi_in, midi_out
+    try:
+        for mo in mido.get_output_names():
+            if "S&C" in mo or "Squares&Circles" in mo or "Teensy MIDI" in mo:
+                midi_out = mido.open_output(mo)
+                break
 
-    for mi in mido.get_input_names():
-        if "S&C" in mi:
-            midi_in = mido.open_input(mi)
-            break
-except:
-    pass
+        for mi in mido.get_input_names():
+            print(mi)
+            if "S&C" in mi or "Squares&Circles" in mi or "Teensy MIDI" in mi:
+                midi_in = mido.open_input(mi)
+                break
+    except:
+        pass
 
 
 def chunk_bytes(bytes_object, chunk_size):
@@ -100,7 +112,7 @@ def sendFLASHDATA(name, data0):
         ch = 0 + ((data[i + 1] & 0xF0) >> 4)
         rawValue = [0b11100000 | ch, int16 & 0x7f, int16 >> 7 & 0x7f]
         midi_out.send(mido.Message.from_bytes(rawValue))
-        time.sleep(1/10000)
+        time.sleep(2/10000)
         i += 2
 
     flush(midi_in)
@@ -125,11 +137,14 @@ def post_program_action(source, target, env):
     print(program_path, len(ahx))
 
 def upload_hex(source, target, env):
-    if midi_out == None:
-        exit(-1)
+
+    midi_init()
 
     print(midi_in)
     print(midi_out)
+
+    if midi_out == None:
+        exit(-1)
 
     program_path = env.GetBuildPath("$PROJECT_DIR/.pio/build/$PIOENV/engines.hex")
     ahx = intelhex.IntelHex(program_path)

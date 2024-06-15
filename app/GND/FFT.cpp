@@ -133,7 +133,7 @@ float fft_read(int s, int e)
 float level2[64];
 float level[64];
 
-void draw_spectrum(int yy, int hh)
+static void draw_spectrum(int yy, int hh)  
 {
     float logN2 = logf(N / 2);
 
@@ -176,7 +176,7 @@ void draw_spectrum(int yy, int hh)
     // };
 
     for (uint32_t i = 0; i < (N / 2); i++)
-        magnitudes[i] = 0;
+         magnitudes[i] = 0;
     count = 0;
 }
 

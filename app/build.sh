@@ -43,7 +43,7 @@ touch -d "$(date -R -r $X.cpp)" $X.bin
 
 cat $X.log | arm-none-eabi-c++filt -t > ${X}2.log
 
-arm-none-eabi-objdump -Dztr --source $X.elf | arm-none-eabi-c++filt -t > $X.elf.txt
+arm-none-eabi-objdump -g -Dztr --source $X.elf | arm-none-eabi-c++filt -t > $X.elf.txt
 #arm-none-eabi-nm -l -t d -S -C --size-sort --synthetic --special-syms --with-symbol-versions --reverse-sort ./$X.elf > $X.log
 which elf-size-analyze >/dev/null && elf-size-analyze -t arm-none-eabi- ./$X.elf -F -R --no-color >> $X.log
 md5sum $X.bin | tee -a $X.log
