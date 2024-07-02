@@ -9,6 +9,8 @@
   <summary><b>ChangeLog</b></summary>
   
 ````
+== 2025-07-02
+   * Bugfix: DSM0 "CRC32:0x63F R:1"
 == 2024-06-15
    * Enhancement: 
      * T1 Clock - resets to begin after 200milis silence
