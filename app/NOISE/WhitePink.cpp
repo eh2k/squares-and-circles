@@ -38,8 +38,7 @@ void engine::setup()
 {
     engine::addParam("Level", &gain);
     engine::addParam("@Mode", &mode, 0, LEN_OF(modes) - 1, modes);
-};
-
+}
 void engine::process()
 {
     auto buffer = engine::outputBuffer<0>();

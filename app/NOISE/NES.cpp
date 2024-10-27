@@ -42,7 +42,7 @@ void engine::setup()
 
     _nes_noise.init(1);
     _dc_blocker.Init(0.999f);
-};
+}
 
 void engine::process()
 {

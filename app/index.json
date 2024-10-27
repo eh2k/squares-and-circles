@@ -1,17 +1,21 @@
 {
     "apps": [
+        "CV/EnvGen_ADSR.bin",
         "NOISE/WhitePink.bin",
         "NOISE/NES.bin",
         "NOISE/808_squares.bin",
 	    "MIDI/Monitor.bin",
 	    "MIDI/Clock.bin",
 		
+        "DRUMS/FM-Drum.bin",
+        "DRUMS/808ish-BD.bin",
+        "DRUMS/808ish-SD.bin",
+        "DRUMS/808ish-HiHat.bin",
 		"DRUMS/TR909-HiHat.bin",
         "DRUMS/TR909-Ride.bin",
 		"DRUMS/TR707.bin",
-        "DRUMS/TR707-HiHat.bin",
- 	    
-		"DRUMS/Vint.Samples.bin",		   
+        
+        "M-OSC/Waveforms.bin",
 
         "FX/Reverb.bin",
         "FX/ReverbSC.bin",
@@ -26,6 +30,9 @@
         "FX/Delay.bin",
         "FX/Gated-Reverb.bin",
 		"FX/Reverb-HP-LP.bin",
+
+        "SEQ/EuclidRythm.bin",
+        "SEQ/EuclidArp.bin",
 	   
         "MIDI/VAx6.bin",
 		

@@ -101,7 +101,7 @@ void engine::setup()
     engine::addParam("F0", &f0, 254.3f, 627.2f);
     engine::addParam("F1", &f1, 359.4f, 1149.9f);
     update_oscillators();
-};
+}
 
 void engine::process()
 {

@@ -8,8 +8,6 @@
 #include "plaits/dsp/speech/lpc_speech_synth_controller.h"
 #include "plaits/dsp/speech/lpc_speech_synth_words.h"
 
-#define FLASHMEM __attribute__((section(".text")))
-
 #include "plaits/dsp/speech/lpc_speech_synth_controller.cc"
 #include "plaits/dsp/speech/lpc_speech_synth_words.cc"
 #include "plaits/dsp/speech/lpc_speech_synth_phonemes.cc"

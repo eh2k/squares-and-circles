@@ -27,5 +27,17 @@ void engine::process()
 {
     auto outputL = engine::outputBuffer<0>();
     memset(outputL, 0, sizeof(float) * FRAME_BUFFER_SIZE);
-    dsp_process_hihats(_ch, _oh, _ch_vol, _ch_dec, _oh_dec, outputL);
+
+    if (engine::accent()) // OH
+    {
+        dsp_set_sample_pos(_oh, 0, 1.f, _oh_dec);
+    }
+    else if (engine::trig()) // CH
+    {
+        dsp_set_sample_pos(_ch, 0, _ch_vol, _ch_dec);
+        dsp_set_sample_pos(_oh, 0, 0, _oh_dec);
+    }
+
+    dsp_process_sample(_ch, 0, 1, engine::cv(), outputL);
+    dsp_process_sample(_oh, 0, 1, engine::cv(), outputL);
 }

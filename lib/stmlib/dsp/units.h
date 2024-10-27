@@ -34,6 +34,50 @@
 
 namespace stmlib {
 
+// https://pichenettes.github.io/mutable-instruments-documentation/tech_notes/exponential_conversion_in_digital_oscillators/
+
+// Computes 2^x by using a polynomial approximation of 2^frac(x) and directly
+// incrementing the exponent of the IEEE 754 representation of the result
+// by int(x). Depending on the use case, the order of the polynomial
+// approximation can be chosen.
+template<int order>
+inline float Pow2Fast(float x) {
+  union {
+    float f;
+    int32_t w;
+  } r;
+
+
+  if (order == 1) {
+    r.w = float(1 << 23) * (127.0f + x);
+    return r.f;
+  }
+
+  int32_t x_integral = static_cast<int32_t>(x);
+  if (x < 0.0f) {
+    --x_integral;
+  }
+  x -= static_cast<float>(x_integral);
+
+  if (order == 1) {
+    r.f = 1.0f + x;
+  } else if (order == 2) {
+    r.f = 1.0f + x * (0.6565f + x * 0.3435f);
+  } else if (order == 3) {
+    r.f = 1.0f + x * (0.6958f + x * (0.2251f + x * 0.0791f));
+  }
+  r.w += x_integral << 23;
+  return r.f;
+}
+
+#ifdef SemitonesToRatioFast
+
+inline float SemitonesToRatio(float semitones){
+  return Pow2Fast<1>(semitones / 12.f);
+}
+
+#else 
+
 extern const float lut_pitch_ratio_high[257];
 extern const float lut_pitch_ratio_low[257];
 
@@ -44,6 +88,8 @@ inline float SemitonesToRatio(float semitones) {
   return lut_pitch_ratio_high[pitch_integral] * \
       lut_pitch_ratio_low[static_cast<int32_t>(pitch_fractional * 256.0f)];
 }
+
+#endif
 
 inline float SemitonesToRatioSafe(float semitones) {
   float scale = 1.0f;

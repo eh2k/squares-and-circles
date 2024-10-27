@@ -16,22 +16,25 @@ FourierTransformerRadix2::FourierTransformerRadix2()
   direction           = FORWARD;
   normalizationMode   = NORMALIZE_ON_INVERSE_TRAFO;
   normalizationFactor = 1.0;
+#ifndef STATIC_N
   w                   = NULL;
   ip                  = NULL;
   tmpBuffer           = NULL;
-
+#endif
   setBlockSize(256);
 }
 
 FourierTransformerRadix2::~FourierTransformerRadix2()
 {
   // free dynamically allocated memory:
+#ifndef STATIC_N
   if( w != NULL )
     delete[] w;
   if( ip != NULL )
     delete[] ip;
   if( tmpBuffer != NULL )
     delete[] tmpBuffer;
+#endif
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -50,6 +53,7 @@ void FourierTransformerRadix2::setBlockSize(int newBlockSize)
       logN = (int) floor( log2((real_t) N + 0.5 ) );
       updateNormalizationFactor();
 
+#ifndef STATIC_N
       if( w != NULL )
         delete[] w;
       w    = new real_t[2*N];
@@ -62,6 +66,9 @@ void FourierTransformerRadix2::setBlockSize(int newBlockSize)
       if( tmpBuffer != NULL )
         delete[] tmpBuffer;
       tmpBuffer = new Complex[N];
+#else
+    ip[0] = 0;
+#endif
     }
   }
   else if( !isPowerOfTwo(newBlockSize) || newBlockSize <= 1 )

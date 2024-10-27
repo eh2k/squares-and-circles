@@ -1,6 +1,5 @@
 #include "../squares-and-circles-api.h"
-#define FLASHMEM __attribute__((section(".text")))
-#undef ONE_POLE
+
 #include "stmlib/stmlib.h"
 #include "stmlib/dsp/units.cc"
 #include "stmlib/utils/random.cc"

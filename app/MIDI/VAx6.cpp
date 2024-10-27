@@ -24,7 +24,6 @@
 //
 
 #include "../squares-and-circles-api.h"
-#define FLASHMEM __attribute__((section(".text")))
 
 // #include "../lib/plaits/dsp/engine/virtual_analog_engine.h"
 // no virtual functions hack 

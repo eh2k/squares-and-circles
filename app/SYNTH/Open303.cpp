@@ -42,8 +42,6 @@
 #include "open303/src/rosic_BlendOscillator.cpp"
 #include "open303/src/rosic_BiquadFilter.cpp"
 #include "open303/src/rosic_NumberManipulations.cpp"
-#include "open303/src/sequencer/rosic_AcidSequencer.cpp"
-#include "open303/src/sequencer/rosic_AcidPattern.cpp"
 #include "open303/src/rosic_OnePoleFilter.cpp"
 #include "open303/src/rosic_MidiNoteEvent.cpp"
 #include "open303/src/rosic_TeeBeeFilter.cpp"

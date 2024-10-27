@@ -78,8 +78,12 @@ void MultistageEnvelope::Process(
 
     int32_t a = start_value_;
     int32_t b = level_[segment_ + 1];
-    uint16_t t = Interpolate824(
-        lookup_table_table[LUT_ENV_LINEAR + shape_[segment_]], phase_);
+
+    //eh2k >>>
+    const uint16_t * lutt[] = { lut_env_linear, lut_env_expo, lut_env_quartic };
+    //<<<
+
+    uint16_t t = Interpolate824(lutt[shape_[segment_]], phase_);
     value_ = a + ((b - a) * (t >> 1) >> 15);
     phase_ += phase_increment_;
     *out++ = value_;

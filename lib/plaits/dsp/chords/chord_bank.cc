@@ -41,7 +41,7 @@ using namespace stmlib;
 #ifdef JON_CHORDS
 
 //[eh2k]
-const char* const chord_names[kChordNumChords] FLASHMEM = {
+const char* const chord_names[kChordNumChords] = {
     "OCT",
     "Fifth",
     "m",
@@ -63,7 +63,7 @@ const char* const chord_names[kChordNumChords] FLASHMEM = {
 
 // Alternative chord table by Jon Butler jonbutler88@gmail.com
 /* static */
-const float ChordBank::chords_[kChordNumChords][kChordNumNotes] FLASHMEM  = {
+const float ChordBank::chords_[kChordNumChords][kChordNumNotes] = {
   // Fixed Intervals
   { 0.00f, 0.01f, 11.99f, 12.00f },  // Octave
   { 0.00f, 7.00f,  7.01f, 12.00f },  // Fifth

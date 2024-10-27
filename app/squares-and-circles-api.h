@@ -35,29 +35,20 @@
 #include <stdio.h>
 #include <string.h>
 
+#define V_OCT "V_OCT"
+#define V_QTZ "V_QTZ"
+#define SEQ_SWING "$SWING"
+#define MULTI_TRIGS ">TRIGS"
+
+#ifndef EXTERN_C
+#define EXTERN_C extern "C"
+#endif
+
 #ifndef MACHINE_INTERNAL
 
-#if 0
-#define WASM_EXPORT extern "C" __attribute__((used)) __attribute__((visibility("default")))
-#define WASM_EXPORT_AS(NAME) WASM_EXPORT __attribute__((export_name(NAME)))
-#define WASM_IMPORT(MODULE, NAME) __attribute__((import_module(MODULE))) __attribute__((import_name(NAME)))
-#define WASM_CONSTRUCTOR __attribute__((constructor))
-#else
-#define WASM_EXPORT extern "C"
-#define WASM_EXPORT_AS(NAME) WASM_EXPORT
-#define WASM_IMPORT(MODULE, NAME)
-#define WASM_CONSTRUCTOR
-#endif
-
-#ifndef FLASHMEM
-#define FLASHMEM __attribute__((section(".text")))
-#endif
 #define LEN_OF(x) (sizeof(x) / sizeof(x[0]))
 #define MOD(x, y) ((x) % (y))
 
-#ifndef ONE_POLE
-#define ONE_POLE(out, in, coefficient) out += (coefficient) * ((in)-out);
-#endif
 #ifndef CONSTRAIN
 #define CONSTRAIN(var, min, max) \
     if (var < (min))             \
@@ -71,7 +62,6 @@
 
 #endif
 
-#define V_OCT "V_OCT"
 #define IO_STEREOLIZE ".IO_STEREO"
 
 #ifdef __cplusplus
@@ -83,13 +73,10 @@
 // #   pragma GCC poison virtual
 #endif
 
-#ifndef EMSCRIPTEN
+EXTERN_C uint32_t micros();
+EXTERN_C uint32_t millis();
+EXTERN_C uint32_t crc32(uint32_t crc, const void *buf, size_t size);
 
-extern "C" uint32_t micros();
-extern "C" uint32_t millis();
-extern "C" uint32_t crc32(uint32_t crc, const void *buf, size_t size);
-
-#endif
 #endif
 
 #ifndef DEFAULT_NOTE
@@ -107,13 +94,15 @@ extern "C" uint32_t crc32(uint32_t crc, const void *buf, size_t size);
 
 #ifndef engine
 
-extern "C"
+EXTERN_C
 {
     extern uint32_t *__t;
     extern uint8_t *__clock;
-    extern uint8_t *__trig;
-    extern uint8_t *__gate;
-    extern uint8_t *__accent;
+    extern uint8_t *__step;
+    extern bool *__step_changed;
+    extern uint32_t *__trig;
+    extern uint32_t *__gate;
+    extern uint32_t *__accent;
     extern float *__cv;
 
     extern float *__output_l_fp;
@@ -163,6 +152,23 @@ extern "C"
         if (__midi_event_handler_ptr)
             __midi_event_handler_ptr();
     }
+
+    extern struct
+    {
+        uint8_t tr;
+        uint8_t ac;
+        uint8_t cv;
+        uint8_t qz;
+        int8_t transpose;
+        uint8_t aux;
+        uint8_t ext[4] = {0, 0, 0, 0};
+        uint8_t midi_channel;
+        uint8_t dac;
+        uint8_t level;
+        uint8_t pan; // 128 == center
+        uint8_t stereo;
+        uint8_t aux_dry;
+    } *__io;
 }
 
 namespace engine
@@ -171,10 +177,14 @@ namespace engine
 
     inline uint32_t t() { return *__t; }
     inline uint8_t clock() { return *__clock; }
-    inline uint8_t trig() { return *__trig; }
-    inline uint8_t gate() { return *__gate; }
-    inline uint8_t accent() { return *__accent; }
+    inline uint8_t step() { return *__step; }
+    inline bool stepChanged() { return *__step_changed; }
+    inline uint32_t trig() { return *__trig; }
+    inline uint32_t gate() { return *__gate; }
+    inline uint32_t accent() { return *__accent; }
     inline float cv() { return *__cv; }
+
+    inline bool is_stereo() { return (__io->dac == 2 || __io->dac == 5); }
 
     template <int channel>
     inline float *outputBuffer();
@@ -203,10 +213,10 @@ namespace engine
     template <>
     inline float *inputBuffer<1>() { return *__audio_in_r_fpp; }
 
-    extern "C" void setup();
-    extern "C" void process();
-    extern "C" void draw();
-    extern "C" void screensaver();
+    EXTERN_C void setup();
+    EXTERN_C void process();
+    EXTERN_C void draw();
+    EXTERN_C void screensaver();
 
     /////
     typedef bool (*uiHandler)(uint16_t type, uint16_t control, int16_t value, uint16_t mask);
@@ -223,8 +233,8 @@ namespace engine
     void __attribute__((weak)) onMidiCC(uint8_t ccc, uint8_t value);
     void __attribute__((weak)) onMidiSysex(uint8_t byte);
 
-    extern "C" void addParam_f32(const char *name, float *value, float min = 0.f, float max = 1.f);                  // min...max
-    extern "C" void addParam_i32(const char *name, int32_t *value, int32_t min, int32_t max, const char **valueMap); // 0...max
+    EXTERN_C void addParam_f32(const char *name, float *value, float min = 0.f, float max = 1.f);                  // min...max
+    EXTERN_C void addParam_i32(const char *name, int32_t *value, int32_t min, int32_t max, const char **valueMap); // 0...max
 
     void addParam(const char *name, int32_t *value, int32_t min, int32_t max, const char **valueMap = nullptr) // 0...max
     {
@@ -270,19 +280,18 @@ namespace engine
     constexpr uint32_t PARAM_SELECTED = 0x1;
     constexpr uint32_t PARAM_MODULATION = 0x2;
 
-    extern "C" uint32_t getParamFlags(const void *valuePtr);
+    EXTERN_C uint32_t getParamFlags(const void *valuePtr);
     inline uint32_t isParamSelected(const void *valuePtr)
     {
         return getParamFlags(valuePtr) & PARAM_SELECTED;
     }
 
-    extern "C"
-    {
-        void *dsp_sample_u8(const uint8_t *data, int len, int sample_rate, int addr_shift);
-        void *dsp_sample_Am6070(const uint8_t *data, int len, int sample_rate, int amp_mul);
-        void dsp_process_sample(void *smpl, float start, float end, float pitch, float output[FRAME_BUFFER_SIZE]);
-        void dsp_process_hihats(void *ch, void *oh, float ch_vol, float ch_dec, float oh_dec, float output[FRAME_BUFFER_SIZE]);
-    }
+    EXTERN_C void setParamName(const void *valuePtr, const char *name);
+
+    EXTERN_C void *dsp_sample_u8(const uint8_t *data, int len, int sample_rate, int addr_shift);
+    EXTERN_C void *dsp_sample_Am6070(const uint8_t *data, int len, int sample_rate, int amp_mul);
+    EXTERN_C void dsp_set_sample_pos(void *smpl, float pos, float amplitude, float decay);
+    EXTERN_C void dsp_process_sample(void *smpl, float start, float end, float pitch, float output[FRAME_BUFFER_SIZE]);
 }
 
 enum EventType : uint16_t
@@ -300,7 +309,7 @@ constexpr uint16_t ENCODER_R = (1 << 9);
 
 namespace machine
 {
-    extern "C" const uint8_t *fs_read(const char *blobName);
+    EXTERN_C const uint8_t *fs_read(const char *blobName);
 
     inline uint32_t clk_bpm()
     {
@@ -330,53 +339,53 @@ namespace machine
         else
             return nullptr;
     }
-};
+}
 #else
 using namespace ui;
 using namespace UI;
 #endif
 
+#ifndef GFX_API
 namespace gfx
 {
-    extern "C" void drawCircle(int x, int y, int r);
-    extern "C" void fillCircle(int x, int y, int r);
-    extern "C" void clearCircle(int x, int y, int r);
-    extern "C" void drawRect(int x, int y, int w, int h);
-    extern "C" void fillRect(int x, int y, int w, int h);
-    extern "C" void clearRect(int x, int y, int w, int h);
-    extern "C" void invertRect(int x, int y, int w, int h);
-    extern "C" void drawString(int32_t x, int32_t y, const char *s, int32_t font = 1);
-    extern "C" void drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
-    extern "C" void setPixel(int x, int y)
-    {
-        drawLine(x, y, x, y);
-    }
-    extern "C" void drawXbm(int x, int y, int width, int height, const uint8_t *xbm);
-    extern "C" void message(const char *msg);
+    EXTERN_C void drawCircle(int x, int y, int r);
+    EXTERN_C void fillCircle(int x, int y, int r);
+    EXTERN_C void clearCircle(int x, int y, int r);
+    EXTERN_C void drawRect(int x, int y, int w, int h);
+    EXTERN_C void fillRect(int x, int y, int w, int h);
+    EXTERN_C void clearRect(int x, int y, int w, int h);
+    EXTERN_C void invertRect(int x, int y, int w, int h);
+    EXTERN_C void drawString(int x, int y, const char *s, uint8_t font = 1);
+    EXTERN_C void drawStringCenter(int x, int y, const char *s, uint8_t font = 1);
+    EXTERN_C void drawLine(int x1, int y1, int x2, int y2);
+    EXTERN_C void setPixel(int x, int y);
+    EXTERN_C void drawXbm(int x, int y, int width, int height, const uint8_t *xbm);
+    EXTERN_C void drawSample(void *smpl);
+    EXTERN_C void message(const char *msg);
 
     inline uint8_t *displayBuffer()
     {
         return __display_buffer_u8_p;
     }
 }
+#endif
 
+#ifndef SERIAL_API
 namespace machine
 {
-    extern "C"
-    {
-        extern void serial_write(void const *buffer, uint32_t bufsiz);
-        extern uint32_t serial_read(void *buffer, uint32_t length);
-        extern uint32_t serial_available();
+    EXTERN_C void serial_write(void const *buffer, uint32_t bufsiz);
+    EXTERN_C uint32_t serial_read(void *buffer, uint32_t length);
+    EXTERN_C uint32_t serial_available();
 
-        extern void get_device_id(uint8_t *mac);
+    EXTERN_C void get_device_id(uint8_t *mac);
 
-        extern float cpu_load_percent();
+    EXTERN_C float cpu_load_percent();
 
-        extern uint8_t *engine_malloc(uint32_t size);
-        extern void engine_start(uint32_t args);
-        extern void engine_stop(uint32_t result);
-    }
+    EXTERN_C uint8_t *engine_malloc(uint32_t size);
+    EXTERN_C void engine_start(uint32_t args);
+    EXTERN_C void engine_stop(uint32_t result);
 }
+#endif
 
 #endif // MACHINE_INTERNAL
 
@@ -410,14 +419,11 @@ typedef DWORD FSIZE_t;
 #define FA_OPEN_ALWAYS 0x10
 #define FA_OPEN_APPEND 0x30
 
-extern "C"
-{
-    FRESULT f_open(FIL *f, const char *name, uint32_t mode);
-    FRESULT f_read(FIL *f, void *p, UINT size, UINT *bytes_read);
-    FSIZE_t f_tell(FIL *fp);
-    FSIZE_t f_size(FIL *fp);
-    FRESULT f_truncate(FIL *fp);
-    FRESULT f_lseek(FIL *fp, FSIZE_t ofs);
-    FRESULT f_close(FIL *f);
-    FRESULT f_write(FIL *fp, const void *buff, UINT btw, UINT *bw);
-}
+EXTERN_C FRESULT f_open(FIL *f, const char *name, uint32_t mode);
+EXTERN_C FRESULT f_read(FIL *f, void *p, UINT size, UINT *bytes_read);
+EXTERN_C FSIZE_t f_tell(FIL *fp);
+EXTERN_C FSIZE_t f_size(FIL *fp);
+EXTERN_C FRESULT f_truncate(FIL *fp);
+EXTERN_C FRESULT f_lseek(FIL *fp, FSIZE_t ofs);
+EXTERN_C FRESULT f_close(FIL *f);
+EXTERN_C FRESULT f_write(FIL *fp, const void *buff, UINT btw, UINT *bw);

@@ -1,4 +1,5 @@
 #include "rosic_MipMappedWaveTable.h"
+#include <algorithm>
 using namespace rosic;
 
 MipMappedWaveTable::MipMappedWaveTable()
@@ -244,7 +245,8 @@ void MipMappedWaveTable::fillWithSquare303()
 
   // do a circular shift to phase-align with the saw-wave, when both waveforms are mixed:
   int nShift = roundToInt(N*squarePhaseShift/360.0);
-  circularShift(prototypeTable, N, nShift);
+  
+  std::rotate(&prototypeTable[0], &prototypeTable[0] + nShift, &prototypeTable[N]); //[eh2k] circularShift(prototypeTable, N, nShift);
 }
 
 void MipMappedWaveTable::fillWithSaw303()

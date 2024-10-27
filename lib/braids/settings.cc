@@ -191,6 +191,7 @@ const char* const algo_values[] = {
 	"CLOU",
 	"PRTC",
 	"QPSK",
+  "****"
     // "NAME" // For your algorithm
 };
 

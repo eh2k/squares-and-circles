@@ -9,6 +9,24 @@
   <summary><b>ChangeLog</b></summary>
   
 ````
+== 2024-10-27
+   * Enhancement:
+     * Mod/SEQ - 4-step sequencer modulation #91
+     * Multitrigs (TR707 etc) #29
+     * TR707 - midi mapping (GM Standard Drum Map) #29
+     * Mod/LFO - New paramter: Waveform #89
+     * CV/LFO - New paramter: Scale, Offset, Waveform #89
+     * IO-PAGE - Listing of modulation trig/cv inputs
+   * Bugfix:
+     * M-OSC/Waveforms - display correct waveform instead of "shape"
+     * out of memory handling / memory fragmentation - no new/delete usings in open303
+     * crash-reporting improvment 
+     * Sporadic midi stops working while update with webflasher
+   * New Engines:
+     * SEQ/EuclidRythm
+     * SEQ/EuclidArp
+   * DSM: 
+     * One-Engine-Mode
 == 2025-07-02
    * Bugfix: DSM0 "CRC32:0x63F R:1"
 == 2024-06-15
@@ -157,9 +175,9 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
 
 <img align="right" src="doc/menu_engines.png" width=196px /> 
 
->[Long press [LEFT]] enters the machine-selection-page.<br/>
->[Short press [R-ENCODER]] loads the selected engine.<br/> 
->[Long press [R-ENCODER]] loads the selected engine - extended mode.<br/>
+* [Long press [LEFT]] enters the machine-selection-page.<br/>
+* [Short press [R-ENCODER]] loads the selected engine.<br/> 
+* [Long press [R-ENCODER]] loads the selected engine - extended mode.<br/>
    * Load & reset I/O settings 
    * Load & keep IO settings <img align="right" src="doc/engine_load_resetio.png" width=196px />
    * Copy #1-4 (parameter values + modulations + I/O settings)
@@ -175,50 +193,67 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
 ## Engines
 * **GND** 
   * `---`
-  * Scope
-  * FFT  
+  * [Scope](https://github.com/eh2k/squares-and-circles/wiki/Scope) 
+  * [FFT](https://github.com/eh2k/squares-and-circles/wiki/FFT) 
 * **CV**
   * [V/OCT](https://github.com/eh2k/squares-and-circles/wiki/V_OCT) 
-  * EnvGen_AD
-  * EnvGen_ADSR
-  * LFO
-  * EnvFollower
+  * [EnvGen_AD](https://github.com/eh2k/squares-and-circles/wiki/EnvGen_AD) 
+  * [EnvGen_ADSR](https://github.com/eh2k/squares-and-circles/wiki/EnvGen_ADSR) 
+  * [LFO](https://github.com/eh2k/squares-and-circles/wiki/LFO) 
+  * [EnvFollower](https://github.com/eh2k/squares-and-circles/wiki/EnvFollower) 
 * **Drums** 
-  * Analog-BD, Analog SD, Analog HH, Analog HH2
-  * 909ish-BD, 909ish-SD, [TR909-HiHat, TR909-Ride](https://github.com/eh2k/squares-and-circles/wiki/TR909_HiHats)
-  * 808ish-BD, 808ish-SD, 808ish-HiHat 
-  * TR707, TR707-HiHat
+  * [Analog-BD](https://github.com/eh2k/squares-and-circles/wiki/Analog-BD),  
+  * [Analog-SD](https://github.com/eh2k/squares-and-circles/wiki/Analog-SD), 
+  * [Analog-HH](https://github.com/eh2k/squares-and-circles/wiki/Analog-HH), 
+  * [Analog-HH2](https://github.com/eh2k/squares-and-circles/wiki/Analog-HH2), 
+  * [909ish-BD](https://github.com/eh2k/squares-and-circles/wiki/909ish-BD), 
+  * [909ish-SD](https://github.com/eh2k/squares-and-circles/wiki/909ish-SD),  
+  * [TR909-HiHat, TR909-Ride](https://github.com/eh2k/squares-and-circles/wiki/TR909_HiHats)
+  * [808ish-BD](https://github.com/eh2k/squares-and-circles/wiki/808ish-BD), 
+  * [808ish-SD](https://github.com/eh2k/squares-and-circles/wiki/808ish-SD), 
+  * [808ish-HiHat](https://github.com/eh2k/squares-and-circles/wiki/808ish-HiHat),
+  * [TR707](https://github.com/eh2k/squares-and-circles/wiki/TR707),
   * [FM-Drum](https://github.com/eh2k/squares-and-circles/wiki/FM-Drum) 
-  * Djembe
+  * [Djembe](https://github.com/eh2k/squares-and-circles/wiki/Djembe) 
   * [Claps](https://github.com/eh2k/squares-and-circles/wiki/Claps) 
 * **M-OSC**
   * [Waveforms](https://github.com/eh2k/squares-and-circles/wiki/Waveforms) 
-  * Virt.Analog, Waveshaping, FM, Grain, Additive, Wavetable, Chord
+  * [Virt.Analog](https://github.com/eh2k/squares-and-circles/wiki/Virt.Analog) 
+  * [Waveshaping](https://github.com/eh2k/squares-and-circles/wiki/Waveshaping) 
+  * [2-OP-FM](https://github.com/eh2k/squares-and-circles/wiki/2-OP-FM) 
+  * [Formant/PD](https://github.com/eh2k/squares-and-circles/wiki/Formant-PD) 
+  * [Harmonic](https://github.com/eh2k/squares-and-circles/wiki/Harmonic) 
+  * [Wavetable](https://github.com/eh2k/squares-and-circles/wiki/Waveforms) 
+  * [Chord](https://github.com/eh2k/squares-and-circles/wiki/Waveforms) 
 * **SYNTH**
-  * Resonator
+  * [Resonator](https://github.com/eh2k/squares-and-circles/wiki/Resonator)
   * [DxFM](https://github.com/eh2k/squares-and-circles/wiki/DxFM)
   * [DxFM_BNK1-3](lib/plaits/resources.cc#L41)
   * [Open303](https://github.com/eh2k/squares-and-circles/wiki/Open303) 
   * [ClassicVAVCF](lib/plaits/dsp/engine2/virtual_analog_vcf_engine.cc)
 * **Stereo-FX**
   * [Reverb](https://github.com/eh2k/squares-and-circles/wiki/clouds_reverb)
-  * ReverbSC
-  * Rev-Dattorro
-  * Delay
-  * Gated-Reverb
-  * Reverb-HP-LP
+  * [ReverbSC](https://github.com/eh2k/squares-and-circles/wiki/ReverbSC)
+  * [Rev-Dattorro](https://github.com/eh2k/squares-and-circles/wiki/Rev-Dattorro)
+  * [Delay](https://github.com/eh2k/squares-and-circles/wiki/Delay)
+  * [Gated-Reverb](https://github.com/eh2k/squares-and-circles/wiki/Gated-Reverb)
+  * [Reverb-HP-LP](https://github.com/eh2k/squares-and-circles/wiki/Reverb-HP-LP)
   * [JU60_chorus](https://github.com/eh2k/squares-and-circles/wiki/JU60_chorus)
 * **NOISE**
   * [White/Pink](https://github.com/eh2k/squares-and-circles/wiki/White_Pink_noise)
   * [NES_noise](https://github.com/eh2k/squares-and-circles/wiki/NES_noise)
   * [808_squares](https://github.com/eh2k/squares-and-circles/wiki/808_squares)
 * **SPEECH**
-  * LPC
+  * [LPC](https://github.com/eh2k/squares-and-circles/wiki/LPC)
   * [SAM](https://github.com/eh2k/squares-and-circles/wiki/SAM)
 * **MIDI**
-  * Monitor
-  * Clock
-  * VAx6
+  * [Monitor](https://github.com/eh2k/squares-and-circles/wiki/Monitor)
+  * [Clock](https://github.com/eh2k/squares-and-circles/wiki/Clock)
+  * [VAx6](https://github.com/eh2k/squares-and-circles/wiki/VAx6)
+* **SEQ**
+  * [EuclidRythm](https://github.com/eh2k/squares-and-circles/wiki/EuclidRythm)
+  * [EuclidArp](https://github.com/eh2k/squares-and-circles/wiki/EuclidArp)
+
 
 ## Machine/Engine  
 
@@ -257,16 +292,21 @@ For each parameter a modulation can be assigned:
     * DECAY
  * **LFO**: Free/Triggered Sine-LFO <img align="right" src="doc/mod_lfo.png" width=196px />
     * TRIG: `-`, `!`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`
-    * SHAPE
-    * FREQUENCY
+    * SHAPE: `SIN`, `TRI`, `SQR`, `STEPS`, `NOISE`
+    * FREQUENCY: `0-127`
+    * WAVEFORM: `0-127`
   * **EF**: Envelope Follower <img align="right" src="doc/mod_ef.png" width=196px />
     * SRC: `C1`, `C2`, `C3`, `C4`
     * ATTACK
     * RELEASE
   * **TM**: Turing Machine  <img align="right" src="doc/mod_tm.png" width=196px />
-    * TRIG: `!`, `CLK`, `T1`, `T2`, `T3`, `T4`   
+    * TRIG: `!`, `CLK`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`  
     * PROB: `0-9` (0-100%)
     * STEPS: `1-16`
+  * **SEQ**: 4-Step Sequencer <img align="right" src="doc/mod_seq.png" width=196px />
+    * TRIG: `!`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`, `CLK/1`, `CLK/4`, `CLK/16`, `CLK/32`, `CLK/96`
+    * RESET: `-`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`
+    * 4-STEPS: `-64..64`
  >`!` = current engine trigger<br/>
  >`CLK` = internal clock<br/>
  All modulations have an attenuverter parameter (-/+).

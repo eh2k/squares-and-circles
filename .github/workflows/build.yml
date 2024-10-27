@@ -25,13 +25,11 @@ jobs:
         export GCC_PATH=/$(realpath .)/xpack-arm-none-eabi-gcc-10.3.1-2.1/bin/
         export PATH="${PATH}:/$(realpath .)/xpack-arm-none-eabi-gcc-10.3.1-2.1/bin/"
         arm-none-eabi-gcc --version
-        pip install intelhex subprocess32 pyelftools Jinja2
+        pip install intelhex subprocess32 pyelftools Jinja2 platformio
         find ./app -type f -name *.bin -exec touch {} +
         git submodule update --init 
         sh ./app/build.sh
         git status
-        pip install --upgrade platformio mido python-rtmidi intelhex
-        pio run -v --environment squares-and-circles
     - name: pack_artifacts
       run: |
         export hash=$(git rev-parse --short HEAD)
@@ -42,6 +40,6 @@ jobs:
           mv -v "$f" $HEX_FILE
           zip -j -9 $ZIP_FILE $HEX_FILE .github/workflows/LICENSE.txt $(dirname ${f%.*})/loader.sha
           sha256sum $ZIP_FILE
-          curl -fs -X PUT -u ${{ secrets.UPLOAD_KEY }} ${{ secrets.LATEST_DROP_FOLDER }}/${FIRMWARE}_engines_latest.zip --upload-file $ZIP_FILE || true
-          curl -fs -X PUT -u ${{ secrets.UPLOAD_KEY }} ${{ secrets.LATEST_DROP_FOLDER }}/${FIRMWARE}_engines_latest.sha -d "$hash"
+          curl -fs -X PUT -u ${{ secrets.UPLOAD_KEY }} ${{ secrets.LATEST_DROP_FOLDER }}/$ZIP_FILE --upload-file $ZIP_FILE || true
+          curl -fs -X PUT -u ${{ secrets.UPLOAD_KEY }} ${{ secrets.LATEST_DROP_FOLDER }}/${FIRMWARE}_latest.sha -d "$hash"
         done

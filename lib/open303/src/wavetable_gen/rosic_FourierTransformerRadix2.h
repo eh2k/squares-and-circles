@@ -8,6 +8,8 @@
 #include "rosic_Complex.h"
 #include "../rosic_RealFunctions.h"
 
+#define STATIC_N 256 //[eh2k] remove this, to use the original implementation (with new/delete)
+
 namespace rosic
 {
 
@@ -148,12 +150,18 @@ namespace rosic
     int    normalizationMode;    /**< The normalization mode (@see: normalizationModes. */
     real_t normalizationFactor;  /**< The normalization factor (can be 1, 1/N or 1/sqrt(N)). */
 
+#ifndef STATIC_N
     // work-area stuff for Ooura's fft-routines:
     real_t *w;                   /**< Table of the twiddle-factors. */
     int    *ip;                  /**< Work area for bit-reversal (index pointer?). */
 
     // our own temporary storage area:
     Complex* tmpBuffer;
+#else
+    real_t w[2*STATIC_N];
+    int    ip[4+16]; //ceil(4.0+sqrt(STATIC_N))]; 
+    Complex tmpBuffer[STATIC_N];
+#endif
 
   };
 
