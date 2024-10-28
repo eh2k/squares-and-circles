@@ -9,7 +9,7 @@
   <summary><b>ChangeLog</b></summary>
   
 ````
-== 2024-10-27
+== 2024-10-28
    * Enhancement:
      * Mod/SEQ - 4-step sequencer modulation #91
      * Multitrigs (TR707 etc) #29
@@ -22,6 +22,7 @@
      * out of memory handling / memory fragmentation - no new/delete usings in open303
      * crash-reporting improvment 
      * Sporadic midi stops working while update with webflasher
+     * Modulation/LFO Shape ist not saved in the patch storage (is set to sine, after restore) #98
    * New Engines:
      * SEQ/EuclidRythm
      * SEQ/EuclidArp
