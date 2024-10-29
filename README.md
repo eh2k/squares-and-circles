@@ -9,6 +9,11 @@
   <summary><b>ChangeLog</b></summary>
   
 ````
+== 2024-10-29
+   * Enhancement:
+     * TR707 - dynamic level/pan params in io-page/mixer section #29
+   * Bugfix:
+     * setPixel missing (scope app not working) #99
 == 2024-10-28
    * Enhancement:
      * Mod/SEQ - 4-step sequencer modulation #91

@@ -23,6 +23,9 @@ void engine::setup()
     auto IC34_TR707_SNDROM_bin = machine::fs_read("707_IC34");
     auto IC35_TR707_SNDROM_bin = machine::fs_read("707_IC35");
 
+    if(IC34_TR707_SNDROM_bin == nullptr || IC35_TR707_SNDROM_bin == nullptr )
+        return;
+
     auto BD0 = &IC34_TR707_SNDROM_bin[0x0000];
     auto BD1 = &IC34_TR707_SNDROM_bin[0x0001];
     auto SD0 = &IC34_TR707_SNDROM_bin[0x2000];
@@ -64,8 +67,13 @@ void engine::setup()
 
 void engine::process()
 {
+    if(sample_ptr[0] == nullptr)
+        return;
+
     auto outputL = engine::outputBuffer<0>();
     memset(outputL, 0, sizeof(float) * FRAME_BUFFER_SIZE);
+    auto outputR = engine::outputBuffer<1>();
+    memset(outputR, 0, sizeof(float) * FRAME_BUFFER_SIZE);
 
     for (uint32_t i = 0; i < LEN_OF(sample_ptr); i++)
     {
@@ -86,14 +94,24 @@ void engine::process()
 
             _midi_trigs &= ~(1 << i);
         }
-
-        dsp_process_sample(sample_ptr[i], _start, _end, -2.f + (_pitch * 4), outputL);
+        float tmp[FRAME_BUFFER_SIZE] = {};
+        dsp_process_sample(sample_ptr[i], _start, _end, -2.f + (_pitch * 4), tmp);
+        float levelL = engine::mixLevelL(i);
+        float levelR = engine::mixLevelR(i);
+        for(size_t i = 0; i < FRAME_BUFFER_SIZE; i++)
+        {
+            outputL[i] += tmp[i] * levelL;
+            outputR[i] += tmp[i] * levelR;
+        }
     }
 }
 
 void engine::draw()
 {
-    gfx::drawSample(sample_ptr[_select]);
+    if(sample_ptr[0] == nullptr)
+        gfx::drawString(20, 20, "ROMS NOT FOUND\n \n   707_IC34\n   707_IC35");
+    else
+        gfx::drawSample(sample_ptr[_select]);
 }
 
 void engine::onMidiNote(uint8_t key, uint8_t velocity) // NoteOff: velocity == 0

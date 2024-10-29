@@ -34,6 +34,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 #define V_OCT "V_OCT"
 #define V_QTZ "V_QTZ"
@@ -109,6 +110,9 @@ EXTERN_C
     extern float *__output_r_fp;
     extern int16_t *__output_l_i16p;
     extern int16_t *__output_r_i16p;
+
+    extern uint8_t *__mixer_level;
+    extern uint8_t *__mixer_pan;
 
     extern float **__audio_in_l_fpp;
     extern float **__audio_in_r_fpp;
@@ -212,6 +216,10 @@ namespace engine
 
     template <>
     inline float *inputBuffer<1>() { return *__audio_in_r_fpp; }
+
+    inline float mixLevel(int ch) { return ((4.f / UINT16_MAX) * __mixer_level[ch]) * __mixer_level[ch]; } // exp range 0 - 4
+    inline float mixLevelL(int ch) { return cosf((float)__mixer_pan[ch] / 255.f * (float)M_PI_2) * mixLevel(ch); }
+    inline float mixLevelR(int ch) { return sinf((float)__mixer_pan[ch] / 255.f * (float)M_PI_2) * mixLevel(ch); }
 
     EXTERN_C void setup();
     EXTERN_C void process();
