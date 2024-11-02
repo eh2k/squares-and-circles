@@ -26,6 +26,8 @@
 
 #include "../squares-and-circles-api.h"
 #include "../lib/misc/euclidean.h"
+#include "patterns_303.h"
+
 #include <algorithm>
 #include <math.h>
 
@@ -103,7 +105,7 @@ int32_t seq_pos = UINT8_MAX;
 bool playing = true;
 bool pre_start = false;
 
-void draw_eclid_cyrcle(int x, int y, uint8_t pattern[64], int _len, int rot)
+void draw_eclid_cyrcle(int x, int y, uint8_t pattern[64], int _len, int rot, bool current_gate)
 {
     auto pattern2 = pattern;
 
@@ -164,7 +166,7 @@ void draw_eclid_cyrcle(int x, int y, uint8_t pattern[64], int _len, int rot)
     {
         int x = xx - 2;
         int y = 40 - 7;
-        if (pattern[seq_pos % _len] && (engine::clock() % 6) < 3)
+        if (current_gate) // pattern[seq_pos % _len] && (engine::clock() % 6) < 3
         {
             if (x < 64)
                 gfx::fillRect(x - 3, y - 7, 17, 17);
@@ -206,6 +208,14 @@ const char *soctaves[] = {
     "4-OCT",
 };
 
+const char *slides[] = {
+    "OFF",
+    "ON",
+    "RND25",
+    "RND50",
+    "RND75",
+};
+
 void engine::setup()
 {
     arpeggiator_.Init();
@@ -222,11 +232,15 @@ void engine::setup()
     engine::addParam("#ROT", &rotate, 0, 32);
     engine::addParam("CHRD", &chord, 0, plaits::kChordNumChords - 1, (const char **)plaits::chord_names);
     engine::addParam("RNGE", &octaves, 0, LEN_OF(soctaves) - 1, soctaves);
-    engine::addParam("SLIDE", &_slide, 0, 1);
+    engine::addParam("SLIDE", &_slide, 0, LEN_OF(slides) - 1, slides);
     engine::setMode(ENGINE_MODE_CV_OUT);
 }
 
 uint8_t pattern[64] = {};
+uint8_t patternCV[64] = {};
+uint8_t patternSlide[64] = {};
+int8_t scope[64] = {};
+int scope_pos = 0;
 
 int32_t gate_until_t = 0;
 static int32_t key = 1;
@@ -240,6 +254,8 @@ static int32_t _last_len = -1;
 static auto _last_pulses = pulses;
 static auto _last_rotate = rotate;
 static auto _last_mode = mode;
+static auto _last_octaves = octaves;
+static auto _last_chord = chord;
 static uint32_t _slide_phase = UINT32_MAX;
 static uint32_t _slide_phase_inc = 0;
 
@@ -254,7 +270,15 @@ void update_seq_pattern()
     rotate %= len;
     _swing = swing;
 
-    if (_last_len != len || _last_pulses != pulses || _last_rotate != rotate || _last_mode != mode)
+    if (mode == plaits::ArpeggiatorMode::ARPEGGIATOR_MODE_RANDOM && engine::stepChanged() && (engine::step() % len) == 0)
+        _last_mode = -1; // randomize!!!
+
+    if (_last_len != len ||
+        _last_pulses != pulses ||
+        _last_rotate != rotate ||
+        _last_mode != mode ||
+        _last_octaves != octaves ||
+        _last_chord != chord)
     {
         if (_last_len != len && _last_len == _last_pulses)
             pulses = len;
@@ -263,28 +287,85 @@ void update_seq_pattern()
         _last_pulses = pulses;
         _last_rotate = rotate;
         _last_mode = mode;
+        _last_octaves = octaves;
+        _last_chord = chord;
         pre_start = false;
         _len = len;
 
         make_pattern(pattern, len, pulses, rotate);
 
+        if (len == 16 && pulses == 16 && mode == plaits::ArpeggiatorMode::ARPEGGIATOR_MODE_RANDOM && chord == 0 && octaves == 0)
+        {
+            //Easter EGG ;-) 
+            for (int i = 0; i < len; i++)
+            {
+                patternCV[(i + rotate) % 64] = DEFAULT_NOTE + ((da_func[i] & NOTE_MASK) - C4);
+                patternSlide[(i + rotate) % 64] = (da_func[i] & SLIDE);
+            }
+        }
+        else
+        {
+
+            arpeggiator_.set_mode((plaits::ArpeggiatorMode)(mode % plaits::ARPEGGIATOR_MODE_LAST));
+            arpeggiator_.set_range(1 + octaves);
+
+            chords_.set_chord((float)chord / (plaits::kChordNumChords - 1));
+            chords_.Sort();
+
+            bool first = true;
+            for (int i = 0; i < 64; i++)
+            {
+                patternSlide[(i + rotate) % 64] = 0;
+
+                if (pattern[(i + rotate) % 64])
+                {
+                    if (first)
+                    {
+                        first = false;
+                        arpeggiator_.Reset();
+                    }
+                    else
+                        arpeggiator_.Clock(chords_.num_notes());
+
+                    if (_slide == 2 && (rand() % 100) < 25)
+                        patternSlide[(i + rotate) % 64] = true;
+                    else if (_slide == 3 && (rand() % 100) < 50)
+                        patternSlide[(i + rotate) % 64] = true;
+                    else if (_slide == 4 && (rand() % 100) > 25)
+                        patternSlide[(i + rotate) % 64] = true;
+                }
+
+                const float octave = float(1 << arpeggiator_.octave());
+                const float ratio = chords_.sorted_ratio(arpeggiator_.note()) * octave;
+
+                patternCV[(i + rotate) % 64] = DEFAULT_NOTE + log2f(ratio) * 12;
+            }
+        }
+
         for (int i = len; i < 64; i++)
+        {
             pattern[i] = pattern[i - len];
+            patternCV[i] = patternCV[i - len];
+        }
     }
 
     if (engine::stepChanged())
     {
         seq_pos = engine::step() % len;
-        if (seq_pos == 0)
-            arpeggiator_.Reset();
 
         bool trig = pattern[seq_pos];
+
+        _cv = (float)(patternCV[seq_pos] - DEFAULT_NOTE) / 12;
+        _last_cv = (float)(patternCV[(len + seq_pos - 1) % len] - DEFAULT_NOTE) / 12;
 
         if (trig)
         {
             uint32_t n = 1 + (engine::t() - _t) / 2;
 
-            if (_slide > 0)
+            // if (n > 50)
+            //     n = 0;
+
+            if (_slide == 1 || patternSlide[seq_pos])
             {
                 int m = n * 2;
                 for (int i = seq_pos; !pattern[(i + 1) % _len]; i++)
@@ -295,13 +376,9 @@ void update_seq_pattern()
                 gate_until_t = 2 + m;
             }
             else
+            {
                 gate_until_t = 2 + n; // 10ms trigger
-
-            arpeggiator_.Clock(chords_.num_notes());
-            const float ratio = chords_.sorted_ratio(arpeggiator_.note());
-            _last_cv = _cv;
-            _cv = engine::cv() + arpeggiator_.octave() + log2f(ratio);
-
+            }
             key++;
         }
 
@@ -320,12 +397,6 @@ void engine::process()
     }
 
     update_seq_pattern();
-
-    arpeggiator_.set_mode((plaits::ArpeggiatorMode)(mode % plaits::ARPEGGIATOR_MODE_LAST));
-    arpeggiator_.set_range(1 + octaves);
-
-    chords_.set_chord((float)chord / (plaits::kChordNumChords - 1));
-    chords_.Sort();
 
     int32_t trig = 0;
 
@@ -346,40 +417,42 @@ void engine::process()
         _cv_out = _cv;
     }
 
-    std::fill_n(engine::outputBuffer<1>(), FRAME_BUFFER_SIZE, _cv_out);
+    _cv_out = engine::cv_quantize(engine::cv() + _cv_out);
 
+    if (engine::t() % 20 == 0)
+    {
+        scope[scope_pos++] = (engine::cv() + _cv_out) * 12;
+        if (scope_pos >= LEN_OF(scope))
+            scope_pos -= LEN_OF(scope);
+    }
+
+    std::fill_n(engine::outputBuffer<1>(), FRAME_BUFFER_SIZE, _cv_out);
     std::fill_n(engine::outputBuffer_i16<0>(), FRAME_BUFFER_SIZE, trig);
 }
 
 void engine::draw()
 {
-    // for (int i = 0; i < chords_.num_notes(); i++)
-    // {
-    //     const float ratio = chords_.sorted_ratio(i);
-    //     float notef = engine::cv() + arpeggiator_.octave() + log2f(ratio);
+    draw_eclid_cyrcle(36, 31, pattern, _last_len, _last_rotate, gate_until_t > 0);
+}
 
-    //     float delta = 10.f;
-    //     int note = 0;
+void engine::screensaver()
+{
+    gfx::clearRect(0, 0, 128, 64);
+    draw_eclid_cyrcle(36 - 4, 31, pattern, _last_len, _last_rotate, gate_until_t > 0);
 
-    //     int n = 0;
-    //     for (float i = -4.f; i < 4.f; i += 1.f / 12)
-    //     {
-    //         float d = std::fabs(i - notef);
-    //         if (d < delta)
-    //         {
-    //             delta = d;
-    //             note = n;
-    //         }
+    char tmp[64];
+    for (int i = 0; i < _last_len; i++)
+    {
+        sprintf(tmp, "%d", (int)((float)patternCV[i] + engine::cv() * 12));
+        gfx::drawString(64 + 15 * (i % 4) + 3, 12 + 10 * (i / 4) + 1, tmp, 0);
+        if (i == seq_pos)
+            gfx::drawRect(64 + 15 * (i % 4), 10 + 10 * (i / 4), 15, 10);
+    }
 
-    //         ++n;
-    //     }
-    //     bool now = fabsf(_cv - notef) < 0.001f;
-
-    //     int key = note % 12;
-    //     if (key == 1 || key == 3 || key == 6 || key == 8 || key == 10)
-    //         gfx::invertRect((key < 5 ? 87 : 89) + (key * 2), (now ? 20 : 21) - 5, 1, now ? 3 : 1);
-    //     else
-    //         gfx::clearRect((key < 5 ? 87 : 89) + (key * 2), now ? 20 : 21, 1, now ? 3 : 1);
-    // }
-    draw_eclid_cyrcle(36, 31, pattern, _last_len, _last_rotate);
+    for (int i = 0; i < (LEN_OF(scope) - 1); i++)
+    {
+        int a = -(scope[(scope_pos + i) % LEN_OF(scope)] >> 3);
+        int b = -(scope[(scope_pos + i + 1) % LEN_OF(scope)] >> 3);
+        gfx::drawLine(64 + i, 32 + 24 + a, 64 + i + 1, 32 + 24 + b);
+    }
 }

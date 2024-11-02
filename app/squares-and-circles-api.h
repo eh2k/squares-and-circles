@@ -300,6 +300,7 @@ namespace engine
     EXTERN_C void *dsp_sample_Am6070(const uint8_t *data, int len, int sample_rate, int amp_mul);
     EXTERN_C void dsp_set_sample_pos(void *smpl, float pos, float amplitude, float decay);
     EXTERN_C void dsp_process_sample(void *smpl, float start, float end, float pitch, float output[FRAME_BUFFER_SIZE]);
+    EXTERN_C float cv_quantize(float cv);
 }
 
 enum EventType : uint16_t

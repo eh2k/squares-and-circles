@@ -9,11 +9,22 @@
   <summary><b>ChangeLog</b></summary>
   
 ````
+== 2024-11-02
+   * Enhancement:
+     * SEC/EuclidArp 
+      - fixed: note order (starting with root note)
+      - quantized output
+      - slide modes: OFF, ON, RND25, RND50, RND75
+     * Mod/TM 
+      - reset #100
+      - shift_reg & seed - added to patch state
+     * GND/Scope
+      - x-scale added #73
 == 2024-10-29
    * Enhancement:
      * TR707 - dynamic level/pan params in io-page/mixer section #29
    * Bugfix:
-     * setPixel missing (scope app not working) #99
+     * setPixel missing (scope app not working)
 == 2024-10-28
    * Enhancement:
      * Mod/SEQ - 4-step sequencer modulation #91
