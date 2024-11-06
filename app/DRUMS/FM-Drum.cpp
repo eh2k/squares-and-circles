@@ -52,7 +52,7 @@ void engine::setup()
 
 void engine::process()
 {
-    int32_t freq = (_freq) + (engine::cv() * INT16_MAX / 3); // CV or Midi Pitch ?!
+    int32_t freq = (_freq) + (engine::cv_i32() / PITCH_PER_OCTAVE * INT16_MAX / 3); // CV or Midi Pitch ?!
     freq += (-2 * INT16_MAX / 3);
     CONSTRAIN(freq, 0, UINT16_MAX); // BUG: lower values?
 

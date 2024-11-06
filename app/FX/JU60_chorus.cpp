@@ -185,7 +185,6 @@ struct Juno60_Chorus_BBD
         _delayR.clear();
     }
 
-    float dry[FRAME_BUFFER_SIZE];
     float phase_ = 0;
 
     void lfo_tri(float phase_inc_, float *out)
@@ -201,13 +200,15 @@ struct Juno60_Chorus_BBD
         }
     }
 
-    float clockL[FRAME_BUFFER_SIZE];
-    float clockR[FRAME_BUFFER_SIZE];
-
     void process(float *inOut, float *outR, uint32_t len)
     {
         float wet = 1.f - mode_.dry;
         float f = mode_.freq / SAMPLE_RATE;
+        
+        float dry[FRAME_BUFFER_SIZE];
+        float clockL[FRAME_BUFFER_SIZE];
+        float clockR[FRAME_BUFFER_SIZE];
+
         memcpy(dry, inOut, len * sizeof(float));
 
         lfo_tri(f, clockL);

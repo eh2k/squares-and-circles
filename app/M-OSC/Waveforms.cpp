@@ -23,6 +23,8 @@
 // See http://creativecommons.org/licenses/MIT/ for more information.
 //
 
+// xuild_flags: -fno-inline -mfloat-abi=soft -mfpu=fpv5-d16
+
 #include "../squares-and-circles-api.h"
 
 #include "stmlib/stmlib.h"
@@ -34,16 +36,7 @@
 #include "braids/settings.h"
 
 #include "braids/vco_jitter_source.h"
-
-#include "braids/analog_oscillator.cc"
-#define kHighestNote kHighestNote2
-#define kPitchTableStart kPitchTableStart2
-#define kOctave kOctave2
-#include "braids/digital_oscillator.cc"
-#include "braids/settings.cc"
-#include "braids/macro_oscillator.cc"
-#include "braids/resources.cc"
-#include "stmlib/utils/random.cc"
+#include <algorithm>
 
 using namespace braids;
 
@@ -52,17 +45,14 @@ MacroOscillator osc2;
 Envelope envelope;
 VcoJitterSource jitter_source;
 
-uint8_t sync_samples[FRAME_BUFFER_SIZE];
+uint8_t sync_samples[FRAME_BUFFER_SIZE] = {};
 
-float _pitch = 0;
+int32_t _pitch = DEFAULT_NOTE;
 int32_t _shape = 0;
 int32_t _timbre = UINT16_MAX / 2;
 int32_t _color = UINT16_MAX / 2;
 int32_t _attack = 0;
 int32_t _decay = UINT16_MAX / 2;
-
-float buffer[FRAME_BUFFER_SIZE];
-float bufferR[FRAME_BUFFER_SIZE];
 
 void engine::setup()
 {
@@ -72,19 +62,21 @@ void engine::setup()
     jitter_source.Init();
     envelope.Init();
 
-    std::fill(&sync_samples[0], &sync_samples[FRAME_BUFFER_SIZE], 0);
+    // std::fill(&sync_samples[0], &sync_samples[FRAME_BUFFER_SIZE], 0);
 
     // settings.SetValue(SETTING_AD_VCA, true);
     settings.SetValue(SETTING_SAMPLE_RATE, 5);
     settings.SetValue(SETTING_PITCH_OCTAVE, 4);
     settings.SetValue(SETTING_PITCH_RANGE, PITCH_RANGE_EXTERNAL);
 
-    engine::addParam(V_OCT, &_pitch);
+    engine::addParam(V_OCT, &_pitch, 0, 255);
     engine::addParam("Shape", &_shape, braids::MACRO_OSC_SHAPE_CSAW, braids::MACRO_OSC_SHAPE_LAST - 1, (const char **)braids::settings.metadata(braids::Setting::SETTING_OSCILLATOR_SHAPE).strings);
     engine::addParam("Timbre", &_timbre, 0, UINT16_MAX);
     engine::addParam("Color", &_color, 0, UINT16_MAX);
     engine::addParam("Decay", &_decay, 0, UINT16_MAX);
     engine::addParam("Attack", &_attack, 0, UINT16_MAX);
+    engine::setMode(ENGINE_MODE_STEREOLIZED);
+    
 }
 
 void engine::process()
@@ -106,8 +98,8 @@ void engine::process()
 
     uint32_t ad_value = envelope.Render();
 
-    float pitchV = engine::cv();
-    int32_t pitch = (pitchV * 12.f + DEFAULT_NOTE + 12) * 128;
+    int32_t pitchV = engine::cv_i32();
+    int32_t pitch = pitchV + (DEFAULT_NOTE + 12) * 128;
 
     // if (!settings.meta_modulation())
     // {
@@ -143,8 +135,8 @@ void engine::process()
 
     if (engine::is_stereo() && __io->stereo > 0) // Stereo
     {
-        const float f = (float)__io->stereo / 255.f;
-        uint8_t stereo = f * f * f * 255;
+        const int32_t f = __io->stereo;
+        int32_t stereo = (f * f * f) / (255 * 255);
 
         int32_t timbre = _timbre + stereo;
         if (timbre > UINT16_MAX)
@@ -163,7 +155,7 @@ void engine::process()
         for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
             audio_samples[i] = (gain * audio_samples[i]) / UINT16_MAX;
     }
-    else 
+    else
     {
         memcpy(engine::outputBuffer_i16<1>(), engine::outputBuffer_i16<0>(), FRAME_BUFFER_SIZE * sizeof(int16_t));
     }
@@ -187,3 +179,13 @@ void engine::draw()
         setParamName(&_attack, nullptr);
     }
 }
+
+#include "braids/analog_oscillator.cc"
+#define kHighestNote kHighestNote2
+#define kPitchTableStart kPitchTableStart2
+#define kOctave kOctave2
+#include "braids/digital_oscillator.cc"
+#include "braids/settings.cc"
+#include "braids/macro_oscillator.cc"
+#include "braids/resources.cc"
+#include "stmlib/utils/random.cc"

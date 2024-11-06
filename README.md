@@ -9,9 +9,21 @@
   <summary><b>ChangeLog</b></summary>
   
 ````
+== 2024-11-04
+   * Bugfix
+     * 808ish-BD Crash #103
+   * Enhancements:
+     * Crashreport fix (listing engine ids added)
+     * SEQ/EuclidArp 
+        - fixed recalc pattern on slide > 1
+        - gate timing (using samples_per_step)
+     * New APIs
+        - clock::samples_per_step
+        - engine::setPatchStateEx
+        - engine::stepReset
 == 2024-11-02
    * Enhancement:
-     * SEC/EuclidArp 
+     * SEQ/EuclidArp 
       - fixed: note order (starting with root note)
       - quantized output
       - slide modes: OFF, ON, RND25, RND50, RND75

@@ -40,9 +40,19 @@
 #define V_QTZ "V_QTZ"
 #define SEQ_SWING "$SWING"
 #define MULTI_TRIGS ">TRIGS"
+#define IO_STEREOLIZE ".IO_STEREO"
+
+constexpr uint32_t ENGINE_MODE_COMPACT = 1 << 5;
+constexpr uint32_t ENGINE_MODE_CV_OUT = 1 << 6;
+constexpr uint32_t ENGINE_MODE_MIDI_IN = 1 << 7;
+constexpr uint32_t ENGINE_MODE_STEREOLIZED = 1 << 9;
 
 #ifndef EXTERN_C
 #define EXTERN_C extern "C"
+#endif
+
+#ifndef M_PI_2
+#define M_PI_2		1.57079632679489661923
 #endif
 
 #ifndef MACHINE_INTERNAL
@@ -62,8 +72,6 @@
     }
 
 #endif
-
-#define IO_STEREOLIZE ".IO_STEREO"
 
 #ifdef __cplusplus
 #ifdef __GNUC__
@@ -100,11 +108,12 @@ EXTERN_C
     extern uint32_t *__t;
     extern uint8_t *__clock;
     extern uint8_t *__step;
-    extern bool *__step_changed;
+    extern uint32_t *__step_changed;
+    extern uint32_t *__samples_per_step;
     extern uint32_t *__trig;
     extern uint32_t *__gate;
     extern uint32_t *__accent;
-    extern float *__cv;
+    extern int32_t *__cv;
 
     extern float *__output_l_fp;
     extern float *__output_r_fp;
@@ -177,16 +186,15 @@ EXTERN_C
 
 namespace engine
 {
-    constexpr uint8_t CLOCK_RESET = 97;
-
     inline uint32_t t() { return *__t; }
-    inline uint8_t clock() { return *__clock; }
     inline uint8_t step() { return *__step; }
-    inline bool stepChanged() { return *__step_changed; }
+    inline bool stepChanged() { return *__step_changed != 0; }
+    inline bool stepReset() { return *__step_changed > 1; }
     inline uint32_t trig() { return *__trig; }
     inline uint32_t gate() { return *__gate; }
     inline uint32_t accent() { return *__accent; }
-    inline float cv() { return *__cv; }
+    inline float cv() { return (float)*__cv / PITCH_PER_OCTAVE; }
+    inline int32_t cv_i32() { return *__cv; }
 
     inline bool is_stereo() { return (__io->dac == 2 || __io->dac == 5); }
 
@@ -254,9 +262,7 @@ namespace engine
         addParam_f32(name, value, min, max);
     }
 
-    constexpr uint32_t ENGINE_MODE_COMPACT = 1 << 5;
-    constexpr uint32_t ENGINE_MODE_CV_OUT = 1 << 6;
-    constexpr uint32_t ENGINE_MODE_MIDI_IN = 1 << 7;
+    EXTERN_C void setPatchStateEx(void *ptr, size_t size);
 
     inline void
     setMode(uint32_t mode) // 1: compact_mode, 2: sample_view
@@ -300,7 +306,7 @@ namespace engine
     EXTERN_C void *dsp_sample_Am6070(const uint8_t *data, int len, int sample_rate, int amp_mul);
     EXTERN_C void dsp_set_sample_pos(void *smpl, float pos, float amplitude, float decay);
     EXTERN_C void dsp_process_sample(void *smpl, float start, float end, float pitch, float output[FRAME_BUFFER_SIZE]);
-    EXTERN_C float cv_quantize(float cv);
+    EXTERN_C int32_t cv_quantize(int32_t cv);
 }
 
 enum EventType : uint16_t
@@ -316,14 +322,23 @@ constexpr uint16_t BUTTON_R = (1 << 1);
 constexpr uint16_t ENCODER_L = (1 << 8);
 constexpr uint16_t ENCODER_R = (1 << 9);
 
+namespace clock
+{
+    constexpr uint8_t CLOCK_RESET = 97;
+
+    inline uint8_t ppn() { return *__clock; }
+    inline float samples_per_step() { return (float)*__samples_per_step; }
+}
+
 namespace machine
 {
     EXTERN_C const uint8_t *fs_read(const char *blobName);
 
-    inline uint32_t clk_bpm()
+    inline uint32_t clk_bpm() // BPM x 100
     {
         return *__bpm;
     }
+
     inline void clk_bpm(uint32_t bpm)
     {
         *__bpm = bpm;

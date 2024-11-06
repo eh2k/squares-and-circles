@@ -1,15 +1,17 @@
 #!/usr/bin/bash
 
 set -e #-eo pipefail
-cd $(dirname $0)/..
+cd $(realpath $(dirname $0))/..
 
 if ! which arm-none-eabi-gcc; then
 export PATH=~/.platformio/packages/toolchain-gccarmnoneeabi/bin/:$PATH
 fi
 
-#pip install jinja2
-#pip install pyelftools
+#pip install jinja2 pyelftools elf_size_analyze
 
+if [ "$1" = "--rebuild" ]; then
+    find ./app -type f -name *.bin -exec touch {} +
+fi
 
 for f in $(find $(dirname $0) -mindepth 2 -maxdepth 2 -type f -name '*.cpp'); do
 
@@ -36,12 +38,12 @@ CPP_FILES=$(grep "cpp_files:" $X.cpp | cut -d':' -f2-)
 
 #--no-opt \
 #-felide-constructors -fno-rtti -std=gnu++14 -Wno-error=narrowing -fno-threadsafe-statics
-$mkmodule $X.cpp $CPP_FILES \
+$mkmodule $(realpath $X.cpp --relative-base=.) $CPP_FILES \
     --no-opt \
     --build_flags="-fsingle-precision-constant -DFLASHMEM='__attribute__((section(\".text.flashmem\")))' -DNDEBUG -pedantic -fno-exceptions $BUILD_FLAGS -I. -I./lib/ " \
     --public-symbols="setup,process,draw,screensaver,__ui_event_handler,__midi_event_handler" \
     --name="$NAME" > $X.log
-
+sed -i "s|$(realpath .)|.|" $X.log
 touch -d "$(date -R -r $X.cpp)" $X.bin
 
 #cat $X.log | arm-none-eabi-c++filt -t > ${X}2.log

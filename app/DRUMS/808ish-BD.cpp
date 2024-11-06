@@ -23,6 +23,8 @@
 // See http://creativecommons.org/licenses/MIT/ for more information.
 //
 
+// build_flags: -fno-inline -mfloat-abi=hard -mfpu=fpv5-d16
+
 #include "../squares-and-circles-api.h"
 #include "peaks/drums/bass_drum.h"
 #include "peaks/drums/bass_drum.cc"
@@ -35,12 +37,9 @@ int32_t _punch = UINT16_MAX / 2;
 int32_t _tone = UINT16_MAX / 2;
 int32_t _decay = UINT16_MAX / 2;
 
-peaks::GateFlags flags[FRAME_BUFFER_SIZE];
-
 void engine::setup()
 {
     _processor.Init();
-    std::fill(&flags[0], &flags[FRAME_BUFFER_SIZE], peaks::GATE_FLAG_LOW);
 
     engine::addParam("Pitch", &_freq, 0, UINT16_MAX);
     engine::addParam("Punch", &_punch, 0, UINT16_MAX);
@@ -50,7 +49,9 @@ void engine::setup()
 
 void engine::process()
 {
-    _processor.set_frequency(_freq);
+    peaks::GateFlags flags[FRAME_BUFFER_SIZE];
+
+    _processor.set_frequency(_freq - 32768);
     _processor.set_punch(_punch);
     _processor.set_tone(_tone);
     _processor.set_decay(_decay);

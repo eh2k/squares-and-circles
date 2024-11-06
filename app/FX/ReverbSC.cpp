@@ -25,10 +25,7 @@
 
 #include "../squares-and-circles-api.h"
 
-extern "C"
-{
 #include "soundpipe/revsc.c"
-}
 
 static sp_data sp_data_ = {};
 static sp_revsc sp_revsc_ = {};

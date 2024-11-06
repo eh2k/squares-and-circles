@@ -74,5 +74,5 @@ constexpr uint8_t ACCENT = 0x40;
 //"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
 
 // Daft Punk - Da Funk
-const uint8_t da_func[16] = {A2_SHARP, F4, D3 | SLIDE, C5, A3_SHARP | SLIDE | ACCENT, G3, F2_SHARP | SLIDE | ACCENT, G3_SHARP,
+const uint8_t da_funk[16] = {A2_SHARP, F4, D3 | SLIDE, C5, A3_SHARP | SLIDE | ACCENT, G3, F2_SHARP | SLIDE | ACCENT, G3_SHARP,
                              A4_SHARP | SLIDE, A2, C4 | SLIDE, D4 | SLIDE | ACCENT, F3, D3 | SLIDE, F2 | SLIDE, D3_SHARP | SLIDE};

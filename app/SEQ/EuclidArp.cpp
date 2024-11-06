@@ -256,10 +256,10 @@ static auto _last_rotate = rotate;
 static auto _last_mode = mode;
 static auto _last_octaves = octaves;
 static auto _last_chord = chord;
+static auto _last_slide = _slide;
 static uint32_t _slide_phase = UINT32_MAX;
 static uint32_t _slide_phase_inc = 0;
 
-uint32_t _t = 0;
 float _last_cv = 0;
 float _cv = 0;
 float _cv_out = 0;
@@ -270,7 +270,7 @@ void update_seq_pattern()
     rotate %= len;
     _swing = swing;
 
-    if (mode == plaits::ArpeggiatorMode::ARPEGGIATOR_MODE_RANDOM && engine::stepChanged() && (engine::step() % len) == 0)
+    if ((mode == plaits::ArpeggiatorMode::ARPEGGIATOR_MODE_RANDOM | _slide > 1) && engine::stepChanged() && (engine::step() % len) == 0)
         _last_mode = -1; // randomize!!!
 
     if (_last_len != len ||
@@ -278,7 +278,8 @@ void update_seq_pattern()
         _last_rotate != rotate ||
         _last_mode != mode ||
         _last_octaves != octaves ||
-        _last_chord != chord)
+        _last_chord != chord ||
+        _last_slide != _slide)
     {
         if (_last_len != len && _last_len == _last_pulses)
             pulses = len;
@@ -289,6 +290,7 @@ void update_seq_pattern()
         _last_mode = mode;
         _last_octaves = octaves;
         _last_chord = chord;
+        _last_slide = _slide;
         pre_start = false;
         _len = len;
 
@@ -296,11 +298,11 @@ void update_seq_pattern()
 
         if (len == 16 && pulses == 16 && mode == plaits::ArpeggiatorMode::ARPEGGIATOR_MODE_RANDOM && chord == 0 && octaves == 0)
         {
-            //Easter EGG ;-) 
+            // Easter EGG ;-)
             for (int i = 0; i < len; i++)
             {
-                patternCV[(i + rotate) % 64] = DEFAULT_NOTE + ((da_func[i] & NOTE_MASK) - C4);
-                patternSlide[(i + rotate) % 64] = (da_func[i] & SLIDE);
+                patternCV[(i + rotate) % 64] = DEFAULT_NOTE + ((da_funk[i] & NOTE_MASK) - C4) + 12;
+                patternSlide[(i + rotate) % 64] = (da_funk[i] & SLIDE);
             }
         }
         else
@@ -360,29 +362,27 @@ void update_seq_pattern()
 
         if (trig)
         {
-            uint32_t n = 1 + (engine::t() - _t) / 2;
+            uint32_t n = (clock::samples_per_step() / FRAME_BUFFER_SIZE) / 2;
 
             // if (n > 50)
             //     n = 0;
 
             if (_slide == 1 || patternSlide[seq_pos])
             {
-                int m = n * 2;
-                for (int i = seq_pos; !pattern[(i + 1) % _len]; i++)
-                    m += n * 2;
+                // int m = n * 3;
+                // for (int i = seq_pos; !pattern[(i + 1) % _len]; i++)
+                //     m += n * 2;
 
                 _slide_phase = 0;
                 _slide_phase_inc = UINT32_MAX / n;
-                gate_until_t = 2 + m;
+                gate_until_t = INT32_MAX;
             }
             else
             {
-                gate_until_t = 2 + n; // 10ms trigger
+                gate_until_t = n; // 10ms trigger
             }
             key++;
         }
-
-        _t = engine::t();
     }
 }
 
@@ -417,7 +417,7 @@ void engine::process()
         _cv_out = _cv;
     }
 
-    _cv_out = engine::cv_quantize(engine::cv() + _cv_out);
+    _cv_out = (float)engine::cv_quantize(engine::cv_i32() + _cv_out * PITCH_PER_OCTAVE) / PITCH_PER_OCTAVE;
 
     if (engine::t() % 20 == 0)
     {

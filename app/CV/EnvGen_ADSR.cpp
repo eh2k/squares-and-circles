@@ -23,6 +23,8 @@
 // See http://creativecommons.org/licenses/MIT/ for more information.
 //
 
+// build_flags: -fno-inline -mfloat-abi=hard -mfpu=fpv5-d16
+
 #include "../squares-and-circles-api.h"
 #include "peaks/modulations/multistage_envelope.h"
 #include "peaks/modulations/multistage_envelope.cc"
@@ -34,9 +36,6 @@ int32_t _attack = 0;
 int32_t _decay = UINT16_MAX / 2;
 int32_t _sustain = UINT16_MAX / 2;
 int32_t _release = UINT16_MAX / 2;
-
-peaks::GateFlags flags[FRAME_BUFFER_SIZE];
-int16_t buffer[FRAME_BUFFER_SIZE];
 
 struct
 {
@@ -74,6 +73,8 @@ void engine::setup()
 
 void engine::process()
 {
+    peaks::GateFlags flags[FRAME_BUFFER_SIZE];
+
     uint16_t params[4];
     params[0] = _attack;
     params[1] = _decay;
@@ -96,9 +97,10 @@ void engine::process()
         std::fill(&flags[1], &flags[FRAME_BUFFER_SIZE], peaks::GATE_FLAG_LOW);
     }
 
+    int16_t *buffer = engine::outputBuffer_i16<0>();
     _processor.Process(flags, buffer, FRAME_BUFFER_SIZE);
 
-    static float y = 0;
+    static int y = 0;
     if ((engine::t() % 50) == 0)
     {
         _scope.push(y);
@@ -108,7 +110,7 @@ void engine::process()
         y = std::max<int>(y, buffer[0] / (INT16_MAX / 16));
 
     for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
-        engine::outputBuffer<0>()[i] = (float)buffer[i] / -INT16_MIN * 8.f;
+        buffer[i] /= 2;
 }
 
 void engine::draw()

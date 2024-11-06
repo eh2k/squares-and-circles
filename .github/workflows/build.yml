@@ -25,11 +25,11 @@ jobs:
         export GCC_PATH=/$(realpath .)/xpack-arm-none-eabi-gcc-10.3.1-2.1/bin/
         export PATH="${PATH}:/$(realpath .)/xpack-arm-none-eabi-gcc-10.3.1-2.1/bin/"
         arm-none-eabi-gcc --version
-        pip install intelhex subprocess32 pyelftools Jinja2 platformio
-        find ./app -type f -name *.bin -exec touch {} +
+        pip install intelhex subprocess32 pyelftools Jinja2 platformio elf_size_analyze
         git submodule update --init 
-        sh ./app/build.sh
-        git status
+        sh ./app/build.sh --rebuild
+        git --no-pager diff
+        git checkout -- .
     - name: pack_artifacts
       run: |
         export hash=$(git rev-parse --short HEAD)

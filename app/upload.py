@@ -124,6 +124,7 @@ with open(apps_json) as f:
             )
             if engine != None and engine["crc32"] == "%x" % crc32sum:
                 print(
+                    engine["addr"],
                     os.path.splitext(file)[0],
                     "%x" % crc32sum,
                     "OK!",
@@ -134,8 +135,14 @@ with open(apps_json) as f:
         print("->", file, engine)
 
         if engine == None:
-            print("TODO - add new engine...")
-            continue
+
+            offset = max((int(e["addr"], 16) + int(e["size"])) for e in engines)
+            offset += 4096 - (offset % 4096)
+            engine =  {}
+            engine["addr"] = "%x" % offset
+            engine["size"] = "%s" % bin_size
+            print("TODO - add new engine...", "0x%x" % offset)
+            #continue
 
         print(
             os.path.splitext(file)[0], "%x" % crc32sum, bin_size - int(engine["size"])
