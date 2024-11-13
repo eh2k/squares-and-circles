@@ -33,9 +33,11 @@
 
         "SEQ/EuclidRythm.bin",
         "SEQ/EuclidArp.bin",
+        "SEQ/TuringMachine.bin",
 	   
         "MIDI/VAx6.bin",
 		
+        "SYNTH/DxFM.bin",
         "SYNTH/Open303.bin",
         "FX/JU60_chorus.bin",
 

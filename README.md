@@ -9,6 +9,13 @@
   <summary><b>ChangeLog</b></summary>
   
 ````
+== 2024-11-07
+   * Bugfix: 
+     * M-OSC/Waveforms - V_OCT modulation
+     * SEQ/EuclidArp - Screensaver circle offset
+     * Crash on patch saving/restoring (#97 ?!)
+   * New Engines:
+     * SEQ/TuringMachine
 == 2024-11-04
    * Bugfix
      * 808ish-BD Crash #103
@@ -282,7 +289,7 @@ E.g you can chain the mono audio signal from an oscillator machine to the neighb
 * **SEQ**
   * [EuclidRythm](https://github.com/eh2k/squares-and-circles/wiki/EuclidRythm)
   * [EuclidArp](https://github.com/eh2k/squares-and-circles/wiki/EuclidArp)
-
+  * [TuringMachine](https://github.com/eh2k/squares-and-circles/wiki/TM)
 
 ## Machine/Engine  
 

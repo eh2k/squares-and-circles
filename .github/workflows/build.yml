@@ -9,11 +9,6 @@ jobs:
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0
-    - name: codeberg_sync
-      run: |
-        git remote add --mirror=fetch secondary https://${{ secrets.CODEBERG_AUTH }}@codeberg.org/eh2k/squares-and-circles.git
-        git fetch origin
-        git push secondary --all --force
     - name: Set up Python
       uses: actions/setup-python@v2
     - name: build
@@ -27,11 +22,14 @@ jobs:
         arm-none-eabi-gcc --version
         pip install intelhex subprocess32 pyelftools Jinja2 platformio elf_size_analyze
         git submodule update --init 
-        sh ./app/build.sh --rebuild
+        pio run -v --environment squares-and-circles
         git --no-pager diff
         git checkout -- .
-    - name: pack_artifacts
+    - name: deploy
       run: |
+        git remote add --mirror=fetch secondary https://${{ secrets.CODEBERG_AUTH }}@codeberg.org/eh2k/squares-and-circles.git
+        git fetch origin
+        git push secondary --all --force
         export hash=$(git rev-parse --short HEAD)
         for f in .pio/build/*/*.hex; do
           FIRMWARE=$(basename $(dirname ${f%.*}))

@@ -52,7 +52,7 @@ constexpr uint32_t ENGINE_MODE_STEREOLIZED = 1 << 9;
 #endif
 
 #ifndef M_PI_2
-#define M_PI_2		1.57079632679489661923
+#define M_PI_2 1.57079632679489661923
 #endif
 
 #ifndef MACHINE_INTERNAL
@@ -105,6 +105,7 @@ EXTERN_C uint32_t crc32(uint32_t crc, const void *buf, size_t size);
 
 EXTERN_C
 {
+    extern const char *__name;
     extern uint32_t *__t;
     extern uint8_t *__clock;
     extern uint8_t *__step;
@@ -186,6 +187,8 @@ EXTERN_C
 
 namespace engine
 {
+    inline const char *name() { return __name; }
+
     inline uint32_t t() { return *__t; }
     inline uint8_t step() { return *__step; }
     inline bool stepChanged() { return *__step_changed != 0; }
@@ -327,7 +330,7 @@ namespace clock
     constexpr uint8_t CLOCK_RESET = 97;
 
     inline uint8_t ppn() { return *__clock; }
-    inline float samples_per_step() { return (float)*__samples_per_step; }
+    inline uint32_t samples_per_step() { return *__samples_per_step; }
 }
 
 namespace machine

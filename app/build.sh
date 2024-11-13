@@ -1,19 +1,21 @@
 #!/usr/bin/bash
 
 set -e #-eo pipefail
-cd $(realpath $(dirname $0))/..
+SCRIPT_PATH="$(realpath $(dirname $0))"
+cd ${SCRIPT_PATH}/..
 
 if ! which arm-none-eabi-gcc; then
-export PATH=~/.platformio/packages/toolchain-gccarmnoneeabi/bin/:$PATH
+    echo arm-none-eabi-gcc not found!
+    exit 1
 fi
 
-#pip install jinja2 pyelftools elf_size_analyze
+pip install jinja2 pyelftools elf_size_analyze --upgrade pip
 
 if [ "$1" = "--rebuild" ]; then
-    find ./app -type f -name *.bin -exec touch {} +
+    find "${SCRIPT_PATH}" -type f -name *.bin -exec touch {} +
 fi
 
-for f in $(find $(dirname $0) -mindepth 2 -maxdepth 2 -type f -name '*.cpp'); do
+for f in $(find "${SCRIPT_PATH}" -mindepth 2 -maxdepth 2 -type f -name '*.cpp'); do
 
 X="${f%.*}"
 
@@ -22,10 +24,10 @@ if [ -f $oo ] && [ "$(date -R -r $X.bin)" = "$(date -R -r $f)" ]; then
 fi
 
 #-fno-rtti 
-NAME=$(grep "//ENGINE_NAME:" $f | cut -d':' -f2)
-NAME=${NAME:-"$(realpath --relative-to=$(dirname $0) $X)"}
+NAME=$(grep "ENGINE_NAME:" $f | cut -d':' -f2)
+NAME=${NAME:-"$(realpath --relative-to=${SCRIPT_PATH} $X)"}
 
-echo ----- $NAME -----
+echo ----- "$NAME" -----
 
 mkmodule=$(ls lib/udynlink/scripts/mkmodule | head -n1)
 
@@ -50,12 +52,14 @@ touch -d "$(date -R -r $X.cpp)" $X.bin
 
 arm-none-eabi-objdump -Dztr --source $X.elf | arm-none-eabi-c++filt -t > $X.elf.txt
 #arm-none-eabi-nm -l -t d -S -C --size-sort --synthetic --special-syms --with-symbol-versions --reverse-sort ./$X.elf > $X.log
-which elf-size-analyze >/dev/null && elf-size-analyze -t arm-none-eabi- ./$X.elf -F -R --no-color >> $X.log
-md5sum $X.bin | tee -a $X.log
+which elf-size-analyze >/dev/null && elf-size-analyze -t arm-none-eabi- $(realpath $X.elf --relative-base=.) -F -R --no-color >> $X.log
+md5sum $(realpath $X.bin --relative-base=.) | tee -a $X.log
 echo "BIN_SIZE $(stat -c %s -- $X.bin)" | tee -a $X.log
 #rm $X.elf
 
 grep "__aeabi_" $X.log && exit 1
+
+${SCRIPT_PATH}/dump.py "$X.bin"
 
 #xxd -i $X.bin > ./$X.bin.h
 #sed -i "s/unsigned char/const uint8_t/g" ./$X.bin.h
@@ -68,10 +72,13 @@ grep "__aeabi_" $X.log && exit 1
 
 done
 
+cd ${SCRIPT_PATH}
+pwd
 find . -type f -name '*.o' -delete
 find . -type f -name '*.bin' -exec stat --printf="%-20n\t%6s\n" -- {} \;
-du -ch $(dirname $0)/*/*.bin | grep total
+du -ch ./*/*.bin | grep total
 #find . -type f -name '*.bin' -delete
 
-pio --version || alias pio=~/.platformio/penv/bin/pio
-pio run -v --environment squares-and-circles
+if [[ "$1" == "--upload" || "$2" == "--upload" ]]; then
+    ./upload.py
+fi

@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/bin/python3 -u
 
 import rtmidi
 import json
@@ -19,6 +19,10 @@ midiin = rtmidi.MidiIn(queue_size_limit=1024 * 8)
 for i in range(0, midiin.get_port_count()):
     if midiin.get_port_name(i).startswith("S&C"):
         midiin.open_port(i)
+
+if not midiout.is_port_open() or not midiin.is_port_open():
+    print("=== no S&C device conected! ===")
+    exit(-1)
 
 while True:
     msg = midiin.get_message()
@@ -110,6 +114,7 @@ engines = json.loads(engines)
 
 apps_json = os.path.dirname(__file__) + "/index.json"
 with open(apps_json) as f:
+    end = 0
     apps = json.load(f)
     j = 0
     for file in apps["apps"]:
@@ -120,8 +125,13 @@ with open(apps_json) as f:
         with open(bin_file, "rb") as f:
             crc32sum = zlib.crc32(f.read())
             engine = next(
-                (e for e in engines if e["id"] == os.path.splitext(file)[0]), None
+                (e for e in engines if e["id"].startswith(os.path.splitext(file)[0])),
+                None,
             )
+
+            if engine != None:
+                end = int(engine["addr"], 16) + int(engine["size"])
+
             if engine != None and engine["crc32"] == "%x" % crc32sum:
                 print(
                     engine["addr"],
@@ -138,16 +148,15 @@ with open(apps_json) as f:
 
             offset = max((int(e["addr"], 16) + int(e["size"])) for e in engines)
             offset += 4096 - (offset % 4096)
-            engine =  {}
+            engine = {}
             engine["addr"] = "%x" % offset
             engine["size"] = "%s" % bin_size
             print("TODO - add new engine...", "0x%x" % offset)
-            #continue
+            # continue
 
         print(
             os.path.splitext(file)[0], "%x" % crc32sum, bin_size - int(engine["size"])
         )
-
         offset = 0
         ih = intelhex.IntelHex()
         ih.loadbin(bin_file, offset=offset)
@@ -166,9 +175,17 @@ with open(apps_json) as f:
         j += 1
 
         offset += 4 - (offset % 4)
-    
-    if j > 0:
-        midiout.send_message([0xF3, 0x7F]) #reset
+
+    if True:
+        offset = end #max((int(e["addr"], 16) + int(e["size"])) for e in engines)
+        offset += 4096 - (offset % 4096)
+        print("END 0x%x" % offset)
+        for chunk in chunk_bytes(bytearray(b"\xff") * 4096, 4096):
+            sendFLASHDATA(f"0x%6x" % offset, chunk)
+            offset += len(chunk)
+
+    if j >= 0:
+        midiout.send_message([0xF3, 0x7F])  # reset
 
 midiin.close_port()
 midiout.close_port()

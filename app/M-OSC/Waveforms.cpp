@@ -47,7 +47,7 @@ VcoJitterSource jitter_source;
 
 uint8_t sync_samples[FRAME_BUFFER_SIZE] = {};
 
-int32_t _pitch = DEFAULT_NOTE;
+int32_t _pitch = 0;
 int32_t _shape = 0;
 int32_t _timbre = UINT16_MAX / 2;
 int32_t _color = UINT16_MAX / 2;
@@ -69,14 +69,13 @@ void engine::setup()
     settings.SetValue(SETTING_PITCH_OCTAVE, 4);
     settings.SetValue(SETTING_PITCH_RANGE, PITCH_RANGE_EXTERNAL);
 
-    engine::addParam(V_OCT, &_pitch, 0, 255);
+    engine::addParam(V_OCT, &_pitch, -4 * PITCH_PER_OCTAVE, 4 * PITCH_PER_OCTAVE); // is added internal to engine::cv
     engine::addParam("Shape", &_shape, braids::MACRO_OSC_SHAPE_CSAW, braids::MACRO_OSC_SHAPE_LAST - 1, (const char **)braids::settings.metadata(braids::Setting::SETTING_OSCILLATOR_SHAPE).strings);
     engine::addParam("Timbre", &_timbre, 0, UINT16_MAX);
     engine::addParam("Color", &_color, 0, UINT16_MAX);
     engine::addParam("Decay", &_decay, 0, UINT16_MAX);
     engine::addParam("Attack", &_attack, 0, UINT16_MAX);
     engine::setMode(ENGINE_MODE_STEREOLIZED);
-    
 }
 
 void engine::process()
