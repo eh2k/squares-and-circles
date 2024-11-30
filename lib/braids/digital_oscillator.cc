@@ -2562,7 +2562,18 @@ DigitalOscillator::RenderFn DigitalOscillator::fn_table_[] = {
   &DigitalOscillator::RenderDigitalModulation,
   // &DigitalOscillator::RenderYourAlgo,
 
-  &DigitalOscillator::RenderQuestionMark
+  &DigitalOscillator::RenderQuestionMark,
+  &DigitalOscillator::RenderDiatonicChord,
+  &DigitalOscillator::RenderDiatonicChord,
+  &DigitalOscillator::RenderDiatonicChord,
+  &DigitalOscillator::RenderDiatonicChord,
+  &DigitalOscillator::RenderDiatonicChord,
+
+  &DigitalOscillator::RenderStack,
+  &DigitalOscillator::RenderStack,
+  &DigitalOscillator::RenderStack,
+  &DigitalOscillator::RenderStack,
+  &DigitalOscillator::RenderStack,
 };
 
 }  // namespace braids

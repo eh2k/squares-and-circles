@@ -97,7 +97,21 @@ enum DigitalOscillatorShape {
 
   OSC_SHAPE_DIGITAL_MODULATION,
 
-  OSC_SHAPE_QUESTION_MARK_LAST
+  OSC_SHAPE_QUESTION_MARK_LAST,
+
+  // Braids Renaissance https://burns.ca/eurorack.html
+  OSC_SHAPE_CHORD_SAW,
+  OSC_SHAPE_CHORD_SQUARE,
+  OSC_SHAPE_CHORD_TRIANGLE,
+  OSC_SHAPE_CHORD_SINE,
+  OSC_SHAPE_CHORD_WAVETABLE,
+
+  OSC_SHAPE_STACK_SAW,
+  OSC_SHAPE_STACK_SQUARE,
+  OSC_SHAPE_STACK_TRIANGLE,
+  OSC_SHAPE_STACK_SINE,
+  OSC_SHAPE_STACK_WAVETABLE,
+
 };
 
 struct ResoSquareState {
@@ -216,6 +230,11 @@ struct HatState {
   uint32_t rng_state;
 };
 
+struct StackState {
+  uint32_t phase[12];
+  int16_t previous_sample;
+};
+
 union DigitalOscillatorState {
   ResoSquareState res;
   VowelSynthesizerState vow;
@@ -233,6 +252,7 @@ union DigitalOscillatorState {
   ClockedNoiseState clk;
   HatState hat;
   HarmonicsState hrm;
+  StackState stack;
   uint32_t modulator_phase;
 };
 
@@ -327,17 +347,27 @@ class DigitalOscillator {
   void RenderSnare(const uint8_t*, int16_t*, size_t);
   void RenderCymbal(const uint8_t*, int16_t*, size_t);
   void RenderQuestionMark(const uint8_t*, int16_t*, size_t);
-  
+
   // void RenderYourAlgo(const uint8_t*, int16_t*, size_t);
-  
-  uint32_t ComputePhaseIncrement(int16_t midi_pitch);
-  uint32_t ComputeDelay(int16_t midi_pitch);
-  int16_t InterpolateFormantParameter(
+  void renderChord(
+    const uint8_t *sync, 
+    int16_t *buffer, 
+    size_t size, 
+    uint8_t* noteOffset, 
+    uint8_t noteCount);
+  void RenderStack(const uint8_t*, int16_t*, size_t);
+  void RenderDiatonicChord(const uint8_t*, int16_t*, size_t);
+
+public:  
+  static uint32_t ComputePhaseIncrement(int16_t midi_pitch);
+  static uint32_t ComputeDelay(int16_t midi_pitch);
+  static int16_t InterpolateFormantParameter(
       const int16_t table[][kNumFormants][kNumFormants],
       int16_t x,
       int16_t y,
       uint8_t formant);
-   
+      
+private:    
   uint32_t phase_;
   uint32_t phase_increment_;
   uint32_t delay_;

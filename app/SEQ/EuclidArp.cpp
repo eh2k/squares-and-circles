@@ -417,7 +417,7 @@ void engine::process()
         _cv_out = _cv;
     }
 
-    _cv_out = (float)engine::cv_quantize(engine::cv_i32() + _cv_out * PITCH_PER_OCTAVE) / PITCH_PER_OCTAVE;
+    _cv_out = (float)engine::qz_process(engine::cv_i32() + _cv_out * PITCH_PER_OCTAVE, 0, nullptr) / PITCH_PER_OCTAVE;
 
     if (engine::t() % 20 == 0)
     {
@@ -426,7 +426,7 @@ void engine::process()
             scope_pos -= LEN_OF(scope);
     }
 
-    std::fill_n(engine::outputBuffer<1>(), FRAME_BUFFER_SIZE, _cv_out);
+    std::fill_n(engine::outputBuffer_i16<1>(), FRAME_BUFFER_SIZE, _cv_out * PITCH_PER_OCTAVE);
     std::fill_n(engine::outputBuffer_i16<0>(), FRAME_BUFFER_SIZE, trig);
 }
 

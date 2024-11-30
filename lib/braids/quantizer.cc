@@ -25,7 +25,7 @@
 // -----------------------------------------------------------------------------
 //
 // Note quantizer
-
+#include <algorithm>
 #include "braids/quantizer.h"
 
 #include <algorithm>
@@ -34,13 +34,21 @@
 namespace braids {
 
 void Quantizer::Init() {
-  enabled_ = true;
+  enabled_ = false;
   codeword_ = 0;
   previous_boundary_ = 0;
   next_boundary_ = 0;
   for (int16_t i = 0; i < 128; ++i) {
     codebook_[i] = (i - 64) << 7;
   }
+}
+
+int16_t Quantizer::Lookup(uint8_t index) {
+  return codebook_[index];
+}
+
+bool Quantizer::enabled() {
+  return enabled_;
 }
 
 void Quantizer::Configure(
@@ -65,18 +73,16 @@ void Quantizer::Configure(
         ++octave;
       }
     }
+  } else {
+    Init();
   }
 }
 
-int32_t Quantizer::Process(int32_t pitch, int32_t root) {
-  if (!enabled_) {
-    return pitch;
-  }
+int32_t Quantizer::Process(int32_t pitch, int32_t root, int8_t* note) {
 
   pitch -= root;
   if (pitch >= previous_boundary_ && pitch <= next_boundary_) {
     // We're still in the voronoi cell for the active codeword.
-    pitch = codeword_;
   } else {
     // Search for the nearest neighbour in the codebook.
     int16_t upper_bound_index = std::upper_bound(
@@ -95,11 +101,17 @@ int32_t Quantizer::Process(int32_t pitch, int32_t root) {
       }
     }
     codeword_ = codebook_[q];
+    last_note = q;
     // Enlarge the current voronoi cell a bit for hysteresis.
     previous_boundary_ = (9 * codebook_[q - 1] + 7 * codeword_) >> 4;
     next_boundary_ = (9 * codebook_[q + 1] + 7 * codeword_) >> 4;
-    pitch = codeword_;
+    if (enabled_)
+      pitch = codeword_;
   }
+  if (enabled_)
+    pitch = codeword_;
+  if(note != nullptr)
+    *note = last_note;
   pitch += root;
   return pitch;
 }

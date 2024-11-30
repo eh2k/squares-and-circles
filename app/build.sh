@@ -11,14 +11,13 @@ fi
 
 pip install jinja2 pyelftools elf_size_analyze --upgrade pip
 
-if [ "$1" = "--rebuild" ]; then
-    find "${SCRIPT_PATH}" -type f -name *.bin -exec touch {} +
+if [[ "$1" == "--rebuild" ]]; then
+    find "${SCRIPT_PATH}/" -type f -name "*.bin" -print0 -exec touch {} +
 fi
 
 for f in $(find "${SCRIPT_PATH}" -mindepth 2 -maxdepth 2 -type f -name '*.cpp'); do
 
 X="${f%.*}"
-
 if [ -f $oo ] && [ "$(date -R -r $X.bin)" = "$(date -R -r $f)" ]; then
     continue
 fi

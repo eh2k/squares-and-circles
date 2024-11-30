@@ -30,14 +30,3 @@ jobs:
         git remote add --mirror=fetch secondary https://${{ secrets.CODEBERG_AUTH }}@codeberg.org/eh2k/squares-and-circles.git
         git fetch origin
         git push secondary --all --force
-        export hash=$(git rev-parse --short HEAD)
-        for f in .pio/build/*/*.hex; do
-          FIRMWARE=$(basename $(dirname ${f%.*}))
-          HEX_FILE=./${FIRMWARE}_engines_$hash.hex
-          ZIP_FILE=./${FIRMWARE}_engines_$hash.zip
-          mv -v "$f" $HEX_FILE
-          zip -j -9 $ZIP_FILE $HEX_FILE .github/workflows/LICENSE.txt $(dirname ${f%.*})/loader.sha
-          sha256sum $ZIP_FILE
-          curl -fs -X PUT -u ${{ secrets.UPLOAD_KEY }} ${{ secrets.LATEST_DROP_FOLDER }}/$ZIP_FILE --upload-file $ZIP_FILE || true
-          curl -fs -X PUT -u ${{ secrets.UPLOAD_KEY }} ${{ secrets.LATEST_DROP_FOLDER }}/${FIRMWARE}_latest.sha -d "$hash"
-        done

@@ -112,25 +112,45 @@ finally:
 
 engines = json.loads(engines)
 
+print(json.dumps(engines, indent=4))
+# exit(0)
+
+
+def get_appid(binfile):
+    with open(binfile, "rb") as f:
+        data = f.read()
+        l = int.from_bytes(data[4:6], byteorder="little")   # num_lot
+        r = int.from_bytes(data[6:8], byteorder="little")   # num_rels
+        a = int.from_bytes(data[8:12], byteorder="little")  # symt_size
+        b = int.from_bytes(data[12:16], byteorder="little") # code_size
+        c = int.from_bytes(data[16:20], byteorder="little") # data_size
+        d = int.from_bytes(data[20:24], byteorder="little") # bss_size
+        sym_off = int(int(24) + (r * 2 * 4))
+        name_off = (
+            int.from_bytes(data[sym_off + 4 : sym_off + 8], "little", signed=False)
+            & 0x0FFFFFFF
+        ) + sym_off
+        name = data[name_off : name_off + 24].decode("utf-8").split("\0")[0]
+        return name
+
 apps_json = os.path.dirname(__file__) + "/index.json"
 with open(apps_json) as f:
-    end = 0
+
     apps = json.load(f)
     j = 0
     for file in apps["apps"]:
         bin_file = os.path.dirname(apps_json) + "/" + str(file)
         if not os.path.exists(bin_file):
             continue
+        app_id = get_appid(bin_file)  # os.path.splitext(file)[0]
+        print("name:", app_id)
         bin_size = os.path.getsize(bin_file)
         with open(bin_file, "rb") as f:
             crc32sum = zlib.crc32(f.read())
             engine = next(
-                (e for e in engines if e["id"].startswith(os.path.splitext(file)[0])),
+                (e for e in engines if e["id"] == app_id),
                 None,
             )
-
-            if engine != None:
-                end = int(engine["addr"], 16) + int(engine["size"])
 
             if engine != None and engine["crc32"] == "%x" % crc32sum:
                 print(
@@ -146,13 +166,18 @@ with open(apps_json) as f:
 
         if engine == None:
 
-            offset = max((int(e["addr"], 16) + int(e["size"])) for e in engines)
-            offset += 4096 - (offset % 4096)
+            offset = int(1024 * 1024 / 2)
+            if len(engines) > 0:
+                offset = max((int(e["addr"], 16) + int(e["size"])) for e in engines)
+                offset += 4096 - (offset % 4096)
             engine = {}
+            engine["id"] = app_id
             engine["addr"] = "%x" % offset
             engine["size"] = "%s" % bin_size
-            print("TODO - add new engine...", "0x%x" % offset)
+            print("TODO - add new engine...", "0x%x" % offset, bin_file)
+            engines.append(engine)
             # continue
+            # exit(0)
 
         print(
             os.path.splitext(file)[0], "%x" % crc32sum, bin_size - int(engine["size"])
@@ -176,8 +201,8 @@ with open(apps_json) as f:
 
         offset += 4 - (offset % 4)
 
-    if True:
-        offset = end #max((int(e["addr"], 16) + int(e["size"])) for e in engines)
+    if len(engines) > 0:
+        offset = max((int(e["addr"], 16) + int(e["size"])) for e in engines)
         offset += 4096 - (offset % 4096)
         print("END 0x%x" % offset)
         for chunk in chunk_bytes(bytearray(b"\xff") * 4096, 4096):

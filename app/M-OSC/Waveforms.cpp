@@ -36,6 +36,7 @@
 #include "braids/settings.h"
 
 #include "braids/vco_jitter_source.h"
+#include "braids/quantizer.h"
 #include <algorithm>
 
 using namespace braids;
@@ -44,6 +45,25 @@ MacroOscillator osc1;
 MacroOscillator osc2;
 Envelope envelope;
 VcoJitterSource jitter_source;
+braids::Quantizer quantizer;
+
+void Quantizer::Init()
+{}
+
+bool Quantizer::enabled() {
+    return engine::qz_enabled();
+}
+
+int32_t Quantizer::Process(int32_t pitch, int32_t root, int8_t *note)
+{
+    auto ret = engine::qz_process(pitch, root + (PITCH_PER_OCTAVE * 8), note);
+    return ret;
+}
+
+int16_t Quantizer::Lookup(uint8_t index)
+{
+    return engine::qz_lookup(index) + (PITCH_PER_OCTAVE * 8);
+}
 
 uint8_t sync_samples[FRAME_BUFFER_SIZE] = {};
 
@@ -61,12 +81,12 @@ void engine::setup()
     osc2.Init();
     jitter_source.Init();
     envelope.Init();
+    quantizer.Init();
 
     // std::fill(&sync_samples[0], &sync_samples[FRAME_BUFFER_SIZE], 0);
 
     // settings.SetValue(SETTING_AD_VCA, true);
     settings.SetValue(SETTING_SAMPLE_RATE, 5);
-    settings.SetValue(SETTING_PITCH_OCTAVE, 4);
     settings.SetValue(SETTING_PITCH_RANGE, PITCH_RANGE_EXTERNAL);
 
     engine::addParam(V_OCT, &_pitch, -4 * PITCH_PER_OCTAVE, 4 * PITCH_PER_OCTAVE); // is added internal to engine::cv
@@ -98,7 +118,7 @@ void engine::process()
     uint32_t ad_value = envelope.Render();
 
     int32_t pitchV = engine::cv_i32();
-    int32_t pitch = pitchV + (DEFAULT_NOTE + 12) * 128;
+    int32_t pitch = pitchV + (PITCH_PER_OCTAVE * 8);
 
     // if (!settings.meta_modulation())
     // {
@@ -124,7 +144,7 @@ void engine::process()
         osc2.set_shape((braids::MacroOscillatorShape)_shape);
 
     osc1.set_parameters(_timbre >> 1, _color >> 1);
-    osc1.set_pitch(pitch + settings.pitch_transposition());
+    osc1.set_pitch(pitch);
 
     auto audio_samples = engine::outputBuffer_i16<0>();
     osc1.Render(sync_samples, audio_samples, FRAME_BUFFER_SIZE);
@@ -146,7 +166,7 @@ void engine::process()
             color = _color - stereo;
 
         osc2.set_parameters((timbre >> 1), (color >> 1));
-        osc2.set_pitch(pitch + settings.pitch_transposition() + stereo);
+        osc2.set_pitch(pitch + stereo);
 
         auto audio_samples = engine::outputBuffer_i16<1>();
         osc2.Render(sync_samples, audio_samples, FRAME_BUFFER_SIZE);
@@ -188,3 +208,7 @@ void engine::draw()
 #include "braids/macro_oscillator.cc"
 #include "braids/resources.cc"
 #include "stmlib/utils/random.cc"
+
+#define chords chords2
+#define mini_wave_line mini_wave_line2
+#include "braids/chords_stack.cc"

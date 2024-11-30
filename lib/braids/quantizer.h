@@ -47,16 +47,23 @@ class Quantizer {
   void Init();
   
   int32_t Process(int32_t pitch) {
-    return Process(pitch, 0);
+    return Process(pitch, 0, nullptr);
   }
   
-  int32_t Process(int32_t pitch, int32_t root);
-  
+  int32_t Process(int32_t pitch, int32_t root, int8_t* note);
+
   void Configure(const Scale& scale) {
     Configure(scale.notes, scale.span, scale.num_notes);
   }
- private:
+  
+  int16_t Lookup(uint8_t index);
+
   void Configure(const int16_t* notes, int16_t span, size_t num_notes);
+
+  bool enabled();
+  
+ private:
+  int8_t last_note;
   bool enabled_;
   int16_t codebook_[128];
   int32_t codeword_;

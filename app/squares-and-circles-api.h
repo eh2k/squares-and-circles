@@ -298,6 +298,11 @@ namespace engine
     constexpr uint32_t PARAM_MODULATION = 0x2;
 
     EXTERN_C uint32_t getParamFlags(const void *valuePtr);
+    EXTERN_C void selectParam(const void *val);
+    inline uint32_t isParamModulated(const void *valuePtr)
+    {
+        return getParamFlags(valuePtr) & PARAM_MODULATION;
+    }
     inline uint32_t isParamSelected(const void *valuePtr)
     {
         return getParamFlags(valuePtr) & PARAM_SELECTED;
@@ -309,7 +314,11 @@ namespace engine
     EXTERN_C void *dsp_sample_Am6070(const uint8_t *data, int len, int sample_rate, int amp_mul);
     EXTERN_C void dsp_set_sample_pos(void *smpl, float pos, float amplitude, float decay);
     EXTERN_C void dsp_process_sample(void *smpl, float start, float end, float pitch, float output[FRAME_BUFFER_SIZE]);
-    EXTERN_C int32_t cv_quantize(int32_t cv);
+
+    EXTERN_C bool qz_enabled();
+    EXTERN_C const char* qz_name();
+    EXTERN_C int32_t qz_process(int32_t pitch, int32_t root, int8_t *note);
+    EXTERN_C int16_t qz_lookup(int8_t note); //0-127 note-values
 }
 
 enum EventType : uint16_t

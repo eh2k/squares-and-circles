@@ -54,7 +54,20 @@ inline uint32_t Rand()
     return _rng_state;
 }
 
-const char *pulse_modes[17] = {};
+const char *pulse_modes[21] = {};
+
+int32_t note_from_scale(uint8_t bits)
+{
+    //origin: https://github.com/Chysn/O_C-HemisphereSuite/blob/893deeb27ecacddad638ff9180f244a411623e35/software/o_c_REV/enigma/EnigmaOutput.h#L104
+
+    uint8_t mask = 0;
+    for (uint8_t s = 0; s < bits; s++)
+        mask |= (0x01 << s);
+    int note_shift = bits == 7 ? 0 : 64; // Note types under 7-bit start at Middle C
+    int note_number = (_turing_byte & mask) + note_shift;
+    CONSTRAIN(note_number, 0, 127);
+    return engine::qz_lookup(note_number);
+}
 
 int32_t output(uint32_t mode, const char **name)
 {
@@ -139,13 +152,37 @@ int32_t output(uint32_t mode, const char **name)
     }
     case 15:
     {
-        *name = "CV";
+        *name = "CV_5V";
         return (int32_t)_turing_byte * (5 * PITCH_PER_OCTAVE / 255);
     }
     case 16:
     {
-        *name = "CV-INV";
-        return (int32_t)(255-_turing_byte) * (5 * PITCH_PER_OCTAVE / 255);
+        *name = "NOTE-7";
+        return note_from_scale(7);
+    }
+    case 17:
+    {
+        *name = "NOTE-6";
+        return note_from_scale(6);
+    }
+    case 18:
+    {
+        *name = "NOTE-5";
+        return note_from_scale(5);
+    }
+    case 19:
+    {
+        *name = "NOTE-4";
+        return note_from_scale(4);
+    }
+    case 20:
+    {
+        *name = "NOTE-3";
+        return note_from_scale(3);
+    }
+    case LEN_OF(pulse_modes):
+    {
+        break;
     }
     }
 
@@ -224,15 +261,16 @@ void engine::process()
             cv1 = 5 * PITCH_PER_OCTAVE;
             trig_pulse1 = clock::samples_per_step() / 2;
         }
+        else
+            cv1 += engine::cv_i32();
 
         if (cv2 == INT16_MAX)
         {
             cv2 = 5 * PITCH_PER_OCTAVE;
             trig_pulse2 = clock::samples_per_step() / 2;
         }
-
-        cv1 = engine::cv_quantize(cv1) + engine::cv_i32();
-        cv2 = engine::cv_quantize(cv2) + engine::cv_i32();
+        else
+            cv2 += engine::cv_i32();
     }
 
     if (trig_pulse1 > 0)

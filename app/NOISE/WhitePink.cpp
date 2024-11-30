@@ -23,7 +23,7 @@
 // See http://creativecommons.org/licenses/MIT/ for more information.
 //
 
-// ENGINE_NAME:NOISE/White/Pink
+// ENGINE_NAME:NOISE/WhitePink
 
 #include "../squares-and-circles-api.h"
 #include "misc/noise.hxx"

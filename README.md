@@ -9,6 +9,13 @@
   <summary><b>ChangeLog</b></summary>
   
 ````
+== 2024-11-30
+   * Bugfix: 
+     * Crash on patch saving/restoring (#97)
+   * Enhancements:
+     * M-OSC/Waveforms: Braids Renaissance Chords (#110)
+     * SEQ/TuringMachine - OutputModes: Note-3...Note-7 (#109)
+     * Internal signal routing: src: $1-$9 (#108)
 == 2024-11-07
    * Bugfix: 
      * M-OSC/Waveforms - V_OCT modulation
@@ -354,7 +361,7 @@ For each parameter a modulation can be assigned:
 
 >[Long press [RIGHT]] enters the I/O-Configuration page.
 
-The I/O-Configuration page lets you virtually patch the engine with the hardware ports. Depending on the engine interface, trigger, gate, accent and V/OCT can be configured. In addition to the trigger, which is set with a rising edge, a gate state is also provided, that can be processed by the engine. Engines like Closed/Open-HiHats have an additional accent input - this works technically like a second trigger. The V/OCT input can optionally be quantized and transposed. In addition to the Tx inputs, the Cx inputs can also be used as a source for triggers and accents. The output can be configured as mono or stereo. Several engines can share the same output - the signal is mixed.
+The I/O-Configuration page lets you virtually patch the engine with the hardware ports and internal gate/cv signals ($1-$9). Depending on the engine interface, trigger, gate, accent and V/OCT can be configured. In addition to the trigger, which is set with a rising edge, a gate state is also provided, that can be processed by the engine. Engines like Closed/Open-HiHats have an additional accent input - this works technically like a second trigger. The V/OCT input can optionally be quantized and transposed. In addition to the Tx inputs, the Cx inputs can also be used as a source for triggers and accents. The output can be configured as mono or stereo. Several engines can share the same output - the signal is mixed.
 
 ### Ctrl / Inputs
 

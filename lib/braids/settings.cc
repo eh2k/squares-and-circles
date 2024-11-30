@@ -145,21 +145,21 @@ const char* const zero_to_fifteen_values[] = {
 
 const char* const algo_values[] = {
 	"CSAW",
-	"/\\-_",
-	"//-_",
+	"/\\-_", //"^\x88\x8D_"
+	"//-_",  //"\x88\x8A\x8C\x8D"
 	"FOLD",
-	"UUUU",
-	"SUB-",
-	"SUB/",
-	"SYN-",
-	"SYN/",
-	"//x3",
-	"-_x3",
+	"UUUU",  //"\x8E\x8E\x8E\x8E",
+	"SUB-",  //"SUB\x8C"
+  "SUB/",  //"SUB\x88",
+	"SYN-",  //"SYN\x8C"
+	"SYN/",  //"SYN\x88",
+	"//x3",  //"\x88\x88x3",
+	"-_x3",  //"\x8C_x3",
 	"/\\x3",
 	"SIx3",
 	"RING",
-	"////",
-	"//UU",
+  "////", //"\x88\x89\x88\x89",
+  "//UU", //"\x88\x88\x8E\x8E",
 	"TOY*",
 	"ZLPF",
 	"ZPKF",
@@ -191,8 +191,21 @@ const char* const algo_values[] = {
 	"CLOU",
 	"PRTC",
 	"QPSK",
-  "****"
+  "****",
     // "NAME" // For your algorithm
+ 
+  // Braids Renaissance https://burns.ca/eurorack.html
+  "//CH", //  "\x88\x88" "CH",
+  "-_CH", //  "\x8C_CH",
+  "/\\CH",
+  "SICH",
+  "WTCH",
+  "//x6", //"\x88\x88x6",
+  "-_x6", //"\x8C_x6",
+  "/\\x6",
+  "SIx6",
+  "WTx6",
+
 };
 
 const char* const bits_values[] = {
