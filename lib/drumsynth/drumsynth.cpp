@@ -33,7 +33,9 @@
 #include "misc/Biquad.h"
 #include "drumsynth.h"
 
+#ifndef SAMPLE_RATE
 constexpr float SAMPLE_RATE = 48000.f;
+#endif
 
 inline float dB2amp(float dB)
 {

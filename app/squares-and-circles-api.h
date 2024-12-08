@@ -51,6 +51,10 @@ constexpr uint32_t ENGINE_MODE_STEREOLIZED = 1 << 9;
 #define EXTERN_C extern "C"
 #endif
 
+#ifndef FLASHMEM
+#define FLASHMEM
+#endif
+
 #ifndef M_PI_2
 #define M_PI_2 1.57079632679489661923
 #endif

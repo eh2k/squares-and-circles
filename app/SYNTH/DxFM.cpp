@@ -17,9 +17,6 @@
 
 // ENGINE_NAME:SYNTH/DxFM;SYNTH/DxFM_BNK1-3
 
-#undef FLASHMEM
-#define FLASHMEM
-
 #include "../squares-and-circles-api.h"
 #include "stmlib/utils/ring_buffer.h"
 #include "misc/dspinst.h"
@@ -39,6 +36,7 @@
 
 #include <unistd.h>
 #include <limits.h>
+#include "plaits/resources.h"
 
 struct dxfm
 {
@@ -195,11 +193,11 @@ void engine::setup()
 
     if (!strcmp(engine::name(), "SYNTH/DxFM_BNK1-3"))
     {
-        if (fm_patches_table[nprogs / 32] = machine::fs_read("DXFMSYXA"))
+        if (fm_patches_table[nprogs / 32] = plaits::fm_patches_table[0])
             nprogs += 32;
-        if (fm_patches_table[nprogs / 32] = machine::fs_read("DXFMSYXB"))
+        if (fm_patches_table[nprogs / 32] = plaits::fm_patches_table[1])
             nprogs += 32;
-        if (fm_patches_table[nprogs / 32] = machine::fs_read("DXFMSYXC"))
+        if (fm_patches_table[nprogs / 32] = plaits::fm_patches_table[2])
             nprogs += 32;
     }
     else
@@ -397,3 +395,4 @@ void engine::draw()
 #include "msfa/porta.cc"
 #include "msfa/env.cc"
 #include "msfa/exp2.cc"
+#include "plaits/resources.cc"

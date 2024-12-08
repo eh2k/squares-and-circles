@@ -33,7 +33,7 @@
 #include "plaits/resources.h"
 
 #ifndef FLASHMEM
-#include "pgmspace.h"
+#define FLASHMEM
 #endif
 
 namespace plaits {
@@ -4031,10 +4031,8 @@ const int16_t* const lookup_table_i16_table[] FLASHMEM = {
   lut_ws_double_bump,
 };
 
-
-
-const int32_t* const lookup_table_i32_table[] FLASHMEM = {
-};
+// const int32_t* const lookup_table_i32_table[] FLASHMEM = {
+// };
 
 const int8_t lut_lpc_excitation_pulse[] FLASHMEM = {
        0,      0,      0,      0,

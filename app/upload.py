@@ -49,7 +49,7 @@ def sendFLASHDATA(name, data0):
     flush(midiin)
     data = bytes(name, "utf-8")[:8] + data0
     crc32 = zlib.crc32(data)
-    print(" Flashing", name, crc32)
+    print(" Flashing", name, crc32, end="")
     midiout.send_message(
         [0xF3, 0x7E]
     )  # midi_out.send(mido.Message('song_select', song=0x7e))
@@ -64,10 +64,10 @@ def sendFLASHDATA(name, data0):
         msg = midiin.get_message()
         if msg:
             ack, t = msg
-            print("  ACK:", ack)
+            print("  ACK:", ack, end="")
             break
 
-    print("  sending blob...", len(data))
+    print("  sending blob...", len(data), end="")
     i = 0
     time.sleep(1 / 10000)
     while i < len(data) - 1:
@@ -115,23 +115,29 @@ engines = json.loads(engines)
 print(json.dumps(engines, indent=4))
 # exit(0)
 
+# del engines[len(engines)-1:]
+midiout.send_message([0xF3, ord("U")])  # reset
+
 
 def get_appid(binfile):
     with open(binfile, "rb") as f:
         data = f.read()
-        l = int.from_bytes(data[4:6], byteorder="little")   # num_lot
-        r = int.from_bytes(data[6:8], byteorder="little")   # num_rels
+        l = int.from_bytes(data[4:6], byteorder="little")  # num_lot
+        r = int.from_bytes(data[6:8], byteorder="little")  # num_rels
         a = int.from_bytes(data[8:12], byteorder="little")  # symt_size
-        b = int.from_bytes(data[12:16], byteorder="little") # code_size
-        c = int.from_bytes(data[16:20], byteorder="little") # data_size
-        d = int.from_bytes(data[20:24], byteorder="little") # bss_size
+        b = int.from_bytes(data[12:16], byteorder="little")  # code_size
+        c = int.from_bytes(data[16:20], byteorder="little")  # data_size
+        d = int.from_bytes(data[20:24], byteorder="little")  # bss_size
         sym_off = int(int(24) + (r * 2 * 4))
         name_off = (
             int.from_bytes(data[sym_off + 4 : sym_off + 8], "little", signed=False)
             & 0x0FFFFFFF
         ) + sym_off
-        name = data[name_off : name_off + 24].decode("utf-8").split("\0")[0]
+        name = (
+            data[name_off : data.index(0, name_off)].decode("utf-8").split("\0")[0]
+        )
         return name
+
 
 apps_json = os.path.dirname(__file__) + "/index.json"
 with open(apps_json) as f:
@@ -143,41 +149,45 @@ with open(apps_json) as f:
         if not os.path.exists(bin_file):
             continue
         app_id = get_appid(bin_file)  # os.path.splitext(file)[0]
-        print("name:", app_id)
         bin_size = os.path.getsize(bin_file)
         with open(bin_file, "rb") as f:
             crc32sum = zlib.crc32(f.read())
-            engine = next(
-                (e for e in engines if e["id"] == app_id),
-                None,
-            )
 
-            if engine != None and engine["crc32"] == "%x" % crc32sum:
-                print(
-                    engine["addr"],
-                    os.path.splitext(file)[0],
-                    "%x" % crc32sum,
-                    "OK!",
-                    bin_size - int(engine["size"]),
-                )
-                continue
-
-        print("->", file, engine)
+        engine = next(
+            (e for e in engines if e["id"] == app_id),
+            None,
+        )
 
         if engine == None:
 
             offset = int(1024 * 1024 / 2)
-            if len(engines) > 0:
-                offset = max((int(e["addr"], 16) + int(e["size"])) for e in engines)
-                offset += 4096 - (offset % 4096)
+            for e in engines:
+                offset = int(e["addr"], 16) + int(e["size"])
+            offset += 4096 - (offset % 4096)
+            print("OFFSET %x" % offset)
             engine = {}
             engine["id"] = app_id
             engine["addr"] = "%x" % offset
             engine["size"] = "%s" % bin_size
-            print("TODO - add new engine...", "0x%x" % offset, bin_file)
+            engine["crc32"] = "%x" % crc32sum
             engines.append(engine)
-            # continue
-            # exit(0)
+            print("NEW ->", file, engine)
+            continue
+            #exit(0)
+        elif engine["crc32"] == "%x" % crc32sum:
+            onext = int(engine["addr"], 16) + int(engine["size"])
+            onext += 4096 - (onext % 4096)
+            print(
+                engine["addr"], engine["size"],
+                os.path.splitext(file)[0],
+                "%x" % crc32sum,
+                "OK!",
+                bin_size - int(engine["size"]),
+                "MEM-KB: %d" % ((onext - int(1024 * 1024 / 2)) / 1024)
+            )
+            continue
+
+        print("->", file, engine)
 
         print(
             os.path.splitext(file)[0], "%x" % crc32sum, bin_size - int(engine["size"])

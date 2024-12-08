@@ -23,6 +23,8 @@
 // See http://creativecommons.org/licenses/MIT/ for more information.
 //
 
+#pragma once
+
 #include <inttypes.h>
 #include <stddef.h>
 #include <array>

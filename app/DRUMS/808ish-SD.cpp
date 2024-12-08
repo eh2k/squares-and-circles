@@ -23,11 +23,10 @@
 // See http://creativecommons.org/licenses/MIT/ for more information.
 //
 
+// build_flags: -fno-inline -mfloat-abi=hard -mfpu=fpv5-d16 -ffast-math
+
 #include "../squares-and-circles-api.h"
-#include "peaks/drums/snare_drum.h"
-#include "peaks/drums/snare_drum.cc"
-#include "stmlib/utils/random.cc"
-#include "resources/peaks_lut_svf.hpp"
+#include "lib/peaks/drums/snare_drum.h"
 
 peaks::SnareDrum _processor;
 
@@ -73,3 +72,7 @@ void engine::process()
 
     _processor.Process(flags, engine::outputBuffer_i16<0>(), FRAME_BUFFER_SIZE);
 }
+
+#include "lib/peaks/drums/snare_drum.cc"
+#include "lib/stmlib/utils/random.cc"
+#include "lib/peaks/resources.cc"

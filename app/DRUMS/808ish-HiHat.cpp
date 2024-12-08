@@ -23,13 +23,12 @@
 // See http://creativecommons.org/licenses/MIT/ for more information.
 //
 
+// build_flags: -fno-inline -mfloat-abi=hard -mfpu=fpv5-d16 -ffast-math
+
 #include "../squares-and-circles-api.h"
 #define private public
-#include "peaks/drums/high_hat.h"
-#include "peaks/drums/high_hat.cc"
-#include "resources/peaks_lut_svf.hpp"
-#include "braids/envelope.h"
-#include "resources/braids_lut_env.hpp"
+#include "lib/peaks/drums/high_hat.h"
+#include "lib/braids/envelope.h"
 
 peaks::HighHat _oh;
 peaks::HighHat _ch;
@@ -97,3 +96,7 @@ void engine::process()
     for (size_t i = 0; i < FRAME_BUFFER_SIZE; i++)
         engine::outputBuffer<0>()[i] += (float)buffer[i] / INT16_MAX * oh_ad;
 }
+
+#include "lib/peaks/drums/high_hat.cc"
+#include "lib/peaks/resources.cc"
+#include "lib/braids/resources.cc"

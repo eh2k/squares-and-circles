@@ -9,6 +9,11 @@
   <summary><b>ChangeLog</b></summary>
   
 ````
+== 2024-12-07
+   * Bugfix:
+     * EnvFollower - IO-page AUX input
+   * Enhancements:
+     * EnvFollower - mode Follower, Vactrol (based on MU Streams)
 == 2024-11-30
    * Bugfix: 
      * Crash on patch saving/restoring (#97)

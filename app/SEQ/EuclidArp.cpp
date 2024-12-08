@@ -25,20 +25,20 @@
 //
 
 #include "../squares-and-circles-api.h"
-#include "../lib/misc/euclidean.h"
+#include "lib/misc/euclidean.h"
 #include "patterns_303.h"
 
 #include <algorithm>
 #include <math.h>
 
-#include "../lib/plaits/dsp/engine2/arpeggiator.h"
+#include "lib/plaits/dsp/engine2/arpeggiator.h"
 #define private public
 #define SemitonesToRatioFast
-#include "../lib/plaits/dsp/chords/chord_bank.cc"
-#include "stmlib/utils/random.cc"
+#include "lib/plaits/dsp/chords/chord_bank.cc"
+#include "lib/stmlib/utils/random.cc"
 
-#include "../lib/stmlib/utils/dsp.h"
-#include "../DRUMS/resources/peaks_lut_env.hpp"
+#include "lib/stmlib/utils/dsp.h"
+#include "lib/peaks/resources.cc"
 
 // This app is copiled with soft-fpu - for running on teensy3.2 & teensy 4.x
 

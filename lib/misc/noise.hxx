@@ -24,6 +24,7 @@
 // See http://creativecommons.org/licenses/MIT/ for more information.
 //
 
+#pragma once
 #include <inttypes.h>
 
 // 31-bit Park-Miller-Carta Pseudo-Random Number Generator

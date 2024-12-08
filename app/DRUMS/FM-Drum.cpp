@@ -24,11 +24,10 @@
 //
 
 #include "../squares-and-circles-api.h"
-#include "peaks/drums/fm_drum.h"
-#include "peaks/drums/fm_drum.cc"
-#include "resources/peaks_lut_osc.hpp"
-#include "resources/peaks_lut_env.hpp"
-#include "stmlib/utils/random.cc"
+#include "lib/peaks/drums/fm_drum.h"
+#include "lib/peaks/drums/fm_drum.cc"
+#include "lib/peaks/resources.cc"
+#include "lib/stmlib/utils/random.cc"
 
 static peaks::FmDrum _processor;
 

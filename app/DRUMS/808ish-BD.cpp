@@ -26,9 +26,7 @@
 // build_flags: -fno-inline -mfloat-abi=hard -mfpu=fpv5-d16
 
 #include "../squares-and-circles-api.h"
-#include "peaks/drums/bass_drum.h"
-#include "peaks/drums/bass_drum.cc"
-#include "resources/peaks_lut_svf.hpp"
+#include "lib/peaks/drums/bass_drum.h"
 
 peaks::BassDrum _processor;
 
@@ -73,3 +71,6 @@ void engine::process()
 
     _processor.Process(flags, engine::outputBuffer_i16<0>(), FRAME_BUFFER_SIZE);
 }
+
+#include "lib/peaks/drums/bass_drum.cc"
+#include "lib/peaks/resources.cc"
