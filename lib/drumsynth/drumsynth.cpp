@@ -106,6 +106,11 @@ public:
         }
     }
 
+    inline bool finished()
+    {
+        return pos_ != 0 && pos_ == len_;
+    }
+
     inline float value()
     {
         return value_;
@@ -183,7 +188,10 @@ public:
 
     inline void Sine(float &out)
     {
-        out = stmlib::Interpolate(plaits::lut_sine + 256, osc.phase_, 1024.0f);
+        // #define PI_F 3.1415927410125732421875f
+        // out = sinf((0.25f + osc.phase_) * PI_F * 2.f);
+
+        out = stmlib::Interpolate(plaits::lut_sine + 128, osc.phase_, 512.0f);
 
         osc.phase_ += phase_inc_;
         if (osc.phase_ > 1.0f)
@@ -206,6 +214,9 @@ struct drum_synth_Part
     Envelope _vca = {};
     Biquad biquad1 = {};
     Biquad biquad2 = {};
+
+    std::pair<float, float> biquad1b;
+    std::pair<float, float> biquad2b;
 
     const PartArgs *part;
 
@@ -284,16 +295,23 @@ struct drum_synth_Part
 
     uint32_t last_f = 0;
 
-    inline void process_frame(float f, uint32_t t, float stretch, float *out, size_t size)
+    inline void process_frame(float f, const DrumParams *params, float *outL, float *outR, size_t size)
     {
+        uint32_t t = params->t;
         float osc = 0;
+        float osc2 = 0;
         uint32_t ff = f * SAMPLE_RATE;
+
+        // if (t > 0 && this->_amp.finished() && this->_vca.finished())
+        // {
+        //     return;
+        // }
 
         while (size--)
         {
-            this->_amp.process(t, stretch);
-            this->_vca.process(t, stretch);
-            this->_pitch.process(t, stretch);
+            this->_amp.process(t, params->decay);
+            this->_vca.process(t, params->decay);
+            this->_pitch.process(t, params->decay);
 
             ++t;
 
@@ -307,8 +325,14 @@ struct drum_synth_Part
             {
             case OSC_NOISE1:
             case OSC_NOISE2:
-                osc = this->noise.nextf(-1, 1);
-                break;
+            {
+                float a = this->noise.nextf(-1, 1);
+                float b = this->noise.nextf(-1, 1);
+                float st = 0.5f - (params->stereo / 2);
+                osc = (a * (1 - st) + b * st);
+                osc2 = (b * (1 - st) + a * st);
+            }
+            break;
             case OSC_METALLIC:
 
                 osc = 0;
@@ -374,6 +398,33 @@ struct drum_synth_Part
                     if (part->bq2.mode < BIQUAD_NOTCH)
                         osc *= part->bq2.g;
                 }
+
+                if (params->stereo > 0 && (part->osc.type == OSC_NOISE1 || part->osc.type == OSC_NOISE2))
+                {
+                    osc2 *= amp;
+                    osc2 *= this->_amp.value();
+
+                    if (part->bq1.mode)
+                    {
+                        osc2 = this->biquad1.process(osc2, this->biquad1b.first, this->biquad1b.second);
+                        if (part->bq1.mode < BIQUAD_NOTCH)
+                            osc2 *= part->bq1.g;
+                    }
+
+                    if (part->ws.n)
+                        osc = waveshaper_transform(osc);
+
+                    if (part->bq2.mode)
+                    {
+                        osc2 = this->biquad2.process(osc2, this->biquad2b.first, this->biquad2b.second);
+                        if (part->bq2.mode < BIQUAD_NOTCH)
+                            osc2 *= part->bq2.g;
+                    }
+                }
+                else
+                {
+                    osc2 = osc;
+                }
             }
             else if (part->flags & BIQUAD_PARALLEL)
             {
@@ -383,7 +434,8 @@ struct drum_synth_Part
                     osc = this->biquad2.process(osc) * part->bq2.g;
             }
 
-            *out++ = osc * this->_vca.value() * part->level;
+            *outL++ = osc * this->_vca.value() * part->level;
+            *outR++ = osc2 * this->_vca.value() * part->level;
         }
 
         last_f = ff;
@@ -423,11 +475,11 @@ extern "C" void drum_synth_reset(DrumSynth inst)
         }
     }
 }
-extern "C" void drum_synth_process_frame(DrumSynth inst, int part, float freq, const DrumParams *params, float *out, size_t size)
+extern "C" void drum_synth_process_frame(DrumSynth inst, int part, float freq, const DrumParams *params, float *outL, float *outR, size_t size)
 {
     if (inst)
     {
         auto _part = (drum_synth_Part *)&inst[1];
-        _part[part].process_frame(freq, params->t, params->decay, out, size);
+        _part[part].process_frame(freq, params, outL, outR, size);
     }
 }

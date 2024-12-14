@@ -62,6 +62,10 @@ class Quantizer {
 
   bool enabled();
   
+  size_t NumNotes() {
+    return num_notes_;
+  }
+
  private:
   int8_t last_note;
   bool enabled_;
@@ -69,6 +73,7 @@ class Quantizer {
   int32_t codeword_;
   int32_t previous_boundary_;
   int32_t next_boundary_;
+  size_t num_notes_;
   
   DISALLOW_COPY_AND_ASSIGN(Quantizer);
 };

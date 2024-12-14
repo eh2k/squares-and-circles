@@ -127,6 +127,7 @@ EXTERN_C
 
     extern uint8_t *__mixer_level;
     extern uint8_t *__mixer_pan;
+    extern uint32_t *__multi_trigs_mask;
 
     extern float **__audio_in_l_fpp;
     extern float **__audio_in_r_fpp;

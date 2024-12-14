@@ -9,6 +9,11 @@
   <summary><b>ChangeLog</b></summary>
   
 ````
+== 2024-12-14
+   * Bugfix/Enchancement
+     * SEQ triggered & trig-input triggered engines were not in sync
+     * V_OCT/Scale parameter, semitones from active quantizer (#117)
+     * Claps less RAM usage 
 == 2024-12-07
    * Bugfix:
      * EnvFollower - IO-page AUX input

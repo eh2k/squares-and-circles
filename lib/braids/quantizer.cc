@@ -38,6 +38,8 @@ void Quantizer::Init() {
   codeword_ = 0;
   previous_boundary_ = 0;
   next_boundary_ = 0;
+  last_note = 64;
+  num_notes_ = 12;
   for (int16_t i = 0; i < 128; ++i) {
     codebook_[i] = (i - 64) << 7;
   }
@@ -56,7 +58,12 @@ void Quantizer::Configure(
     int16_t span,
     size_t num_notes) {
   enabled_ = notes != NULL && num_notes != 0 && span != 0;
+  num_notes_ = num_notes;
   if (enabled_) {
+    codeword_ = 0;
+    previous_boundary_ = 0;
+    next_boundary_ = 0;
+    last_note = 64;
     int32_t octave = 0;
     size_t note = 0;
     int16_t root = 0;

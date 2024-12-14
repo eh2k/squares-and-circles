@@ -28,8 +28,6 @@
 #include "lib/drumsynth/drumsynth_claps.h"
 #include "lib/misc/noise.hxx"
 
-float tmp[FRAME_BUFFER_SIZE];
-float tmp2[FRAME_BUFFER_SIZE];
 static constexpr size_t n = 8;
 
 DrumSynth _instA = nullptr;
@@ -80,25 +78,66 @@ void engine::setup()
     // unpack
     const uint8_t *p = packed_drumKit;
     p += 4;
-    for (size_t i = 0; i < inst_count; i++)
+    for (size_t i = 0; i < packed_drumKit[0]; i++)
     {
         inst[i].name = reinterpret_cast<const char *>(p);
         p += 12;
-        inst[i].n = p[0];
-        p += 4;
-        inst[i].part = reinterpret_cast<const PartArgs *>(p);
-        p += inst[i].n * sizeof(PartArgs);
+
+        inst[i].n = *reinterpret_cast<const size_t *>(p);
+        p += sizeof(inst[i].n);
+
+        PartArgs *part = new PartArgs[inst[i].n]{};
+        inst[i].part = part;
+
+        for (int j = 0; j < inst[i].n; j++)
+        {
+            part->flags = *reinterpret_cast<const PartFlags *>(p);
+            p += sizeof(part->flags);
+
+            part->osc = *reinterpret_cast<const OscArgs *>(p);
+            p += sizeof(part->osc);
+
+            part->osc_pitch.n = *reinterpret_cast<const int32_t *>(p);
+            p += sizeof(part->osc_pitch.n);
+            part->osc_pitch.xy = reinterpret_cast<const EnvXY *>(p);
+            p += sizeof(EnvXY) * 16;
+
+            part->osc_amp.n = *reinterpret_cast<const int32_t *>(p);
+            p += sizeof(part->osc_amp.n);
+            part->osc_amp.xy = reinterpret_cast<const EnvXY *>(p);
+            p += sizeof(EnvXY) * 16;
+
+            part->vca.n = *reinterpret_cast<const int32_t *>(p);
+            p += sizeof(part->vca.n);
+            part->vca.xy = reinterpret_cast<const EnvXY *>(p);
+            p += sizeof(EnvXY) * 16;
+
+            part->bq1 = *reinterpret_cast<const BiquadArgs *>(p);
+            p += sizeof(BiquadArgs);
+
+            part->bq2 = *reinterpret_cast<const BiquadArgs *>(p);
+            p += sizeof(BiquadArgs);
+
+            part->ws.n = *reinterpret_cast<const uint32_t *>(p);
+            p += sizeof(part->ws.n);
+            part->ws.xy = reinterpret_cast<const WS_XY *>(p);
+            p += sizeof(WS_XY) * 8;
+
+            part->level = *reinterpret_cast<const float *>(p);
+            p += sizeof(part->level);
+            part++;
+        }
     }
 
     engine::addParam("Color", &pitch, 0.5f, 1.5f);
 
     char *tmp = inst_name_buff;
-    for (int i = 0; i < LEN_OF(inst_names); i++)
+    for (int i = 0; i < (inst_count + LEN_OF(seeds)); i++)
     {
         inst_names[i] = tmp;
         tmp += sprint_inst_name(tmp, i) + 1;
     }
-    engine::addParam("Clap", &inst_selection, 0, LEN_OF(inst_names) - 1, inst_names);
+    engine::addParam("Clap", &inst_selection, 0, (inst_count + LEN_OF(seeds)) - 1, inst_names);
     engine::addParam("Decay", &stretch, 0.1f, 2.0f);
     engine::addParam("Stereo", &stereo);
     // param[0].init("Crispy", &crispy, crispy, -1.1f, 1.1f);
@@ -191,6 +230,8 @@ void engine::process()
     auto bufferAux = engine::outputBuffer<1>();
     memset(buffer, 0, sizeof(float) * FRAME_BUFFER_SIZE);
     memset(bufferAux, 0, sizeof(float) * FRAME_BUFFER_SIZE);
+    float tmpL[FRAME_BUFFER_SIZE];
+    float tmpR[FRAME_BUFFER_SIZE];
 
     if (engine::trig())
     {
@@ -218,30 +259,30 @@ void engine::process()
         {
             if (stereo > 0.01f && _cur_inst.part[k].osc.type >= OSC_METALLIC)
             {
-                drum_synth_process_frame(_instA, k, (f - (f * 0.01f * stereo)), &params, tmp, FRAME_BUFFER_SIZE);
-                drum_synth_process_frame(_instB, k, (f + (f * 0.01f * stereo)), &params, tmp2, FRAME_BUFFER_SIZE);
+                drum_synth_process_frame(_instA, k, (f - (f * 0.01f * stereo)), &params, tmpL, tmpL, FRAME_BUFFER_SIZE);
+                drum_synth_process_frame(_instB, k, (f + (f * 0.01f * stereo)), &params, tmpR, tmpR, FRAME_BUFFER_SIZE);
                 if (_cur_inst.part[k].osc.type == OSC_METALLIC)
                 {
                     for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
                     {
-                        buffer[i] += tmp[i];
-                        bufferAux[i] += tmp2[i];
+                        buffer[i] += tmpL[i];
+                        bufferAux[i] += tmpR[i];
                     }
                 }
                 else
                     for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
                     {
-                        buffer[i] += tmp[i];
-                        bufferAux[i] += tmp[i] * b + tmp2[i] * a;
+                        buffer[i] += tmpL[i];
+                        bufferAux[i] += tmpL[i] * b + tmpR[i] * a;
                     }
             }
             else
             {
-                drum_synth_process_frame(_instA, k, f, &params, tmp, FRAME_BUFFER_SIZE);
+                drum_synth_process_frame(_instA, k, f, &params, tmpL, tmpR, FRAME_BUFFER_SIZE);
                 for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
                 {
-                    buffer[i] += tmp[i];
-                    bufferAux[i] += tmp[i];
+                    buffer[i] += tmpL[i];
+                    bufferAux[i] += tmpR[i];
                 }
             }
             // bufferAux[i] += p._vca.value() * p._amp.value() * 0.99f;

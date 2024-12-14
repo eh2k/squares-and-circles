@@ -172,7 +172,7 @@ with open(apps_json) as f:
             engine["crc32"] = "%x" % crc32sum
             engines.append(engine)
             print("NEW ->", file, engine)
-            continue
+            #continue
             #exit(0)
         elif engine["crc32"] == "%x" % crc32sum:
             onext = int(engine["addr"], 16) + int(engine["size"])

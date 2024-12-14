@@ -42,7 +42,7 @@ public:
     void setPeakGain(float peakGainDB);
     void setBiquad(int type, float Fc, float Q, float peakGainDB);
     float process(float in);
-
+    float process(float in, float& z1, float& z2);
 protected:
     void calcBiquad(void);
 
@@ -61,6 +61,24 @@ inline float Biquad::process(float in)
     float out = in * a0 + z1;
     z1 = in * a1 + z2 - b1 * out;
     z2 = in * a2 - b2 * out;
+    return out;
+
+    // float x = in;
+    // float y = a0 * x + a1 * x1 + a2 * x2 - b1 * y1 - b2 * y2;
+
+    // x2 = x1;
+    // x1 = x;
+    // y2 = y1;
+    // y1 = y;
+
+    // return y;
+}
+
+inline float Biquad::process(float in, float& _z1, float& _z2)
+{
+    float out = in * a0 + _z1;
+    _z1 = in * a1 + _z2 - b1 * out;
+    _z2 = in * a2 - b2 * out;
     return out;
 
     // float x = in;

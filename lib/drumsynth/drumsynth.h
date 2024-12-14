@@ -38,10 +38,22 @@ struct EnvXY
 struct EnvArgs
 {
     int32_t n;
-    EnvXY xy[16];
+    const EnvXY *xy; //[16];
 };
 
-enum BiquadMode
+struct WS_XY
+{
+    float x;
+    float y;
+};
+
+struct WSArgs
+{
+    uint32_t n;
+    const WS_XY *xy; //[8];
+};
+
+enum BiquadMode : uint32_t
 {
     BIQUAD_THRU = 0,
     BIQUAD_LP,
@@ -61,7 +73,7 @@ struct BiquadArgs
     float g;
 };
 
-enum OscType
+enum OscType : uint32_t
 {
     OSC_NONE = 0,
     OSC_SINE = 1,
@@ -85,7 +97,7 @@ struct OscArgs
     uint32_t n;
 };
 
-enum PartFlags
+enum PartFlags : uint32_t
 {
     BIQUAD_SERIAL = 1 << 1,
     BIQUAD_PARALLEL = 1 << 2,
@@ -93,30 +105,22 @@ enum PartFlags
 
 struct PartArgs
 {
-    uint32_t flags;
+    PartFlags flags;
     OscArgs osc;
     EnvArgs osc_pitch;
     EnvArgs osc_amp;
     EnvArgs vca;
     BiquadArgs bq1;
     BiquadArgs bq2;
-    struct
-    {
-        uint32_t n;
-        struct _
-        {
-            float x;
-            float y;
-        } xy[8];
-    } ws;
+    WSArgs ws;
     float level;
 };
 
 struct DrumModel
 {
-    const char* name;
+    const char *name;
     size_t n;
-    const PartArgs* part;
+    const PartArgs *part;
 };
 
 struct DrumParams
@@ -124,6 +128,7 @@ struct DrumParams
     uint32_t t;
     float attack;
     float decay;
+    float stereo;
 };
 
 struct DrumKit
@@ -137,6 +142,6 @@ typedef uint32_t *DrumSynth;
 extern "C"
 {
     DrumSynth drum_synth_init(const DrumModel *inst, void *(*malloc)(size_t size));
-    void drum_synth_process_frame(DrumSynth inst, int part, float freq, const DrumParams *params, float *out, size_t size);
+    void drum_synth_process_frame(DrumSynth inst, int part, float freq, const DrumParams *params, float *outL, float *outR, size_t size);
     void drum_synth_reset(DrumSynth inst);
 }
