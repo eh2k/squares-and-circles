@@ -9,6 +9,12 @@
   <summary><b>ChangeLog</b></summary>
   
 ````
+== 2024-12-16
+   * New paramters io-page
+     * Quantizer-Root 
+     * Transpose-Finetune
+   * Bugfix/Enchancement
+     * tanspose offset was quantized
 == 2024-12-14
    * Bugfix/Enchancement
      * SEQ triggered & trig-input triggered engines were not in sync
@@ -210,9 +216,9 @@ Damn many possibilities to complicate it. Mono, stereo and then again CV. A tric
 
 ## Concept
 
-Similar to Monomachine and Machinedrum here we have basically 4 configurable tracks. Each track can be assigned with a synthesizer machine, controlled by a trigger and CV input. 
-As there are mono and stereo machines, the generated audio signal is routed to one or two neighbor DAC outputs by default.
-E.g you can chain the mono audio signal from an oscillator machine to the neighbor fx-machine with stereo-outputs.
+Similar to the Monomachine and Machinedrum, this device features four fully configurable engine instances. Each instance can be assigned a synthesizer, effects, or sequencer engine, which can be controlled via trigger inputs, CV inputs, or clock signals.
+
+The available engine types include drums, synthesizers, oscillators, sequencers, and audio processors. The hardware ports and the generated output signals can be internally routed to any engine. For example, you can route the mono audio signal from an oscillator engine to a neighboring effects engine with stereo outputs, enabling seamless signal chaining.
 
 * [Short Press [LEFT]/[RIGHT]] scrolls through the 4 machine-tracks.
 * [Long press [LEFT]] enters the machine-selection-page.
@@ -388,7 +394,9 @@ The I/O-Configuration page lets you virtually patch the engine with the hardware
  * **CV-Input**: `-`, `C1`, `C2`, `C3`, `C4`
    * V/OCT: -3V..6V for frequency-control (default)
  * **Quantizer**: [Off, Semitones, Ionian, Dorian, ...](lib/braids/quantizer_scales.h)
- * **Transpose**: -48 to 24  (default -24)
+   * **ROOT**: `C`, `C#`, `D`, `D#`, `E`, `F`, `F#`, `G`, `G#`, `A`, `A#`, `B`
+ * **Transpose**: -48 to 24  (semitone per step)
+   * **FINE**: semitone/128
 
 *In case the Engine supports Accents (Closed/Open HiHat) - Accent Input is configurable:*
 

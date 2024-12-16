@@ -68,7 +68,7 @@ void engine::setup()
 
 void engine::process()
 {
-    cv0 = engine::qz_process(PITCH_PER_OCTAVE * 2 + engine::cv_i32(), 0, nullptr) // note is added internal
+    cv0 = PITCH_PER_OCTAVE * 2 + engine::cv_i32() // note is added internal
           + (((int)tune - 128) << 2);
 
     ONE_POLE(cv_, cv0, powf(1 - glide, 10));
