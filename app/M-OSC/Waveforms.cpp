@@ -56,7 +56,9 @@ bool Quantizer::enabled() {
 
 int32_t Quantizer::Process(int32_t pitch, int32_t root, int8_t *note)
 {
-    auto ret = engine::qz_process(pitch, root + (PITCH_PER_OCTAVE * 8), note);
+    pitch -= root + (PITCH_PER_OCTAVE * 8);
+    auto ret = engine::qz_process(pitch, note);
+    ret += root + (PITCH_PER_OCTAVE * 8);
     return ret;
 }
 

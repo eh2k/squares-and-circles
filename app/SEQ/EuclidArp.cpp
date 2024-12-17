@@ -417,7 +417,7 @@ void engine::process()
         _cv_out = _cv;
     }
 
-    _cv_out = (float)engine::qz_process(engine::cv_i32() + _cv_out * PITCH_PER_OCTAVE, 0, nullptr) / PITCH_PER_OCTAVE;
+    _cv_out = (float)engine::qz_process(engine::cv_i32() + _cv_out * PITCH_PER_OCTAVE, nullptr) / PITCH_PER_OCTAVE;
 
     if (engine::t() % 20 == 0)
     {

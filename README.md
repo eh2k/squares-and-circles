@@ -9,6 +9,12 @@
   <summary><b>ChangeLog</b></summary>
   
 ````
+== 2024-12-17
+   * Bugfix/Enchancement #117
+     * Parameter value was not visualized when modulations set (Bug since 2024-12-16)
+     * Midi pitch was added before quantizer
+     * V_OCT parameter value was added before quantized
+     * All modulations exept RND and TM are now added after quantizer
 == 2024-12-16
    * New paramters io-page
      * Quantizer-Root 

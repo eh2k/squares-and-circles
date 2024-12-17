@@ -322,7 +322,7 @@ namespace engine
 
     EXTERN_C bool qz_enabled();
     EXTERN_C const char* qz_name();
-    EXTERN_C int32_t qz_process(int32_t pitch, int32_t root, int8_t *note);
+    EXTERN_C int32_t qz_process(int32_t pitch, int8_t *note);
     EXTERN_C int16_t qz_lookup(int8_t note); //0-127 note-values
 }
 
