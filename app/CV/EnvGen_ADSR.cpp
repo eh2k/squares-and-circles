@@ -28,7 +28,7 @@
 #include "../squares-and-circles-api.h"
 #include "peaks/modulations/multistage_envelope.h"
 #include "peaks/modulations/multistage_envelope.cc"
-#include "../DRUMS/resources/peaks_lut_env.hpp"
+#include "peaks/resources.cc"
 
 peaks::MultistageEnvelope _processor;
 

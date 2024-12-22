@@ -110,6 +110,7 @@ EXTERN_C uint32_t crc32(uint32_t crc, const void *buf, size_t size);
 EXTERN_C
 {
     extern const char *__name;
+    extern const uint8_t *__data;
     extern uint32_t *__t;
     extern uint8_t *__clock;
     extern uint8_t *__step;
@@ -241,7 +242,7 @@ namespace engine
     EXTERN_C void process();
     EXTERN_C void draw();
     EXTERN_C void screensaver();
-
+    EXTERN_C void release();
     /////
     typedef bool (*uiHandler)(uint16_t type, uint16_t control, int16_t value, uint16_t mask);
 

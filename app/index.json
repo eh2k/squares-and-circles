@@ -48,6 +48,7 @@
         "GND/Scope.bin",
         "GND/FFT.bin",
 
-        "SYNTH/plaits.bin"
+        "SYNTH/plaits.bin",
+        "DRUMS/DrumSynth.bin"
     ]
 }

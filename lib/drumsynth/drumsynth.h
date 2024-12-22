@@ -97,10 +97,25 @@ struct OscArgs
     uint32_t n;
 };
 
+struct AmpMod
+{
+    uint32_t dest;
+    float offset;
+};
+
+struct VCFArgs
+{
+    float cutoff;
+    float res;
+    float envDepth;
+    float velDepth;
+};
+
 enum PartFlags : uint32_t
 {
     BIQUAD_SERIAL = 1 << 1,
     BIQUAD_PARALLEL = 1 << 2,
+    VCF = 1 << 3,
 };
 
 struct PartArgs
@@ -113,6 +128,9 @@ struct PartArgs
     BiquadArgs bq1;
     BiquadArgs bq2;
     WSArgs ws;
+    const VCFArgs *vcf;
+    EnvArgs vcf_env;
+    AmpMod amp_mod;
     float level;
 };
 
@@ -129,6 +147,8 @@ struct DrumParams
     float attack;
     float decay;
     float stereo;
+    float levelL;
+    float levelR;
 };
 
 struct DrumKit
@@ -144,4 +164,5 @@ extern "C"
     DrumSynth drum_synth_init(const DrumModel *inst, void *(*malloc)(size_t size));
     void drum_synth_process_frame(DrumSynth inst, int part, float freq, const DrumParams *params, float *outL, float *outR, size_t size);
     void drum_synth_reset(DrumSynth inst);
+    int drum_synth_load_models(const uint8_t *drumkit, DrumModel _instModel[16], void *(*malloc)(size_t size));
 }

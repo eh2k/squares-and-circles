@@ -496,11 +496,12 @@ void DigitalOscillator::renderChord(
   } else {
     if (quantizer.enabled()) {
       int8_t index = 0;
-      fm = pitch_ - quantizer.Process(pitch_, 0, &index);
+      int8_t root = 0;
+      fm = pitch_ - quantizer.Process(pitch_, 0, &root);
 
       phase_increment[0] = phase_increment_;
       for (size_t i = 1; i < noteCount; i++) {
-        index = (index + noteOffset[i-1]);
+        index = (root + noteOffset[i-1]);
         if (index >= 128) {
           noteCount = i;
           break;

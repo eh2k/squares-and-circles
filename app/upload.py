@@ -144,9 +144,11 @@ with open(apps_json) as f:
 
     apps = json.load(f)
     j = 0
+    enginesNew = []
     for file in apps["apps"]:
         bin_file = os.path.dirname(apps_json) + "/" + str(file)
         if not os.path.exists(bin_file):
+            print(bin_file, "not found")
             continue
         app_id = get_appid(bin_file)  # os.path.splitext(file)[0]
         bin_size = os.path.getsize(bin_file)
@@ -170,24 +172,24 @@ with open(apps_json) as f:
             engine["addr"] = "%x" % offset
             engine["size"] = "%s" % bin_size
             engine["crc32"] = "%x" % crc32sum
-            engines.append(engine)
-            print("NEW ->", file, engine)
+            enginesNew.append(engine)
+            print("NEW ->", app_id, file, engine)
             #continue
             #exit(0)
         elif engine["crc32"] == "%x" % crc32sum:
             onext = int(engine["addr"], 16) + int(engine["size"])
             onext += 4096 - (onext % 4096)
             print(
-                engine["addr"], engine["size"],
+                app_id, engine["addr"], engine["size"],
                 os.path.splitext(file)[0],
                 "%x" % crc32sum,
                 "OK!",
-                bin_size - int(engine["size"]),
-                "MEM-KB: %d" % ((onext - int(1024 * 1024 / 2)) / 1024)
+                "NEXT: %x" % (onext)
             )
+            enginesNew.append(engine)
             continue
 
-        print("->", file, engine)
+        print("->", app_id, file, engine)
 
         print(
             os.path.splitext(file)[0], "%x" % crc32sum, bin_size - int(engine["size"])
@@ -211,8 +213,8 @@ with open(apps_json) as f:
 
         offset += 4 - (offset % 4)
 
-    if len(engines) > 0:
-        offset = max((int(e["addr"], 16) + int(e["size"])) for e in engines)
+    if len(enginesNew) > 0:
+        offset = max((int(e["addr"], 16) + int(e["size"])) for e in enginesNew)
         offset += 4096 - (offset % 4096)
         print("END 0x%x" % offset)
         for chunk in chunk_bytes(bytearray(b"\xff") * 4096, 4096):

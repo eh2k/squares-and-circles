@@ -33,8 +33,8 @@
 #include "misc/Biquad.h"
 #include "drumsynth.h"
 
-#ifndef SAMPLE_RATE
-constexpr float SAMPLE_RATE = 48000.f;
+#ifndef __SAMPLE_RATE
+constexpr float __SAMPLE_RATE = 48000.f;
 #endif
 
 inline float dB2amp(float dB)
@@ -47,15 +47,15 @@ class Envelope
     const EnvArgs *args_;
 
 public:
-    void init(const EnvArgs &args)
+    void init(const EnvArgs *args)
     {
-        args_ = &args;
+        args_ = args;
         value_ = 0.f;
         e_ = 0.0001f;
         c_ = 1.0f;
         segment_ = 0;
 
-        if (args.n == 0)
+        if (args_->n == 0)
         {
             value_ = 1.f;
             pos_ = 0;
@@ -132,7 +132,7 @@ public:
     void Init(float freq)
     {
         pw_ = 0.5f;
-        phase_inc_ = freq / SAMPLE_RATE;
+        phase_inc_ = freq / __SAMPLE_RATE;
         f_ = freq;
         osc.Init();
     }
@@ -144,7 +144,7 @@ public:
 
     inline void pitch(float pitch)
     {
-        phase_inc_ = f_ * pitch / SAMPLE_RATE;
+        phase_inc_ = f_ * pitch / __SAMPLE_RATE;
     }
 
     inline void duty(float duty)
@@ -215,8 +215,8 @@ struct drum_synth_Part
     Biquad biquad1 = {};
     Biquad biquad2 = {};
 
-    std::pair<float, float> biquad1b;
-    std::pair<float, float> biquad2b;
+    std::pair<float, float> biquadA[2] = {};
+    std::pair<float, float> biquadB[2] = {};
 
     const PartArgs *part;
 
@@ -226,18 +226,18 @@ struct drum_synth_Part
     {
         this->part = part;
 
-        _amp.init(part->osc_amp);
-        _pitch.init(part->osc_pitch);
-        _vca.init(part->vca);
+        _amp.init(&part->osc_amp);
+        _pitch.init(&part->osc_pitch);
+        _vca.init(&part->vca);
 
         _dc_blocker.Init(0.99f);
 
         const auto &a = part->bq1;
         if (a.mode)
-            biquad1.setBiquad(a.mode - 1, a.f / SAMPLE_RATE, a.q, a.g);
+            biquad1.setBiquad(a.mode - 1, a.f / __SAMPLE_RATE, a.q, a.g);
         const auto &b = part->bq2;
         if (b.mode)
-            biquad2.setBiquad(b.mode - 1, b.f / SAMPLE_RATE, b.q, b.g);
+            biquad2.setBiquad(b.mode - 1, b.f / __SAMPLE_RATE, b.q, b.g);
 
         if (part->osc.type == OSC_METALLIC)
         {
@@ -291,6 +291,9 @@ struct drum_synth_Part
     {
         for (size_t j = 0; j < this->part->osc.n; j++)
             this->_osc[j].reset();
+
+        memset(&this->biquadA, 0, sizeof(this->biquadA));
+        memset(&this->biquadB, 0, sizeof(this->biquadB));
     }
 
     uint32_t last_f = 0;
@@ -300,7 +303,7 @@ struct drum_synth_Part
         uint32_t t = params->t;
         float osc = 0;
         float osc2 = 0;
-        uint32_t ff = f * SAMPLE_RATE;
+        uint32_t ff = f * __SAMPLE_RATE;
 
         // if (t > 0 && this->_amp.finished() && this->_vca.finished())
         // {
@@ -365,6 +368,8 @@ struct drum_synth_Part
                 this->_osc[0].pitch(this->_pitch.value() * f);
                 this->_osc[0].Tri(osc);
                 break;
+            default:
+                return;
             }
 
             if (part->flags & BIQUAD_SERIAL)
@@ -376,10 +381,10 @@ struct drum_synth_Part
                 {
                     if (last_f != ff)
                     {
-                        this->biquad1.setFc(part->bq1.f / SAMPLE_RATE * f);
+                        this->biquad1.setFc(part->bq1.f / __SAMPLE_RATE * f);
                     }
 
-                    osc = this->biquad1.process(osc);
+                    osc = this->biquad1.process(osc, this->biquadA[0].first, this->biquadA[0].second);
                     if (part->bq1.mode < BIQUAD_NOTCH)
                         osc *= part->bq1.g;
                 }
@@ -391,10 +396,10 @@ struct drum_synth_Part
                 {
                     if (last_f != ff)
                     {
-                        this->biquad2.setFc(part->bq2.f / SAMPLE_RATE * f);
+                        this->biquad2.setFc(part->bq2.f / __SAMPLE_RATE * f);
                     }
 
-                    osc = this->biquad2.process(osc);
+                    osc = this->biquad2.process(osc, this->biquadA[1].first, this->biquadA[1].second);
                     if (part->bq2.mode < BIQUAD_NOTCH)
                         osc *= part->bq2.g;
                 }
@@ -406,17 +411,17 @@ struct drum_synth_Part
 
                     if (part->bq1.mode)
                     {
-                        osc2 = this->biquad1.process(osc2, this->biquad1b.first, this->biquad1b.second);
+                        osc2 = this->biquad1.process(osc2, this->biquadB[0].first, this->biquadB[0].second);
                         if (part->bq1.mode < BIQUAD_NOTCH)
                             osc2 *= part->bq1.g;
                     }
 
                     if (part->ws.n)
-                        osc = waveshaper_transform(osc);
+                        osc2 = waveshaper_transform(osc2);
 
                     if (part->bq2.mode)
                     {
-                        osc2 = this->biquad2.process(osc2, this->biquad2b.first, this->biquad2b.second);
+                        osc2 = this->biquad2.process(osc2, this->biquadB[1].first, this->biquadB[1].second);
                         if (part->bq2.mode < BIQUAD_NOTCH)
                             osc2 *= part->bq2.g;
                     }
@@ -480,6 +485,154 @@ extern "C" void drum_synth_process_frame(DrumSynth inst, int part, float freq, c
     if (inst)
     {
         auto _part = (drum_synth_Part *)&inst[1];
-        _part[part].process_frame(freq, params, outL, outR, size);
+        if (part >= 0)
+        {
+            _part[part].process_frame(freq, params, outL, outR, size);
+        }
+        else
+        {
+            float tmpL[size];
+            float tmpR[size];
+            size_t skip = -1;
+
+            for (size_t part = 0; part < inst[0]; part++)
+            {
+                if (skip == part)
+                    continue;
+
+                _part[part].process_frame(freq, params, tmpL, tmpR, size);
+
+                if (part == 0 && _part[part].part->amp_mod.dest != 0)
+                {
+                    skip = _part[part].part->amp_mod.dest;
+                    float modL[size];
+                    float modR[size];
+                    _part[_part[part].part->amp_mod.dest].process_frame(freq, params, modL, modR, size);
+
+                    for (int j = 0; j < size; j++)
+                    {
+                        outL[j] += tmpL[j] * modL[j] * params->levelL;
+                        outR[j] += tmpR[j] * modR[j] * params->levelR;
+                    }
+                }
+                else
+                {
+                    for (int j = 0; j < size; j++)
+                    {
+                        outL[j] += tmpL[j] * params->levelL;
+                        outR[j] += tmpR[j] * params->levelR;
+                    }
+                }
+            }
+        }
     }
+}
+
+extern "C" int drum_synth_load_models(const uint8_t *drumkit, DrumModel _instModel[16], void *(*malloc)(size_t size))
+{
+    if (drumkit == nullptr)
+        return 0;
+
+    if (drumkit[0] == '!' && drumkit[1] == 'R' && drumkit[2] == 'C' && drumkit[3] == '8')
+        drumkit += 4;
+    else
+        return 0;
+
+    int inst_count = 0;
+    const uint8_t *p = drumkit;
+    p += 4;
+    for (size_t i = 0; i < drumkit[0]; i++)
+    {
+        _instModel[i].name = reinterpret_cast<const char *>(p);
+        p += 12;
+
+        _instModel[i].n = *reinterpret_cast<const size_t *>(p);
+        p += sizeof(_instModel[i].n);
+
+        PartArgs *part = new (malloc(sizeof(PartArgs) * _instModel[i].n)) PartArgs[_instModel[i].n]{};
+        _instModel[i].part = part;
+
+        for (int j = 0; j < _instModel[i].n; j++)
+        {
+            part->flags = *reinterpret_cast<const PartFlags *>(p);
+            p += sizeof(part->flags);
+
+            part->osc = *reinterpret_cast<const OscArgs *>(p);
+            p += sizeof(part->osc);
+
+            part->osc_pitch.n = *reinterpret_cast<const int32_t *>(p);
+            p += sizeof(part->osc_pitch.n);
+            part->osc_pitch.xy = reinterpret_cast<const EnvXY *>(p);
+            if (part->osc_pitch.xy[part->osc_pitch.n - 1].t > 0)
+            {
+                // OK
+            }
+            int k = part->osc_pitch.n;
+            p += sizeof(EnvXY) * k;
+
+            part->osc_amp.n = *reinterpret_cast<const int32_t *>(p);
+            p += sizeof(part->osc_amp.n);
+            part->osc_amp.xy = reinterpret_cast<const EnvXY *>(p);
+            if (part->osc_amp.xy[part->osc_amp.n - 1].t > 0)
+            {
+                // OK
+            }
+            k = part->osc_amp.n;
+            p += sizeof(EnvXY) * k;
+
+            part->vca.n = *reinterpret_cast<const int32_t *>(p);
+            p += sizeof(part->vca.n);
+            part->vca.xy = reinterpret_cast<const EnvXY *>(p);
+            if (part->vca.xy[part->vca.n - 1].t > 0)
+            {
+                // OK
+            }
+            k = part->vca.n;
+            p += sizeof(EnvXY) * k;
+
+            part->bq1 = *reinterpret_cast<const BiquadArgs *>(p);
+            p += sizeof(BiquadArgs);
+
+            part->bq2 = *reinterpret_cast<const BiquadArgs *>(p);
+            p += sizeof(BiquadArgs);
+
+            part->ws.n = *reinterpret_cast<const uint32_t *>(p);
+            p += sizeof(part->ws.n);
+            part->ws.xy = reinterpret_cast<const WS_XY *>(p);
+            if (part->ws.xy[part->ws.n - 1].x > 0)
+            {
+                // OK
+            }
+            k = part->ws.n;
+            p += sizeof(WS_XY) * k;
+
+            if (part->flags & VCF)
+            {
+                part->vcf = reinterpret_cast<const VCFArgs *>(p);
+                p += sizeof(*part->vcf);
+
+                part->vcf_env.n = *reinterpret_cast<const uint32_t *>(p);
+                p += sizeof(part->vcf_env.n);
+                part->vcf_env.xy = reinterpret_cast<const EnvXY *>(p);
+                if (part->vcf_env.xy[part->vcf_env.n - 1].t > 0)
+                {
+                    // OK
+                }
+                k = part->vcf_env.n;
+                p += sizeof(EnvXY) * k;
+            }
+
+            part->amp_mod.dest = *reinterpret_cast<const uint32_t *>(p);
+            p += sizeof(part->amp_mod.dest);
+            part->amp_mod.offset = *reinterpret_cast<const float *>(p);
+            p += sizeof(part->amp_mod.offset);
+
+            part->level = *reinterpret_cast<const float *>(p);
+            p += sizeof(part->level);
+            part++;
+        }
+        inst_count++;
+    }
+
+    return inst_count;
 }

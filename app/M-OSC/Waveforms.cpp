@@ -47,26 +47,46 @@ Envelope envelope;
 VcoJitterSource jitter_source;
 braids::Quantizer quantizer;
 
-void Quantizer::Init()
-{}
+static int8_t notes[6] = {};
 
-bool Quantizer::enabled() {
+#ifndef MACHINE_INTERNAL
+
+void Quantizer::Init()
+{
+}
+
+bool Quantizer::enabled()
+{
     return engine::qz_enabled();
 }
 
 int32_t Quantizer::Process(int32_t pitch, int32_t root, int8_t *note)
 {
+    memset(notes, 0, sizeof(notes));
+    if (note == nullptr)
+        note = &notes[0];
+
     pitch -= root + (PITCH_PER_OCTAVE * 8);
     auto ret = engine::qz_process(pitch, note);
     ret += root + (PITCH_PER_OCTAVE * 8);
+    notes[0] = *note;
     return ret;
 }
 
 int16_t Quantizer::Lookup(uint8_t index)
 {
+    for (auto &note : notes)
+    {
+        if (note == 0)
+        {
+            note = index - notes[0];
+            break;
+        }
+    }
+
     return engine::qz_lookup(index) + (PITCH_PER_OCTAVE * 8);
 }
-
+#endif
 uint8_t sync_samples[FRAME_BUFFER_SIZE] = {};
 
 int32_t _pitch = 0;
@@ -102,6 +122,7 @@ void engine::setup()
 
 void engine::process()
 {
+    memset(notes, 0, sizeof(notes));
     envelope.Update(_attack / 512, _decay / 512);
 
     if (engine::trig())
@@ -184,6 +205,24 @@ void engine::process()
 
 void engine::draw()
 {
+    if (_shape >= 48)
+    {
+        char tmp[8];
+        for (int i = 0; i < LEN_OF(notes); i++)
+        {
+            if (notes[i] != 0)
+            {
+                int slen = 0;
+                if (i == 0)
+                    slen = sprintf(tmp, "%d", notes[i]);
+                else
+                    slen = sprintf(tmp, "%+d", notes[i]);
+
+                gfx::drawString(128 - slen * 5, 10 + 6 * i, tmp, 0);
+            }
+        }
+    }
+
     if (!__io->tr)
     {
         setParamName(&_decay, "Level");

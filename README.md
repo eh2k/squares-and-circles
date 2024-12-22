@@ -9,6 +9,12 @@
   <summary><b>ChangeLog</b></summary>
   
 ````
+== 2024-12-22
+   * Bugfix
+     * SEQ/TuringMachine crash #119
+     * M-OSC/Waveforms: Braids Renaissance Chords - fixed note offsets #117   
+   * Enhancements
+     * DrumSynth ...  
 == 2024-12-17
    * Bugfix/Enchancement #117
      * Parameter value was not visualized when modulations set (Bug since 2024-12-16)
