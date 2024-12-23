@@ -9,6 +9,9 @@
   <summary><b>ChangeLog</b></summary>
   
 ````
+== 2024-12-23
+   * Bugifx
+     * Crash / parameter modulations wrap around #120
 == 2024-12-22
    * Bugfix
      * SEQ/TuringMachine crash #119
