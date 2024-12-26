@@ -9,6 +9,9 @@
   <summary><b>ChangeLog</b></summary>
   
 ````
+== 2024-12-28
+   * Bugfix
+     * M-OSC/Waveforms: Braids Renaissance Chords - fixed root offset #117 
 == 2024-12-23
    * Bugifx
      * Crash / parameter modulations wrap around #120

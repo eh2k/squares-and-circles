@@ -497,7 +497,8 @@ void DigitalOscillator::renderChord(
     if (quantizer.enabled()) {
       int8_t index = 0;
       int8_t root = 0;
-      fm = pitch_ - quantizer.Process(pitch_, 0, &root);
+      quantizer.Process(pitch_, 0, &root);
+      fm = pitch_ - quantizer.Lookup(root);
 
       phase_increment[0] = phase_increment_;
       for (size_t i = 1; i < noteCount; i++) {
