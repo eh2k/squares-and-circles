@@ -39,33 +39,48 @@
 #include "braids/quantizer.h"
 #include <algorithm>
 
-using namespace braids;
+#define SemitonesToRatioFast
+#include "lib/plaits/dsp/chords/chord_bank.cc"
 
-MacroOscillator osc1;
-MacroOscillator osc2;
-Envelope envelope;
-VcoJitterSource jitter_source;
+plaits::ChordBank chords_;
+int32_t chords_mem[(plaits::kChordNumChords * plaits::kChordNumNotes) + plaits::kChordNumChords + plaits::kChordNumNotes];
+
+braids::MacroOscillator osc1;
+braids::MacroOscillator osc2;
+braids::Envelope envelope;
+braids::VcoJitterSource jitter_source;
 braids::Quantizer quantizer;
 
-void Quantizer::Init()
-{
-}
+constexpr int32_t DEFAULT_PITCH = PITCH_PER_OCTAVE * 6;
 
-bool Quantizer::enabled()
+namespace braids
 {
-    return engine::qz_enabled();
-}
+    uint8_t ex_chord[7] = {};
+    extern const uint8_t diatonic_chords[8][6];
+    extern const uint8_t *custom_chord;
 
-int32_t Quantizer::Process(int32_t pitch, int32_t root, int8_t *note)
-{
-    return engine::qz_process(pitch - (PITCH_PER_OCTAVE * 8), note) + (PITCH_PER_OCTAVE * 8);
-}
+    void Quantizer::Init()
+    {
+    }
 
-int16_t Quantizer::Lookup(uint8_t index)
-{
-    return engine::qz_lookup(index) + (PITCH_PER_OCTAVE * 8);
-}
+    bool Quantizer::enabled()
+    {
+        return engine::qz_enabled();
+    }
 
+    int32_t Quantizer::Process(int32_t pitch, int32_t root, int8_t *note)
+    {
+         pitch -= root + DEFAULT_PITCH;
+        auto ret = engine::qz_process(pitch, note);
+        ret += root + DEFAULT_PITCH;
+        return ret;
+    }
+
+    int16_t Quantizer::Lookup(uint8_t index)
+    {
+        return engine::qz_lookup(index) + DEFAULT_PITCH;
+    }
+}
 uint8_t sync_samples[FRAME_BUFFER_SIZE] = {};
 
 int32_t _pitch = 0;
@@ -75,9 +90,19 @@ int32_t _color = UINT16_MAX / 2;
 int32_t _attack = 0;
 int32_t _decay = UINT16_MAX / 2;
 
+int32_t last_color = -1;
+int32_t last_shape = -1;
+int32_t last_qz = -1;
+
 void engine::setup()
 {
-    settings.Init();
+    stmlib::BufferAllocator allocator;
+    allocator.Init(chords_mem, sizeof(chords_mem));
+    chords_.Init(&allocator);
+    chords_.chord_index_quantizer_.hysteresis_ = 0; // input => output
+    chords_.Reset();
+
+    braids::settings.Init();
     osc1.Init();
     osc2.Init();
     jitter_source.Init();
@@ -87,8 +112,8 @@ void engine::setup()
     // std::fill(&sync_samples[0], &sync_samples[FRAME_BUFFER_SIZE], 0);
 
     // settings.SetValue(SETTING_AD_VCA, true);
-    settings.SetValue(SETTING_SAMPLE_RATE, 5);
-    settings.SetValue(SETTING_PITCH_RANGE, PITCH_RANGE_EXTERNAL);
+    braids::settings.SetValue(braids::SETTING_SAMPLE_RATE, 5);
+    braids::settings.SetValue(braids::SETTING_PITCH_RANGE, braids::PITCH_RANGE_EXTERNAL);
 
     engine::addParam(V_OCT, &_pitch, -4 * PITCH_PER_OCTAVE, 4 * PITCH_PER_OCTAVE); // is added internal to engine::cv
     engine::addParam("Shape", &_shape, braids::MACRO_OSC_SHAPE_CSAW, braids::MACRO_OSC_SHAPE_LAST - 1, (const char **)braids::settings.metadata(braids::Setting::SETTING_OSCILLATOR_SHAPE).strings);
@@ -99,8 +124,17 @@ void engine::setup()
     engine::setMode(ENGINE_MODE_STEREOLIZED);
 }
 
+char color_vals[64];
+
 void engine::process()
 {
+    if (last_shape != _shape || last_qz != __io->qz)
+    {
+        last_qz = __io->qz;
+        last_shape = _shape;
+        engine::draw();
+    }
+
     envelope.Update(_attack / 512, _decay / 512);
 
     if (engine::trig())
@@ -118,20 +152,20 @@ void engine::process()
 
     uint32_t ad_value = envelope.Render();
 
-    int32_t pitchV = engine::cv_i32();
-    int32_t pitch = pitchV + (PITCH_PER_OCTAVE * 8);
+    int32_t pitch = engine::cv_i32();
+    pitch += DEFAULT_PITCH;
 
     // if (!settings.meta_modulation())
     // {
     //     pitch += settings.adc_to_fm(adc_3);
     // }
 
-    pitch += jitter_source.Render(settings.vco_drift());
-    pitch += ad_value * settings.GetValue(SETTING_AD_FM) >> 7;
+    pitch += jitter_source.Render(braids::settings.vco_drift());
+    pitch += ad_value * braids::settings.GetValue(braids::SETTING_AD_FM) >> 7;
 
     CONSTRAIN(pitch, 0, 16383);
 
-    if (settings.vco_flatten())
+    if (braids::settings.vco_flatten())
         pitch = stmlib::Interpolate88(braids::lut_vco_detune, pitch << 2);
 
     uint32_t gain = _decay < UINT16_MAX ? ad_value : UINT16_MAX;
@@ -145,6 +179,32 @@ void engine::process()
         osc2.set_shape((braids::MacroOscillatorShape)_shape);
 
     osc1.set_parameters(_timbre >> 1, _color >> 1);
+
+    if (_shape >= 48 && _shape < (48 + 5) && __io->qz > 0)
+    {
+        if (__io->qz == 1)
+        {
+            if (last_color != _color)
+            {
+                last_color = _color;
+                chords_.set_chord((float)_color / (plaits::kChordNumChords - 1));
+                // chords_.Sort();
+                memset(braids::ex_chord, 0, sizeof(braids::ex_chord));
+                for (int i = 0; i < chords_.num_notes(); i++)
+                {
+                    braids::ex_chord[i] = log2f(chords_.ratio(i)) * 12;
+                }
+
+                braids::custom_chord = braids::ex_chord;
+            }
+        }
+        else
+        {
+            osc1.set_parameters(_timbre >> 1, _color << 12);
+            braids::custom_chord = nullptr;
+        }
+    }
+
     osc1.set_pitch(pitch);
 
     auto audio_samples = engine::outputBuffer_i16<0>();
@@ -166,7 +226,7 @@ void engine::process()
         if (color > UINT16_MAX)
             color = _color - stereo;
 
-        osc2.set_parameters((timbre >> 1), (color >> 1));
+        osc2.set_parameters(osc1.parameter_[0], osc1.parameter_[1]);
         osc2.set_pitch(pitch + stereo);
 
         auto audio_samples = engine::outputBuffer_i16<1>();
@@ -183,20 +243,47 @@ void engine::process()
 
 void engine::draw()
 {
-    if (!__io->tr)
+    if (_shape >= 48 && _shape < (48 + 5) && __io->qz > 0)
     {
-        setParamName(&_decay, "Level");
-        setParamName(&_attack, nullptr);
-    }
-    else if (_decay < UINT16_MAX)
-    {
-        setParamName(&_decay, "Decay");
-        setParamName(&_attack, "Attack");
+        if (__io->qz == 1)
+        {
+            engine::addParam(".", &_color, 0, plaits::kChordNumChords - 1, (const char **)plaits::chord_names);
+        }
+        else
+        {
+            char *p = color_vals;
+            p += sprintf(p, "Chord-%d\t0", _color + 1);
+            for (int i = 1; i < LEN_OF(braids::diatonic_chords[_color]); i++)
+            {
+                if (braids::diatonic_chords[_color][i] != 0)
+                {
+                    p += sprintf(p, "+%X", braids::diatonic_chords[_color][i]);
+                }
+            }
+
+            engine::addParam("Color", &_color, 0, 7);
+            engine::setParamName(&_color, color_vals);
+        }
     }
     else
     {
-        setParamName(&_decay, "VCA-off");
-        setParamName(&_attack, nullptr);
+        engine::addParam("Color", &_color, 0, UINT16_MAX);
+    }
+
+    if (!__io->tr)
+    {
+        engine::setParamName(&_decay, "Level");
+        engine::setParamName(&_attack, nullptr);
+    }
+    else if (_decay < UINT16_MAX)
+    {
+        engine::setParamName(&_decay, "Decay");
+        engine::setParamName(&_attack, "Attack");
+    }
+    else
+    {
+        engine::setParamName(&_decay, "VCA-off");
+        engine::setParamName(&_attack, nullptr);
     }
 }
 

@@ -188,6 +188,8 @@ EXTERN_C
         uint8_t pan; // 128 == center
         uint8_t stereo;
         uint8_t aux_dry;
+        uint8_t qz_root = 0;
+        int8_t fine_tune = 0;
     } *__io;
 }
 
@@ -322,9 +324,9 @@ namespace engine
     EXTERN_C void dsp_process_sample(void *smpl, float start, float end, float pitch, float output[FRAME_BUFFER_SIZE]);
 
     EXTERN_C bool qz_enabled();
-    EXTERN_C const char* qz_name();
+    EXTERN_C const char *qz_name();
     EXTERN_C int32_t qz_process(int32_t pitch, int8_t *note);
-    EXTERN_C int16_t qz_lookup(int8_t note); //0-127 note-values
+    EXTERN_C int16_t qz_lookup(int8_t note); // 0-127 note-values
 }
 
 enum EventType : uint16_t

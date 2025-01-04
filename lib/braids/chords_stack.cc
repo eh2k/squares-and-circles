@@ -451,14 +451,12 @@ inline void renderChordWavetable(
   state_.stack.phase[4] = phase_4;
 }
 
-extern const uint16_t chords[17][3];
-
 // without the attribute this gets build as-is AND inlined into RenderStack :/
 void DigitalOscillator::renderChord(
   const uint8_t *sync, 
   int16_t *buffer, 
   size_t size, 
-  uint8_t* noteOffset, 
+  const uint8_t* noteOffset, 
   uint8_t noteCount) {
 
   int32_t fm = 0;
@@ -473,8 +471,22 @@ void DigitalOscillator::renderChord(
   // Do not use an array here to allow these to be kept in arbitrary registers.
   uint32_t phase_increment[6];
 
-  // indication we should use built in chords
-  if (noteCount == 0) {
+  if (quantizer.enabled()) {
+    int8_t index = 0;
+    int8_t root = 0;
+    quantizer.Process(pitch_, 0, &root);
+    fm = pitch_ - quantizer.Lookup(root);
+
+    phase_increment[0] = phase_increment_;
+    for (size_t i = 1; i < noteCount; i++) {
+      if(custom_chord != nullptr)
+        phase_increment[i] = DigitalOscillator::ComputePhaseIncrement(quantizer.Process(pitch_ + (noteOffset[i-1]<<7)));
+      else {
+        index = (root + noteOffset[i-1]);
+        phase_increment[i] = DigitalOscillator::ComputePhaseIncrement(quantizer.Lookup(index) + fm);
+      }        
+    }
+  } else {
     noteCount = 4;
     uint16_t chord_integral = parameter_[1] >> 11;
     uint16_t chord_fractional = parameter_[1] << 5;
@@ -493,28 +505,6 @@ void DigitalOscillator::renderChord(
       uint16_t detune = detune_1 + ((detune_2 - detune_1) * chord_fractional >> 16);
       phase_increment[i+1] = DigitalOscillator::ComputePhaseIncrement(pitch_ + detune);
     }
-  } else {
-    if (quantizer.enabled()) {
-      int8_t index = 0;
-      int8_t root = 0;
-      quantizer.Process(pitch_, 0, &root);
-      fm = pitch_ - quantizer.Lookup(root);
-
-      phase_increment[0] = phase_increment_;
-      for (size_t i = 1; i < noteCount; i++) {
-        index = (root + noteOffset[i-1]);
-        if (index >= 128) {
-          noteCount = i;
-          break;
-        }
-        phase_increment[i] = DigitalOscillator::ComputePhaseIncrement(quantizer.Lookup(index) + fm);
-      }
-    } else {
-      phase_increment[0] = phase_increment_;
-      for (size_t i = 1; i < noteCount; i++) {
-        phase_increment[i] = DigitalOscillator::ComputePhaseIncrement(pitch_ + (noteOffset[i-1]<<7));
-      }
-    }
   }
 
   if (shape_ == OSC_SHAPE_STACK_SAW || shape_ == OSC_SHAPE_CHORD_SAW) {
@@ -530,58 +520,38 @@ void DigitalOscillator::renderChord(
   }
 }
 
-// number of notes, followed by offsets
-const uint8_t diatonic_chords[16][4] = {
-  {1, 7, 0, 0}, // octave
-  {2, 5, 7, 0}, // octave add6
-  {1, 6, 0, 0}, // 7th
-  {2, 5, 6, 0}, // 7th add6
-  {2, 6, 8, 0}, // 9th
-  {3, 6, 8, 10}, // 11th
-  {3, 5, 7, 10}, // 11th add6
-  {1, 8, 0, 0}, // add9
-  {2, 6, 10, 0}, // 7th add11
-  {2, 6, 12, 0}, // 7th add13
-  {1, 7, 0, 0}, // oct sus4
-  {1, 6, 0, 0}, // 7th sus4
-  {2, 6, 8, 0}, // 9th sus4
-  {2, 6, 8, 0}, // 9th sus2
-  {3, 8, 10, 6}, // 11th sus4
+//number of notes, followed by offsets
+const uint8_t diatonic_chords[8][6] = {
+  {0, 2, 4, 7, 0, 0},  // octave
+  {0, 2, 4, 5, 7, 0},  // octave add6
+  {0, 2, 4, 6, 0, 0},  // 7th
+  {0, 2, 4, 5, 6, 0},  // 7th add6
+  {0, 2, 4, 6, 8, 0},  // 9th
+  {0, 2, 4, 6, 8, 10}, // 11th
+  {0, 2, 4, 5, 7, 10}, // 11th add6
+  {0, 2, 4, 8, 0, 0},  // add9
 };
+
+const uint8_t* custom_chord = nullptr;
 
 void DigitalOscillator::RenderDiatonicChord(
     const uint8_t* sync,
     int16_t* buffer,
     size_t size) {
   
-  uint8_t extensionIndex = (parameter_[1] >> 12) & 0xf;
-  // uint8_t inversion = (parameter_[1] >> 13) & 0x7;
-  uint8_t offsets[6];
-  uint8_t len = 0;
-
-  if (quantizer.enabled()) {
-    offsets[1] = 4;
-
-    if (extensionIndex < 11) {
-      offsets[0] = 2;
-    } else if (extensionIndex < 15) {
-      offsets[0] = 3;
-    } else {
-      offsets[0] = 1;
-    }
-
-    len = diatonic_chords[extensionIndex][0];
-
-    for (size_t i = 0; i < len; i++) {
-      offsets[i+2] = diatonic_chords[extensionIndex][i+1];
-    }
-
-    len += 3;
-  } else {
-    // send len=0 as indication to use the phase offsets from the paraphonic chord array.
+  const uint8_t* offsets = custom_chord;
+  
+  if(offsets == nullptr) 
+    offsets = diatonic_chords[(parameter_[1] >> 12) & 0x7];
+    
+  uint8_t len = 4;
+    
+  for (size_t i = 4; i < 6; i++) {
+    if(offsets[i] > 0)
+      len ++;
   }
 
-  renderChord(sync, buffer, size, offsets, len);
+  renderChord(sync, buffer, size, &offsets[1], len);
 }
 
 void DigitalOscillator::RenderStack(

@@ -24,6 +24,8 @@
 //
 
 #define private public
+
+#define CONSTRAIN(x, min, max) ((x) < (min) ? (min) : ((x) > (max) ? (max) : (x)))
 #include "stmlib/dsp/dsp.h"
 #include "stmlib/dsp/filter.h"
 #include "plaits/dsp/oscillator/oscillator.h"
@@ -60,6 +62,17 @@ public:
             value_ = 1.f;
             pos_ = 0;
             len_ = 0;
+        }
+        else if (args_->n == 1)
+        {
+            value_ = args_->xy[0].v;
+            pos_ = 0;
+            len_ = 0;
+        }
+        else
+        {
+            if (args_->xy[0].t == 0)
+                value_ = args_->xy[0].v;
         }
     }
 
@@ -511,18 +524,24 @@ extern "C" void drum_synth_process_frame(DrumSynth inst, int part, float freq, c
 
                     for (int j = 0; j < size; j++)
                     {
-                        outL[j] += tmpL[j] * modL[j] * params->levelL;
-                        outR[j] += tmpR[j] * modR[j] * params->levelR;
+                        outL[j] += tmpL[j] * modL[j];
+                        outR[j] += tmpR[j] * modR[j];
                     }
                 }
                 else
                 {
                     for (int j = 0; j < size; j++)
                     {
-                        outL[j] += tmpL[j] * params->levelL;
-                        outR[j] += tmpR[j] * params->levelR;
+                        outL[j] += tmpL[j];
+                        outR[j] += tmpR[j];
                     }
                 }
+            }
+
+            for (int j = 0; j < size; j++)
+            {
+                outL[j] *= params->levelL;
+                outR[j] *= params->levelR;
             }
         }
     }

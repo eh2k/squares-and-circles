@@ -31,7 +31,7 @@
 #define ONE_POLE(out, in, coefficient) out += (coefficient) * ((in) - out);
 
 float note = 0;
-int32_t tune = 128;
+int32_t tune = 0;
 int32_t cv0 = 0;
 int16_t cv_ = 0;
 float glide = 0;
@@ -61,15 +61,15 @@ namespace gfx
 void engine::setup()
 {
     engine::addParam(V_OCT, &note);
-    engine::addParam("Fine", &tune, 0, 254);
+    engine::addParam("@Fine", &tune, INT8_MIN, INT8_MAX);
     engine::addParam("Slew", &glide, 0, 0.5f);
     engine::setMode(ENGINE_MODE_COMPACT | ENGINE_MODE_CV_OUT);
 }
 
 void engine::process()
 {
-    cv0 = PITCH_PER_OCTAVE * 2 + engine::cv_i32() // note is added internal
-          + (((int)tune - 128) << 2);
+    cv0 = engine::cv_i32() // note is added internal
+          + (PITCH_PER_OCTAVE * 2) + (tune << 2);
 
     ONE_POLE(cv_, cv0, powf(1 - glide, 10));
 
@@ -82,7 +82,9 @@ void engine::process()
 void engine::draw()
 {
     char tmp[64];
-    sprintf(tmp, "OUT:%.2fV", ((float)cv_ / PITCH_PER_OCTAVE));
-    gfx::drawString(4 + 64, 32, tmp, 0);
-    gfx::drawScope(0, 50);
+    sprintf(tmp, "INT: %d", cv0);
+    gfx::drawString(2, 46, tmp, 0);
+    sprintf(tmp, "OUT: %.3fV", ((float)cv_ / PITCH_PER_OCTAVE));
+    gfx::drawString(2, 52, tmp, 0);
+    gfx::drawScope(64, 51);
 }

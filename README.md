@@ -9,6 +9,19 @@
   <summary><b>ChangeLog</b></summary>
   
 ````
+== 2025-01-04
+   * Bugfix/Enhancements
+     * M-OSC/Waveforms: 
+       - Transpose fix: -1 OCT
+       - Braids Renaissance Chords 
+         - SEMI quantizer - global plaits chords 
+         - Value paramter (chord offsets) #121
+     * M-OSC/Waveforms, M-OSC/Chords, SEQ/EuclidyArp
+       * Parameter texts, case insensitive chord-naming eg. m7->min7, M7 -> Maj7 
+     * V_OCT Paramter (modulation visualition timer fix)
+     * Quantizer edge case optimization
+     * CV/V_OCT:
+      - shows internal value for debugging/quantizer monitoring
 == 2024-12-28
    * Bugfix
      * M-OSC/Waveforms: Braids Renaissance Chords - fixed root offset #117 

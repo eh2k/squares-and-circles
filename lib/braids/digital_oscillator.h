@@ -353,7 +353,7 @@ class DigitalOscillator {
     const uint8_t *sync, 
     int16_t *buffer, 
     size_t size, 
-    uint8_t* noteOffset, 
+    const uint8_t* noteOffset, 
     uint8_t noteCount);
   void RenderStack(const uint8_t*, int16_t*, size_t);
   void RenderDiatonicChord(const uint8_t*, int16_t*, size_t);
