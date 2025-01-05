@@ -55,6 +55,7 @@ float bufferOut[FRAME_BUFFER_SIZE];
 float bufferAux[FRAME_BUFFER_SIZE];
 float out_aux_mix = 0.5f;
 float _pitch = 0;
+float _v_oct = 0;
 float _base_pitch = DEFAULT_NOTE;
 
 struct
@@ -168,7 +169,7 @@ void engine::setup()
     case 0:
         alloc_engine<plaits::VirtualAnalogEngine>();
         init_params(0.5f, 0.5f, 0.5f, {0.8f, 0.8f, false});
-        engine::addParam(V_OCT, &_pitch);
+        engine::addParam(V_OCT, &_v_oct);
         engine::addParam("Detune", &harmonics);
         engine::addParam("Square", &timbre);
         engine::addParam("CSAW", &morph);
@@ -181,7 +182,7 @@ void engine::setup()
     case 1:
         alloc_engine<plaits::WaveshapingEngine>();
         init_params(0.8f, 0.8f, 0.75f, {0.7f, 0.6f, false});
-        engine::addParam(V_OCT, &_pitch);
+        engine::addParam(V_OCT, &_v_oct);
         engine::addParam("Waveform", &harmonics);
         engine::addParam("Fold", &timbre);
         engine::addParam("Asym", &morph);
@@ -194,7 +195,7 @@ void engine::setup()
     case 2:
         alloc_engine<plaits::FMEngine>();
         init_params(0.8f, 0.8f, 0.75f, {0.6f, 0.6f, false});
-        engine::addParam(V_OCT, &_pitch);
+        engine::addParam(V_OCT, &_v_oct);
         engine::addParam("Ratio", &harmonics);
         engine::addParam("Mod", &timbre);
         engine::addParam("Feedb.", &morph);
@@ -207,7 +208,7 @@ void engine::setup()
     case 3:
         alloc_engine<plaits::GrainEngine>();
         init_params(0.8f, 0.8f, 0.75f, {0.7f, 0.6f, false});
-        engine::addParam(V_OCT, &_pitch);
+        engine::addParam(V_OCT, &_v_oct);
         engine::addParam("Ratio", &harmonics);
         engine::addParam("Frm/Fq.", &timbre);
         engine::addParam("Width", &morph);
@@ -217,7 +218,7 @@ void engine::setup()
     case 4:
         alloc_engine<plaits::AdditiveEngine>();
         init_params(0.8f, 0.8f, 0.75f, {0.8f, 0.8f, false});
-        engine::addParam(V_OCT, &_pitch);
+        engine::addParam(V_OCT, &_v_oct);
         engine::addParam("Bump", &harmonics);
         engine::addParam("Peak", &timbre);
         engine::addParam("Shape", &morph);
@@ -230,7 +231,7 @@ void engine::setup()
     case WAVETABLE_ENGINE:
         alloc_engine<plaits::WavetableEngine>(64 * sizeof(const int16_t *));
         init_params(0.f, 0.8f, 0.75f, {0.6f, 0.6f, false});
-        engine::addParam(V_OCT, &_pitch);
+        engine::addParam(V_OCT, &_v_oct);
         engine::addParam("Bank", &harmonics, 0.f, 0.5f);
         engine::addParam("Row", &timbre);
         engine::addParam("Column", &morph);
@@ -245,7 +246,7 @@ void engine::setup()
     {
         alloc_engine<plaits::ChordEngine>(plaits::kChordNumChords * plaits::kChordNumNotes + plaits::kChordNumChords + plaits::kChordNumNotes);
         init_params(0.5f, 0.5f, 0.5f, {0.8f, 0.8f, false});
-        engine::addParam(V_OCT, &_pitch);
+        engine::addParam(V_OCT, &_v_oct);
 
         int32_t *pchord = (int32_t *)&static_cast<plaits::ChordEngine *>(_plaitsEngine)->chords_.chord_index_quantizer_.quantized_value_;
         *pchord = 8;
@@ -309,7 +310,7 @@ void engine::setup()
     case CLASSIC_VAVCF_ENGINE:
         alloc_engine<plaits::VirtualAnalogVCFEngine>();
         init_params(0.5f, 0.5f, 0.5f, {1.f, 1.f, false});
-        engine::addParam(V_OCT, &_pitch);
+        engine::addParam(V_OCT, &_v_oct);
         engine::addParam("Morph", &morph);
         engine::addParam("Cutoff", &timbre);
         engine::addParam("Harsh", &harmonics);
@@ -320,7 +321,7 @@ void engine::setup()
         patch.decay = 0.5f;
         engine::addParam("Decay", &patch.decay, 0.f, 0.99f);
         break;
-#if 0 //TODO....
+#if 0 // TODO....
         case 17:
             alloc_engine<plaits::PhaseDistortionEngine>(plaits::kMaxBlockSize * 4);
             _plaitsEngine->post_processing_settings = {0.7f, 0.7f, false};
@@ -378,7 +379,7 @@ void engine::process()
     modulations.level_patched = false;
     modulations.level = 1.f;
 
-    patch.note = _base_pitch + engine::cv() * 12;
+    patch.note = _base_pitch + (_pitch + engine::cv()) * 12;
 
     float last_decay = patch.decay;
     float last_morph = patch.morph;
