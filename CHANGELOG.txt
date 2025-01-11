@@ -2,7 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
-== 2025-0-05
+== 2025-01-11
+   * Changes
+     * M-OSC/Waveforms - Chords paramter text eg. 1+3+5+7 instead of 0+2+4+6
+== 2025-01-05
    * Bugfix
      * Plaits drums - pitch parameter no effect
      * IO-config - accent input was set eq trigger input

@@ -70,7 +70,7 @@ namespace braids
 
     int32_t Quantizer::Process(int32_t pitch, int32_t root, int8_t *note)
     {
-         pitch -= root + DEFAULT_PITCH;
+        pitch -= root + DEFAULT_PITCH;
         auto ret = engine::qz_process(pitch, note);
         ret += root + DEFAULT_PITCH;
         return ret;
@@ -252,12 +252,12 @@ void engine::draw()
         else
         {
             char *p = color_vals;
-            p += sprintf(p, "Chord-%d\t0", _color + 1);
+            p += sprintf(p, "Chord-%d\t1", _color + 1);
             for (int i = 1; i < LEN_OF(braids::diatonic_chords[_color]); i++)
             {
                 if (braids::diatonic_chords[_color][i] != 0)
                 {
-                    p += sprintf(p, "+%X", braids::diatonic_chords[_color][i]);
+                    p += sprintf(p, "+%d", 1 + braids::diatonic_chords[_color][i]);
                 }
             }
 
