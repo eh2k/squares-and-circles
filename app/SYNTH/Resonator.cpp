@@ -15,7 +15,26 @@
 #include <stdio.h>
 
 static int32_t _model = rings::ResonatorModel::RESONATOR_MODEL_MODAL;
-const char *_models[] = {"Modal", "Sympath.", "String", "FM", "StrQuant."};
+static const char* _models[] = {
+    "Modal\tmono",
+    "Sympath.\tmono",
+    "String\tmono",
+    "FM\tmono",
+    "StrQuant.\tmono",
+
+    "Modal\tduo",
+    "Sympath.\tduo",
+    "String\tduo",
+    "FM\tduo",
+    "StrQuant\tduo",
+
+    "Modal\tquadro",
+    "Sympath.\tquadro",
+    "String\tquadro",
+    "FM\tquadro",
+    "StrQuant.\tquadro",
+};
+
 static rings::Strummer strummer = {};
 
 static rings::Part part;
@@ -34,11 +53,10 @@ void engine::setup()
 
     part.Init();
     part.set_model(rings::ResonatorModel::RESONATOR_MODEL_MODAL);
-    part.set_polyphony(rings::kMaxPolyphony);
+    part.set_polyphony(3);
 
     engine::addParam(V_OCT, &_pitch); // pitch is summed with CV and quantized
-    engine::addParam("@Model", &_model, rings::ResonatorModel::RESONATOR_MODEL_MODAL,
-                     rings::ResonatorModel::RESONATOR_MODEL_SYMPATHETIC_STRING_QUANTIZED, _models);
+    engine::addParam("@Model", &_model, 0, LEN_OF(_models) - 1, (const char**)_models);
 
     engine::addParam("Struc.", &patch.structure);
     engine::addParam("Brighn.", &patch.brightness);
@@ -52,7 +70,18 @@ void engine::process()
     auto bufferOut = engine::outputBuffer<0>();
     auto bufferAux = engine::outputBuffer<1>();
 
-    part.set_model((rings::ResonatorModel)_model);
+    part.set_model((rings::ResonatorModel)(_model % 5));
+
+    int32_t polyphony = 1;
+    if (_model < 5)
+        polyphony = 1;
+    else if (_model < 10)
+        polyphony = 2;
+    else
+        polyphony = 4;
+
+    if (polyphony != part.polyphony())
+        part.set_polyphony(polyphony);
 
     performance_state.strum = engine::trig() > 0;
     performance_state.internal_strum = false;

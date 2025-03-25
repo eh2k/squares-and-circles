@@ -89,7 +89,7 @@ void Part::ConfigureResonators() {
     case RESONATOR_MODEL_STRING:
     case RESONATOR_MODEL_SYMPATHETIC_STRING_QUANTIZED:
       {
-        float lfo_frequencies[] = {
+        float lfo_frequencies[kNumStrings] = {
           0.5f, 0.4f, 0.35f, 0.23f, 0.211f, 0.2f, 0.171f
         };
         for (int32_t i = 0; i < kNumStrings; ++i) {

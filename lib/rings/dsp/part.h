@@ -61,7 +61,7 @@ enum ResonatorModel {
   RESONATOR_MODEL_LAST
 };
 
-const int32_t kMaxPolyphony = 3;
+const int32_t kMaxPolyphony = 4;
 const int32_t kNumStrings = kMaxPolyphony * 2;
 
 class Part {
