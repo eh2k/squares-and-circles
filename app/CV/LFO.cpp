@@ -75,7 +75,7 @@ void engine::setup()
 
     engine::addParam("Freq.", &rate, 0, UINT16_MAX);
     engine::addParam("Shape", &shape, 0, peaks::LFO_SHAPE_LAST - 1, shape_names);
-    engine::addParam("Scale", &scale, -0.5f, 0.5f);
+    engine::addParam("AttVer", &scale, -0.5f, 0.5f);
     engine::addParam("Wavefrm", &waveform, 0, UINT16_MAX);
     engine::addParam("Offset", &offset, -1, 1);
 

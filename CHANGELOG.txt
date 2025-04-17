@@ -2,8 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+== 2025-04-17
+   * Enhancements
+     * AttVer (attenuverter), Offset Paramters added to CV/EnvGen_*, CV/EnvFollower, CV/Vactrol #126
+   * Bugfixes
+     * DrumSynth - IO-Page: Mixer Level for individual instrument was added to all instruments
 == 2025-03-25
-  * Polyphony for the Rings machine #124
+   * Enhancements
+     * Polyphony for the Rings machine #124
 == 2025-01-11
    * Changes
      * M-OSC/Waveforms - Chords paramter text eg. 1+3+5+7 instead of 0+2+4+6

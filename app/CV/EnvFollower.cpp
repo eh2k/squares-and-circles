@@ -23,6 +23,8 @@
 // See http://creativecommons.org/licenses/MIT/ for more information.
 //
 
+// ENGINE_NAME:CV/EnvFollower;CV/Vactrol
+
 #include "../squares-and-circles-api.h"
 #include <algorithm>
 #include "../../lib/streams/follower.h"
@@ -36,12 +38,15 @@ streams::AudioCvMeter _meter;
 int32_t attack_ = 0;
 int32_t decay_ = 0;
 int32_t mode_ = 0;
+float scale = 0.5f;
+float offset = 0;
 
-namespace gfx
+struct
 {
-    uint8_t i = 0;
     int8_t scope[128] = {};
-    void drawScope(int x0, int y)
+    int i = 0;
+
+    void draw(int x0, int y)
     {
         for (int x = x0; x < 127; x++)
         {
@@ -51,13 +56,13 @@ namespace gfx
         }
     }
 
-    void push_scope(int8_t y)
+    void push(int y)
     {
         scope[i++ % 128] = y;
-        if (i > 128)
+        if (i > 127)
             i = 0;
     }
-}
+} _scope;
 
 const char *mode_names[] = {
     "Follower",
@@ -66,9 +71,14 @@ const char *mode_names[] = {
 
 void engine::setup()
 {
+    if (!strcmp(engine::name(), "CV/Vactrol"))
+        mode_ = 1;
+
     engine::addParam("Attack", &attack_, 0, UINT16_MAX);
-    engine::addParam("MODE", &mode_, 0, 1, mode_names);
+    engine::addParam("AttVer", &scale, -1, 1);
     engine::addParam("Decay", &decay_, 0, INT16_MAX);
+    engine::addParam("Offset", &offset, -1, 1);
+
     decay_ = INT16_MAX / 2;
     engine::setMode(ENGINE_MODE_COMPACT | ENGINE_MODE_CV_OUT);
 
@@ -97,7 +107,7 @@ void engine::process()
         for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
         {
             _follower.Process(0, inputL[i] * INT16_MAX, &gain, &freq);
-            outputL[i] = gain >> 2; //_follower.process(inputL[i]) * 10.f;
+            outputL[i] = gain >> 1; //_follower.process(inputL[i]) * 10.f;
         }
     }
     else
@@ -106,7 +116,7 @@ void engine::process()
         for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
         {
             _vactrol.Process(0, inputL[i] * INT16_MAX, &gain, &freq);
-            outputL[i] = gain >> 2; //_follower.process(inputL[i]) * 10.f;
+            outputL[i] = gain >> 1; //_follower.process(inputL[i]) * 10.f;
         }
     }
 
@@ -116,13 +126,19 @@ void engine::process()
     {
         int8_t v = outputL[0] >> 9;
         CONSTRAIN(v, 0, 14);
-        gfx::push_scope(v);
+        _scope.push(v);
+    }
+
+    for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
+    {
+        outputL[i] *= scale;
+        outputL[i] += (offset * PITCH_PER_OCTAVE * 5);
     }
 }
 
 void engine::draw()
 {
-    gfx::drawScope(64, 58);
+    _scope.draw(64, 58);
     gfx::drawRect(64, 44, 64, 15);
     gfx::drawRect(0, 44, 63, 15);
     gfx::fillRect(2, 46, (_meter.peak() >> 8), 11);

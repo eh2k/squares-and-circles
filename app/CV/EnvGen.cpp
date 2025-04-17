@@ -38,15 +38,18 @@ int32_t _attack = 0;
 int32_t _decay = UINT16_MAX / 2;
 int32_t _sustain = UINT16_MAX / 2;
 int32_t _release = UINT16_MAX / 2;
+float scale = 0.5f;
+float offset = 0;
+int32_t dummy = 0;
 
 struct
 {
     int8_t scope[128] = {};
     int i = 0;
 
-    void draw(int y)
+    void draw(int x0, int y)
     {
-        for (int x = 0; x < 127; x++)
+        for (int x = x0; x < 127; x++)
         {
             if (x % 3 == 0)
                 gfx::setPixel(x, y);
@@ -66,20 +69,26 @@ void engine::setup()
 {
     _processor.Init();
 
-    engine::addParam("Attack", &_attack, 0, UINT16_MAX);
-    engine::addParam("Decay", &_decay, 0, UINT16_MAX);
-
     if (!strcmp(engine::name(), "CV/EnvGen_ADSR"))
     {
+        engine::addParam("Attack", &_attack, 0, UINT16_MAX);
+        engine::addParam("Decay", &_decay, 0, UINT16_MAX);
         engine::addParam("Sustain", &_sustain, 0, UINT16_MAX);
         engine::addParam("Release", &_release, 0, UINT16_MAX);
+        engine::addParam("AttVer", &scale, -1, 1);
+        engine::addParam("Offset", &offset, -1, 1);
     }
     else
     {
+        engine::addParam("Attack", &_attack, 0, UINT16_MAX);
+        engine::addParam("Decay", &_decay, 0, UINT16_MAX);
+        engine::addParam("AttVer", &scale, -1, 1);
+        engine::addParam("Offset", &offset, -1, 1);
         // AD - Mode
         _sustain = -1;
         _release = -1;
     }
+
     engine::setMode(ENGINE_MODE_COMPACT | ENGINE_MODE_CV_OUT);
 }
 
@@ -120,20 +129,27 @@ void engine::process()
     int16_t *buffer = engine::outputBuffer_i16<0>();
     _processor.Process(flags, buffer, FRAME_BUFFER_SIZE);
 
-    static int y = 0;
     if ((engine::t() % 50) == 0)
     {
-        _scope.push(y);
-        y = 0;
+        int8_t v = buffer[0] * scale / (INT16_MAX / 16);
+        _scope.push(v);
     }
-    else
-        y = std::max<int>(y, buffer[0] / (INT16_MAX / 16));
 
     for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
-        buffer[i] /= 2;
+    {
+        buffer[i] >>= 1;
+        buffer[i] *= scale;
+        buffer[i] += (offset * PITCH_PER_OCTAVE * 5);
+    }
 }
 
 void engine::draw()
 {
-    _scope.draw(56);
+    if (_sustain < 0)
+    {
+        if (scale > 0)
+            _scope.draw(0, 58);
+        else
+            _scope.draw(0, 58 - 14);
+    }
 }

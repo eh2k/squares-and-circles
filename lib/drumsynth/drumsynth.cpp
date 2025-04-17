@@ -452,8 +452,8 @@ struct drum_synth_Part
                     osc = this->biquad2.process(osc) * part->bq2.g;
             }
 
-            *outL++ = osc * this->_vca.value() * part->level;
-            *outR++ = osc2 * this->_vca.value() * part->level;
+            *outL++ = osc * this->_vca.value() * part->level * params->levelL;
+            *outR++ = osc2 * this->_vca.value() * part->level * params->levelR;
         }
 
         last_f = ff;
@@ -536,12 +536,6 @@ extern "C" void drum_synth_process_frame(DrumSynth inst, int part, float freq, c
                         outR[j] += tmpR[j];
                     }
                 }
-            }
-
-            for (int j = 0; j < size; j++)
-            {
-                outL[j] *= params->levelL;
-                outR[j] *= params->levelR;
             }
         }
     }
