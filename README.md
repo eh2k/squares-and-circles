@@ -256,7 +256,7 @@ The MIDI&Clock-Settings page lets you select the MIDI-Control.
 - **MIDI-Control**:
   - `-` disabled
   - In case OC_T40
-    - `USB+T1` [T1 input can be used as MIDI-Input](#-midi-expander)
+    - `USB+T1` [T1 input can be used as MIDI-Input](https://github.com/eh2k/squares-and-circles/wiki/Ornament%E2%80%90and%E2%80%90Crime#-midi-expander)
   - else
     - `MIDI/USB` the USB-MIDI and/or hardware Midi-Input
 

@@ -49,6 +49,8 @@ const char *inst_names[16] = {};
 
 char __debug[128];
 
+constexpr int MAX_T = UINT16_MAX * 4; 
+
 void engine::setup()
 {
     const uint8_t *drumkit = __data;
@@ -59,7 +61,7 @@ void engine::setup()
         for (int i = 0; i < inst_count; i++)
         {
             inst_names[i] = _instModel[i].name;
-            _t[i] = UINT32_MAX;
+            _t[i] = MAX_T;
             _inst[i] = drum_synth_init(&_instModel[i], ::malloc);
         }
 
@@ -100,7 +102,7 @@ void engine::process()
             drum_synth_reset(_inst[i]);
         }
 
-        if (_t[i] < UINT16_MAX)
+        if (_t[i] < MAX_T)
         {
             DrumParams params = {_t[i], 0, stretch, stereo};
 

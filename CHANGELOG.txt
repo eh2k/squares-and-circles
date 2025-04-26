@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+== 2025-04-26
+   * Bugfixes
+     * DrumSynth 
+      - Metallic oscillator crash when N > 6
+      - Instrument max rendering length ~ 1.2s * 4
 == 2025-04-17
    * Enhancements
      * AttVer (attenuverter), Offset Paramters added to CV/EnvGen_*, CV/EnvFollower, CV/Vactrol #126

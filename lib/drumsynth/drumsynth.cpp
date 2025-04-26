@@ -34,6 +34,7 @@
 #include "misc/noise.hxx"
 #include "misc/Biquad.h"
 #include "drumsynth.h"
+#include "string.h"
 
 #ifndef __SAMPLE_RATE
 constexpr float __SAMPLE_RATE = 48000.f;
@@ -218,7 +219,7 @@ private:
 
 struct drum_synth_Part
 {
-    Oscillator _osc[6] = {};
+    Oscillator* _osc = nullptr;
     stmlib::DCBlocker _dc_blocker;
 
     WhiteNoise noise = {};
@@ -465,7 +466,7 @@ extern "C" DrumSynth drum_synth_init(const DrumModel *inst, void *(*malloc)(size
     if (malloc == nullptr)
         malloc = ::malloc;
 
-    const size_t malloc_size = (4 + (sizeof(drum_synth_Part) * inst->n));
+    const size_t malloc_size = (sizeof(inst->n) + (sizeof(drum_synth_Part) * inst->n));
 
     if (auto p = (DrumSynth)malloc(malloc_size))
     {
@@ -474,7 +475,10 @@ extern "C" DrumSynth drum_synth_init(const DrumModel *inst, void *(*malloc)(size
 
         for (size_t i = 0; i < inst->n; i++)
         {
-            (new (&_part[i]) drum_synth_Part())->init(&inst->part[i]);
+            new (&_part[i]) drum_synth_Part();
+            auto osc_n = std::max<uint32_t>(1, inst->part[i].osc.n);
+            _part[i]._osc = new (malloc(sizeof(Oscillator) * osc_n)) Oscillator[osc_n]{};
+            _part[i].init(&inst->part[i]);
         }
         return p;
     }
@@ -522,7 +526,7 @@ extern "C" void drum_synth_process_frame(DrumSynth inst, int part, float freq, c
                     float modR[size];
                     _part[_part[part].part->amp_mod.dest].process_frame(freq, params, modL, modR, size);
 
-                    for (int j = 0; j < size; j++)
+                    for (size_t j = 0; j < size; j++)
                     {
                         outL[j] += tmpL[j] * modL[j];
                         outR[j] += tmpR[j] * modR[j];
@@ -530,7 +534,7 @@ extern "C" void drum_synth_process_frame(DrumSynth inst, int part, float freq, c
                 }
                 else
                 {
-                    for (int j = 0; j < size; j++)
+                    for (size_t j = 0; j < size; j++)
                     {
                         outL[j] += tmpL[j];
                         outR[j] += tmpR[j];
@@ -565,7 +569,7 @@ extern "C" int drum_synth_load_models(const uint8_t *drumkit, DrumModel _instMod
         PartArgs *part = new (malloc(sizeof(PartArgs) * _instModel[i].n)) PartArgs[_instModel[i].n]{};
         _instModel[i].part = part;
 
-        for (int j = 0; j < _instModel[i].n; j++)
+        for (size_t j = 0; j < _instModel[i].n; j++)
         {
             part->flags = *reinterpret_cast<const PartFlags *>(p);
             p += sizeof(part->flags);
