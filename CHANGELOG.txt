@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+== 2025-05-15
+   * Bugfix
+     * usb init error - device descriptor read/64, error -110 - #132
+   * Enhancements
+     * DSM0 4x or single engine mode
+     * Midi CC 0xA Pan #134
+     * DrumSynth (same behaviour as RC808)
+       - waveshaper curve
+       - sine osc phase inversion
+       - metallic osc -> pitch envelope (same behaviour as RC808)
 == 2025-04-26
    * Bugfixes
      * DrumSynth 

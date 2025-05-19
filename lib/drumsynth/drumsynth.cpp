@@ -35,6 +35,7 @@
 #include "misc/Biquad.h"
 #include "drumsynth.h"
 #include "string.h"
+#include "misc/cubic_spline.hxx"
 
 #ifndef __SAMPLE_RATE
 constexpr float __SAMPLE_RATE = 48000.f;
@@ -205,7 +206,7 @@ public:
         // #define PI_F 3.1415927410125732421875f
         // out = sinf((0.25f + osc.phase_) * PI_F * 2.f);
 
-        out = stmlib::Interpolate(plaits::lut_sine + 128, osc.phase_, 512.0f);
+        out = -stmlib::Interpolate(plaits::lut_sine + 128, osc.phase_, 512.0f);
 
         osc.phase_ += phase_inc_;
         if (osc.phase_ > 1.0f)
@@ -219,7 +220,7 @@ private:
 
 struct drum_synth_Part
 {
-    Oscillator* _osc = nullptr;
+    Oscillator *_osc = nullptr;
     stmlib::DCBlocker _dc_blocker;
 
     WhiteNoise noise = {};
@@ -234,7 +235,8 @@ struct drum_synth_Part
 
     const PartArgs *part;
 
-    float amp = 0.4380016479995117f;
+    float amp = 1.f;
+    cspline waveshaper = {};
 
     void init(const PartArgs *part)
     {
@@ -269,35 +271,27 @@ struct drum_synth_Part
         }
         else
         {
-            amp = 0.4380016479995117f;
+            amp = 1.f - __FLT_EPSILON__; // 0.4380016479995117f;
             _osc[0].Init(part->osc.fa);
+        }
+
+        if (part->ws.n)
+        {
+            cspline_init(&this->waveshaper, &part->ws.xy[0].x, &part->ws.xy[0].y, part->ws.n, 2);
         }
     }
 
-    float cubicInterpolation(float x, float x0, float y0, float x1, float y1)
+    void free()
     {
-        float t = (x - x0) / (x1 - x0);
-        float t2 = t * t;
-        float t3 = t2 * t;
-        float a = 2 * t3 - 3 * t2 + 1;
-        float b = t3 - 2 * t2 + t;
-        float c = -2 * t3 + 3 * t2;
-        float d = t3 - t2;
-        return a * y0 + b * (x1 - x0) * y0 + c * y1 + d * (x1 - x0) * y1;
+        if (part->ws.n)
+            cspline_free(&this->waveshaper);
     }
 
     float waveshaper_transform(float a)
     {
-        CONSTRAIN(a, -0.999f, 0.999f);
-
-        for (size_t j = 0; j < part->ws.n - 1; j++)
-        {
-            if (part->ws.xy[j + 0].x <= a && a < part->ws.xy[j + 1].x)
-            {
-                return cubicInterpolation(a, part->ws.xy[j + 0].x, part->ws.xy[j + 0].y, part->ws.xy[j + 1].x, part->ws.xy[j + 1].y);
-            }
-        }
-
+        CONSTRAIN(a, -1.f + __FLT_EPSILON__, 1.f - __FLT_EPSILON__);
+        a = cspline_eval(&this->waveshaper, a);
+        CONSTRAIN(a, -1.f + __FLT_EPSILON__, 1.f - __FLT_EPSILON__);
         return a;
     }
 
@@ -355,7 +349,8 @@ struct drum_synth_Part
                 osc = 0;
                 for (size_t j = 0; j < part->osc.n; j++)
                 {
-                    this->_osc[j].pitch(this->_pitch.value() * f);
+                    // this->_osc[j].pitch(this->_pitch.value() * f);
+                    this->_osc[j].pitch(f);
                     this->_osc[j].Metallic(osc);
                 }
 
@@ -451,10 +446,17 @@ struct drum_synth_Part
                     osc = this->biquad1.process(osc) * part->bq1.g;
                 if (part->bq2.mode)
                     osc = this->biquad2.process(osc) * part->bq2.g;
+
+                if (part->ws.n)
+                    osc = waveshaper_transform(osc);
+
+                osc2 = osc;
             }
 
-            *outL++ = osc * this->_vca.value() * part->level * params->levelL;
-            *outR++ = osc2 * this->_vca.value() * part->level * params->levelR;
+            *outL++ = osc * this->_vca.value() * part->level * params->levelL * 0.8f;
+            *outR++ = osc2 * this->_vca.value() * part->level * params->levelR * 0.8f;
+            CONSTRAIN(*(outL - 1), -1.f, 1.f);
+            CONSTRAIN(*(outR - 1), -1.f, 1.f);
         }
 
         last_f = ff;
@@ -652,4 +654,15 @@ extern "C" int drum_synth_load_models(const uint8_t *drumkit, DrumModel _instMod
     }
 
     return inst_count;
+}
+
+float drum_synth_process_ws(DrumSynth inst, int part, float x)
+{
+    auto _part = (drum_synth_Part *)&inst[1];
+    if (part >= 0 && _part[part].part->ws.n)
+    {
+        return _part[part].waveshaper_transform(x);
+    }
+
+    return x;
 }

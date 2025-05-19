@@ -279,6 +279,8 @@ In case the MIDI-Control is enabled, you can setup the Midi-Channel in the engin
     ````
     | HEX | DEC | parameter-index | CH |
     |-----|-----|-----------------|----|
+    |  07 |  07 |      LEVEL      |  * |
+    |  0A |  10 |       PAN       |  * |
     |  20 |  32 |        0        |  * |
     |  21 |  33 |        1        |  * |
     |  22 |  34 |        2        |  * |
