@@ -1,8 +1,8 @@
 #include "../squares-and-circles-api.h"
 #include "../lib/stmlib/algorithms/voice_allocator.h"
-#include <map>
 
 static uint8_t voice[4] = {};
+static uint8_t velocity[4] = {};
 static stmlib::VoiceAllocator<LEN_OF(voice)> allocator = {};
 static int16_t pitch = 0;
 static uint8_t cc[128] = {};
@@ -22,7 +22,7 @@ void engine::process()
 
 void engine::draw()
 {
-    gfx::drawString(2, 12, "VOICE KEY", 0);
+    gfx::drawString(1, 12, "VOICE KEY VEL", 0);
     gfx::drawString(66, 12, "CONTROL", 0);
 
     for (int x = 0; x < 128; x += 3)
@@ -31,8 +31,12 @@ void engine::draw()
     char tmp[30];
     for (size_t i = 0; i < LEN_OF(voice); i++)
     {
-        sprintf(tmp, "#%d   %4d", i, voice[i]);
+        sprintf(tmp, "#%ld", i);
         gfx::drawString(2, 20 + i * 6, tmp, 0);
+        sprintf(tmp, "%4d", voice[i]);
+        gfx::drawString(27, 20 + i * 6, tmp, 0);
+        sprintf(tmp, "%4d", velocity[i]);
+        gfx::drawString(46, 20 + i * 6, tmp, 0);
     }
 
     for (int y = 12; y < 60; y += 3)
@@ -58,12 +62,13 @@ void engine::draw()
     }
 }
 
-void engine::onMidiNote(uint8_t key, uint8_t velocity) // NoteOff: velocity == 0
+void engine::onMidiNote(uint8_t key, uint8_t vel) // NoteOff: velocity == 0
 {
-    if (velocity > 0)
+    if (vel > 0)
     {
         auto ni = allocator.NoteOn(key);
         voice[ni] = key;
+        velocity[ni] = vel;
     }
     else
     {

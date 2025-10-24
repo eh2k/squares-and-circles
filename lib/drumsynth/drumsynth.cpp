@@ -25,17 +25,19 @@
 
 #define private public
 
-#define CONSTRAIN(x, min, max) ((x) < (min) ? (min) : ((x) > (max) ? (max) : (x)))
 #include "stmlib/dsp/dsp.h"
 #include "stmlib/dsp/filter.h"
 #include "plaits/dsp/oscillator/oscillator.h"
-#include "stmlib/dsp/cosine_oscillator.h"
 #include "plaits/resources.h"
 #include "misc/noise.hxx"
 #include "misc/Biquad.h"
 #include "drumsynth.h"
 #include "string.h"
 #include "misc/cubic_spline.hxx"
+
+#ifndef CONSTRAIN
+#define CONSTRAIN(x, min, max) ((x) < (min) ? (min) : ((x) > (max) ? (max) : (x)))
+#endif
 
 #ifndef __SAMPLE_RATE
 constexpr float __SAMPLE_RATE = 48000.f;

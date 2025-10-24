@@ -35,6 +35,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <utility>
 
 #define V_OCT "V_OCT"
 #define V_QTZ "V_QTZ"
@@ -126,6 +127,7 @@ EXTERN_C
     extern int16_t *__output_l_i16p;
     extern int16_t *__output_r_i16p;
 
+    extern uint8_t *__trig_level;
     extern uint8_t *__mixer_level;
     extern uint8_t *__mixer_pan;
     extern uint32_t *__multi_trigs_mask;
@@ -236,6 +238,7 @@ namespace engine
     template <>
     inline float *inputBuffer<1>() { return *__audio_in_r_fpp; }
 
+    inline float trigLevel(int ch) { return ((4.f / UINT16_MAX) * __trig_level[ch] * __trig_level[ch]); }
     inline float mixLevel(int ch) { return ((4.f / UINT16_MAX) * __mixer_level[ch]) * __mixer_level[ch]; } // exp range 0 - 4
     inline float mixLevelL(int ch) { return cosf((float)__mixer_pan[ch] / 255.f * (float)M_PI_2) * mixLevel(ch); }
     inline float mixLevelR(int ch) { return sinf((float)__mixer_pan[ch] / 255.f * (float)M_PI_2) * mixLevel(ch); }
@@ -259,6 +262,8 @@ namespace engine
     void __attribute__((weak)) onMidiPitchbend(int16_t pitch);
     void __attribute__((weak)) onMidiCC(uint8_t ccc, uint8_t value);
     void __attribute__((weak)) onMidiSysex(uint8_t byte);
+    
+    EXTERN_C void setMultiTrigMidiKeyMap(const std::pair<uint8_t, uint8_t> *keyMap);
 
     EXTERN_C void addParam_f32(const char *name, float *value, float min = 0.f, float max = 1.f);                  // min...max
     EXTERN_C void addParam_i32(const char *name, int32_t *value, int32_t min, int32_t max, const char **valueMap); // 0...max

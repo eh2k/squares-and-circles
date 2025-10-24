@@ -24,8 +24,6 @@
 //
 
 #include "../squares-and-circles-api.h"
-#include "stmlib/stmlib.h"
-#include "stmlib/dsp/filter.h"
 #include "clouds/dsp/fx/reverb.h"
 
 float raw = 1.f;

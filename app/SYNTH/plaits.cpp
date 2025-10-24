@@ -40,7 +40,6 @@
 
 #include "../squares-and-circles-api.h"
 
-#include "stmlib/stmlib.h"
 #define private public // ;-)
 #include "plaits/dsp/voice.h"
 #include "stmlib/dsp/dsp.h"

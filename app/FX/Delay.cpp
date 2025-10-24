@@ -24,8 +24,6 @@
 //
 
 #include "../squares-and-circles-api.h"
-#include "stmlib/stmlib.h"
-#include "stmlib/dsp/units.h"
 #include "stmlib/dsp/filter.h"
 #include "stmlib/dsp/delay_line.h"
 #include <stdio.h>

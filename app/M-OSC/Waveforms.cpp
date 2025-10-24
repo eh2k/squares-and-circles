@@ -28,7 +28,6 @@
 #include "../squares-and-circles-api.h"
 
 #include "stmlib/stmlib.h"
-#include "stmlib/dsp/dsp.h"
 
 #define private public
 #include "braids/macro_oscillator.h"
@@ -37,7 +36,6 @@
 
 #include "braids/vco_jitter_source.h"
 #include "braids/quantizer.h"
-#include <algorithm>
 
 #define SemitonesToRatioFast
 #include "lib/plaits/dsp/chords/chord_bank.cc"

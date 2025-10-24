@@ -1,13 +1,13 @@
-> Feedback welcome: Feel free to leave me a message or any hints in the ["General Feedback"](https://github.com/eh2k/squares-and-circles/issues/1) issue.
+> Feedback welcome: Feel free to leave a message or any hints in the ["General Feedback"](https://github.com/eh2k/squares-and-circles/issues/1) issue.
 
-# □︎●︎ [![WebFlasher](https://img.shields.io/badge/Web-Flasher-blue)](https://eh2k.github.io/□●/flash/?firmware) [![MODULAGrid](https://img.shields.io/badge/MODULAR-Grid-white)](https://www.modulargrid.net/e/modules/browser?SearchName=squares+and+circles&SearchShowothers=1) 
+# □︎●︎ [![WebFlasher](https://img.shields.io/badge/Web-Flasher-blue)](https://eh2k.github.io/□●/flash/?firmware) [![MODULAGrid](https://img.shields.io/badge/MODULAR-Grid-white)](https://www.modulargrid.net/e/modules/browser?SearchName=squares+and+circles&SearchShowothers=1)
 
 <!-- ⧉⦾ ⧇ ⟥⧂ -->
-**squares-and-circles** is an alternate firmware for the Eurorack module O_C, targeting Teensy 4.0.
+**squares-and-circles** is an alternate firmware for the Eurorack module Ornament & Crime (O_C), specifically targeting the Teensy 4.0.
 
 >  <a href="CHANGELOG.txt">CHANGELOG.txt</a>
 
-## ■ Demos 
+## ■ Demos
 
 | [![](https://img.youtube.com/vi/WQj3YqGpxRU/0.jpg)](https://www.youtube.com/watch?v=WQj3YqGpxRU) | [![](https://img.youtube.com/vi/QdlwETEaE3A/0.jpg)](https://youtu.be/QdlwETEaE3A) | [![](https://img.youtube.com/vi/lb-pbm1ddRw/0.jpg)](https://youtu.be/lb-pbm1ddRw) | [![](https://img.youtube.com/vi/J1vmVwwdVU4/0.jpg)](https://youtu.be/J1vmVwwdVU4)
 |--|--|--|--|
@@ -19,7 +19,7 @@ They served a great source of learning and provided a huge playground and the fo
 
 ## Motivation / Challenge
 
-<img align="right" src="doc/u_oc.png" width=160px /> 
+<img align="right" src="doc/u_oc.png" width=160px />
 
 
 Given are the following ingredients: Two buttons, two encoders and a 128x64 display. Sixteen I/O ports (4x trigs, 4x cv and 4x dac) and a Cortex-M7.
@@ -36,20 +36,20 @@ The available engine types include drums, synthesizers, oscillators, sequencers,
 * [Long press [LEFT]] enters the machine-selection-page.
 * [Long press [RIGHT]] enters the menu-page.
 * [Long press left or right [ENCODER]] shows the modulation popup
-* [Long press [L-ENCODER] + [R-ENCODER]] saves the patch - will be restored at startup 
+* [Long press [L-ENCODER] + [R-ENCODER]] saves the patch - will be restored at startup
   - DEBUG: skip restore - press [RIGHT] button while startup ).
 
 <br/>
 <div style="page-break-after: always;"></div>
 
-# Machines <sup>[wiki](https://github.com/eh2k/squares-and-circles/wiki/%E2%96%A1%EF%B8%8E%E2%97%8F%EF%B8%8E-Machines-&-Engines)</sup> 
+# Machines <sup>[wiki](https://github.com/eh2k/squares-and-circles/wiki/%E2%96%A1%EF%B8%8E%E2%97%8F%EF%B8%8E-Machines-&-Engines)</sup>
 
-<img align="right" src="doc/menu_engines.png" width=196px /> 
+<img align="right" src="doc/menu_engines.png" width=196px />
 
 * [Long press [LEFT]] enters the machine-selection-page.<br/>
-* [Short press [R-ENCODER]] loads the selected engine.<br/> 
+* [Short press [R-ENCODER]] loads the selected engine.<br/>
 * [Long press [R-ENCODER]] loads the selected engine - extended mode.<br/>
-   * Load & reset I/O settings 
+   * Load & reset I/O settings
    * Load & keep IO settings <img align="right" src="doc/engine_load_resetio.png" width=196px />
    * Copy #1-4 (parameter values + modulations + I/O settings)
 
@@ -62,45 +62,45 @@ The available engine types include drums, synthesizers, oscillators, sequencers,
 ---
 
 ## Engines
-* **GND** 
+* **GND**
   * `---`
-  * [Scope](https://github.com/eh2k/squares-and-circles/wiki/Scope) 
-  * [FFT](https://github.com/eh2k/squares-and-circles/wiki/FFT) 
+  * [Scope](https://github.com/eh2k/squares-and-circles/wiki/Scope)
+  * [FFT](https://github.com/eh2k/squares-and-circles/wiki/FFT)
 * **CV**
-  * [V/OCT](https://github.com/eh2k/squares-and-circles/wiki/V_OCT) 
-  * [EnvGen_AD](https://github.com/eh2k/squares-and-circles/wiki/EnvGen_AD) 
-  * [EnvGen_ADSR](https://github.com/eh2k/squares-and-circles/wiki/EnvGen_ADSR) 
-  * [LFO](https://github.com/eh2k/squares-and-circles/wiki/LFO) 
-  * [EnvFollower](https://github.com/eh2k/squares-and-circles/wiki/EnvFollower) 
-* **Drums** 
-  * [Analog-BD](https://github.com/eh2k/squares-and-circles/wiki/Analog-BD),  
-  * [Analog-SD](https://github.com/eh2k/squares-and-circles/wiki/Analog-SD), 
-  * [Analog-HH](https://github.com/eh2k/squares-and-circles/wiki/Analog-HH), 
-  * [Analog-HH2](https://github.com/eh2k/squares-and-circles/wiki/Analog-HH2), 
-  * [909ish-BD](https://github.com/eh2k/squares-and-circles/wiki/909ish-BD), 
-  * [909ish-SD](https://github.com/eh2k/squares-and-circles/wiki/909ish-SD),  
+  * [V/OCT](https://github.com/eh2k/squares-and-circles/wiki/V_OCT)
+  * [EnvGen_AD](https://github.com/eh2k/squares-and-circles/wiki/EnvGen_AD)
+  * [EnvGen_ADSR](https://github.com/eh2k/squares-and-circles/wiki/EnvGen_ADSR)
+  * [LFO](https://github.com/eh2k/squares-and-circles/wiki/LFO)
+  * [EnvFollower](https://github.com/eh2k/squares-and-circles/wiki/EnvFollower)
+* **Drums**
+  * [Analog-BD](https://github.com/eh2k/squares-and-circles/wiki/Analog-BD),
+  * [Analog-SD](https://github.com/eh2k/squares-and-circles/wiki/Analog-SD),
+  * [Analog-HH](https://github.com/eh2k/squares-and-circles/wiki/Analog-HH),
+  * [Analog-HH2](https://github.com/eh2k/squares-and-circles/wiki/Analog-HH2),
+  * [909ish-BD](https://github.com/eh2k/squares-and-circles/wiki/909ish-BD),
+  * [909ish-SD](https://github.com/eh2k/squares-and-circles/wiki/909ish-SD),
   * [TR909-HiHat, TR909-Ride](https://github.com/eh2k/squares-and-circles/wiki/TR909_HiHats)
-  * [808ish-BD](https://github.com/eh2k/squares-and-circles/wiki/808ish-BD), 
-  * [808ish-SD](https://github.com/eh2k/squares-and-circles/wiki/808ish-SD), 
+  * [808ish-BD](https://github.com/eh2k/squares-and-circles/wiki/808ish-BD),
+  * [808ish-SD](https://github.com/eh2k/squares-and-circles/wiki/808ish-SD),
   * [808ish-HiHat](https://github.com/eh2k/squares-and-circles/wiki/808ish-HiHat),
   * [TR707](https://github.com/eh2k/squares-and-circles/wiki/TR707),
-  * [FM-Drum](https://github.com/eh2k/squares-and-circles/wiki/FM-Drum) 
-  * [Djembe](https://github.com/eh2k/squares-and-circles/wiki/Djembe) 
-  * [Claps](https://github.com/eh2k/squares-and-circles/wiki/Claps) 
+  * [FM-Drum](https://github.com/eh2k/squares-and-circles/wiki/FM-Drum)
+  * [Djembe](https://github.com/eh2k/squares-and-circles/wiki/Djembe)
+  * [Claps](https://github.com/eh2k/squares-and-circles/wiki/Claps)
 * **M-OSC**
-  * [Waveforms](https://github.com/eh2k/squares-and-circles/wiki/Waveforms) 
-  * [Virt.Analog](https://github.com/eh2k/squares-and-circles/wiki/Virt.Analog) 
-  * [Waveshaping](https://github.com/eh2k/squares-and-circles/wiki/Waveshaping) 
-  * [2-OP-FM](https://github.com/eh2k/squares-and-circles/wiki/2-OP-FM) 
-  * [Formant/PD](https://github.com/eh2k/squares-and-circles/wiki/Formant-PD) 
-  * [Harmonic](https://github.com/eh2k/squares-and-circles/wiki/Harmonic) 
-  * [Wavetable](https://github.com/eh2k/squares-and-circles/wiki/Waveforms) 
-  * [Chord](https://github.com/eh2k/squares-and-circles/wiki/Waveforms) 
+  * [Waveforms](https://github.com/eh2k/squares-and-circles/wiki/Waveforms)
+  * [Virt.Analog](https://github.com/eh2k/squares-and-circles/wiki/Virt.Analog)
+  * [Waveshaping](https://github.com/eh2k/squares-and-circles/wiki/Waveshaping)
+  * [2-OP-FM](https://github.com/eh2k/squares-and-circles/wiki/2-OP-FM)
+  * [Formant/PD](https://github.com/eh2k/squares-and-circles/wiki/Formant-PD)
+  * [Harmonic](https://github.com/eh2k/squares-and-circles/wiki/Harmonic)
+  * [Wavetable](https://github.com/eh2k/squares-and-circles/wiki/Waveforms)
+  * [Chord](https://github.com/eh2k/squares-and-circles/wiki/Waveforms)
 * **SYNTH**
   * [Resonator](https://github.com/eh2k/squares-and-circles/wiki/Resonator)
   * [DxFM](https://github.com/eh2k/squares-and-circles/wiki/DxFM)
   * [DxFM_BNK1-3](lib/plaits/resources.cc#L41)
-  * [Open303](https://github.com/eh2k/squares-and-circles/wiki/Open303) 
+  * [Open303](https://github.com/eh2k/squares-and-circles/wiki/Open303)
   * [ClassicVAVCF](lib/plaits/dsp/engine2/virtual_analog_vcf_engine.cc)
 * **Stereo-FX**
   * [Reverb](https://github.com/eh2k/squares-and-circles/wiki/clouds_reverb)
@@ -126,21 +126,21 @@ The available engine types include drums, synthesizers, oscillators, sequencers,
   * [EuclidArp](https://github.com/eh2k/squares-and-circles/wiki/EuclidArp)
   * [TuringMachine](https://github.com/eh2k/squares-and-circles/wiki/TM)
 
-## Machine/Engine  
+## Machine/Engine
 
 Machines/Engines are controlled by individual parameters.
 
 >[Short press left/right [ENCODER]] changes parameter selection<br/>
 >[Rotate left/right [ENCODER]] changes parameter value
 
-### Modulations 
+### Modulations
 
 >[Long press left or right [ENCODER]] shows/hides the modulation popup*
 
 
 For each parameter a modulation can be assigned:
   * **CV**: <img align="right" src="doc/mod_cv.png" width=196px />
-    * SRC: 
+    * SRC:
       * `C1`, `C2`, `C3`, `C4` - Analog inputs
         * OP: `THRU`, `S&H-T1`, `S&H-T2`, `S&H-T3`, `S&H-T4`, `T&H-T1`, `T&H-T2`, `T&H-T3`, `T&H-T4`
           * THRU - Thru Input
@@ -149,7 +149,7 @@ For each parameter a modulation can be assigned:
       * `+` - Constant internal voltage
         * 10V with 1/1000 resolution - nice for fine adjustments (detuning etc)
     * Hints:
-      * Parameter 0 (top-left) is mainly used for V/OCT control. Thus, one single V/OCT signal / CV-Input can be shared by using modulation on parameter-0 with attenuverter = +1 (-3V..+6V) range. It is also possible to select the V/OCT input in the io-configuration page.
+      * Parameter 0 (top-left) is primarily used for V/OCT control. Therefore, a single V/OCT signal or CV input can be shared by applying modulation to parameter 0 with an attenuverter set to +1, within the -3V to +6V range. It is also possible to select the V/OCT input in the io-configuration page.
       * All other parameters can be modulated via CV-input with a assumed voltage-range of -4V..4V at 2kHz sample rate.
       * Be aware the CV-range is probably limited by hardware to: -3.5v..6.5V
   * **RND**: Trigger generates a random voltage <img align="right" src="doc/mod_rnd.png" width=196px />
@@ -171,7 +171,7 @@ For each parameter a modulation can be assigned:
     * ATTACK
     * RELEASE
   * **TM**: Turing Machine  <img align="right" src="doc/mod_tm.png" width=196px />
-    * TRIG: `!`, `CLK`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`  
+    * TRIG: `!`, `CLK`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`
     * PROB: `0-9` (0-100%)
     * STEPS: `1-16`
   * **SEQ**: 4-Step Sequencer <img align="right" src="doc/mod_seq.png" width=196px />
@@ -185,7 +185,7 @@ For each parameter a modulation can be assigned:
 
 <div style="page-break-after: always;"></div>
 
-## I/O-Configuration 
+## I/O-Configuration
 
 >[Long press [RIGHT]] enters the I/O-Configuration page.
 
@@ -197,10 +197,28 @@ The I/O-Configuration page lets you virtually patch the engine with the hardware
 
 *In case the Engine supports Triggers/Gates - Trigger Input is configurable:*
 
- * **Trig-Input**: 
+ * **Trig-Input**:
    * `-`
-   * `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4` 
-  
+   * `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`
+
+*In case the Engine supports Accents (Closed/Open HiHat) - Accent Input is configurable:*
+
+ * **Accent-Input**:
+   * `-`
+   * `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`
+
+<img align="right" src="doc/inputs2.png" width=196px />
+
+*In case the Engine is an AUDIO_PROCESSOR - Input signal mix is configurable:*
+ * **Aux-Input**: `-`, `C1`, `C2`, `C3`, `C4`
+   * AUX-IN: -3V..3V for additional audio source for effects (prefer CV4).
+ * **Insert-1**: Feed-in signal from engine-1
+ * **Insert-2**: Feed-in signal from engine-2
+ * **Insert-3**: Feed-in signal from engine-3
+ * **Insert-Aux**: Feed-in signal from aux-input
+
+<br/>
+
  *In case the Engine supports V/OCT - V/OCT Input is configurable:*
 
  * **CV-Input**: `-`, `C1`, `C2`, `C3`, `C4`
@@ -210,23 +228,21 @@ The I/O-Configuration page lets you virtually patch the engine with the hardware
  * **Transpose**: -48 to 24  (semitone per step)
    * **FINE**: semitone/128
 
-*In case the Engine supports Accents (Closed/Open HiHat) - Accent Input is configurable:*
+*In case MIDI-Control is enabled (Midi-Settings) - Midi-Channel is configurable:*
 
- * **Accent-Input**: 
-   * `-`
-   * `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4` 
+### Ctrl / Midi
 
-<img align="right" src="doc/inputs2.png" width=196px />
+<img align="right" src="doc/io-midi-channel.png" width=196px />
 
-*In case the Engine is an AUDIO_PROCESSOR - Input signal mix is configurable:*
- * **Aux-Input**: `-`, `C1`, `C2`, `C3`, `C4` 
-   * AUX-IN: -3V..3V for additional audio source for effects (prefer CV4).
- * **Insert-1**: Feed-in signal from engine-1
- * **Insert-2**: Feed-in signal from engine-2
- * **Insert-3**: Feed-in signal from engine-3
- * **Insert-Aux**: Feed-in signal from aux-input
-
-<br/>
+* **Midi-Channel**: `-`, `1`...`16`
+  - The Midi messages are translated to analog events
+    - Trig: NoteOn
+    - Gate: NoteOn until NoteOff
+    - CV: 0V = Key 60
+  - [Multi-Trig-Drum-Engines](https://github.com/eh2k/squares-and-circles/wiki/DrumSynth)
+    - In case trigger to `-` - individual drums/instruments are triggered by individual keys:
+        - GM Standard Drum Map: https://github.com/eh2k/squares-and-circles/wiki/TR707#midi-mapping
+        - or Keys 60-75 for instrument 1-16
 
 ### Mix / Outputs
 
@@ -240,16 +256,16 @@ The I/O-Configuration page lets you virtually patch the engine with the hardware
  * **Output**
    * `-`, `A`, `A+B`, `B`, `C`, `C+D`, `D`
      - The option `-(no output)` is useful if the signal is to be routed into an AUDIO_PROCESSOR engine
- * **Stereo**  
+ * **Stereo**
    * Experimental stereo feature - see STERIOLIZED Flag ;-)
 <br/>
 <div style="page-break-after: always;"></div>
 
-## MIDI/CLOCK-Settings 
+## MIDI/CLOCK-Settings
 
 >[Long press [LEFT] + [RIGHT]] for getting to the MIDI-Settings page.
- 
-The MIDI&Clock-Settings page lets you select the MIDI-Control. 
+
+The MIDI&Clock-Settings page lets you select the MIDI-Control.
 
 <img align="right" src="doc/config_midi0.png" width=196px />
 
@@ -271,7 +287,7 @@ In case the MIDI-Control is enabled, you can setup the Midi-Channel in the engin
    * `T1` T1 as Clock-Input (4ppqn)
    * `MIDI` Clock received from MIDI
 
-> Clock-Source is used by engines like `FX/Delay` (clocked sync) or `MIDI/Clock` 
+> Clock-Source is used by engines like `FX/Delay` (clocked sync) or `MIDI/Clock`
 
 #### Midi-Control
   * Engines can be loaded/selected by midi program change
@@ -281,48 +297,50 @@ In case the MIDI-Control is enabled, you can setup the Midi-Channel in the engin
     |-----|-----|-----------------|----|
     |  07 |  07 |      LEVEL      |  * |
     |  0A |  10 |       PAN       |  * |
-    |  20 |  32 |        0        |  * |
-    |  21 |  33 |        1        |  * |
-    |  22 |  34 |        2        |  * |
-    |  23 |  35 |        3        |  * |
-    |  24 |  36 |        4        |  * |
-    |  25 |  37 |        5        |  * |
-    |  26 |  38 |        6        |  * |
-    |  27 |  39 |        7        |  * |
+    |  10 |  16 |        0        |  * |
+    |  11 |  17 |        1        |  * |
+    |  12 |  18 |        2        |  * |
+    |  13 |  19 |        3        |  * |
+    |  14 |  20 |        4        |  * |
+    |  15 |  21 |        5        |  * |
+    |  16 |  22 |        6        |  * |
+    |  17 |  23 |        7        |  * |
     ````
-# Patch Storage 
-<img align="right" src="doc/patch_storage_load.png" width=196px /> 
+  > CC 48-56 (HEX 30-38) for LSB (14Bit CC)
 
-> [Press `L-ENC + R-ENC`] to enter the patch storage page 
+# Patch Storage
+<img align="right" src="doc/patch_storage_load.png" width=196px />
+
+> [Press `L-ENC + R-ENC`] to enter the patch storage page
 
 
 * Use `L-ENC` for patch slot selection
-* Use `R-ENC` for LOAD/SAVE  
-  * Load `empty` - restores all engines to `GND/-`  
+* Use `R-ENC` for LOAD/SAVE
+  * Load `empty` - restores all engines to `GND/-`
 
-# Supported Hardware  
+# Supported Hardware
 
  * [Ornament-and-Crime T4.0](https://github.com/eh2k/squares-and-circles/wiki/Ornament%E2%80%90and%E2%80%90Crime)
  * [Squares-and-Circles DSM0](https://github.com/eh2k/squares-and-circles/wiki/Squares&Circles-D_SM-Prototype)
  * [O_C T4.1](https://github.com/eh2k/squares-and-circles/wiki/OC_T41)
 
-## Hardware setup procedure 
+## Hardware setup procedure
   > Use [![WebFlasher](https://img.shields.io/badge/Web-Flasher-blue)](https://eh2k.github.io/□●/flash/?firmware)  to enter callibration mode, or execute advanced setup commands </br>
-  >Power on the module with the [LEFT] button pressed for entering the setup procedure.
+  >Press and hold the [LEFT] button during power-on to enter the setup procedure.
 
 ### Display setup
 
 <img align="right" src="doc/display_setup.png" width=196px />
 
 * Press left encoder to flip180.
-* Press right encoder for changing display brightness (50%, maximal). 
+* Press right encoder for changing display brightness (50%, maximal).
 
 ### Encoder setup
 
 <img align="right" src="doc/encoder_setup.png" width=196px />
 
 * Check the encoder rotation direction.
-* Press encoder for reversed setup. 
+* Press encoder for reversed setup.
 
 <br/>
 <br/>
@@ -331,8 +349,8 @@ In case the MIDI-Control is enabled, you can setup the Midi-Channel in the engin
 
 <img align="right" src="doc/dac_calib.png" width=196px />
 
-To calibrate the DAC, you need a multimeter. Besides the reference voltage of `0V`, the voltages `-2V` and `+2V` should be calibrated as accurately as possible.
-Start with DAC1 (channel A) - connect the multimeter typically using alligator clip on a patch cable inserted in the jack. Use the right encoder to set the voltage as accurately as possible (press the encoder for coarse adjustment). Do it on all outputs - use the left encoder for channel selection. After calibrating `0V` on all outputs, press [right] to step to the `-2V` calibration. Repeat the procedure and press [right] to calibrating `+2V`. 
+To calibrate the DAC, use a multimeter to accurately set the reference voltages at `0V`, `-2V` and `+2V`.
+Start with DAC1 (channel A) - connect the multimeter typically using alligator clip on a patch cable inserted in the jack. Use the right encoder to set the voltage as accurately as possible (press the encoder for coarse adjustment). Do it on all outputs - use the left encoder for channel selection. After calibrating `0V` on all outputs, press [right] to step to the `-2V` calibration. Repeat the procedure and press [right] to calibrating `+2V`.
 
 
 ### ADC calibration
@@ -341,28 +359,28 @@ Start with DAC1 (channel A) - connect the multimeter typically using alligator c
 
 To calibrate the ADC `0V` reference, remove all patch cables from the module. Use the right encoder to adjust the offset (press the encoder for fast adjustment). Do it on all cv-inputs, select the channel with the left encoder. Press [right] to enter the `-2V` calibration. Now you need to connect the DAC outputs to the cv-inputs. The DAC output produces the reference voltage, that is calibrated on the input. Repeat the calibration procedure and step to the `+2V` calibration.
 
-### I/O Test: 
+### I/O Test:
 
 <img align="right" src="doc/io_test.png" width=196px />
-  
-* Test/Verify your TRIG or CV inputs. 
+
+* Test/Verify your TRIG or CV inputs.
 * The output voltage is set by the cv input voltage (DACx = ADCx).
 
 <br/>
 
-## ⧉ Conclusions and the future 
- 
+## ⧉ Conclusions and the future
+
 The project started as a kind of personal research in embedded DSP that I did over half a year. At some point, it turned out by chance that the O_C was very well suited for this by only upgrading the Teensy. Apart from the small optional [mod](https://github.com/eh2k/squares-and-circles/wiki/Ornament%E2%80%90and%E2%80%90Crime#optional-dac-voltage-range-mod--5v5v-range) on the DAC voltage range, the current O_C hardware unfortunately has some unchangeable limitations for audio applications. As you know, the Teensy 4.0 doesn't have "high-end" ADCs and a limited amount of RAM. On the other hand, it is the the combination of limitations that make the project unique.
 
-Regarding the user interface and the concept of firmware, I am a bit torn. On the one hand, the two buttons and the two encoders are sufficient and actually practical for a multifunction module, but on the other hand, something is missing. Additional buttons/encoders could definitely simplify the operation/interaction - let's see if this [puzzle](https://github.com/eh2k/squares-and-circles/wiki/Squares&Circles-D_SM-Prototype) can be solved.
+I have mixed feelings about the user interface and the firmware concept. On the one hand, the two buttons and the two encoders are sufficient and actually practical for a multifunction module, but on the other hand, something is missing. Additional buttons/encoders could definitely simplify the operation/interaction - let's see if this [puzzle](https://github.com/eh2k/squares-and-circles/wiki/Squares&Circles-D_SM-Prototype) can be solved.
 
 ## License
 
 The application code respectively the suite of machines/engines and the third-party source files are published under permissive software licenses.
 For the exact license and copyright holder - see the header of individual source code files or readme/license file in the sub folder.
 
-The firmware as a whole is for personal use only. 
-If you are considering commercial distributing hardware with this firmware, please contact me (eh2k◯gmx.de). 
+The firmware as a whole is for personal use only.
+If you are considering commercial distributing hardware with this firmware, please contact me (eh2k◯gmx.de).
 
 <!--
 

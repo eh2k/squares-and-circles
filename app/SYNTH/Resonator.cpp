@@ -1,6 +1,5 @@
 #include "../squares-and-circles-api.h"
 
-#include "stmlib/stmlib.h"
 #include "stmlib/dsp/units.cc"
 #include "stmlib/utils/random.cc"
 
@@ -12,7 +11,6 @@
 #include "rings/dsp/string_synth_part.cc"
 
 #include "rings/dsp/strummer.h"
-#include <stdio.h>
 
 static int32_t _model = rings::ResonatorModel::RESONATOR_MODEL_MODAL;
 static const char* _models[] = {

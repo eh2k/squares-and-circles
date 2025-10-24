@@ -1,0 +1,8 @@
+Diagnostics:
+  Suppress:
+    - "xunused-includes"
+    - "xasm_invalid_output_constraint"
+CompileFlags:
+  Add:
+    - "-I./"
+    - "-I./lib/"

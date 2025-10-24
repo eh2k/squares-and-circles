@@ -2,7 +2,6 @@
 #include "../squares-and-circles-api.h"
 #include "stmlib/stmlib.h"
 #include "stmlib/dsp/units.h"
-#include <stdio.h>
 
 #define private public
 #include "plaits/dsp/speech/lpc_speech_synth_controller.h"

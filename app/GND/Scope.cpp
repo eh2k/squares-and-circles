@@ -24,7 +24,7 @@
 //
 
 #include "../squares-and-circles-api.h"
-#include <algorithm>
+#include <utility>
 
 static float apmlitude = 1.f;
 static int32_t x_scale = 32;
@@ -113,8 +113,9 @@ void draw_scope(int y)
         {
             if (
                 (scope[(scope_pos + x) % LEN_OF(scope)].first > 0 && scope[(scope_pos + x + 1) % LEN_OF(scope)].first <= 0))
-                if (start < 0)
+                if (start < 0) {
                     start = (scope_pos + x);
+                }
                 else if (end < 0)
                 {
                     end = (scope_pos + x);

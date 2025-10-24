@@ -19,7 +19,6 @@
 
 #include "../squares-and-circles-api.h"
 #include "stmlib/utils/ring_buffer.h"
-#include "misc/dspinst.h"
 
 #include "msfa/controllers.h"
 #include "msfa/dx7note.h"

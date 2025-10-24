@@ -27,7 +27,6 @@
 
 #include "../squares-and-circles-api.h"
 #include "misc/noise.hxx"
-#include <stdio.h>
 
 const char *modes[2] = {">White", ">Pink"};
 PinkNoise<> pink;

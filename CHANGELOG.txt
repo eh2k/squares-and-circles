@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+== 2025-10-26
+   * Bugfix
+     * Fix Crash on Midi CC (Parameter 6 and 7 in some engines)
+   * Enhancement
+     * Midi/Monitor display velocity
+     * Multi-trigs engines MIDI control: 
+       * engine::setMultiTrigMidiKeyMap(midi_key_map);
+       * Support Midi velocity
+== 2025-10-20
+   * Bugfix
+     * DrumSynth - 909AbsKit-1 drumkit crashing #140
+     * DrumSynth - Midi multi-trigs (missing bit reset) #130
+   * Enhancement
+     * Midi 14-Bit CC (parameter CC 32-40 changed to 16-24 MSB, 48-56 LSB) #139
+     * All multi-trigs engines -  Midi support / trig visualization (GM-Keys + Key 60-76)
+       * v/oct calculation from midi-note #130
 == 2025-05-15
    * Bugfix
      * usb init error - device descriptor read/64, error -110 - #132
@@ -14,7 +30,7 @@ All notable changes to this project will be documented in this file.
        - metallic osc -> pitch envelope (same behaviour as RC808)
 == 2025-04-26
    * Bugfixes
-     * DrumSynth 
+     * DrumSynth
       - Metallic oscillator crash when N > 6
       - Instrument max rendering length ~ 1.2s * 4
 == 2025-04-17
@@ -34,29 +50,29 @@ All notable changes to this project will be documented in this file.
      * IO-config - accent input was set eq trigger input
 == 2025-01-04
    * Bugfix/Enhancements
-     * M-OSC/Waveforms: 
+     * M-OSC/Waveforms:
        - Transpose fix: -1 OCT
-       - Braids Renaissance Chords 
-         - SEMI quantizer - global plaits chords 
+       - Braids Renaissance Chords
+         - SEMI quantizer - global plaits chords
          - Value paramter (chord offsets) #121
      * M-OSC/Waveforms, M-OSC/Chords, SEQ/EuclidyArp
-       * Parameter texts, case insensitive chord-naming eg. m7->min7, M7 -> Maj7 
+       * Parameter texts, case insensitive chord-naming eg. m7->min7, M7 -> Maj7
      * V_OCT Paramter (modulation visualition timer fix)
      * Quantizer edge case optimization
      * CV/V_OCT:
        - shows internal value for debugging/quantizer monitoring
 == 2024-12-28
    * Bugfix
-     * M-OSC/Waveforms: Braids Renaissance Chords - fixed root offset #117 
+     * M-OSC/Waveforms: Braids Renaissance Chords - fixed root offset #117
 == 2024-12-23
    * Bugifx
      * Crash / parameter modulations wrap around #120
 == 2024-12-22
    * Bugfix
      * SEQ/TuringMachine crash #119
-     * M-OSC/Waveforms: Braids Renaissance Chords - fixed note offsets #117   
+     * M-OSC/Waveforms: Braids Renaissance Chords - fixed note offsets #117
    * Enhancements
-     * DrumSynth ...  
+     * DrumSynth ...
 == 2024-12-17
    * Bugfix/Enchancement #117
      * Parameter value was not visualized when modulations set (Bug since 2024-12-16)
@@ -65,7 +81,7 @@ All notable changes to this project will be documented in this file.
      * All modulations exept RND and TM are now added after quantizer
 == 2024-12-16
    * New paramters io-page
-     * Quantizer-Root 
+     * Quantizer-Root
      * Transpose-Finetune
    * Bugfix/Enchancement
      * tanspose offset was quantized
@@ -73,21 +89,21 @@ All notable changes to this project will be documented in this file.
    * Bugfix/Enchancement
      * SEQ triggered & trig-input triggered engines were not in sync
      * V_OCT/Scale parameter, semitones from active quantizer (#117)
-     * Claps less RAM usage 
+     * Claps less RAM usage
 == 2024-12-07
    * Bugfix:
      * EnvFollower - IO-page AUX input
    * Enhancements:
      * EnvFollower - mode Follower, Vactrol (based on MU Streams)
 == 2024-11-30
-   * Bugfix: 
+   * Bugfix:
      * Crash on patch saving/restoring (#97)
    * Enhancements:
      * M-OSC/Waveforms: Braids Renaissance Chords (#110)
      * SEQ/TuringMachine - OutputModes: Note-3...Note-7 (#109)
      * Internal signal routing: src: $1-$9 (#108)
 == 2024-11-07
-   * Bugfix: 
+   * Bugfix:
      * M-OSC/Waveforms - V_OCT modulation
      * SEQ/EuclidArp - Screensaver circle offset
      * Crash on patch saving/restoring (#97 ?!)
@@ -98,7 +114,7 @@ All notable changes to this project will be documented in this file.
      * 808ish-BD Crash #103
    * Enhancements:
      * Crashreport fix (listing engine ids added)
-     * SEQ/EuclidArp 
+     * SEQ/EuclidArp
         - fixed recalc pattern on slide > 1
         - gate timing (using samples_per_step)
      * New APIs
@@ -107,11 +123,11 @@ All notable changes to this project will be documented in this file.
         - engine::stepReset
 == 2024-11-02
    * Enhancement:
-     * SEQ/EuclidArp 
+     * SEQ/EuclidArp
       - fixed: note order (starting with root note)
       - quantized output
       - slide modes: OFF, ON, RND25, RND50, RND75
-     * Mod/TM 
+     * Mod/TM
       - reset #100
       - shift_reg & seed - added to patch state
      * GND/Scope
@@ -132,18 +148,18 @@ All notable changes to this project will be documented in this file.
    * Bugfix:
      * M-OSC/Waveforms - display correct waveform instead of "shape"
      * out of memory handling / memory fragmentation - no new/delete usings in open303
-     * crash-reporting improvment 
+     * crash-reporting improvment
      * Sporadic midi stops working while update with webflasher
      * Modulation/LFO Shape ist not saved in the patch storage (is set to sine, after restore) #98
    * New Engines:
      * SEQ/EuclidRythm
      * SEQ/EuclidArp
-   * DSM: 
+   * DSM:
      * One-Engine-Mode
 == 2025-07-02
    * Bugfix: DSM0 "CRC32:0x63F R:1"
 == 2024-06-15
-   * Enhancement: 
+   * Enhancement:
      * T1 Clock - resets to begin after 200milis silence
      * internal crc32 checks for debugging
      * midi response optimization
@@ -157,7 +173,7 @@ All notable changes to this project will be documented in this file.
    * SD Format - preserves stored patches
 == 2024-04-14
    * Enhancement: Patch storage (managment)
-   * Bugfix: 
+   * Bugfix:
       * tinyusb buffer/optimization
 == 2024-03-28
    * Enhancement: Turing Machine Modulation
@@ -165,7 +181,7 @@ All notable changes to this project will be documented in this file.
    * Bugfix: Crash on Midi-CC
    * Refactoring MIDI-Settings / Clock-Settings
    * Enhancement: Midi-Channel moved to IO-Settings
-   * ***New Analysis Engines: GND/Scope, GND/FFT 
+   * ***New Analysis Engines: GND/Scope, GND/FFT
    * OC_T41 Support
 == 2024-02-14
    * Enhancement/Bugfix: No usb midi response while 5sec startup #66
@@ -178,13 +194,13 @@ All notable changes to this project will be documented in this file.
 == 2024-01-23
    * Bugfix: Black screen ?!
 == 2024-01-20
- * DevSync: 
+ * DevSync:
    * Bugfix T4X: CV input > 6 V is received as negative voltage bug
    * Bugfix: ClassicVAVCF -> param change Decay/Level
    * Enhancement: Modualtion attenuverter resolution 1/2000
    * Enhancement/Bugfix: Modulation ranges..
    * Enhancement: NEw Modulation CV src aka "+" constant voltage
-   * Enhancement: Visualizing parameter modulations (moving knobs) 
+   * Enhancement: Visualizing parameter modulations (moving knobs)
    * Enhancement: squares-and-circles api
    * Enhancement DSM: Support MID Button (ui navigaten - mid botton back function)
 == 2024-01-14
@@ -193,7 +209,7 @@ All notable changes to this project will be documented in this file.
  * DevSync: Fix DSM0 Callibration + Voltage engines
 == 2023-12-18
  * DevSync: DSM0 ITCM usage + Bugfix DSM0 calibration
- * Enhancements/BreakingChanges: 
+ * Enhancements/BreakingChanges:
    * Dynamic Loader (apps as header includes for now) - Noise, SAM, Faust engines ported
 == 2023-12-03 ==
  * Bugfix: DxFM custom syx didnt work
@@ -201,7 +217,7 @@ All notable changes to this project will be documented in this file.
 == 2023-11-19 ==
  * Refactoring CV-Engines (based on modulations)
    - CV-Output Scope-View
- * New CV-Engines: 
+ * New CV-Engines:
    - EnvGen_AD
    - EnvFollower
  * Bugfix: CV-Engine (fine-tune after quantizer)
@@ -213,7 +229,7 @@ All notable changes to this project will be documented in this file.
  * Bugfix: CV/LFO shape selection
 == 2023-10-07 ==
  * Bugfix:
-   - crash in dac calibration 
+   - crash in dac calibration
 == 2023-09-24 ==
  * Enhancements:
    - I/O-Page: UI enhancements
@@ -223,12 +239,12 @@ All notable changes to this project will be documented in this file.
    - Speech/LPC word selection
    - VOCT semitone = encoder step (skipped increments)
 == 2023-09-17 ==
- * mi-libs sync/upgrade 
+ * mi-libs sync/upgrade
  * new Synth-Engine:
    - ClassicVAVCF (Classic waveshapes with filter)
    - DxFM_BNK1-3 (using the SixOpEngine default patches)
  * Several engines, parameter naming, ranges and defaults optimizations ...
- * Optimised behaviour on encoders increments 
+ * Optimised behaviour on encoders increments
    - Value change is 1/128 per step if the increments don't immediately follow each other
    - Short-time display of the value (0-127)
  * Bugfix:
@@ -238,11 +254,11 @@ All notable changes to this project will be documented in this file.
     * Claps refactoring, drumsynth based on RC808 models
     * DxFM enhancement, 2 voice stereo mode
     * Waveforms, 2 voice stereo mode
-    * JU60_chorus, emulation of Juno60 chorus, based on VA BBD 
+    * JU60_chorus, emulation of Juno60 chorus, based on VA BBD
     * Noise engines: NES_noise, 808_squares
- * Bugfixes 
-    * #52 Modulations & quantizer  
+ * Bugfixes
+    * #52 Modulations & quantizer
     * #51 Engine loading - IO config is lost / restored to defaults
-== 2023-08-09 == 
- * Audio routing refactoring 
+== 2023-08-09 ==
+ * Audio routing refactoring
  * Optimizations and bugfixes

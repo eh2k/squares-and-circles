@@ -26,7 +26,6 @@
 // ENGINE_NAME:CV/EnvFollower;CV/Vactrol
 
 #include "../squares-and-circles-api.h"
-#include <algorithm>
 #include "../../lib/streams/follower.h"
 #include "../../lib/streams/vactrol.h"
 #include "../../lib/streams/audio_cv_meter.h"

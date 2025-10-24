@@ -4,6 +4,17 @@ set -e #-eo pipefail
 SCRIPT_PATH="$(realpath $(dirname $0))"
 cd ${SCRIPT_PATH}/..
 
+if [[ ! -d ./.build/xpack-arm-none-eabi-gcc-10.3.1-2.1 ]] ; then
+    mkdir -p ./.build
+    cd ./.build
+    [[ -f ./xpack-arm-none-eabi-gcc-10.3.1-2.1-linux-x64.tar.gz ]] || curl -fLO https://github.com/xpack-dev-tools/arm-none-eabi-gcc-xpack/releases/download/v10.3.1-2.1/xpack-arm-none-eabi-gcc-10.3.1-2.1-linux-x64.tar.gz
+    cat xpack-arm-none-eabi-gcc-10.3.1-2.1-linux-x64.tar.gz  | tar xvz -C . > /dev/null
+    cd -
+fi
+
+export GCC_PATH=/$(realpath .)/.build/xpack-arm-none-eabi-gcc-10.3.1-2.1/bin/
+export PATH="${PATH}:/$(realpath .)/.build/xpack-arm-none-eabi-gcc-10.3.1-2.1/bin/"
+
 if ! which arm-none-eabi-gcc; then
     echo arm-none-eabi-gcc not found!
     exit 1
@@ -23,7 +34,7 @@ if [ -f $oo ] && [ "$(date -R -r $X.bin)" = "$(date -R -r $f)" ]; then
     continue
 fi
 
-#-fno-rtti 
+#-fno-rtti
 NAME="$(grep "ENGINE_NAME:" $f | cut -d':' -f2 | sed 's/^ *//g')"
 NAME=${NAME//$'\n'/';'} #replace \n with ''
 NAME=${NAME:-"$(realpath --relative-to=${SCRIPT_PATH} $X)"}

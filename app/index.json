@@ -1,54 +1,54 @@
 {
-    "apps": [
-        "CV/V_OCT.bin",
-        "CV/EnvGen.bin",
-        "CV/LFO.bin",
-        "CV/EnvFollower.bin",
-        "NOISE/WhitePink.bin",
-        "NOISE/NES.bin",
-        "NOISE/808_squares.bin",
-	    "MIDI/Monitor.bin",
-	    "MIDI/Clock.bin",
-		
-        "DRUMS/FM-Drum.bin",
-        "DRUMS/808ish-BD.bin",
-        "DRUMS/808ish-SD.bin",
-        "DRUMS/808ish-HiHat.bin",
-		"DRUMS/TR909-HiHat.bin",
-        "DRUMS/TR909-Ride.bin",
-		"DRUMS/TR707.bin",
-        "DRUMS/Claps.bin",
-        
-        "M-OSC/Waveforms.bin",
+  "apps": [
+    "CV/V_OCT.bin",
+    "CV/EnvGen.bin",
+    "CV/LFO.bin",
+    "CV/EnvFollower.bin",
+    "NOISE/WhitePink.bin",
+    "NOISE/NES.bin",
+    "NOISE/808_squares.bin",
+    "MIDI/Monitor.bin",
+    "MIDI/Clock.bin",
 
-        "FX/Reverb.bin",
-        "FX/ReverbSC.bin",
-        "FX/Rev-Dattorro.bin",
-		
-        "DRUMS/Djembe.bin",
-	    "SYNTH/Resonator.bin",
-			
-        "SPEECH/LPC.bin",
-        "SPEECH/SAM.bin",
-		
-        "FX/Delay.bin",
-        "FX/Gated-Reverb.bin",
-		"FX/Reverb-HP-LP.bin",
+    "DRUMS/FM-Drum.bin",
+    "DRUMS/808ish-BD.bin",
+    "DRUMS/808ish-SD.bin",
+    "DRUMS/808ish-HiHat.bin",
+    "DRUMS/TR909-HiHat.bin",
+    "DRUMS/TR909-Ride.bin",
+    "DRUMS/TR707.bin",
+    "DRUMS/Claps.bin",
 
-        "SEQ/EuclidRythm.bin",
-        "SEQ/EuclidArp.bin",
-        "SEQ/TuringMachine.bin",
-	   
-        "MIDI/VAx6.bin",
-		
-        "SYNTH/DxFM.bin",
-        "SYNTH/Open303.bin",
-        "FX/JU60_chorus.bin",
+    "M-OSC/Waveforms.bin",
 
-        "GND/Scope.bin",
-        "GND/FFT.bin",
+    "FX/Reverb.bin",
+    "FX/ReverbSC.bin",
+    "FX/Rev-Dattorro.bin",
 
-        "SYNTH/plaits.bin",
-        "DRUMS/DrumSynth.bin"
-    ]
+    "DRUMS/Djembe.bin",
+    "SYNTH/Resonator.bin",
+
+    "SPEECH/LPC.bin",
+    "SPEECH/SAM.bin",
+
+    "FX/Delay.bin",
+    "FX/Gated-Reverb.bin",
+    "FX/Reverb-HP-LP.bin",
+
+    "SEQ/EuclidRythm.bin",
+    "SEQ/EuclidArp.bin",
+    "SEQ/TuringMachine.bin",
+
+    "MIDI/VAx6.bin",
+
+    "SYNTH/DxFM.bin",
+    "SYNTH/Open303.bin",
+    "FX/JU60_chorus.bin",
+
+    "GND/Scope.bin",
+    "GND/FFT.bin",
+
+    "SYNTH/plaits.bin",
+    "DRUMS/DrumSynth.bin"
+  ]
 }

@@ -26,9 +26,29 @@
 // xuild_flags: -fno-inline -mfloat-abi=hard -mfpu=fpv5-d16
 // ENGINE_NAME: DRUMS/@!RC8
 
-#include "../squares-and-circles-api.h"
 #include "../../lib/drumsynth/drumsynth.h"
-#include "../../lib/misc/noise.hxx"
+#include "../squares-and-circles-api.h"
+
+static std::pair<uint8_t, uint8_t> midi_key_map[] = {
+    {35, 0},  // BD0
+    {36, 1},  // BD1
+    {38, 2},  // SD0
+    {40, 3},  // SD1
+    {39, 4},  // CP
+    {54, 5},  // TMB
+    {37, 6},  // RM
+    {56, 7},  // CB
+    {41, 8},  // LT
+    {43, 8},  // LT
+    {45, 9},  // MT
+    {47, 9},  // MT
+    {48, 10}, // HT
+    {50, 10}, // HT
+    {42, 11}, // HH - Closed
+    {44, 11}, // HH - Pedal
+    {46, 12}, // HH - Open
+    {0xFF, 0}, //END
+};
 
 static constexpr size_t n = 8;
 
@@ -41,7 +61,6 @@ DrumSynth _inst[16] = {};
 
 size_t inst_count = 0;
 int32_t inst_selection = 0;
-int32_t _midi_trigs = 0;
 
 uint32_t _t[16] = {};
 
@@ -49,7 +68,7 @@ const char *inst_names[16] = {};
 
 char __debug[128];
 
-constexpr int MAX_T = UINT16_MAX * 4; 
+constexpr int MAX_T = UINT16_MAX * 4;
 
 void engine::setup()
 {
@@ -70,8 +89,8 @@ void engine::setup()
         engine::addParam("Decay", &stretch, 0.1f, 2.0f);
         engine::addParam("Stereo", &stereo);
     }
-
-    engine::setMode(ENGINE_MODE_MIDI_IN);
+    
+    engine::setMultiTrigMidiKeyMap(midi_key_map);
 }
 
 void engine::release()
@@ -93,10 +112,7 @@ void engine::process()
 
     for (int i = 0; i < inst_count; i++)
     {
-        if (!(*__multi_trigs_mask & (1 << i)))
-            continue;
-
-        if (engine::trig() & (1 << i) || _midi_trigs & (1 << i))
+        if (engine::trig() & (1 << i))
         {
             _t[i] = 0;
             drum_synth_reset(_inst[i]);
@@ -106,12 +122,12 @@ void engine::process()
         {
             DrumParams params = {_t[i], 0, stretch, stereo};
 
-            float f = pitch; // powf(2.f, engine::cv());
+            float f = pitch * powf(2.f, engine::cv());
             float a = stereo;
             float b = 1.f - a;
 
-            params.levelL = engine::mixLevelL(i);
-            params.levelR = engine::mixLevelR(i);
+            params.levelL = engine::mixLevelL(i) * engine::trigLevel(i);
+            params.levelR = engine::mixLevelR(i) * engine::trigLevel(i);
 
             drum_synth_process_frame(_inst[i], -1, f, &params, buffer, bufferAux, FRAME_BUFFER_SIZE);
 
@@ -124,75 +140,6 @@ void engine::draw()
 {
 }
 
-void engine::onMidiNote(uint8_t key, uint8_t velocity) // NoteOff: velocity == 0
-{
-    if (velocity > 0)
-    {
-        switch (key)
-        {
-        case 35: // BD0
-            _midi_trigs |= (1 << 0);
-            break;
-        case 36: // BD1
-            _midi_trigs |= (1 << 1);
-            break;
-        case 38: // SD0
-            _midi_trigs |= (1 << 2);
-            break;
-        case 40: // SD1
-            _midi_trigs |= (1 << 3);
-            break;
-        case 39: // CP
-            _midi_trigs |= (1 << 4);
-            break;
-        case 54: // TMB
-            _midi_trigs |= (1 << 5);
-            break;
-        case 37: // RM
-            _midi_trigs |= (1 << 6);
-            break;
-        case 56: // CB
-            _midi_trigs |= (1 << 7);
-            break;
-        case 41: // LT
-        case 43: // LT
-            _midi_trigs |= (1 << 8);
-            break;
-        case 45: // MT
-        case 47: // MT
-            _midi_trigs |= (1 << 9);
-            break;
-        case 48: // HT
-        case 50: // HT
-            _midi_trigs |= (1 << 10);
-            break;
-        case 42: // CH
-        case 44: // CH
-        case 46: // OH
-            _midi_trigs |= (1 << 11);
-            break;
-        }
-
-        *__multi_trigs_mask |= _midi_trigs;
-    }
-    else
-    {
-    }
-}
-
-void engine::onMidiPitchbend(int16_t pitch)
-{
-}
-
-void engine::onMidiCC(uint8_t ccc, uint8_t value)
-{
-    // nothing implemented..
-}
-
-void engine::onMidiSysex(uint8_t byte)
-{
-}
-
 #include "../../lib/drumsynth/drumsynth.cpp"
-#include "../../lib/plaits/resources.cc"
 #include "../../lib/misc/Biquad.cpp"
+#include "../../lib/plaits/resources.cc"
