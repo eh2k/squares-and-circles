@@ -61,8 +61,6 @@ void engine::setup()
 
     engine::addParam("Start", &_start);
     engine::addParam("End", &_end);
-
-    engine::setMode(ENGINE_MODE_MIDI_IN);
 }
 
 void engine::process()
@@ -95,7 +93,10 @@ void engine::process()
             _midi_trigs &= ~(1 << i);
         }
         float tmp[FRAME_BUFFER_SIZE] = {};
-        dsp_process_sample(sample_ptr[i], _start, _end, -2.f + (_pitch * 4), tmp);
+
+        float f = (-2.f + _pitch * 4) * powf(2.f, engine::cv());
+
+        dsp_process_sample(sample_ptr[i], _start, _end, f, tmp);
         float levelL = engine::mixLevelL(i);
         float levelR = engine::mixLevelR(i);
         for(size_t i = 0; i < FRAME_BUFFER_SIZE; i++)
@@ -112,71 +113,4 @@ void engine::draw()
         gfx::drawString(20, 20, "ROMS NOT FOUND\n \n   707_IC34\n   707_IC35");
     else
         gfx::drawSample(sample_ptr[_select]);
-}
-
-void engine::onMidiNote(uint8_t key, uint8_t velocity) // NoteOff: velocity == 0
-{
-    if (velocity > 0)
-    {
-        switch (key)
-        {
-        case 35: // BD0
-            _midi_trigs |= (1 << 0);
-            break;
-        case 36: // BD1
-            _midi_trigs |= (1 << 1);
-            break;
-        case 38: // SD0
-            _midi_trigs |= (1 << 2);
-            break;
-        case 40: // SD1
-            _midi_trigs |= (1 << 3);
-            break;
-        case 39: // CP
-            _midi_trigs |= (1 << 4);
-            break;
-        case 54: // TMB
-            _midi_trigs |= (1 << 5);
-            break;
-        case 37: // RM
-            _midi_trigs |= (1 << 6);
-            break;
-        case 56: // CB
-            _midi_trigs |= (1 << 7);
-            break;
-        case 41: // LT
-        case 43: // LT
-            _midi_trigs |= (1 << 8);
-            break;
-        case 45: // MT
-        case 47: // MT
-            _midi_trigs |= (1 << 9);
-            break;
-        case 48: // HT
-        case 50: // HT
-            _midi_trigs |= (1 << 10);
-            break;
-        case 42: // CH
-        case 44: // CH
-        case 46: // OH
-            _midi_trigs |= (1 << 11);
-            break;
-        }
-    }
-    else
-    {
-    }
-}
-
-void engine::onMidiPitchbend(int16_t pitch)
-{
-}
-
-void engine::onMidiCC(uint8_t ccc, uint8_t value)
-{
-    // nothing implemented..
-}
-
-void engine::onMidiSysex(uint8_t byte)
-{
 }

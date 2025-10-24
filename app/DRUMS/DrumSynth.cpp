@@ -49,7 +49,7 @@ const char *inst_names[16] = {};
 
 char __debug[128];
 
-constexpr int MAX_T = UINT16_MAX * 4; 
+constexpr int MAX_T = UINT16_MAX * 4;
 
 void engine::setup()
 {
@@ -70,8 +70,6 @@ void engine::setup()
         engine::addParam("Decay", &stretch, 0.1f, 2.0f);
         engine::addParam("Stereo", &stereo);
     }
-
-    engine::setMode(ENGINE_MODE_MIDI_IN);
 }
 
 void engine::release()
@@ -93,11 +91,9 @@ void engine::process()
 
     for (int i = 0; i < inst_count; i++)
     {
-        if (!(*__multi_trigs_mask & (1 << i)))
-            continue;
-
         if (engine::trig() & (1 << i) || _midi_trigs & (1 << i))
         {
+            _midi_trigs &= ~(1 << i);
             _t[i] = 0;
             drum_synth_reset(_inst[i]);
         }
@@ -106,7 +102,7 @@ void engine::process()
         {
             DrumParams params = {_t[i], 0, stretch, stereo};
 
-            float f = pitch; // powf(2.f, engine::cv());
+            float f = pitch * powf(2.f, engine::cv());
             float a = stereo;
             float b = 1.f - a;
 
@@ -121,75 +117,6 @@ void engine::process()
 }
 
 void engine::draw()
-{
-}
-
-void engine::onMidiNote(uint8_t key, uint8_t velocity) // NoteOff: velocity == 0
-{
-    if (velocity > 0)
-    {
-        switch (key)
-        {
-        case 35: // BD0
-            _midi_trigs |= (1 << 0);
-            break;
-        case 36: // BD1
-            _midi_trigs |= (1 << 1);
-            break;
-        case 38: // SD0
-            _midi_trigs |= (1 << 2);
-            break;
-        case 40: // SD1
-            _midi_trigs |= (1 << 3);
-            break;
-        case 39: // CP
-            _midi_trigs |= (1 << 4);
-            break;
-        case 54: // TMB
-            _midi_trigs |= (1 << 5);
-            break;
-        case 37: // RM
-            _midi_trigs |= (1 << 6);
-            break;
-        case 56: // CB
-            _midi_trigs |= (1 << 7);
-            break;
-        case 41: // LT
-        case 43: // LT
-            _midi_trigs |= (1 << 8);
-            break;
-        case 45: // MT
-        case 47: // MT
-            _midi_trigs |= (1 << 9);
-            break;
-        case 48: // HT
-        case 50: // HT
-            _midi_trigs |= (1 << 10);
-            break;
-        case 42: // CH
-        case 44: // CH
-        case 46: // OH
-            _midi_trigs |= (1 << 11);
-            break;
-        }
-
-        *__multi_trigs_mask |= _midi_trigs;
-    }
-    else
-    {
-    }
-}
-
-void engine::onMidiPitchbend(int16_t pitch)
-{
-}
-
-void engine::onMidiCC(uint8_t ccc, uint8_t value)
-{
-    // nothing implemented..
-}
-
-void engine::onMidiSysex(uint8_t byte)
 {
 }
 

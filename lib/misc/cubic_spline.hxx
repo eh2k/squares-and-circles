@@ -20,11 +20,11 @@ typedef struct
 void cspline_init(cspline *s, const float *x, const float *y, int N, int stride)
 {
     s->N = N;
-    s->x = (float *)malloc(N * sizeof(float));
-    s->y = (float *)malloc(N * sizeof(float));
-    s->b = (float *)malloc(N * sizeof(float));
-    s->c = (float *)malloc((N - 1) * sizeof(float));
-    s->d = (float *)malloc((N - 1) * sizeof(float));
+    s->x = (float *)malloc((N * 5) * sizeof(float));
+    s->y = s->x + N;
+    s->b = s->y + N;
+    s->c = s->b + N;
+    s->d = s->c + N;
 
     for (int i = 0; i < N; ++i)
     {
@@ -115,8 +115,4 @@ float cspline_eval(const cspline *s, float x)
 void cspline_free(cspline *spline)
 {
     free(spline->x);
-    free(spline->y);
-    free(spline->b);
-    free(spline->c);
-    free(spline->d);
 }
