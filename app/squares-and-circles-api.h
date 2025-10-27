@@ -128,6 +128,7 @@ EXTERN_C
     extern int16_t *__output_r_i16p;
 
     extern uint8_t *__trig_level;
+    extern uint8_t *__midi_cc;
     extern uint8_t *__mixer_level;
     extern uint8_t *__mixer_pan;
     extern uint32_t *__multi_trigs_mask;
@@ -264,6 +265,10 @@ namespace engine
     void __attribute__((weak)) onMidiSysex(uint8_t byte);
     
     EXTERN_C void setMultiTrigMidiKeyMap(const std::pair<uint8_t, uint8_t> *keyMap);
+    
+    inline uint8_t getMidiCC(uint8_t ccc){
+        return __midi_cc[ccc];
+    }
 
     EXTERN_C void addParam_f32(const char *name, float *value, float min = 0.f, float max = 1.f);                  // min...max
     EXTERN_C void addParam_i32(const char *name, int32_t *value, int32_t min, int32_t max, const char **valueMap); // 0...max

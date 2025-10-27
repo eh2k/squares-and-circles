@@ -5,24 +5,30 @@
 // #include "eproms/tr707/IC35_TR707_SNDROM.h"
 
 static std::pair<uint8_t, uint8_t> midi_key_map[] = {
-    {35, 0},  // BD0
-    {36, 1},  // BD1
-    {38, 2},  // SD0
-    {40, 3},  // SD1
-    {39, 4},  // CP
-    {54, 5},  // TMB
-    {37, 6},  // RM
-    {56, 7},  // CB
-    {41, 8},  // LT
-    {43, 8},  // LT
-    {45, 9},  // MT
-    {47, 9},  // MT
-    {48, 10}, // HT
-    {50, 10}, // HT
-    {42, 11}, // HH - Closed
-    {44, 11}, // HH - Pedal
-    {46, 12}, // HH - Open
-    {0xFF, 0}, //END
+    {35, 0},   // BD0
+    {36, 1},   // BD1
+    {38, 2},   // SD0
+    {40, 3},   // SD1
+    {39, 4},   // CP
+    {54, 5},   // TMB
+    {37, 6},   // RM
+    {56, 7},   // CB
+    {41, 8},   // LT
+    {43, 8},   // LT
+    {45, 9},   // MT
+    {47, 9},   // MT
+    {48, 10},  // HT
+    {50, 10},  // HT
+    {42, 11},  // HH - Closed
+    {44, 11},  // HH - Pedal
+    {46, 12},  // HH - Open
+    {51, 13},  // RD - Ride
+    {59, 13},  // RD - Ride Edge
+    {53, 13},  // RD - Ride Bell
+    {49, 14},  // CR - Crash
+    {55, 14},  // CR - Crash Edge
+    {57, 14},  // CR - Crash Bow
+    {0xFF, 0}, // END
 };
 
 static float _pitch = 0.5f;
@@ -31,8 +37,8 @@ static float _end = 1.f;
 static float _amp = 1.f;
 
 int32_t _select = 0;
-const char *sample_names[13];
-void *sample_ptr[13];
+const char *sample_names[15];
+void *sample_ptr[LEN_OF(sample_names)];
 #define SETUP_SAMPLE(name, ptr)                                                                                        \
     sample_names[_select] = name;                                                                                      \
     sample_ptr[_select] = ptr;                                                                                         \
@@ -42,6 +48,8 @@ void engine::setup()
 {
     auto IC34_TR707_SNDROM_bin = machine::fs_read("707_IC34");
     auto IC35_TR707_SNDROM_bin = machine::fs_read("707_IC35");
+    auto IC19_Crash = machine::fs_read("707_IC19");
+    auto IC22_Ride = machine::fs_read("707_IC22");
 
     if (IC34_TR707_SNDROM_bin == nullptr || IC35_TR707_SNDROM_bin == nullptr)
         return;
@@ -69,19 +77,28 @@ void engine::setup()
     SETUP_SAMPLE("RM", dsp_sample_u8(RM, 0x1000, 25000, 1));   // 6
     SETUP_SAMPLE("CB", dsp_sample_u8(CB, 0x1000, 25000, 1));   // 7
 
-    SETUP_SAMPLE("LT", dsp_sample_u8(LT, 0x1000, 25000, 0)); // 8
-    SETUP_SAMPLE("MT", dsp_sample_u8(MT, 0x1000, 25000, 0)); // 9
-    SETUP_SAMPLE("HT", dsp_sample_u8(HT, 0x1000, 25000, 0)); // 10
+    SETUP_SAMPLE("LT", dsp_sample_u8(LT, 0x1000, 12500, 0)); // 8
+    SETUP_SAMPLE("MT", dsp_sample_u8(MT, 0x1000, 12500, 0)); // 9
+    SETUP_SAMPLE("HT", dsp_sample_u8(HT, 0x1000, 12500, 0)); // 10
     SETUP_SAMPLE("CH", dsp_sample_u8(HH, 0x1000, 25000, 0)); // 11
     SETUP_SAMPLE("OH", dsp_sample_u8(HH, 0x1000, 25000, 0)); // 12
 
+    if (IC22_Ride != nullptr)
+    {
+        SETUP_SAMPLE("RD", dsp_sample_u8(IC22_Ride, 0x8000, 25000, 0)); // 14
+    }
+    if (IC19_Crash != nullptr)
+    {
+        SETUP_SAMPLE("CR", dsp_sample_u8(IC19_Crash, 0x8000, 25000, 0)); // 13
+    }
+
     engine::addParam("Pitch", &_pitch);
-    engine::addParam(MULTI_TRIGS, &_select, 0, LEN_OF(sample_names) - 1, sample_names); // . = hidden
+    engine::addParam(MULTI_TRIGS, &_select, 0, _select - 1, sample_names); // . = hidden
     _select = 0;
 
     engine::addParam("Start", &_start);
     engine::addParam("End", &_end);
-    
+
     engine::setMultiTrigMidiKeyMap(midi_key_map);
 }
 
@@ -106,6 +123,11 @@ void engine::process()
                     dsp_set_sample_pos(sample_ptr[i], _start, 0.7f * engine::trigLevel(i), 0.2f);
                     dsp_set_sample_pos(sample_ptr[i + 1], _start, 0, 1.0f);
                 }
+            }
+            else if (i == 12) // OH
+            {
+                dsp_set_sample_pos(sample_ptr[i], _start, engine::trigLevel(i),
+                                   1.f - (float)engine::getMidiCC(4) / 127.f);
             }
             else
             {

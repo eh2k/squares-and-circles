@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+== 2025-10-27
+   * Bugfix
+     * Glitch/Noise caused in some cases by drawing x > 128 (TR707 sample visualization)
+     * TR707: fixed TOM samplerate from 25000 to 12500
+     * MIDI CC doesn't reach last step of a parameter #139
+   * Enchancement
+     * TR707 
+      - optional crash & ride crymbals added
+      - Midi CC04 (Footcontroller) support for Closed/OpenHihat
+     * New App-API
+      - GetMidiCC
 == 2025-10-26
    * Bugfix
      * Fix Crash on Midi CC (Parameter 6 and 7 in some engines)
@@ -10,6 +21,8 @@ All notable changes to this project will be documented in this file.
      * Multi-trigs engines MIDI control: 
        * engine::setMultiTrigMidiKeyMap(midi_key_map);
        * Support Midi velocity
+     * New App-API
+      - GetTrigLevel
 == 2025-10-20
    * Bugfix
      * DrumSynth - 909AbsKit-1 drumkit crashing #140
