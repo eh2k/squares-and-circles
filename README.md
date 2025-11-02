@@ -14,7 +14,7 @@
 
 ## Acknowledgments & Credits
 
-Big thanks to the creators of ornament & crime (o_C) and PJRC for the Teensy and also to all those who have worked on the [code and algorithms](https://github.com/eh2k/squares-and-circles/wiki/credits) partly reused here, especially Mutable Instruments.
+Thanks to the creators of ornament & crime (o_C) and PJRC for the Teensy, and all those who have worked on the [code and algorithms](https://github.com/eh2k/squares-and-circles/wiki/credits) that are reused here, especially Mutable Instruments.
 They served a great source of learning and provided a huge playground and the foundation for this project.
 
 ## Motivation / Challenge
@@ -322,7 +322,7 @@ In case the MIDI-Control is enabled, you can setup the Midi-Channel in the engin
 
  * [Ornament-and-Crime T4.0](https://github.com/eh2k/squares-and-circles/wiki/Ornament%E2%80%90and%E2%80%90Crime)
  * [Squares-and-Circles DSM0](https://github.com/eh2k/squares-and-circles/wiki/Squares&Circles-D_SM-Prototype)
- * [O_C T4.1](https://github.com/eh2k/squares-and-circles/wiki/OC_T41)
+ * [O_C T4.1](https://github.com/eh2k/squares-and-circles/wiki/O_C_T41)
 
 ## Hardware setup procedure
   > Use [![WebFlasher](https://img.shields.io/badge/Web-Flasher-blue)](https://eh2k.github.io/□●/flash/?firmware)  to enter callibration mode, or execute advanced setup commands </br>

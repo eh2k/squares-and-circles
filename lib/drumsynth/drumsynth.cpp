@@ -490,6 +490,23 @@ extern "C" DrumSynth drum_synth_init(const DrumModel *inst, void *(*malloc)(size
     return nullptr;
 }
 
+extern "C" void drum_synth_deinit(DrumSynth p, void (*free)(void* ptr))
+{
+    if (free == nullptr)
+        free = ::free;
+
+    if (p)
+    {
+        size_t n = p[0];
+        auto _part = (drum_synth_Part *)&p[1];
+        for (size_t i = 0; i < n; i++)
+        {
+            free(_part[i]._osc);
+        }
+        free(p);
+    }
+}
+
 extern "C" void drum_synth_reset(DrumSynth inst)
 {
     if (inst)

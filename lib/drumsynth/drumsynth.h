@@ -162,6 +162,7 @@ typedef uint32_t *DrumSynth;
 extern "C"
 {
     DrumSynth drum_synth_init(const DrumModel *inst, void *(*malloc)(size_t size));
+    void drum_synth_deinit(DrumSynth inst, void (*free)(void* ptr));
     void drum_synth_process_frame(DrumSynth inst, int part, float freq, const DrumParams *params, float *outL, float *outR, size_t size);
     void drum_synth_reset(DrumSynth inst);
     int drum_synth_load_models(const uint8_t *drumkit, DrumModel _instModel[16], void *(*malloc)(size_t size));

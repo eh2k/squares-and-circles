@@ -30,8 +30,7 @@
 
 static constexpr size_t n = 8;
 
-DrumSynth _instA = nullptr;
-DrumSynth _instB = nullptr;
+DrumSynth _inst = nullptr;
 
 float pitch = 1.f;
 float stereo = 0.5f;
@@ -159,8 +158,7 @@ void free_instrument()
 void engine_free()
 {
     free_instrument();
-    ::free(_instA);
-    ::free(_instB);
+    drum_synth_deinit(_inst);
 }
 
 void load_instrument(uint8_t num)
@@ -215,10 +213,8 @@ void load_instrument(uint8_t num)
         _cur_inst.part = partArgs;
     }
 
-    ::free(_instA);
-    ::free(_instB);
-    _instA = drum_synth_init(&_cur_inst, ::malloc);
-    _instB = drum_synth_init(&_cur_inst, ::malloc);
+    drum_synth_deinit(_inst, ::free);
+    _inst = drum_synth_init(&_cur_inst, ::malloc);
 }
 
 uint32_t _t = UINT32_MAX;
@@ -243,13 +239,12 @@ void engine::process()
 
         _t = 0;
 
-        drum_synth_reset(_instA);
-        drum_synth_reset(_instB);
+        drum_synth_reset(_inst);
     }
 
     if (_t < UINT32_MAX)
     {
-        DrumParams params = {_t, 0, stretch};
+        DrumParams params = {_t, 0, stretch, stereo, 1.f, 1.f};
 
         float f = pitch; // powf(2.f, (frame.qz_voltage(this->io, 0)));
         float a = stereo;
@@ -257,28 +252,8 @@ void engine::process()
 
         for (size_t k = 0; k < _cur_inst.n; k++)
         {
-            if (stereo > 0.01f && _cur_inst.part[k].osc.type >= OSC_METALLIC)
             {
-                drum_synth_process_frame(_instA, k, (f - (f * 0.01f * stereo)), &params, tmpL, tmpL, FRAME_BUFFER_SIZE);
-                drum_synth_process_frame(_instB, k, (f + (f * 0.01f * stereo)), &params, tmpR, tmpR, FRAME_BUFFER_SIZE);
-                if (_cur_inst.part[k].osc.type == OSC_METALLIC)
-                {
-                    for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
-                    {
-                        buffer[i] += tmpL[i];
-                        bufferAux[i] += tmpR[i];
-                    }
-                }
-                else
-                    for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
-                    {
-                        buffer[i] += tmpL[i];
-                        bufferAux[i] += tmpL[i] * b + tmpR[i] * a;
-                    }
-            }
-            else
-            {
-                drum_synth_process_frame(_instA, k, f, &params, tmpL, tmpR, FRAME_BUFFER_SIZE);
+                drum_synth_process_frame(_inst, k, f, &params, tmpL, tmpR, FRAME_BUFFER_SIZE);
                 for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
                 {
                     buffer[i] += tmpL[i];

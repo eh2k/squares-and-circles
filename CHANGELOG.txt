@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+== 2025-11-02
+   * Bugfix
+     * Claps engine no longer produces any sound #145 (uninitialized sturct + missing deinit)
 == 2025-10-27
    * Bugfix
      * Glitch/Noise caused in some cases by drawing x > 128 (TR707 sample visualization)
