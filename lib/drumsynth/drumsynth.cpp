@@ -328,6 +328,15 @@ struct drum_synth_Part
 
             ++t;
 
+            float vca = this->_vca.value();
+
+            if( vca < (1.f / INT16_MAX))
+            {
+                *outL++ = 0.f;
+                *outR++ = 0.f;
+                continue;
+            }
+
             // if (this->_amp.value() < (1.f / INT16_MAX) || this->_vca.value() < (1.f / INT16_MAX))
             // {
             //     out++;
@@ -455,8 +464,8 @@ struct drum_synth_Part
                 osc2 = osc;
             }
 
-            *outL++ = osc * this->_vca.value() * part->level * params->levelL * 0.8f;
-            *outR++ = osc2 * this->_vca.value() * part->level * params->levelR * 0.8f;
+            *outL++ = osc * vca * part->level * params->levelL * 0.8f;
+            *outR++ = osc2 * vca * part->level * params->levelR * 0.8f;
             CONSTRAIN(*(outL - 1), -1.f, 1.f);
             CONSTRAIN(*(outR - 1), -1.f, 1.f);
         }
@@ -582,7 +591,10 @@ extern "C" int drum_synth_load_models(const uint8_t *drumkit, DrumModel _instMod
     for (size_t i = 0; i < drumkit[0]; i++)
     {
         _instModel[i].name = reinterpret_cast<const char *>(p);
-        p += 12;
+        p += 11;
+
+        _instModel[i].midi_note = *reinterpret_cast<const uint8_t *>(p);
+        p += sizeof(uint8_t);
 
         _instModel[i].n = *reinterpret_cast<const size_t *>(p);
         p += sizeof(_instModel[i].n);

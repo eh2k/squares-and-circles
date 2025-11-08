@@ -137,6 +137,7 @@ struct PartArgs
 struct DrumModel
 {
     const char *name;
+    uint8_t midi_note;
     size_t n;
     const PartArgs *part;
 };

@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+== 2025-11-29
+   * New Engines
+     * FILTER/SVF
+     * FILTER/MoogLadder
+     * FILTER/TeeBee
+   * Bugfix
+     * FX/Delay - patch restore allways default control values
+     * FX/Delay - dynamic time parameter by internal clock (general bpm == 0 case)
+     * FX/Delay - heap corruption (cause DelayLine array)
+   * Enchancement
+     * FX/Delay - Dry/Wet control #101
+     * UsbHid - remote display (https://eh2k.github.io/%E2%96%A1%E2%97%8F/remote/)
+     * DrumSynth - MidiNote mapping implemented
+     * DrumSynth - cpu usage optimization
+== 2025-11-03
+   * Bugfix
+     * TR707 Crashes #146 (when missing 707_IC19, 707_IC22)
 == 2025-11-02
    * Bugfix
      * Claps engine no longer produces any sound #145 (uninitialized sturct + missing deinit)

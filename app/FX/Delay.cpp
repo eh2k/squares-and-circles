@@ -33,6 +33,7 @@
                                      : value)
 
 int32_t time_steps = 16;
+float raw = 1.f;
 float time = 0.5f;
 float color = 0.5f;
 float level = 0.5f;
@@ -40,9 +41,12 @@ float pan = 0.5f;
 
 constexpr static int delay_len = 48000; // 1s
 
-stmlib::DelayLine<uint16_t, delay_len> delay_mem[2];
-stmlib::OnePole filterLP[2];
-stmlib::OnePole filterHP[2];
+stmlib::DelayLine<uint16_t, delay_len> delay_mem0;
+stmlib::DelayLine<uint16_t, delay_len> delay_mem1;
+stmlib::OnePole filterLP0;
+stmlib::OnePole filterLP1;
+stmlib::OnePole filterHP0;
+stmlib::OnePole filterHP1;
 
 inline const float DelayRead(stmlib::DelayLine<uint16_t, delay_len> *line_, float delay)
 {
@@ -59,10 +63,15 @@ char time_info[64] = "Time";
 
 void engine::setup()
 {
-    delay_mem[0].Init();
-    delay_mem[1].Init();
+    delay_mem0.Init();
+    delay_mem1.Init();
+    filterLP0.Init();
+    filterLP1.Init();
+    filterHP0.Init();
+    filterHP1.Init();
 
-    engine::addParam(time_info, &time_steps, 1, 64);
+    engine::addParam("D/W", &raw);
+    engine::addParam(time_info, &time_steps, 1, 128);
     engine::addParam("Feedb", &level);
     engine::addParam("Color", &color);
     engine::addParam("Pan", &pan);
@@ -72,38 +81,34 @@ float delay = 0;
 float t_32 = 0;
 
 
-bool calc_t_step32()
+void calc_t_step32()
 {
     uint32_t clk_bpm = machine::clk_bpm();// / 100;
     if (clk_bpm > 0)
     {
-        engine::addParam(time_info, &time_steps, 1, 128);
         uint32_t bpm = clk_bpm;
         auto t_per_beat = 6000.f / bpm; // * machine::SAMPLE_RATE
         t_32 = t_per_beat / 32;
-        return true;
     }
     else
     {
-        engine::addParam(time_info, &time);
-        t_32 = 1.f / 256.f;
-        return false;
+        t_32 = 1.f / 128.f;
     }
 }
 
 void sync_params()
 {
-    if (calc_t_step32())
-        time = time_steps * t_32;
+    calc_t_step32();
+    time = time_steps * t_32;
 
-    float colorFreq = std::pow(100.f, 2.f * color - 1.f);
+    float colorFreq = powf(100.f, 2.f * color - 1.f);
     float lowpassFreq = clamp(20000.f * colorFreq, 20.f, 20000.f) / SAMPLE_RATE;
     float highpassFreq = clamp(20.f * colorFreq, 20.f, 20000.f) / SAMPLE_RATE;
 
-    filterLP[0].set_f<stmlib::FREQUENCY_DIRTY>(lowpassFreq);
-    filterLP[1].set_f<stmlib::FREQUENCY_DIRTY>(lowpassFreq);
-    filterHP[0].set_f<stmlib::FREQUENCY_DIRTY>(highpassFreq);
-    filterHP[1].set_f<stmlib::FREQUENCY_DIRTY>(highpassFreq);
+    filterLP0.set_f<stmlib::FREQUENCY_DIRTY>(lowpassFreq);
+    filterLP1.set_f<stmlib::FREQUENCY_DIRTY>(lowpassFreq);
+    filterHP0.set_f<stmlib::FREQUENCY_DIRTY>(highpassFreq);
+    filterHP1.set_f<stmlib::FREQUENCY_DIRTY>(highpassFreq);
 }
 
 void engine::process()
@@ -125,28 +130,31 @@ void engine::process()
 
     for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
     {
-        float readL = DelayRead(&delay_mem[0], (int)delay);
-        float readR = DelayRead(&delay_mem[1], (int)delay);
+        float readL = DelayRead(&delay_mem0, (int)delay);
+        float readR = DelayRead(&delay_mem1, (int)delay);
 
         auto inL = inputL[i];
         auto inR = inputR[i];
 
-        inL = filterLP[0].Process<stmlib::FILTER_MODE_LOW_PASS>(inL);
-        inL = filterHP[0].Process<stmlib::FILTER_MODE_HIGH_PASS>(inL);
-        inR = filterLP[1].Process<stmlib::FILTER_MODE_LOW_PASS>(inR);
-        inR = filterHP[1].Process<stmlib::FILTER_MODE_HIGH_PASS>(inR);
+        inL = filterLP0.Process<stmlib::FILTER_MODE_LOW_PASS>(inL);
+        inL = filterHP0.Process<stmlib::FILTER_MODE_HIGH_PASS>(inL);
+        inR = filterLP1.Process<stmlib::FILTER_MODE_LOW_PASS>(inR);
+        inR = filterHP1.Process<stmlib::FILTER_MODE_HIGH_PASS>(inR);
 
-        DelayWrite(&delay_mem[0], (readR + inL * (0 + pan) * 2) * level);
-        DelayWrite(&delay_mem[1], (readL + inR * (1 - pan) * 2) * level);
+        DelayWrite(&delay_mem0, (readR + inL * (0 + pan) * 2) * level);
+        DelayWrite(&delay_mem1, (readL + inR * (1 - pan) * 2) * level);
 
         outputL[i] = readL + inputL[i];
         outputR[i] = readR + inputR[i];
+
+        outputL[i] = raw * outputL[i] + (1 - raw) * inputL[i];
+        outputR[i] = raw * outputR[i] + (1 - raw) * inputR[i];
     }
 }
 
 void engine::draw()
 {
-    if (calc_t_step32())
+    if (machine::clk_bpm() > 0)
     {
         sprintf(time_info, ">t=%d", time_steps);
     }
