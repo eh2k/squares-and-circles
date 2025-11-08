@@ -4,23 +4,34 @@ set -e #-eo pipefail
 SCRIPT_PATH="$(realpath $(dirname $0))"
 cd ${SCRIPT_PATH}/..
 
+
+[[ -d .venv ]] || python3 -m venv .venv
+
+[[ -f .venv/bin/activate ]] && source .venv/bin/activate
+[[ -f .venv/Scripts/activate ]] && source .venv/Scripts/activate
+
+pip install -r app/requirements.txt
+
 if [[ ! -d ./.build/xpack-arm-none-eabi-gcc-10.3.1-2.1 ]] ; then
     mkdir -p ./.build
     cd ./.build
-    [[ -f ./xpack-arm-none-eabi-gcc-10.3.1-2.1-linux-x64.tar.gz ]] || curl -fLO https://github.com/xpack-dev-tools/arm-none-eabi-gcc-xpack/releases/download/v10.3.1-2.1/xpack-arm-none-eabi-gcc-10.3.1-2.1-linux-x64.tar.gz
-    cat xpack-arm-none-eabi-gcc-10.3.1-2.1-linux-x64.tar.gz  | tar xvz -C . > /dev/null
+    if which winver; then
+        [[ -f ./xpack-arm-none-eabi-gcc-10.3.1-2.1-win32-x64.zip ]] || curl -fLO https://github.com/xpack-dev-tools/arm-none-eabi-gcc-xpack/releases/download/v10.3.1-2.1/xpack-arm-none-eabi-gcc-10.3.1-2.1-win32-x64.zip
+        unzip xpack-arm-none-eabi-gcc-10.3.1-2.1-win32-x64.zip -d .
+    else
+        [[ -f ./xpack-arm-none-eabi-gcc-10.3.1-2.1-linux-x64.tar.gz ]] || curl -fLO https://github.com/xpack-dev-tools/arm-none-eabi-gcc-xpack/releases/download/v10.3.1-2.1/xpack-arm-none-eabi-gcc-10.3.1-2.1-linux-x64.tar.gz
+        cat xpack-arm-none-eabi-gcc-10.3.1-2.1-linux-x64.tar.gz  | tar xvz -C . > /dev/null
+    fi 
     cd -
 fi
 
-export GCC_PATH=/$(realpath .)/.build/xpack-arm-none-eabi-gcc-10.3.1-2.1/bin/
-export PATH="${PATH}:/$(realpath .)/.build/xpack-arm-none-eabi-gcc-10.3.1-2.1/bin/"
+export GCC_PATH=$(realpath .)/.build/xpack-arm-none-eabi-gcc-10.3.1-2.1/bin/
+export PATH="${PATH}:${GCC_PATH}"
 
 if ! which arm-none-eabi-gcc; then
     echo arm-none-eabi-gcc not found!
     exit 1
 fi
-
-pip install jinja2 pyelftools elf_size_analyze --upgrade pip
 
 if [[ "$1" == "--rebuild" ]]; then
     find "${SCRIPT_PATH}/" -type f -name "*.bin" -print0 -exec touch {} +
@@ -95,5 +106,5 @@ du -ch ./*/*.bin | grep total
 #find . -type f -name '*.bin' -delete
 
 if [[ "$1" == "--upload" || "$2" == "--upload" ]]; then
-    ./upload.py
+    python ./upload.py
 fi

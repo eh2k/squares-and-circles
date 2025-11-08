@@ -102,7 +102,7 @@ The available engine types include drums, synthesizers, oscillators, sequencers,
   * [DxFM_BNK1-3](lib/plaits/resources.cc#L41)
   * [Open303](https://github.com/eh2k/squares-and-circles/wiki/Open303)
   * [ClassicVAVCF](lib/plaits/dsp/engine2/virtual_analog_vcf_engine.cc)
-* **Stereo-FX**
+* **FX**
   * [Reverb](https://github.com/eh2k/squares-and-circles/wiki/clouds_reverb)
   * [ReverbSC](https://github.com/eh2k/squares-and-circles/wiki/ReverbSC)
   * [Rev-Dattorro](https://github.com/eh2k/squares-and-circles/wiki/Rev-Dattorro)
@@ -114,6 +114,10 @@ The available engine types include drums, synthesizers, oscillators, sequencers,
   * [White/Pink](https://github.com/eh2k/squares-and-circles/wiki/White_Pink_noise)
   * [NES_noise](https://github.com/eh2k/squares-and-circles/wiki/NES_noise)
   * [808_squares](https://github.com/eh2k/squares-and-circles/wiki/808_squares)
+* **FILTER**
+  * [SVF](https://github.com/eh2k/squares-and-circles/wiki/filter_plaits_svf)
+  * [MoogLadder](https://github.com/eh2k/squares-and-circles/wiki/moog_ladder)
+  * [TeeBee](https://github.com/eh2k/squares-and-circles/wiki/filter_teebee)
 * **SPEECH**
   * [LPC](https://github.com/eh2k/squares-and-circles/wiki/LPC)
   * [SAM](https://github.com/eh2k/squares-and-circles/wiki/SAM)

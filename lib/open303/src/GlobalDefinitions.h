@@ -6,7 +6,10 @@
 
 #define INLINE inline
 
+#ifndef REAL_T_IS_DOUBLE
 #define REAL_T_IS_FLOAT
+#endif
+
 #ifdef REAL_T_IS_FLOAT
 typedef float real_t; //[eh2k]
 #else

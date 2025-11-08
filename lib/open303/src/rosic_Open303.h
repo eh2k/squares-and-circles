@@ -397,7 +397,7 @@ namespace rosic
       tmp  = -oscillator.getSample();         // the raw oscillator signal 
       tmp  = highpass1.getSample(tmp);        // pre-filter highpass
       tmp  = filter.getSample(tmp);           // now it's filtered
-      tmp  = antiAliasFilter.getSample(tmp);  // anti-aliasing filtered
+      //[eh2k] tmp  = antiAliasFilter.getSample(tmp);  // anti-aliasing filtered
     }
 
     // these filters may actually operate without oversampling (but only if we reset them in

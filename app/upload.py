@@ -1,230 +1,169 @@
-#!/bin/python3 -u
+#!/usr/bin/env python3
 
-import rtmidi
+import usb
 import json
-import os
 import zlib
-import time
-import intelhex  # pip install intelhex - #https://python-intelhex.readthedocs.io/en/latest/part2-2.html
-import os, io
+import os, glob
 
-midiout = rtmidi.MidiOut()
 
-for i in range(0, midiout.get_port_count()):
-    if midiout.get_port_name(i).startswith("S&C"):
-        midiout.open_port(i)
+class bcolors:
+    HEADER = "\033[95m"
+    OKBLUE = "\033[94m"
+    OKCYAN = "\033[96m"
+    OKGREEN = "\033[92m"
+    WARNING = "\033[93m"
+    FAIL = "\033[91m"
+    ENDC = "\033[0m"
+    BOLD = "\033[1m"
+    UNDERLINE = "\033[4m"
 
-midiin = rtmidi.MidiIn(queue_size_limit=1024 * 8)
 
-for i in range(0, midiin.get_port_count()):
-    if midiin.get_port_name(i).startswith("S&C"):
-        midiin.open_port(i)
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-if not midiout.is_port_open() or not midiin.is_port_open():
-    print("=== no S&C device conected! ===")
-    exit(-1)
+dev = usb.core.find(idVendor=0x16C0)
 
-while True:
-    msg = midiin.get_message()
-    if not msg:
+if dev is None:
+    print("---- S&C Device not connected ---")
+    exit(1)
+
+print("---- S&C Device connected ---")
+
+# try:
+#     print("resetting device")
+#     dev.reset()
+# except Exception as e:
+#     print("reset", e)
+
+if dev.is_kernel_driver_active(0):
+    print("detaching kernel driver")
+    dev.detach_kernel_driver(0)
+
+#dev.set_configuration()
+cfg = dev.get_active_configuration()
+
+hid_interface = None
+for intf in cfg:
+    if intf.bInterfaceClass == 3:
+        hid_interface = intf
         break
 
+if hid_interface is None:
+    raise ValueError("No HID interface found")
 
-def flush(midiin):
+print(hid_interface)
+# detach kernel driver for that interface if necessary and claim it
+if dev.is_kernel_driver_active(hid_interface.bInterfaceNumber):
+    try:
+        dev.detach_kernel_driver(hid_interface.bInterfaceNumber)
+    except usb.core.USBError:
+        pass
+
+usb.util.claim_interface(dev, hid_interface.bInterfaceNumber)
+
+# find IN and OUT endpoints
+endpoint_in = usb.util.find_descriptor(
+    hid_interface,
+    custom_match=lambda e: usb.util.endpoint_direction(e.bEndpointAddress)
+    == usb.util.ENDPOINT_IN,
+)
+endpoint_out = usb.util.find_descriptor(
+    hid_interface,
+    custom_match=lambda e: usb.util.endpoint_direction(e.bEndpointAddress)
+    == usb.util.ENDPOINT_OUT,
+)
+
+if endpoint_in is None or endpoint_out is None:
+    raise ValueError("Could not find both IN and OUT endpoints for HID interface")
+
+print(
+    "HID interface",
+    hid_interface.bInterfaceNumber,
+    "IN",
+    hex(endpoint_in.bEndpointAddress),
+    "OUT",
+    hex(endpoint_out.bEndpointAddress),
+)
+
+print("-------------------------------------------------")
+
+def get_blobs():
+    endpoint_out.write("blobs".encode() + bytes([0]))
+    buffer = bytearray()
     while True:
-        msg = midiin.get_message()
-        if not msg:
+        buffer.extend(dev.read(endpoint_in.bEndpointAddress, 64, 1000).tobytes())
+        if buffer[-1] == 0:
             break
+    n = buffer.index(0)
+    buffer = buffer[:n]
 
+    try:
+        blobs = json.loads(buffer)
+    except Exception as e:
+        print(buffer)
+        print("Error parsing blobs:", e)
+        return []
 
-def chunk_bytes(bytes_object, chunk_size):
-    chunks = (
-        bytes_object[i : i + chunk_size]
-        for i in range(0, len(bytes_object), chunk_size)
-    )
-    return chunks
-
-
-def sendFLASHDATA(name, data0):
-    flush(midiin)
-    data = bytes(name, "utf-8")[:8] + data0
-    crc32 = zlib.crc32(data)
-    print(" Flashing", name, crc32, end="")
-    midiout.send_message(
-        [0xF3, 0x7E]
-    )  # midi_out.send(mido.Message('song_select', song=0x7e))
-    flush(midiin)
-    vlen = len(data)
-    ch = 0 + ((vlen & 0xF000) >> 12)
-    rawValue = [0b11100000 | ch, vlen & 0x7F, vlen >> 7 & 0x7F]
-
-    midiout.send_message(rawValue)
-
-    while True:
-        msg = midiin.get_message()
-        if msg:
-            ack, t = msg
-            print("  ACK:", ack, end="")
-            break
-
-    print("  sending blob...", len(data), end="")
-    i = 0
-    time.sleep(1 / 10000)
-    while i < len(data) - 1:
-        int16 = data[i] | data[i + 1] << 8
-        ch = 0 + ((data[i + 1] & 0xF0) >> 4)
-        rawValue = [0b11100000 | ch, int16 & 0x7F, int16 >> 7 & 0x7F]
-        midiout.send_message(rawValue)
-        time.sleep(1 / 10000)
-        i += 2
-
-    flush(midiin)
-    time.sleep(1 / 10000)
-
-    rawValue = [0b11100000, crc32 & 0x7F, crc32 >> 7 & 0x7F]
-    midiout.send_message(rawValue)
-
-    while True:
-        msg = midiin.get_message()
-        if msg:
-            data, t = msg
-            print("  CRC_CHECK:", data)
-            break
-
-
-midiout.send_message([0xF3, ord("E")])
-
-engines = ""
-
-try:
-    while True:
-        msg = midiin.get_message()
-        if msg:
-            data, t = msg
-            c = (data[2] << 7 | data[1]) - 8192
-            if c == 0:
-                break
-            engines += chr(c)
-except KeyboardInterrupt:
-    print("")
-finally:
-    print("OK")
-
-engines = json.loads(engines)
-
-print(json.dumps(engines, indent=4))
-# exit(0)
-
-# del engines[len(engines)-1:]
-midiout.send_message([0xF3, ord("U")])  # reset
-
-
-def get_appid(binfile):
-    with open(binfile, "rb") as f:
-        data = f.read()
-        l = int.from_bytes(data[4:6], byteorder="little")  # num_lot
-        r = int.from_bytes(data[6:8], byteorder="little")  # num_rels
-        a = int.from_bytes(data[8:12], byteorder="little")  # symt_size
-        b = int.from_bytes(data[12:16], byteorder="little")  # code_size
-        c = int.from_bytes(data[16:20], byteorder="little")  # data_size
-        d = int.from_bytes(data[20:24], byteorder="little")  # bss_size
-        sym_off = int(int(24) + (r * 2 * 4))
-        name_off = (
-            int.from_bytes(data[sym_off + 4 : sym_off + 8], "little", signed=False)
-            & 0x0FFFFFFF
-        ) + sym_off
-        name = (
-            data[name_off : data.index(0, name_off)].decode("utf-8").split("\0")[0]
-        )
-        return name
-
-
-apps_json = os.path.dirname(__file__) + "/index.json"
-with open(apps_json) as f:
-
-    apps = json.load(f)
-    j = 0
-    enginesNew = []
-    for file in apps["apps"]:
-        bin_file = os.path.dirname(apps_json) + "/" + str(file)
-        if not os.path.exists(bin_file):
-            print(bin_file, "not found")
+    for blob in blobs[:]:
+        if os.path.exists(blob["name"]) == False:
+            del blobs[blobs.index(blob)]
             continue
-        app_id = get_appid(bin_file)  # os.path.splitext(file)[0]
-        bin_size = os.path.getsize(bin_file)
-        with open(bin_file, "rb") as f:
-            crc32sum = zlib.crc32(f.read())
+        with open(blob["name"], "rb") as f:
+            blob["crc32_local"] = "%X" % zlib.crc32(f.read())
+    
+    return blobs
 
-        engine = next(
-            (e for e in engines if e["id"] == app_id),
-            None,
-        )
+def update_blob(filename):
+    blob = bytearray()
+    blob.extend("WRI".encode()[:3] + bytes([0]))
+    blob.extend(filename.encode() + bytes([0]))
+    blob.extend(bytes(0x0 for _ in range(4 - (len(blob) % 4))))
+    blob.extend(os.path.getsize(filename).to_bytes(4, "little"))
+    crc32 = 0
+    with open(filename, "rb") as f:
+        crc32 =zlib.crc32(f.read())
+        blob.extend(crc32.to_bytes(4, "little"))
+        f.seek(0)
+        blob.extend(f.read())
+    blob.extend(bytes(0xFF for _ in range(64 - (len(blob) % 64))))
+    #return 
+    for i in range(0, len(blob), 64):
+        chunk = blob[i : i + 64]
+        endpoint_out.write(chunk)
+    r = dev.read(endpoint_in.bEndpointAddress, 64, 10000).tobytes()
+    crc_ret = int.from_bytes(r[4:8], "little")
+    print("FLASH RESULT:", "%X" % crc32, "%X" % crc_ret)
+    return True
 
-        if engine == None:
+def reset():
+    cmd = bytearray()
+    cmd.extend("ui:".encode() + bytes([127]))
+    cmd.extend(bytes(0x0 for _ in range(64 - (len(cmd) % 64))))
+    endpoint_out.write(cmd)
+    print("Reset command sent")
+    #dev.read(endpoint_in.bEndpointAddress, 64, 1000).tobytes()
 
-            offset = int(1024 * 1024 / 2)
-            for e in engines:
-                offset = int(e["addr"], 16) + int(e["size"])
-            offset += 4096 - (offset % 4096)
-            print("OFFSET %x" % offset)
-            engine = {}
-            engine["id"] = app_id
-            engine["addr"] = "%x" % offset
-            engine["size"] = "%s" % bin_size
-            engine["crc32"] = "%x" % crc32sum
-            enginesNew.append(engine)
-            print("NEW ->", app_id, file, engine)
-            #continue
-            #exit(0)
-        elif engine["crc32"] == "%x" % crc32sum:
-            onext = int(engine["addr"], 16) + int(engine["size"])
-            onext += 4096 - (onext % 4096)
-            print(
-                app_id, engine["addr"], engine["size"],
-                os.path.splitext(file)[0],
-                "%x" % crc32sum,
-                "OK!",
-                "NEXT: %x" % (onext)
-            )
-            enginesNew.append(engine)
-            continue
-
-        print("->", app_id, file, engine)
-
+updated = False
+map = {}
+for blob in get_blobs():
+    map[blob["name"]] = blob
+    if blob["crc32"] != blob["crc32_local"]:
         print(
-            os.path.splitext(file)[0], "%x" % crc32sum, bin_size - int(engine["size"])
+            bcolors.WARNING,
+            blob,
+            bcolors.ENDC,
         )
-        offset = 0
-        ih = intelhex.IntelHex()
-        ih.loadbin(bin_file, offset=offset)
-        offset += bin_size
-        ih.puts(offset, crc32sum.to_bytes(4, "little"))
-        offset += 4
+        updated |= update_blob(blob["name"])
+    #else:
+    #    print(bcolors.OKBLUE, blob, bcolors.ENDC)
 
-        with io.BytesIO() as w:
-            ih.tofile(w, format="bin")
-            abx = w.getvalue()
-            offset = int(engine["addr"], 16)  # (1024 * 1024)
-            for chunk in chunk_bytes(abx, 4096):
-                sendFLASHDATA(f"0x%6x" % offset, chunk)
-                offset += len(chunk)
+# glob for .bin files in current directory
+for local_file in glob.glob("*/*.bin"):
+    if local_file.endswith(".bin") and local_file not in map:
+        print(bcolors.WARNING, "NEW FILE:", local_file, bcolors.ENDC)
+        updated |= update_blob(local_file)
 
-        j += 1
+if updated:
+    reset()
+else:
+    print("all apps up to date")
 
-        offset += 4 - (offset % 4)
-
-    if len(enginesNew) > 0:
-        offset = max((int(e["addr"], 16) + int(e["size"])) for e in enginesNew)
-        offset += 4096 - (offset % 4096)
-        print("END 0x%x" % offset)
-        for chunk in chunk_bytes(bytearray(b"\xff") * 4096, 4096):
-            sendFLASHDATA(f"0x%6x" % offset, chunk)
-            offset += len(chunk)
-
-    if j >= 0:
-        midiout.send_message([0xF3, 0x7F])  # reset
-
-midiin.close_port()
-midiout.close_port()
-del midiin
-del midiout

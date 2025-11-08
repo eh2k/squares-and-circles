@@ -13,18 +13,8 @@ jobs:
       uses: actions/setup-python@v2
     - name: build
       run: |
-        set -x
-        python -m pip install --upgrade pip
-        curl -fLO https://github.com/xpack-dev-tools/arm-none-eabi-gcc-xpack/releases/download/v10.3.1-2.1/xpack-arm-none-eabi-gcc-10.3.1-2.1-linux-x64.tar.gz
-        cat xpack-arm-none-eabi-gcc-10.3.1-2.1-linux-x64.tar.gz  | tar xvz -C . > /dev/null
-        export GCC_PATH=/$(realpath .)/xpack-arm-none-eabi-gcc-10.3.1-2.1/bin/
-        export PATH="${PATH}:/$(realpath .)/xpack-arm-none-eabi-gcc-10.3.1-2.1/bin/"
-        arm-none-eabi-gcc --version
-        pip install intelhex subprocess32 pyelftools Jinja2 platformio elf_size_analyze
         git submodule update --init 
-        pio run -v --environment squares-and-circles
-        git --no-pager diff
-        git checkout -- .
+        bash -ex ./app/build.sh --rebuild
     - name: deploy
       run: |
         git remote add --mirror=fetch secondary https://${{ secrets.CODEBERG_AUTH }}@codeberg.org/eh2k/squares-and-circles.git

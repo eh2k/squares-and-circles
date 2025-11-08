@@ -52,8 +52,6 @@ namespace rosic
 
   INLINE real_t EllipticQuarterBandFilter::getSample(real_t in)
   {
-    return in; //[eh2k] 
-    
     const real_t a01 =   -9.1891604652189471;
     const real_t a02 =   40.177553696870497;
     const real_t a03 = -110.11636661771178;

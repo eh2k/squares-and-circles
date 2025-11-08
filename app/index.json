@@ -35,6 +35,10 @@
     "FX/Gated-Reverb.bin",
     "FX/Reverb-HP-LP.bin",
 
+    "FILTER/SVF.bin",
+    "FILTER/MoogLadder.bin",
+    "FILTER/TeeBee.bin",
+
     "SEQ/EuclidRythm.bin",
     "SEQ/EuclidArp.bin",
     "SEQ/TuringMachine.bin",
@@ -49,6 +53,7 @@
     "GND/FFT.bin",
 
     "SYNTH/plaits.bin",
-    "DRUMS/DrumSynth.bin"
+    "DRUMS/DrumSynth.bin",
+    "FX/FV1emu.bin"
   ]
 }
