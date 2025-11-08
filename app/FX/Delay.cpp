@@ -33,6 +33,7 @@
                                      : value)
 
 int32_t time_steps = 16;
+float raw = 1.f;
 float time = 0.5f;
 float color = 0.5f;
 float level = 0.5f;
@@ -62,7 +63,8 @@ void engine::setup()
     delay_mem[0].Init();
     delay_mem[1].Init();
 
-    engine::addParam(time_info, &time_steps, 1, 64);
+    engine::addParam("D/W", &raw);
+    engine::addParam(time_info, &time_steps, 1, 128);
     engine::addParam("Feedb", &level);
     engine::addParam("Color", &color);
     engine::addParam("Pan", &pan);
@@ -72,31 +74,27 @@ float delay = 0;
 float t_32 = 0;
 
 
-bool calc_t_step32()
+void calc_t_step32()
 {
     uint32_t clk_bpm = machine::clk_bpm();// / 100;
     if (clk_bpm > 0)
     {
-        engine::addParam(time_info, &time_steps, 1, 128);
         uint32_t bpm = clk_bpm;
         auto t_per_beat = 6000.f / bpm; // * machine::SAMPLE_RATE
         t_32 = t_per_beat / 32;
-        return true;
     }
     else
     {
-        engine::addParam(time_info, &time);
-        t_32 = 1.f / 256.f;
-        return false;
+        t_32 = 1.f / 128.f;
     }
 }
 
 void sync_params()
 {
-    if (calc_t_step32())
-        time = time_steps * t_32;
+    calc_t_step32();
+    time = time_steps * t_32;
 
-    float colorFreq = std::pow(100.f, 2.f * color - 1.f);
+    float colorFreq = powf(100.f, 2.f * color - 1.f);
     float lowpassFreq = clamp(20000.f * colorFreq, 20.f, 20000.f) / SAMPLE_RATE;
     float highpassFreq = clamp(20.f * colorFreq, 20.f, 20000.f) / SAMPLE_RATE;
 
@@ -141,12 +139,15 @@ void engine::process()
 
         outputL[i] = readL + inputL[i];
         outputR[i] = readR + inputR[i];
+
+        outputL[i] = raw * outputL[i] + (1 - raw) * inputL[i];
+        outputR[i] = raw * outputR[i] + (1 - raw) * inputR[i];
     }
 }
 
 void engine::draw()
 {
-    if (calc_t_step32())
+    if (machine::clk_bpm() > 0)
     {
         sprintf(time_info, ">t=%d", time_steps);
     }

@@ -37,8 +37,8 @@ static float _end = 1.f;
 static float _amp = 1.f;
 
 int32_t _select = 0;
-const char *sample_names[15];
-void *sample_ptr[LEN_OF(sample_names)];
+const char *sample_names[15] = {};
+void *sample_ptr[LEN_OF(sample_names)] = {};
 #define SETUP_SAMPLE(name, ptr)                                                                                        \
     sample_names[_select] = name;                                                                                      \
     sample_ptr[_select] = ptr;                                                                                         \
@@ -112,7 +112,7 @@ void engine::process()
     auto outputR = engine::outputBuffer<1>();
     memset(outputR, 0, sizeof(float) * FRAME_BUFFER_SIZE);
 
-    for (uint32_t i = 0; i < LEN_OF(sample_ptr); i++)
+    for (uint32_t i = 0; i < LEN_OF(sample_ptr) && sample_ptr[i] != nullptr; i++)
     {
         if (engine::trig() & (1 << i))
         {
