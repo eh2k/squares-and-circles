@@ -158,7 +158,7 @@ void free_instrument()
 void engine_free()
 {
     free_instrument();
-    drum_synth_deinit(_inst);
+    drum_synth_deinit(_inst, ::free);
 }
 
 void load_instrument(uint8_t num)

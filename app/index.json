@@ -49,6 +49,7 @@
     "GND/FFT.bin",
 
     "SYNTH/plaits.bin",
-    "DRUMS/DrumSynth.bin"
+    "DRUMS/DrumSynth.bin",
+    "FX/FV1emu.bin"
   ]
 }

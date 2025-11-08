@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+== 2025-11-08
+   * Enchancement
+     * DrumSynth - MidiNote mapping implemented
+     * DrumSynth - cpu usage optimization
+== 2025-11-03
+   * Bugfix
+     * TR707 Crashes #146 (when missing 707_IC19, 707_IC22)
 == 2025-11-02
    * Bugfix
      * Claps engine no longer produces any sound #145 (uninitialized sturct + missing deinit)
