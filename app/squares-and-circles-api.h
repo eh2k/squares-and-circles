@@ -78,6 +78,13 @@ constexpr uint32_t ENGINE_MODE_STEREOLIZED = 1 << 9;
 
 #endif
 
+template <typename T>
+inline T constrain(T val, T min, T max) 
+{ 
+    CONSTRAIN(val, min, max); 
+    return val;
+}
+
 #ifdef __cplusplus
 #ifdef __GNUC__
 /* poision memory functions */
@@ -90,6 +97,12 @@ constexpr uint32_t ENGINE_MODE_STEREOLIZED = 1 << 9;
 EXTERN_C uint32_t micros();
 EXTERN_C uint32_t millis();
 EXTERN_C uint32_t crc32(uint32_t crc, const void *buf, size_t size);
+
+float linToExp(float in, float inMin, float inMax, float outMin, float outMax)
+{
+    float tmp = (in - inMin) / (inMax - inMin);
+    return outMin * expf(tmp * (logf(outMax / outMin)));
+}
 
 #endif
 
@@ -209,8 +222,6 @@ namespace engine
     inline uint32_t accent() { return *__accent; }
     inline float cv() { return (float)*__cv / PITCH_PER_OCTAVE; }
     inline int32_t cv_i32() { return *__cv; }
-
-    inline bool is_stereo() { return (__io->dac == 2 || __io->dac == 5); }
 
     template <int channel>
     inline float *outputBuffer();

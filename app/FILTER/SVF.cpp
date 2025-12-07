@@ -48,13 +48,17 @@ float _q = 0.5f;
 float _envMod = 0.5f;
 float _envDecay = 0.5f;
 
-stmlib::Svf svf_[2];
+stmlib::Svf svfL[2];
+stmlib::Svf svfR[2];
 plaits::DecayEnvelope decay_envelope_;
 
 void engine::setup()
 {
-    svf_[0].Init();
-    svf_[1].Init();
+    svfL[0].Init();
+    svfL[1].Init();
+    svfR[0].Init();
+    svfR[1].Init();
+
     decay_envelope_.Init();
 
     engine::addParam("Cutoff", &_cutoff);
@@ -86,22 +90,27 @@ void engine::process()
     const float stage2_gain = 1.f;
     const float sub_gain = 1.0f;
     const float gain = 1.f;
+    float input, lp, hp;
 
     for (size_t i = 0; i < FRAME_BUFFER_SIZE; ++i)
     {
-        svf_[0].set_f_q<FREQUENCY_FAST>(cutoff, 0.5f + q);
-        svf_[1].set_f_q<FREQUENCY_FAST>(cutoff, 0.5f + 0.025f * q);
+        svfL[0].set_f_q<FREQUENCY_FAST>(cutoff, 0.5f + q);
+        svfL[1].set_f_q<FREQUENCY_FAST>(cutoff, 0.5f + 0.025f * q);
 
-        const float input = SoftClip((inputL[i] + inputR[i] * sub_gain) * gain);
-
-        float lp, hp;
-        svf_[0].Process<FILTER_MODE_LOW_PASS, FILTER_MODE_HIGH_PASS>(input, &lp, &hp);
-
+        input = SoftClip((inputL[i] * sub_gain) * gain);
+        svfL[0].Process<FILTER_MODE_LOW_PASS, FILTER_MODE_HIGH_PASS>(input, &lp, &hp);
         lp = SoftClip(lp * gain);
-        lp += stage2_gain * (SoftClip(svf_[1].Process<FILTER_MODE_LOW_PASS>(lp)) - lp);
-
+        lp += stage2_gain * (SoftClip(svfL[1].Process<FILTER_MODE_LOW_PASS>(lp)) - lp);
         outputL[i] = lp;
-        outputR[i] = lp; // SoftClip(hp * gain);
+
+        svfR[0].set_f_q<FREQUENCY_FAST>(cutoff, 0.5f + q);
+        svfR[1].set_f_q<FREQUENCY_FAST>(cutoff, 0.5f + 0.025f * q);
+
+        input = SoftClip((inputR[i] * sub_gain) * gain);
+        svfR[0].Process<FILTER_MODE_LOW_PASS, FILTER_MODE_HIGH_PASS>(input, &lp, &hp);
+        lp = SoftClip(lp * gain);
+        lp += stage2_gain * (SoftClip(svfR[1].Process<FILTER_MODE_LOW_PASS>(lp)) - lp);
+        outputR[i] = lp;
     }
 }
 

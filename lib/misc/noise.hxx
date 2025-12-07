@@ -36,7 +36,7 @@ struct WhiteNoise
 
     WhiteNoise()
     {
-        seed = (uint32_t)(void*)this;
+        seed = (uint32_t)(void *)this;
     }
 
     int32_t next() // 0 to INT32_MAX
@@ -60,12 +60,30 @@ struct WhiteNoise
     }
 };
 
+struct BrownNoise
+{
+    WhiteNoise _white;
+    float out = 0;
+
+    void init()
+    {
+        out = 0;
+    }
+
+    float nextf(float min, float max)
+    {
+        float white = _white.nextf(-1, +1);
+        // adapted from https://codeberg.org/uzu/dough/src/commit/d38098efb12882a3772213dc78a627fe1d46d04b/dough.c#L660
+        this->out = (this->out + 0.02 * white) / 1.02;
+        return this->out * (max - min) + min;
+    }
+};
+
 /** Based on "The Voss algorithm"
 http://www.firstpr.com.au/dsp/pink-noise/
 */
 
-template <int N = 8>
-struct PinkNoise
+template <int N = 8> struct PinkNoise
 {
     WhiteNoise white;
 

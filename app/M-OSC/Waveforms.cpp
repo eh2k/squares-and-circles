@@ -211,7 +211,7 @@ void engine::process()
     for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
         audio_samples[i] = (gain * audio_samples[i]) / UINT16_MAX;
 
-    if (engine::is_stereo() && __io->stereo > 0) // Stereo
+    if (__io->stereo > 0) // Stereo
     {
         const int32_t f = __io->stereo;
         int32_t stereo = (f * f * f) / (255 * 255);

@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+== 2025-12-07
+   * Bugfix
+     * IO-page/Stereo control not allways visible (depends on output settings)
+     * IO-page/Input level not visible for CV-Engines (now allways visible, scope usecase etc)
+     * GND/Scope performance issue (range limit)
+   * Enchancement
+     * Modulation CV - Attenuverter min/max = ±2 #149
+     * Scope/FFT stereo signal pass through
+     * WhitePink noise stereo (+BROWN mode)
+     * FILTER/SVF stereo signal pass through
 == 2025-11-29
    * New Engines
      * FILTER/SVF

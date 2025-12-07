@@ -78,8 +78,11 @@ void engine::process()
     const float m_offset = log10f(N);
 
     auto inputL = engine::inputBuffer<0>();
+    auto inputR = engine::inputBuffer<1>();
     auto outputL = engine::outputBuffer<0>();
+    auto outputR = engine::outputBuffer<1>();
     set(outputL, inputL, apmlitude, 0);
+    set(outputR, inputR, apmlitude, 0);
 
     for (size_t i = 0; i < FRAME_BUFFER_SIZE; i += 2)
     {

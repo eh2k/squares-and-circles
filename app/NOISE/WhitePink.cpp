@@ -28,25 +28,50 @@
 #include "../squares-and-circles-api.h"
 #include "misc/noise.hxx"
 
-const char *modes[2] = {">White", ">Pink"};
-PinkNoise<> pink;
+const char *modes[3] = {">White", ">Pink", ">Brown"};
+PinkNoise<> pinkL;
+PinkNoise<> pinkR;
+BrownNoise brownL;
+BrownNoise brownR;
 float gain = 1.f;
 int32_t mode = 0;
+float stereo = 0.f;
 
 void engine::setup()
 {
     engine::addParam("Level", &gain);
     engine::addParam("@Mode", &mode, 0, LEN_OF(modes) - 1, modes);
+    engine::addParam("Stereo", &stereo);
+
+    brownL.init();
+    brownR.init();
 }
 void engine::process()
 {
-    auto buffer = engine::outputBuffer<0>();
+    auto bufferL = engine::outputBuffer<0>();
+    auto bufferR = engine::outputBuffer<1>();
 
     for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
     {
-        if (mode == 0)
-            buffer[i] = pink.white.nextf(-1.f, 1.f) * gain;
-        else
-            buffer[i] = pink.nextf(-1.f, 1.f) * gain;
+        switch (mode)
+        {
+        case 0:
+            bufferL[i] = pinkL.white.nextf(-1.f, 1.f) * gain;
+            bufferR[i] = pinkR.white.nextf(-1.f, 1.f) * gain;
+            break;
+        case 1:
+            bufferL[i] = pinkL.nextf(-1.f, 1.f) * gain;
+            bufferR[i] = pinkR.nextf(-1.f, 1.f) * gain;
+            break;
+        case 2:
+            bufferL[i] = brownL.nextf(-1.f, 1.f) * gain;
+            bufferR[i] = brownR.nextf(-1.f, 1.f) * gain;
+            break;
+        }
+
+        float tmp = (bufferL[i] + bufferR[i]) / 2.f * (1 - stereo);
+
+        bufferL[i] = bufferL[i] * stereo + tmp;
+        bufferR[i] = bufferR[i] * stereo + tmp;
     }
 }

@@ -64,11 +64,14 @@ void set(float *target, const float *src, float amp, float offset)
 void engine::process()
 {
     auto inputL = engine::inputBuffer<0>();
+    auto inputR = engine::inputBuffer<1>();
     auto outputL = engine::outputBuffer<0>();
+    auto outputR = engine::outputBuffer<1>();
 
-    input = inputL[0];
+    input = (inputL[0] + inputR[0]) / 2.f;
     set(outputL, inputL, apmlitude, offset);
-    output = outputL[0];
+    set(outputR, inputR, apmlitude, offset);
+    output = (outputL[0] + outputR[0]) / 2.f;
 
     int n = x_scale;
     if (x_scale > FRAME_BUFFER_SIZE)
@@ -135,8 +138,8 @@ void draw_scope(int y)
                 gfx::setPixel(x, y);
 
             gfx::drawLine(
-                x, y + scope[(start + x) % LEN_OF(scope)].first,
-                x + 1, y + scope[(start + x + 1) % LEN_OF(scope)].first);
+                x, constrain<int>(y + scope[(start + x) % LEN_OF(scope)].first, 0, 64),
+                x + 1, constrain<int>(y + scope[(start + x + 1) % LEN_OF(scope)].first, 0, 64));
 
             // if (scope[(start + i) % LEN_OF(scope)] > 0 && scope[(start + i + 1) % LEN_OF(scope)] <= 0)
             //     gfx::drawLine(x, y - 20, x, y + 20);
@@ -150,8 +153,8 @@ void draw_scope(int y)
                 gfx::setPixel(x, y);
 
             gfx::drawLine(
-                x, y + scope[(scope_pos + x) % 128].first,
-                x, y + scope[(scope_pos + x) % 128].second);
+                x, constrain<int>(y + scope[(scope_pos + x) % 128].first, 0, 64),
+                x, constrain<int>(y + scope[(scope_pos + x) % 128].second, 0, 64));
 
             // if (scope[(start + i) % LEN_OF(scope)] > 0 && scope[(start + i + 1) % LEN_OF(scope)] <= 0)
             //     gfx::drawLine(x, y - 20, x, y + 20);
