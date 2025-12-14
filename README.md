@@ -204,13 +204,22 @@ The I/O-Configuration page lets you virtually patch the engine with the hardware
  * **Trig-Input**:
    * `-`
    * `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`
+   * `$1-$9`
+
+*In case the Engine supports Clock-Input - Clock-Source is configurable:*
+
+ * **Clock-Source**:
+   * `CLK` - global clock -> Midi/Clock/Timing settings.
+   * `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`
+   * `$1-$9`
 
 *In case the Engine supports Accents (Closed/Open HiHat) - Accent Input is configurable:*
 
  * **Accent-Input**:
    * `-`
    * `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`
-
+   * `$1-$9`
+   
 <img align="right" src="doc/inputs2.png" width=196px />
 
 *In case the Engine is an AUDIO_PROCESSOR - Input signal mix is configurable:*
@@ -265,7 +274,7 @@ The I/O-Configuration page lets you virtually patch the engine with the hardware
 <br/>
 <div style="page-break-after: always;"></div>
 
-## MIDI/CLOCK-Settings
+## MIDI+CLOCK+TIMING-Settings
 
 >[Long press [LEFT] + [RIGHT]] for getting to the MIDI-Settings page.
 
@@ -273,7 +282,7 @@ The MIDI&Clock-Settings page lets you select the MIDI-Control.
 
 <img align="right" src="doc/config_midi0.png" width=196px />
 
-- **MIDI-Control**:
+### - **MIDI-Control**:
   - `-` disabled
   - In case OC_T40
     - `USB+T1` [T1 input can be used as MIDI-Input](https://github.com/eh2k/squares-and-circles/wiki/Ornament%E2%80%90and%E2%80%90Crime#-midi-expander)
@@ -285,13 +294,20 @@ In case the MIDI-Control is enabled, you can setup the Midi-Channel in the engin
 
 <img align="right" src="doc/config_midi1.png" width=196px />
 
- * **CLOCK-Source**: BPM
+### - **CLOCK-Source**:
    * `-` none
    * `INT` Internal Clock-Source (BPM)
    * `T1` T1 as Clock-Input (4ppqn)
    * `MIDI` Clock received from MIDI
 
-> Clock-Source is used by engines like `FX/Delay` (clocked sync) or `MIDI/Clock`
+> Default Clock-Source for `SEQ/...` engines. <br/>
+> Clock-Source is also used by engines like `FX/Delay` (clocked sync) or `MIDI/Clock`
+
+
+<img align="right" src="doc/config_midi2.png" width=196px />
+
+### - **TRIG-In-Delay**: 
+   * `0-50ms`Trigger input processing delay in ms. Usecase: sync trig signals with midi or CV
 
 #### Midi-Control
   * Engines can be loaded/selected by midi program change

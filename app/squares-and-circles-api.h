@@ -98,7 +98,7 @@ EXTERN_C uint32_t micros();
 EXTERN_C uint32_t millis();
 EXTERN_C uint32_t crc32(uint32_t crc, const void *buf, size_t size);
 
-float linToExp(float in, float inMin, float inMax, float outMin, float outMax)
+inline float linToExp(float in, float inMin, float inMax, float outMin, float outMax)
 {
     float tmp = (in - inMin) / (inMax - inMin);
     return outMin * expf(tmp * (logf(outMax / outMin)));
