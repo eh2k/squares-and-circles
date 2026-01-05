@@ -14,7 +14,7 @@ jobs:
     - name: build
       run: |
         git submodule update --init 
-        bash -ex ./app/build.sh --rebuild
+        bash -ex ./src/build.sh --rebuild
     - name: deploy
       run: |
         git remote add --mirror=fetch secondary https://${{ secrets.CODEBERG_AUTH }}@codeberg.org/eh2k/squares-and-circles.git

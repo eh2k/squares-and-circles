@@ -26,7 +26,7 @@
 
 #include "../squares-and-circles-api.h"
 #include "lib/misc/euclidean.h"
-#include "patterns_303.h"
+#include "lib/misc/patterns_303.h"
 
 #include <algorithm>
 #include <math.h>
@@ -270,7 +270,7 @@ void update_seq_pattern()
     rotate %= len;
     _swing = swing;
 
-    if ((mode == plaits::ArpeggiatorMode::ARPEGGIATOR_MODE_RANDOM | _slide > 1) && engine::stepChanged() && (engine::step() % len) == 0)
+    if ((mode == plaits::ArpeggiatorMode::ARPEGGIATOR_MODE_RANDOM | _slide > 1) && engine_sync::stepChanged() && (engine_sync::step() % len) == 0)
         _last_mode = -1; // randomize!!!
 
     if (_last_len != len ||
@@ -351,9 +351,9 @@ void update_seq_pattern()
         }
     }
 
-    if (engine::stepChanged())
+    if (engine_sync::stepChanged())
     {
-        seq_pos = engine::step() % len;
+        seq_pos = engine_sync::step() % len;
 
         bool trig = pattern[seq_pos];
 
@@ -362,7 +362,7 @@ void update_seq_pattern()
 
         if (trig)
         {
-            uint32_t n = (clock::samples_per_step() / FRAME_BUFFER_SIZE) / 2;
+            uint32_t n = (engine_sync::samples_per_step() / FRAME_BUFFER_SIZE) / 2;
 
             // if (n > 50)
             //     n = 0;

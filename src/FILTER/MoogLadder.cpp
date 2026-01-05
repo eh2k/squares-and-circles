@@ -23,11 +23,10 @@
 // See http://creativecommons.org/licenses/MIT/ for more information.
 //
 
-// Adapted from: plaits virtual_analog_vcf_engine.h / virtual_analog_vcf_engine.cc
-
 #include "../squares-and-circles-api.h"
 
 #define tanh fast_tanh
+#define protected public
 
 #include "MoogLadders/src/ImprovedModel.h"
 #include "plaits/dsp/envelope.h"
@@ -52,7 +51,7 @@ float _envMod = 0.5f;
 float _envDecay = 0.5f;
 
 DecayEnvelope decay_envelope_;
-ImprovedMoog filter0(SAMPLE_RATE*2);
+ImprovedMoog filter0(SAMPLE_RATE * 2);
 
 void engine::setup()
 {
@@ -64,7 +63,7 @@ void engine::setup()
     engine::addParam("Decay", &_envDecay);
 }
 
-float tmp[FRAME_BUFFER_SIZE * 2 + 2] = {};
+float tmp[FRAME_BUFFER_SIZE * 2] = {};
 float last_input = 0.f;
 
 void engine::process()
@@ -89,27 +88,29 @@ void engine::process()
     filter0.SetCutoff(cutoff * SAMPLE_RATE / 2);
     filter0.SetResonance(_resonance);
 
-#if 0
-    std::copy_n(inputL, FRAME_BUFFER_SIZE, outputL);
-    filter0.Process(outputL, FRAME_BUFFER_SIZE);
-#else
-
-    for (int i = 0; i < (FRAME_BUFFER_SIZE * 2); i += 2)
+    if (filter0.sampleRate > SAMPLE_RATE)
     {
-        float input = inputL[i / 2] + inputR[i / 2];
-        tmp[i] = (last_input + input) * 0.5f;
-        tmp[i + 1] = input;
-        last_input = input;
+
+        for (int i = 0; i < (FRAME_BUFFER_SIZE * 2); i += 2)
+        {
+            float input = inputL[i / 2] + inputR[i / 2];
+            tmp[i] = (last_input + input) * 0.5f;
+            tmp[i + 1] = input;
+            last_input = input;
+        }
+
+        filter0.Process(tmp, FRAME_BUFFER_SIZE * 2);
+
+        for (int i = 0; i < FRAME_BUFFER_SIZE * 2; i += 2)
+        {
+            outputL[i / 2] = (tmp[i] + tmp[i + 1]) / 2;
+        }
     }
-
-    filter0.Process(tmp, FRAME_BUFFER_SIZE * 2);
-
-    for (int i = 0; i < FRAME_BUFFER_SIZE * 2; i += 2)
+    else
     {
-        outputL[i / 2] = (tmp[i] + tmp[i + 1]) / 2;
+        std::copy_n(inputL, FRAME_BUFFER_SIZE, outputL);
+        filter0.Process(outputL, FRAME_BUFFER_SIZE);
     }
-
-#endif
 
     std::copy_n(outputL, FRAME_BUFFER_SIZE, outputR);
 }

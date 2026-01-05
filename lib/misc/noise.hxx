@@ -73,8 +73,8 @@ struct BrownNoise
     float nextf(float min, float max)
     {
         float white = _white.nextf(-1, +1);
-        // adapted from https://codeberg.org/uzu/dough/src/commit/d38098efb12882a3772213dc78a627fe1d46d04b/dough.c#L660
-        this->out = (this->out + 0.02 * white) / 1.02;
+        // MoogLadders -> BrowningFilter
+        this->out = (this->out + 0.02f * white) / 1.02f;
         return this->out * (max - min) + min;
     }
 };

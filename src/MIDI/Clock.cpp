@@ -63,8 +63,8 @@ uint8_t clk_change(uint8_t clk)
 
 void engine::process()
 {
-    bpm = machine::clk_bpm() / 100;
-    uint8_t clk = clk_change(clock::ppn());
+    bpm = engine_sync::clk_bpm() / 100;
+    uint8_t clk = clk_change(engine_sync::ppn());
 
     if (clk)
         last_t = engine::t();
@@ -84,7 +84,7 @@ void engine::process()
 
     int16_t a = count_down-- > 0 ? (5 * PITCH_PER_OCTAVE) : 0;
     std::fill_n(engine::outputBuffer_i16<0>(), FRAME_BUFFER_SIZE, a);
-    std::fill_n(engine::outputBuffer_i16<1>(), FRAME_BUFFER_SIZE, clk == clock::CLOCK_RESET ? (5 * PITCH_PER_OCTAVE) : 0);
+    std::fill_n(engine::outputBuffer_i16<1>(), FRAME_BUFFER_SIZE, clk == engine_sync::CLOCK_RESET ? (5 * PITCH_PER_OCTAVE) : 0);
 }
 
 void engine::draw()

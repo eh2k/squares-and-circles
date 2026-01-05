@@ -231,9 +231,9 @@ void update_seq_pattern()
         make_pattern(pattern2, lenB, pulsesB, rotateB);
     }
 
-    if (engine::stepChanged())
+    if (engine_sync::stepChanged())
     {
-        seq_pos = engine::step();
+        seq_pos = engine_sync::step();
 
         bool trig = pattern[seq_pos % len];
 
@@ -288,7 +288,7 @@ void engine::process()
 void engine::draw()
 {
     char tmp[16];
-    sprintf(tmp, "%02d", engine::step());
+    sprintf(tmp, "%02d", engine_sync::step());
     gfx::drawStringCenter(64, 12, tmp, 0);
     draw_eclid_cyrcle(36, 31, pattern, _last_len, _last_rotate);
     draw_eclid_cyrcle(36 + 49, 31, pattern2, _last_lenB, _last_rotateB);

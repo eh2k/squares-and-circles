@@ -42,7 +42,7 @@ void engine::draw()
     for (int y = 12; y < 60; y += 3)
         gfx::setPixel(64, y);
 
-    int bpm = machine::clk_bpm();
+    int bpm = engine_sync::clk_bpm();
     int bpm2 = ((bpm % 100) / 10);
     sprintf(tmp, "clock: %3d.%d", bpm / 100, bpm2);
     gfx::drawString(66, 20, tmp, 0);

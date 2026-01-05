@@ -232,9 +232,9 @@ void engine::process()
         _last_steps = _turing_length;
     }
 
-    if (engine::stepChanged())
+    if (engine_sync::stepChanged())
     {
-        if (engine::stepReset()) // Second Trig!
+        if (engine_sync::stepReset()) // Second Trig!
         {
             _rng_state = _reset_state._rng_seed;
             _turing_shift_reg = _reset_state._shift_reg;
@@ -259,7 +259,7 @@ void engine::process()
         if (cv1 == INT16_MAX)
         {
             cv1 = 5 * PITCH_PER_OCTAVE;
-            trig_pulse1 = clock::samples_per_step() / 2;
+            trig_pulse1 = engine_sync::samples_per_step() / 2;
         }
         else
             cv1 += engine::cv_i32();
@@ -267,7 +267,7 @@ void engine::process()
         if (cv2 == INT16_MAX)
         {
             cv2 = 5 * PITCH_PER_OCTAVE;
-            trig_pulse2 = clock::samples_per_step() / 2;
+            trig_pulse2 = engine_sync::samples_per_step() / 2;
         }
         else
             cv2 += engine::cv_i32();

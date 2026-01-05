@@ -7,3 +7,4 @@
 *.bin.h
 src/__pycache__/app_hex.cpython-310.pyc
 .build/
+.venv/

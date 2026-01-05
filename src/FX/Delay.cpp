@@ -83,7 +83,7 @@ float t_32 = 0;
 
 void calc_t_step32()
 {
-    uint32_t clk_bpm = machine::clk_bpm();// / 100;
+    uint32_t clk_bpm = engine_sync::clk_bpm();// / 100;
     if (clk_bpm > 0)
     {
         uint32_t bpm = clk_bpm;
@@ -154,7 +154,7 @@ void engine::process()
 
 void engine::draw()
 {
-    if (machine::clk_bpm() > 0)
+    if (engine_sync::clk_bpm() > 0)
     {
         sprintf(time_info, ">t=%d", time_steps);
     }

@@ -10,7 +10,7 @@ cd ${SCRIPT_PATH}/..
 [[ -f .venv/bin/activate ]] && source .venv/bin/activate
 [[ -f .venv/Scripts/activate ]] && source .venv/Scripts/activate
 
-pip install -r app/requirements.txt
+pip install -r src/requirements.txt
 
 if [[ ! -d ./.build/xpack-arm-none-eabi-gcc-10.3.1-2.1 ]] ; then
     mkdir -p ./.build
@@ -34,14 +34,14 @@ if ! which arm-none-eabi-gcc; then
 fi
 
 if [[ "$1" == "--rebuild" ]]; then
-    find "${SCRIPT_PATH}/" -type f -name "*.bin" -print0 -exec touch {} +
+    find "${SCRIPT_PATH}/../app/" -type f -name "*.bin" -print0 -exec touch {} +
     rm -f ${SCRIPT_PATH}/apps.txt
 fi
 
 for f in $(find "${SCRIPT_PATH}" -mindepth 2 -maxdepth 2 -type f -name '*.cpp'); do
 
 X="${f%.*}"
-if [ -f $oo ] && [ "$(date -R -r $X.bin)" = "$(date -R -r $f)" ]; then
+if [ -f $oo ] && [ "$(date -R -r ${X/src/app}.bin)" = "$(date -R -r $f)" ]; then
     continue
 fi
 
@@ -72,6 +72,12 @@ $mkmodule $(realpath $X.cpp --relative-base=.) \
 sed -i "s|$(realpath .)|.|" $X.log
 touch -d "$(date -R -r $X.cpp)" $X.bin
 
+mkdir -p $(dirname "${X/src/app}")
+mv "$X.bin" "${X/src/app}.bin"
+mv "$X.elf" "${X/src/app}.elf"
+mv "$X.log" "${X/src/app}.log"
+X="${X/src/app}"
+
 #cat $X.log | arm-none-eabi-c++filt -t > ${X}2.log
 
 arm-none-eabi-objdump -Dztr --source $X.elf | arm-none-eabi-c++filt -t > $X.elf.txt
@@ -81,7 +87,7 @@ ${SCRIPT_PATH}/dump.py "$(realpath $X.bin --relative-base=.)" | tee -a $X.log
 #rm $X.elf
 
 if [[ "$1" == "--rebuild" ]]; then
-    ${SCRIPT_PATH}/dump.py "$(realpath $X.bin --relative-base=.)" >> ${SCRIPT_PATH}/apps.txt
+    ${SCRIPT_PATH}/dump.py "$(realpath $X.bin --relative-base=.)" > ${SCRIPT_PATH}/../app/apps.txt
 fi
 
 grep "__aeabi_" $X.log && exit 1
@@ -101,9 +107,12 @@ done
 cd ${SCRIPT_PATH}
 pwd
 find . -type f -name '*.o' -delete
+cd ../app/
 find . -type f -name '*.bin' -exec stat --printf="%-20n\t%6s\n" -- {} \;
-du -ch ./*/*.bin | grep total
+du -ch */*.bin | grep total
 #find . -type f -name '*.bin' -delete
+
+find . -type f -name '*.bin' | cut -c 3- | sort | jq -R -s -c 'split("\n")[:-1] | {apps: .} ' | jq > index.json
 
 if [[ "$1" == "--upload" || "$2" == "--upload" ]]; then
     python ./upload.py

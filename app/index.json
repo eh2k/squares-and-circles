@@ -1,59 +1,47 @@
 {
   "apps": [
-    "CV/V_OCT.bin",
+    "CV/EnvFollower.bin",
     "CV/EnvGen.bin",
     "CV/LFO.bin",
-    "CV/EnvFollower.bin",
-    "NOISE/WhitePink.bin",
-    "NOISE/NES.bin",
-    "NOISE/808_squares.bin",
-    "MIDI/Monitor.bin",
-    "MIDI/Clock.bin",
-
-    "DRUMS/FM-Drum.bin",
+    "CV/V_OCT.bin",
     "DRUMS/808ish-BD.bin",
-    "DRUMS/808ish-SD.bin",
     "DRUMS/808ish-HiHat.bin",
+    "DRUMS/808ish-SD.bin",
+    "DRUMS/Claps.bin",
+    "DRUMS/Djembe.bin",
+    "DRUMS/DrumSynth.bin",
+    "DRUMS/FM-Drum.bin",
+    "DRUMS/TR707.bin",
     "DRUMS/TR909-HiHat.bin",
     "DRUMS/TR909-Ride.bin",
-    "DRUMS/TR707.bin",
-    "DRUMS/Claps.bin",
-
-    "M-OSC/Waveforms.bin",
-
-    "FX/Reverb.bin",
-    "FX/ReverbSC.bin",
+    "FILTER/MoogLadder.bin",
+    "FILTER/SVF.bin",
+    "FILTER/TeeBee.bin",
+    "FX/Delay.bin",
+    "FX/FV1emu.bin",
+    "FX/Gated-Reverb.bin",
+    "FX/JU60_chorus.bin",
     "FX/Rev-Dattorro.bin",
-
-    "DRUMS/Djembe.bin",
-    "SYNTH/Resonator.bin",
-
+    "FX/Reverb.bin",
+    "FX/Reverb-HP-LP.bin",
+    "FX/ReverbSC.bin",
+    "GND/FFT.bin",
+    "GND/Scope.bin",
+    "MIDI/Clock.bin",
+    "MIDI/Monitor.bin",
+    "MIDI/VAx6.bin",
+    "M-OSC/Waveforms.bin",
+    "NOISE/808_squares.bin",
+    "NOISE/NES.bin",
+    "NOISE/WhitePink.bin",
+    "SEQ/EuclidArp.bin",
+    "SEQ/EuclidRythm.bin",
+    "SEQ/TuringMachine.bin",
     "SPEECH/LPC.bin",
     "SPEECH/SAM.bin",
-
-    "FX/Delay.bin",
-    "FX/Gated-Reverb.bin",
-    "FX/Reverb-HP-LP.bin",
-
-    "FILTER/SVF.bin",
-    "FILTER/MoogLadder.bin",
-    "FILTER/TeeBee.bin",
-
-    "SEQ/EuclidRythm.bin",
-    "SEQ/EuclidArp.bin",
-    "SEQ/TuringMachine.bin",
-
-    "MIDI/VAx6.bin",
-
     "SYNTH/DxFM.bin",
     "SYNTH/Open303.bin",
-    "FX/JU60_chorus.bin",
-
-    "GND/Scope.bin",
-    "GND/FFT.bin",
-
     "SYNTH/plaits.bin",
-    "DRUMS/DrumSynth.bin",
-    "FX/FV1emu.bin"
+    "SYNTH/Resonator.bin"
   ]
 }
