@@ -34,6 +34,7 @@ int32_t _freq = UINT16_MAX / 2;
 int32_t _punch = UINT16_MAX / 2;
 int32_t _tone = UINT16_MAX / 2;
 int32_t _decay = UINT16_MAX / 2;
+int16_t* _out = engine::outputBuffer_i16(OUT_AUDIO);
 
 void engine::setup()
 {
@@ -69,7 +70,7 @@ void engine::process()
         std::fill(&flags[1], &flags[FRAME_BUFFER_SIZE], peaks::GATE_FLAG_LOW);
     }
 
-    _processor.Process(flags, engine::outputBuffer_i16<0>(), FRAME_BUFFER_SIZE);
+    _processor.Process(flags, _out, FRAME_BUFFER_SIZE);
 }
 
 #include "lib/peaks/drums/bass_drum.cc"

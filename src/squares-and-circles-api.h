@@ -43,10 +43,18 @@
 #define MULTI_TRIGS ">TRIGS"
 #define IO_STEREOLIZE ".IO_STEREO"
 
+#define OUT_CV "CV"
+#define OUT_VOCT "VOCT"
+#define OUT_TRIG "TRIG"
+#define OUT_GATE "GATE"
+#define OUT_ACCENT "ACCENT"
+#define OUT_AUDIO "AUDIO"
+#define OUT_AUDIO_L "AUDIO_L"
+#define OUT_AUDIO_R "AUDIO_R"
+
+
 constexpr uint32_t ENGINE_MODE_COMPACT = 1 << 5;
-constexpr uint32_t ENGINE_MODE_CV_OUT = 1 << 6;
 constexpr uint32_t ENGINE_MODE_MIDI_IN = 1 << 7;
-constexpr uint32_t ENGINE_MODE_STEREOLIZED = 1 << 9;
 
 #ifndef EXTERN_C
 #define EXTERN_C extern "C"
@@ -60,10 +68,14 @@ constexpr uint32_t ENGINE_MODE_STEREOLIZED = 1 << 9;
 #define M_PI_2 1.57079632679489661923
 #endif
 
+#ifndef MOD 
+#define MOD(x, y) ((x) % (y))
+#endif
+
 #ifndef MACHINE_INTERNAL
 
 #define LEN_OF(x) (sizeof(x) / sizeof(x[0]))
-#define MOD(x, y) ((x) % (y))
+
 
 #ifndef CONSTRAIN
 #define CONSTRAIN(var, min, max)                                                                                       \
@@ -136,8 +148,6 @@ EXTERN_C
 
     extern float *__output_l_fp;
     extern float *__output_r_fp;
-    extern int16_t *__output_l_i16p;
-    extern int16_t *__output_r_i16p;
 
     extern uint8_t *__trig_level;
     extern uint8_t *__midi_cc;
@@ -204,27 +214,8 @@ EXTERN_C
     }
 #endif
 
-    struct IO_t
-    {
-        uint8_t tr;
-        uint8_t ac;
-        uint8_t cv;
-        uint8_t qz;
-        int8_t transpose;
-        uint8_t aux;
-        uint8_t ext[4] = {0, 0, 0, 0};
-        uint8_t midi_channel;
-        uint8_t dac;
-        uint8_t level;
-        uint8_t pan; // 128 == center
-        uint8_t stereo;
-        uint8_t aux_dry;
-        uint8_t qz_root = 0;
-        int8_t fine_tune = 0;
-        uint8_t clock_src = 0;
-    };
-
-    extern IO_t *__io;
+    extern uint8_t *__io_tr;
+    extern uint8_t *__io_qz;
 }
 
 namespace engine
@@ -243,6 +234,17 @@ inline uint32_t trig()
 {
     return *__trig;
 }
+
+inline bool hasTrig()
+{
+    return *__io_tr;
+}
+
+inline uint8_t qz()
+{
+    return *__io_qz;
+}
+
 inline uint32_t gate()
 {
     return *__gate;
@@ -270,18 +272,6 @@ template <> inline float *outputBuffer<0>()
 template <> inline float *outputBuffer<1>()
 {
     return __output_r_fp;
-}
-
-template <int channel> inline int16_t *outputBuffer_i16();
-
-template <> inline int16_t *outputBuffer_i16<0>()
-{
-    return __output_l_i16p;
-}
-
-template <> inline int16_t *outputBuffer_i16<1>()
-{
-    return __output_r_i16p;
 }
 
 template <int channel> inline float *inputBuffer();
@@ -339,6 +329,19 @@ inline uint8_t getMidiCC(uint8_t ccc)
     return __midi_cc[ccc];
 }
 
+// 1V == 1.f, 5V = 5.f
+EXTERN_C float* outputBuffer_f32(const char *name);
+
+// 1V == PITCH_PER_OCTAVE, 5V == 5 * PITCH_PER_OCTAVE
+EXTERN_C int16_t* outputBuffer_i16(const char *name);
+
+// 1V == 1.f, 5V = 5.f
+EXTERN_C float* inputBuffer_f32(const char *name);
+
+// 1V == PITCH_PER_OCTAVE, 5V == 5 * PITCH_PER_OCTAVE
+EXTERN_C int16_t* inputBuffer_i16(const char *name);
+
+
 EXTERN_C void addParam_f32(const char *name, float *value, float min = 0.f, float max = 1.f); // min...max
 EXTERN_C void addParam_i32(const char *name, int32_t *value, int32_t min, int32_t max,
                            const char **valueMap); // 0...max
@@ -384,6 +387,9 @@ inline void setMode(uint32_t mode) // 1: compact_mode, 2: sample_view
 constexpr uint32_t PARAM_SELECTED = 0x1;
 constexpr uint32_t PARAM_MODULATION = 0x2;
 
+EXTERN_C float getParamValueModulated_f32(const void *valuePtr);
+EXTERN_C int32_t getParamValueModulated_i32(const void *valuePtr);
+
 EXTERN_C uint32_t getParamFlags(const void *valuePtr);
 EXTERN_C void selectParam(const void *val);
 inline uint32_t isParamModulated(const void *valuePtr)
@@ -404,7 +410,7 @@ EXTERN_C void dsp_process_sample(void *smpl, float start, float end, float pitch
 
 EXTERN_C bool qz_enabled();
 EXTERN_C const char *qz_name();
-EXTERN_C int32_t qz_process(int32_t pitch, int8_t *note);
+EXTERN_C int32_t qz_process(int32_t pitch, int8_t *note = nullptr);
 EXTERN_C int16_t qz_lookup(int8_t note); // 0-127 note-values
 } // namespace engine
 
@@ -502,8 +508,9 @@ EXTERN_C void drawStringCenter(int x, int y, const char *s, uint8_t font = 1);
 EXTERN_C void drawLine(int x1, int y1, int x2, int y2);
 EXTERN_C void setPixel(int x, int y);
 EXTERN_C void drawXbm(int x, int y, int width, int height, const uint8_t *xbm);
-EXTERN_C void drawSample(void *smpl);
+EXTERN_C void drawWaveform(void *wavefrom, int x = 0, int y = -1);
 EXTERN_C void message(const char *msg);
+EXTERN_C void drawPiano(int x, int y, float note);
 
 inline uint8_t *displayBuffer()
 {

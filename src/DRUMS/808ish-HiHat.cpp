@@ -42,6 +42,7 @@ float _decayOH = 0.5f;
 
 int16_t buffer[FRAME_BUFFER_SIZE];
 peaks::GateFlags flags[FRAME_BUFFER_SIZE];
+float* _out = engine::outputBuffer_f32(OUT_AUDIO);
 
 void engine::setup()
 {
@@ -80,7 +81,7 @@ void engine::process()
     auto ch_ad = (float)_chEnv.Render() / UINT16_MAX;
 
     for (size_t i = 0; i < FRAME_BUFFER_SIZE; i++)
-        engine::outputBuffer<0>()[i] = (float)buffer[i] / INT16_MAX * ch_ad;
+        _out[i] = (float)buffer[i] / INT16_MAX * ch_ad;
 
     if (engine::accent())
     {
@@ -94,7 +95,7 @@ void engine::process()
     auto oh_ad = (float)_ohEnv.Render() / UINT16_MAX;
 
     for (size_t i = 0; i < FRAME_BUFFER_SIZE; i++)
-        engine::outputBuffer<0>()[i] += (float)buffer[i] / INT16_MAX * oh_ad;
+        _out[i] += (float)buffer[i] / INT16_MAX * oh_ad;
 }
 
 #include "lib/peaks/drums/high_hat.cc"

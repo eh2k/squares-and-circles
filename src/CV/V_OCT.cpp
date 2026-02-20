@@ -23,8 +23,6 @@
 // See http://creativecommons.org/licenses/MIT/ for more information.
 //
 
-// ENGINE_NAME: CV/V/OCT
-
 #include "../squares-and-circles-api.h"
 #include <algorithm>
 
@@ -35,35 +33,17 @@ int32_t tune = 0;
 int32_t cv0 = 0;
 int16_t cv_ = 0;
 float glide = 0;
-
-namespace gfx
-{
-    uint8_t i = 0;
-    int8_t scope[128] = {};
-    void drawScope(int x0, int y)
-    {
-        for (int x = x0; x < 127; x++)
-        {
-            if (x % 3 == 0)
-                gfx::setPixel(x, y);
-            gfx::drawLine(x, y - scope[(i + x) % 128], x + 1, y - scope[(1 + i + x) % 128]);
-        }
-    }
-
-    void push_scope(int8_t y)
-    {
-        scope[i++ % 128] = y;
-        if (i > 128)
-            i = 0;
-    }
-}
+int16_t* out_cv = nullptr;
 
 void engine::setup()
 {
     engine::addParam(V_OCT, &note);
     engine::addParam("@Fine", &tune, INT8_MIN, INT8_MAX);
     engine::addParam("Slew", &glide, 0, 0.5f);
-    engine::setMode(ENGINE_MODE_COMPACT | ENGINE_MODE_CV_OUT);
+
+    out_cv = engine::outputBuffer_i16(OUT_VOCT);
+
+    engine::setMode(ENGINE_MODE_COMPACT);
 }
 
 void engine::process()
@@ -73,10 +53,7 @@ void engine::process()
 
     ONE_POLE(cv_, cv0, powf(1 - glide, 10));
 
-    std::fill_n(engine::outputBuffer_i16<0>(), FRAME_BUFFER_SIZE, cv_);
-
-    if ((engine::t() % 50) == 0)
-        gfx::push_scope((float)cv_ / PITCH_PER_OCTAVE * 4);
+    std::fill_n(out_cv, FRAME_BUFFER_SIZE, cv_);
 }
 
 void engine::draw()
@@ -86,5 +63,5 @@ void engine::draw()
     gfx::drawString(2, 46, tmp, 0);
     sprintf(tmp, "OUT: %.3fV", ((float)cv_ / PITCH_PER_OCTAVE));
     gfx::drawString(2, 52, tmp, 0);
-    gfx::drawScope(64, 51);
+    gfx::drawWaveform(out_cv, 64);
 }

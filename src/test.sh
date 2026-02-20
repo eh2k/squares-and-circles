@@ -8,7 +8,7 @@ export PATH="${PATH}:${GCC_PATH}"
 
 COVERAGE="" #"-coverage"
 
-g++ -pg -g -m64 -O0 -coverage -I. -I./lib/ -I./extern/ -fpermissive -DTEST src/test.cxx src/SYNTH/vSID.cpp -o test.exe
+g++ -pg -g -m64 -O0 -coverage -I. -I./lib/ -I./extern/ -fpermissive -DTEST src/test.cxx src/SYNTH/DT303.cpp -o test.exe
 ./test.exe
 #rm test.exe;
 

@@ -154,5 +154,5 @@ void engine::draw()
     if (sample_ptr[0] == nullptr)
         gfx::drawString(20, 20, "ROMS NOT FOUND\n \n   707_IC34\n   707_IC35");
     else
-        gfx::drawSample(sample_ptr[_select]);
+        gfx::drawWaveform(sample_ptr[_select]);
 }

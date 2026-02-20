@@ -115,5 +115,5 @@ du -ch */*.bin | grep total
 find . -type f -name '*.bin' | cut -c 3- | sort | jq -R -s -c 'split("\n")[:-1] | {apps: .} ' | jq > index.json
 
 if [[ "$1" == "--upload" || "$2" == "--upload" ]]; then
-    python ./upload.py
+    python ../app/upload.py
 fi

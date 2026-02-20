@@ -85,8 +85,11 @@ int32_t _pitch = 0;
 int32_t _shape = 0;
 int32_t _timbre = UINT16_MAX / 2;
 int32_t _color = UINT16_MAX / 2;
-int32_t _attack = 0;
+int32_t _stereo = 0;
 int32_t _decay = UINT16_MAX / 2;
+
+auto _out_l = engine::outputBuffer_i16(OUT_AUDIO_L);
+auto _out_r = engine::outputBuffer_i16(OUT_AUDIO_R);
 
 int32_t last_color = -1;
 int32_t last_shape = -1;
@@ -118,22 +121,21 @@ void engine::setup()
     engine::addParam("Timbre", &_timbre, 0, UINT16_MAX);
     engine::addParam("Color", &_color, 0, UINT16_MAX);
     engine::addParam("Decay", &_decay, 0, UINT16_MAX);
-    engine::addParam("Attack", &_attack, 0, UINT16_MAX);
-    engine::setMode(ENGINE_MODE_STEREOLIZED);
+    engine::addParam("Stereo", &_stereo, 0, UINT16_MAX);
 }
 
 char color_vals[64];
 
 void engine::process()
 {
-    if (last_shape != _shape || last_qz != __io->qz)
+    if (last_shape != _shape || last_qz != engine::qz())
     {
-        last_qz = __io->qz;
+        last_qz = engine::qz();
         last_shape = _shape;
         engine::draw();
     }
 
-    envelope.Update(_attack / 512, _decay / 512);
+    envelope.Update(0, _decay / 512);
 
     if (engine::trig())
     {
@@ -168,7 +170,7 @@ void engine::process()
 
     uint32_t gain = _decay < UINT16_MAX ? ad_value : UINT16_MAX;
 
-    if (!__io->tr)
+    if (!engine::hasTrig())
         gain = _decay; // No Trigger patched - use Decay as VCA...
 
     if ((engine::t() % 12) != 0)
@@ -178,9 +180,9 @@ void engine::process()
 
     osc1.set_parameters(_timbre >> 1, _color >> 1);
 
-    if (_shape >= 48 && _shape < (48 + 5) && __io->qz > 0)
+    if (_shape >= 48 && _shape < (48 + 5) && engine::qz() > 0)
     {
-        if (__io->qz == 1)
+        if (engine::qz() == 1)
         {
             if (last_color != _color)
             {
@@ -205,15 +207,14 @@ void engine::process()
 
     osc1.set_pitch(pitch);
 
-    auto audio_samples = engine::outputBuffer_i16<0>();
-    osc1.Render(sync_samples, audio_samples, FRAME_BUFFER_SIZE);
+    osc1.Render(sync_samples, _out_l, FRAME_BUFFER_SIZE);
 
     for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
-        audio_samples[i] = (gain * audio_samples[i]) / UINT16_MAX;
+        _out_l[i] = (gain * _out_l[i]) / UINT16_MAX;
 
-    if (__io->stereo > 0) // Stereo
+    if (_stereo > 0) // Stereo
     {
-        const int32_t f = __io->stereo;
+        const int32_t f = _stereo >> 8;
         int32_t stereo = (f * f * f) / (255 * 255);
 
         int32_t timbre = _timbre + stereo;
@@ -227,23 +228,22 @@ void engine::process()
         osc2.set_parameters(osc1.parameter_[0], osc1.parameter_[1]);
         osc2.set_pitch(pitch + stereo);
 
-        auto audio_samples = engine::outputBuffer_i16<1>();
-        osc2.Render(sync_samples, audio_samples, FRAME_BUFFER_SIZE);
+        osc2.Render(sync_samples, _out_r, FRAME_BUFFER_SIZE);
 
         for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
-            audio_samples[i] = (gain * audio_samples[i]) / UINT16_MAX;
+            _out_r[i] = (gain * _out_r[i]) / UINT16_MAX;
     }
     else
     {
-        memcpy(engine::outputBuffer_i16<1>(), engine::outputBuffer_i16<0>(), FRAME_BUFFER_SIZE * sizeof(int16_t));
+        memcpy(_out_r, _out_l, FRAME_BUFFER_SIZE * sizeof(int16_t));
     }
 }
 
 void engine::draw()
 {
-    if (_shape >= 48 && _shape < (48 + 5) && __io->qz > 0)
+    if (_shape >= 48 && _shape < (48 + 5) && engine::qz() > 0)
     {
-        if (__io->qz == 1)
+        if (engine::qz() == 1)
         {
             engine::addParam(".", &_color, 0, plaits::kChordNumChords - 1, (const char **)plaits::chord_names);
         }
@@ -268,20 +268,17 @@ void engine::draw()
         engine::addParam("Color", &_color, 0, UINT16_MAX);
     }
 
-    if (!__io->tr)
+    if (!engine::hasTrig())
     {
         engine::setParamName(&_decay, "Level");
-        engine::setParamName(&_attack, nullptr);
     }
     else if (_decay < UINT16_MAX)
     {
         engine::setParamName(&_decay, "Decay");
-        engine::setParamName(&_attack, "Attack");
     }
     else
     {
         engine::setParamName(&_decay, "VCA-off");
-        engine::setParamName(&_attack, nullptr);
     }
 }
 

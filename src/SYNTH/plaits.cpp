@@ -26,7 +26,7 @@
 // ENGINE_NAME: M-OSC/Virt.Analog
 // ENGINE_NAME: M-OSC/Waveshaping
 // ENGINE_NAME: M-OSC/2-OP-FM
-// ENGINE_NAME: M-OSC/Formant/PD
+// ENGINE_NAME: M-OSC/Grain
 // ENGINE_NAME: M-OSC/Harmonic
 // ENGINE_NAME: M-OSC/Wavetable
 // ENGINE_NAME: M-OSC/Chord
@@ -116,7 +116,7 @@ void engine::setup()
         _mode = {1, 0};
     else if (!strcmp(name, "2-OP-FM"))
         _mode = {2, 0};
-    else if (!strcmp(name, "Formant/PD"))
+    else if (!strcmp(name, "Grain"))
         _mode = {3, 2};
     else if (!strcmp(name, "Harmonic"))
         _mode = {4, 2};
@@ -398,7 +398,7 @@ void engine::process()
     if (!is_drum())
         modulations.trigger_patched = patch.decay < 1.f;
 
-    if (!__io->tr)
+    if (!engine::hasTrig())
     {
         modulations.trigger_patched = false;
         modulations.level_patched = true;
@@ -441,7 +441,7 @@ void engine::process()
 
 void engine::draw()
 {
-    engine::setParamName(&patch.decay, __io->tr ? "Decay" : "Level");
+    engine::setParamName(&patch.decay, engine::hasTrig() ? "Decay" : "Level");
 }
 
 #include "stmlib/utils/random.cc"

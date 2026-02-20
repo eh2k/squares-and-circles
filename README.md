@@ -67,7 +67,7 @@ The available engine types include drums, synthesizers, oscillators, sequencers,
   * [Scope](https://github.com/eh2k/squares-and-circles/wiki/Scope)
   * [FFT](https://github.com/eh2k/squares-and-circles/wiki/FFT)
 * **CV**
-  * [V/OCT](https://github.com/eh2k/squares-and-circles/wiki/V_OCT)
+  * [V_OCT](https://github.com/eh2k/squares-and-circles/wiki/V_OCT)
   * [EnvGen_AD](https://github.com/eh2k/squares-and-circles/wiki/EnvGen_AD)
   * [EnvGen_ADSR](https://github.com/eh2k/squares-and-circles/wiki/EnvGen_ADSR)
   * [LFO](https://github.com/eh2k/squares-and-circles/wiki/LFO)
@@ -129,6 +129,7 @@ The available engine types include drums, synthesizers, oscillators, sequencers,
   * [EuclidRythm](https://github.com/eh2k/squares-and-circles/wiki/EuclidRythm)
   * [EuclidArp](https://github.com/eh2k/squares-and-circles/wiki/EuclidArp)
   * [TuringMachine](https://github.com/eh2k/squares-and-circles/wiki/TM)
+  * [303-Patterns](https://github.com/eh2k/squares-and-circles/wiki/303-Patterns)
 
 ## Machine/Engine
 
@@ -146,10 +147,15 @@ For each parameter a modulation can be assigned:
   * **CV**: <img align="right" src="doc/mod_cv.png" width=196px />
     * SRC:
       * `C1`, `C2`, `C3`, `C4` - Analog inputs
-        * OP: `THRU`, `S&H-T1`, `S&H-T2`, `S&H-T3`, `S&H-T4`, `T&H-T1`, `T&H-T2`, `T&H-T3`, `T&H-T4`
+        * OP: `THRU`, `SLEW`, `S&H`, `T&H`
           * THRU - Thru Input
-          * S&H - Sample and Hold
-          * T&H - Track and Hold
+          * SLEW - Slew Limiter
+            - Rising
+            - Falling
+          * S&H - Sample and Hold 
+            - Trig Source
+          * T&H - Track and Hold 
+            - Gate Source
       * `+` - Constant internal voltage
         * 10V with 1/1000 resolution - nice for fine adjustments (detuning etc)
     * Hints:
@@ -193,7 +199,7 @@ For each parameter a modulation can be assigned:
 
 >[Long press [RIGHT]] enters the I/O-Configuration page.
 
-The I/O-Configuration page lets you virtually patch the engine with the hardware ports and internal gate/cv signals ($1-$9). Depending on the engine interface, trigger, gate, accent and V/OCT can be configured. In addition to the trigger, which is set with a rising edge, a gate state is also provided, that can be processed by the engine. Engines like Closed/Open-HiHats have an additional accent input - this works technically like a second trigger. The V/OCT input can optionally be quantized and transposed. In addition to the Tx inputs, the Cx inputs can also be used as a source for triggers and accents. The output can be configured as mono or stereo. Several engines can share the same output - the signal is mixed.
+The I/O-Configuration page lets you virtually patch the engine with the hardware ports and internal gate/cv signals ($1a-$4d). Depending on the engine interface, trigger, gate, accent and V/OCT can be configured. In addition to the trigger, which is set with a rising edge, a gate state is also provided, that can be processed by the engine. Engines like Closed/Open-HiHats have an additional accent input - this works technically like a second trigger. The V/OCT input can optionally be quantized and transposed. In addition to the Tx inputs, the Cx inputs can also be used as a source for triggers and accents. The output can be configured as mono or stereo. Several engines can share the same output - the signal is mixed.
 
 ### Ctrl / Inputs
 

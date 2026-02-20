@@ -24,8 +24,8 @@
 // See http://creativecommons.org/licenses/MIT/ for more information.
 //
 
-#include "../squares-and-circles-api.h"
 #include "../lib/misc/euclidean.h"
+#include "../squares-and-circles-api.h"
 #include <algorithm>
 #include <math.h>
 
@@ -74,7 +74,10 @@ int16_t fpsin(int16_t i)
 }
 
 // Cos(x) = sin(x + pi/2)
-inline int16_t fpcos(int16_t i) { return fpsin((int16_t)(((uint16_t)(i)) + 8192U)); }
+inline int16_t fpcos(int16_t i)
+{
+    return fpsin((int16_t)(((uint16_t)(i)) + 8192U));
+}
 
 // https://xbm.jazzychad.net/
 const uint8_t xmb_note_6x8[8] = {0xc8, 0xd8, 0xe8, 0xd8, 0xe8, 0xce, 0xcf, 0xc6};
@@ -84,7 +87,8 @@ const uint8_t xmb_arrow_up_5x6[6] = {0xe4, 0xee, 0xff, 0xe4, 0xe4, 0xe4};
 const uint8_t xmb_arrow_dn_5x6[6] = {0xe4, 0xe4, 0xe4, 0xf5, 0xee, 0xe4};
 const uint8_t xmb_circle_7x7[7] = {0x9c, 0xa2, 0xc1, 0xc1, 0xc1, 0xa2, 0x9c};
 const uint8_t xmb_filled_circle_7x7[7] = {0x9c, 0xa2, 0xdd, 0xdd, 0xdd, 0xa2, 0x9c};
-const uint8_t xbm_play_11x11[] = {0x03, 0xf8, 0x0d, 0xf8, 0x31, 0xf8, 0xc1, 0xf8, 0x01, 0xfb, 0x01, 0xfc, 0x01, 0xfb, 0xc1, 0xf8, 0x31, 0xf8, 0x0d, 0xf8, 0x03, 0xf8};
+const uint8_t xbm_play_11x11[] = {0x03, 0xf8, 0x0d, 0xf8, 0x31, 0xf8, 0xc1, 0xf8, 0x01, 0xfb, 0x01,
+                                  0xfc, 0x01, 0xfb, 0xc1, 0xf8, 0x31, 0xf8, 0x0d, 0xf8, 0x03, 0xf8};
 const uint8_t xbm_stop_7x11[] = {0x80, 0xf7, 0xd5, 0xd5, 0xd5, 0xd5, 0xd5, 0xd5, 0xd5, 0xf7, 0x80};
 
 bool playing = true;
@@ -178,6 +182,11 @@ int32_t lenB = 16;
 int32_t pulsesB = 4;
 int32_t rotateB = 0;
 
+int16_t* out_trig0;
+int16_t* out_trig1;
+int16_t* out_trig_or;
+int16_t* out_trig_and;
+
 void engine::setup()
 {
     engine::addParam("#LEN", &len, 1, 20);
@@ -186,7 +195,11 @@ void engine::setup()
     engine::addParam("#HIT", &pulsesB, 0, 16);
     engine::addParam("#ROT", &rotate, 0, 32);
     engine::addParam("#ROT", &rotateB, 0, 32);
-    engine::setMode(ENGINE_MODE_CV_OUT);
+
+    out_trig0 = engine::outputBuffer_i16(OUT_TRIG "1");
+    out_trig1 = engine::outputBuffer_i16(OUT_TRIG "2");
+    out_trig_or = engine::outputBuffer_i16(OUT_TRIG "S-OR");
+    out_trig_and = engine::outputBuffer_i16(OUT_TRIG "S-AND");
 }
 
 uint8_t pattern[64] = {};
@@ -214,8 +227,8 @@ void update_seq_pattern()
     CONSTRAIN(pulses, pulses, len);
     rotate %= len;
 
-    if (_last_len != len || _last_pulses != pulses || _last_rotate != rotate ||
-        _last_lenB != lenB || _last_pulsesB != pulsesB || _last_rotateB != rotateB)
+    if (_last_len != len || _last_pulses != pulses || _last_rotate != rotate || _last_lenB != lenB ||
+        _last_pulsesB != pulsesB || _last_rotateB != rotateB)
     {
         _last_len = len;
         _last_pulses = pulses;
@@ -273,7 +286,7 @@ void engine::process()
         trig = 5 * PITCH_PER_OCTAVE; // 5V
     }
 
-    std::fill_n(engine::outputBuffer_i16<0>(), FRAME_BUFFER_SIZE, trig);
+    std::fill_n(out_trig0, FRAME_BUFFER_SIZE, trig);
 
     trig = 0;
     if (gate_until2_t > 0)
@@ -282,7 +295,13 @@ void engine::process()
         trig = 5 * PITCH_PER_OCTAVE; // 5V
     }
 
-    std::fill_n(engine::outputBuffer_i16<1>(), FRAME_BUFFER_SIZE, trig);
+    std::fill_n(out_trig1, FRAME_BUFFER_SIZE, trig);
+
+    for(size_t i = 0; i < FRAME_BUFFER_SIZE; i++)
+    {
+        out_trig_or[i] = std::max(out_trig0[i], out_trig1[i]);
+        out_trig_and[i] = std::min(out_trig0[i], out_trig1[i]);
+    }
 }
 
 void engine::draw()

@@ -39,6 +39,7 @@ int32_t decay_ = 0;
 int32_t mode_ = 0;
 float scale = 0.5f;
 float offset = 0;
+int16_t* out_cv = nullptr;
 
 struct
 {
@@ -78,8 +79,10 @@ void engine::setup()
     engine::addParam("Decay", &decay_, 0, INT16_MAX);
     engine::addParam("Offset", &offset, -1, 1);
 
+    out_cv = engine::outputBuffer_i16(OUT_CV);
+
     decay_ = INT16_MAX / 2;
-    engine::setMode(ENGINE_MODE_COMPACT | ENGINE_MODE_CV_OUT);
+    engine::setMode(ENGINE_MODE_COMPACT);
 
     _meter.Init();
     _follower.Init();
@@ -89,7 +92,6 @@ void engine::setup()
 void engine::process()
 {
     auto inputL = engine::inputBuffer<0>();
-    auto outputL = engine::outputBuffer_i16<0>();
 
     uint16_t gain;
     uint16_t freq;
@@ -106,7 +108,7 @@ void engine::process()
         for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
         {
             _follower.Process(0, inputL[i] * INT16_MAX, &gain, &freq);
-            outputL[i] = gain >> 1; //_follower.process(inputL[i]) * 10.f;
+            out_cv[i] = gain >> 1; //_follower.process(inputL[i]) * 10.f;
         }
     }
     else
@@ -115,7 +117,7 @@ void engine::process()
         for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
         {
             _vactrol.Process(0, inputL[i] * INT16_MAX, &gain, &freq);
-            outputL[i] = gain >> 1; //_follower.process(inputL[i]) * 10.f;
+            out_cv[i] = gain >> 1; //_follower.process(inputL[i]) * 10.f;
         }
     }
 
@@ -123,15 +125,15 @@ void engine::process()
 
     if ((engine::t() % 50) == 0)
     {
-        int8_t v = outputL[0] >> 9;
+        int8_t v = out_cv[0] >> 9;
         CONSTRAIN(v, 0, 14);
         _scope.push(v);
     }
 
     for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
     {
-        outputL[i] *= scale;
-        outputL[i] += (offset * PITCH_PER_OCTAVE * 5);
+        out_cv[i] *= scale;
+        out_cv[i] += (offset * PITCH_PER_OCTAVE * 5);
     }
 }
 

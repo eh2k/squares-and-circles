@@ -37,16 +37,20 @@ static int32_t impulse = 1;
 static int count_down = 0;
 static uint32_t next = UINT32_MAX;
 static uint32_t last_t = 0;
+int16_t* out_clk;
+int16_t* out_reset;
 
 void engine::setup()
 {
     // 24, 8 or 4 ppqn
     bpm = 120; // machine::midi_bpm() / 100;
     engine::addParam("@BPM\n%d", &bpm, 60, 250);
-    engine::addParam("@ppqn", &ppqn, 0, 2, ppqn_names);
+    engine::addParam("@MODE\n%s", &ppqn, 0, 2, ppqn_names);
     engine::addParam("@Impulse\n%dms", &impulse, 1, 5);
     engine::addParam("@Offset\n%dms", &offset, 0, 127);
-    engine::setMode(ENGINE_MODE_CV_OUT);
+
+    out_clk = engine::outputBuffer_i16(OUT_TRIG "CLK");
+    out_reset = engine::outputBuffer_i16(OUT_TRIG "RST");
 }
 
 uint8_t last_clk = 0;
@@ -83,8 +87,8 @@ void engine::process()
     }
 
     int16_t a = count_down-- > 0 ? (5 * PITCH_PER_OCTAVE) : 0;
-    std::fill_n(engine::outputBuffer_i16<0>(), FRAME_BUFFER_SIZE, a);
-    std::fill_n(engine::outputBuffer_i16<1>(), FRAME_BUFFER_SIZE, clk == engine_sync::CLOCK_RESET ? (5 * PITCH_PER_OCTAVE) : 0);
+    std::fill_n(out_clk, FRAME_BUFFER_SIZE, a);
+    std::fill_n(out_reset, FRAME_BUFFER_SIZE, clk == engine_sync::CLOCK_RESET ? (5 * PITCH_PER_OCTAVE) : 0);
 }
 
 void engine::draw()

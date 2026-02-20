@@ -37,6 +37,7 @@ static int32_t _tone = UINT16_MAX / 2;
 static int32_t _decay = UINT16_MAX / 2;
 
 peaks::GateFlags flags[FRAME_BUFFER_SIZE];
+int16_t* _out = engine::outputBuffer_i16(OUT_AUDIO);
 
 void engine::setup()
 {
@@ -75,5 +76,5 @@ void engine::process()
         std::fill(&flags[1], &flags[FRAME_BUFFER_SIZE], peaks::GATE_FLAG_LOW);
     }
 
-    _processor.Process(flags, engine::outputBuffer_i16<0>(), FRAME_BUFFER_SIZE);
+    _processor.Process(flags, _out, FRAME_BUFFER_SIZE);
 }

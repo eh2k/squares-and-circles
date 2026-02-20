@@ -81,8 +81,9 @@ void engine::process()
 
     for (size_t j = 0; j < FRAME_BUFFER_SIZE; j++)
     {
-        scope_max = fmax(scope_max, outputL[j]);
-        scope_min = fmin(scope_min, outputL[j]);
+        float output = (outputL[j] + outputR[j]) / 2.f;
+        scope_max = fmax(scope_max, output);
+        scope_min = fmin(scope_min, output);
 
         if (++scope_n > n)
         {

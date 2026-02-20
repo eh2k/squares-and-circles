@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+== 2026-02-21
+   * New Engines
+     * SEQ/303-Patterns
+   * Bugfix:
+     * O_C T4.1: 
+      * Trig Gates "inverted" fix
+      * Output designation according to the latest rev3 panel.
+      * Patches are stored end of 8MB flash range (T40 2MB)
+   * Enchancement:
+     * Default IO config - (reset on load empty patch)
+     * Named Output/Inputs (outputBuffer_f32(name)/inputBuffer_f32(name))
+     * M-OSC/Waveforms - Attack removed, Stereo parameter added
+     * SEQ/EuclidRythm - new IO: TRIGS-OR-OUT, TRIGS-AND-OUT added
+     * FILTER/SVF - overdrive
+     * Virtual signal routing: Now 4 signals per engine - $1a..$1d, $2a..$2d
+     * CV/EnvGen_** - Envelope visualization..(and screensaver)
+     * Modulation/CV
+       * New OP: Slew
+       * OP: S&C/T&H -- now all signals configurable (also virtual routing)
+     * Engines renamed: CV/V/OCT to CV/V_OCT and M-OSC/Formant/PD to M-OSC/Grain
 == 2026-01-04
    * Bugfix:
      * Modulation Clock disabled (except clocked engines) -> global clock default for non clocked engines #118

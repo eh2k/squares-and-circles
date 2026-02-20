@@ -36,6 +36,9 @@ static int32_t _turing_shift_reg = 0x8000;
 static int32_t _pulse1 = 0;
 static int32_t _pulse2 = 15;
 
+int16_t *out_cv1;
+int16_t *out_cv2;
+
 struct
 {
     int32_t _shift_reg = 0;
@@ -58,7 +61,8 @@ const char *pulse_modes[21] = {};
 
 int32_t note_from_scale(uint8_t bits)
 {
-    //origin: https://github.com/Chysn/O_C-HemisphereSuite/blob/893deeb27ecacddad638ff9180f244a411623e35/software/o_c_REV/enigma/EnigmaOutput.h#L104
+    // origin:
+    // https://github.com/Chysn/O_C-HemisphereSuite/blob/893deeb27ecacddad638ff9180f244a411623e35/software/o_c_REV/enigma/EnigmaOutput.h#L104
 
     uint8_t mask = 0;
     for (uint8_t s = 0; s < bits; s++)
@@ -201,9 +205,12 @@ void engine::setup()
     engine::addParam("@Out1\n%s", &_pulse1, 0, LEN_OF(pulse_modes) - 1, pulse_modes);
     engine::addParam("@Out2\n%s", &_pulse2, 0, LEN_OF(pulse_modes) - 1, pulse_modes);
 
+    out_cv1 = engine::outputBuffer_i16("Out1");
+    out_cv2 = engine::outputBuffer_i16("Out2");
+
     engine::setPatchStateEx(&_reset_state, sizeof(_reset_state));
 
-    engine::setMode(ENGINE_MODE_COMPACT | ENGINE_MODE_CV_OUT);
+    engine::setMode(ENGINE_MODE_COMPACT);
 }
 
 static int32_t trig_pulse1 = 0;
@@ -289,8 +296,8 @@ void engine::process()
             cv2 = 0;
     }
 
-    std::fill_n(engine::outputBuffer_i16<0>(), FRAME_BUFFER_SIZE, cv1);
-    std::fill_n(engine::outputBuffer_i16<1>(), FRAME_BUFFER_SIZE, cv2);
+    std::fill_n(out_cv1, FRAME_BUFFER_SIZE, cv1);
+    std::fill_n(out_cv2, FRAME_BUFFER_SIZE, cv2);
 }
 
 void engine::draw()

@@ -88,14 +88,14 @@ UI_EVENT_t *__ui_event = nullptr;
 MIDI_EVENT_t *__midi_event = nullptr;
 IO_t *__io = new IO_t();
 
+uint8_t *__clock = new uint8_t[1];
+uint8_t *__step = new uint8_t[1];
+uint32_t *__step_changed = new uint32_t[1];
+
 float *__audio_in_l_fp = new float[FRAME_BUFFER_SIZE];
 float *__audio_in_r_fp = new float[FRAME_BUFFER_SIZE];
 float **__audio_in_l_fpp = &__audio_in_l_fp;
 float **__audio_in_r_fpp = &__audio_in_r_fp;
-float *__output_l_fp = new float[FRAME_BUFFER_SIZE];
-float *__output_r_fp = new float[FRAME_BUFFER_SIZE];
-int16_t *__output_l_i16p = new int16_t[FRAME_BUFFER_SIZE];
-int16_t *__output_r_i16p = new int16_t[FRAME_BUFFER_SIZE];
 
 uint32_t *__engine_props = new uint32_t[1];
 uint32_t *__trig = new uint32_t[1];
@@ -127,6 +127,12 @@ EXTERN_C
     void drawRect(int x, int y, int w, int h)
     {
     }
+    void drawLine(int x0, int y0, int x1, int y1)
+    {
+    }
+    void drawString(int x, int y, const char *text, uint8_t font)
+    {
+    }
     void fillRect(int x, int y, int w, int h)
     {
     }
@@ -138,6 +144,11 @@ EXTERN_C
     }
     void clearRect(int x, int y, int w, int h)
     {
+    }
+
+    uint32_t getParamFlags(const void *valuePtr)
+    {
+        return 0;
     }
 
     bool qz_enabled()
@@ -154,22 +165,58 @@ EXTERN_C
     {
         return pitch;
     }
+
+    void drawWaveform(void *wavefrom, int x = 0, int y = -1)
+    {
+    }
+
+    // 1V == PITCH_PER_OCTAVE, 5V == 5 * PITCH_PER_OCTAVE
+
+    float *__output_f32[6] = {};
+    int16_t *__output_i16[6] = {};
+
+    float *outputBuffer_f32(const char *name)
+    {
+        for (auto &o : __output_f32)
+        {
+            if (o == nullptr)
+            {
+                o = new float[FRAME_BUFFER_SIZE];
+                return o;
+            }
+        }
+    }
+
+    int _oi = -1;
+    int16_t *outputBuffer_i16(const char *name)
+    {
+        for (auto &o : __output_i16)
+        {
+            if (o == nullptr)
+            {
+                o = new int16_t[FRAME_BUFFER_SIZE];
+                return o;
+            }
+        }
+    }
 }
+
+#define ENGINE_MODE_CV_OUT 1
 
 void write_frame()
 {
-    if (__output_l_i16p[0] != 0x7FFF)
+    if (__output_i16[0] != nullptr)
     {
         for (int k = 0; k < FRAME_BUFFER_SIZE; k++)
         {
-            auto v = (__output_l_i16p[k]);
-            buffer.push_back(v);
+            auto v = (float)(__output_i16[0][k]) / (5 * PITCH_PER_OCTAVE);
+            buffer.push_back(v * INT16_MAX);
 
-            if (__output_r_i16p[0] != 0xFFFF)
+            if (__output_i16[1] != nullptr)
             {
                 nchannels = 2;
-                v = (__output_r_i16p[k]);
-                buffer.push_back(v);
+                v = (float)(__output_i16[1][k]) / (5 * PITCH_PER_OCTAVE);
+                buffer.push_back(v * INT16_MAX);
             }
         }
     }
@@ -177,15 +224,15 @@ void write_frame()
     {
         for (int k = 0; k < FRAME_BUFFER_SIZE; k++)
         {
-            CONSTRAIN(__output_l_fp[k], -1, 1);
-            auto v = (__output_l_fp[k]) * INT16_MAX;
+            auto v = (__output_f32[0][k] * INT16_MAX);
+            CONSTRAIN(v, INT16_MIN, INT16_MAX);
             buffer.push_back(v);
 
-            if (__output_r_fp[0] > -10000)
+            if (__output_f32[1] != nullptr)
             {
                 nchannels = 2;
-                CONSTRAIN(__output_l_fp[k], -1, 1);
-                v = (__output_r_fp[k]) * INT16_MAX;
+                v = (__output_f32[1][k] * INT16_MAX);
+                CONSTRAIN(v, INT16_MIN, INT16_MAX);
                 buffer.push_back(v);
             }
         }
@@ -196,11 +243,6 @@ int main()
 {
     engine::setup();
 
-    std::fill_n(__output_l_i16p, FRAME_BUFFER_SIZE, 0x7FFF);
-    std::fill_n(__output_r_i16p, FRAME_BUFFER_SIZE, 0x7FFF);
-    std::fill_n(__output_l_fp, FRAME_BUFFER_SIZE, -10000);
-    std::fill_n(__output_r_fp, FRAME_BUFFER_SIZE, -10000);
-
     // engine::process();
 
     WhiteNoise noise;
@@ -208,12 +250,14 @@ int main()
     osc.Init();
     float phase_inc_ = 440.f / 2 / SAMPLE_RATE;
 
-    __cv[0] = -PITCH_PER_OCTAVE * 2;
-    if (_paramP)
-        _paramP[0]--;
+    __cv[0] = 0; //-PITCH_PER_OCTAVE * 2;
+    // if (_paramP)
+    //     _paramP[0]--;
 
-    for (size_t i = 0; i < SAMPLE_RATE * 128; i += FRAME_BUFFER_SIZE)
+    for (size_t i = 0; i < SAMPLE_RATE * 10; i += FRAME_BUFFER_SIZE)
     {
+        __step_changed[0] = (i % 24000) == FRAME_BUFFER_SIZE ? 1 : 0;
+
         for (size_t j = 0; j < FRAME_BUFFER_SIZE; j++)
         {
             __audio_in_l_fp[j] = noise.nextf(-1, 1);
@@ -223,26 +267,35 @@ int main()
         osc.Render<plaits::OSCILLATOR_SHAPE_SAW>(phase_inc_, 0.5f, __audio_in_l_fp, FRAME_BUFFER_SIZE);
         memcpy(__audio_in_r_fp, __audio_in_l_fp, sizeof(float) * FRAME_BUFFER_SIZE);
 
-        __trig[0] = (i % (SAMPLE_RATE / 2)) == 0;
-        __gate[0] = (i % (SAMPLE_RATE / 2)) < SAMPLE_RATE / 3;
+        // __trig[0] = (i % (SAMPLE_RATE / 2)) == 0;
+        // __gate[0] = (i % (SAMPLE_RATE / 2)) < SAMPLE_RATE / 3;
 
-        if (__trig[0])
-            __cv[0] += PITCH_PER_OCTAVE / 12;
+        // if (((i / SAMPLE_RATE) % 2) == 1)
+        //     __cv[0] = PITCH_PER_OCTAVE;
+        // else
+        //     __cv[0] = 0;
 
-        if (i % (SAMPLE_RATE) == 0)
-        {
-            if (_paramP)
-            {
-                _paramP[0]++;
-                if (_paramP[0] > _paramMax)
-                    break;
-            }
+        // if (i % (SAMPLE_RATE) == 0)
+        // {
+        //     if (_paramP)
+        //     {
+        //         _paramP[0]++;
+        //         if (_paramP[0] > _paramMax)
+        //             break;
+        //     }
 
-            __cv[0] = -PITCH_PER_OCTAVE * 2;
-        }
+        //     __cv[0] = -PITCH_PER_OCTAVE * 2;
+        // }
 
         engine::process();
+
         __t[0]++;
+
+        if (__step_changed[0])
+        {
+            __step[0]++;
+            __step[0] %= 96;
+        }
 
         write_frame();
     }

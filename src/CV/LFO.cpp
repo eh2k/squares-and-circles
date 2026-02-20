@@ -39,31 +39,9 @@ int32_t rate = -INT16_MIN;
 int32_t waveform = -INT16_MIN;
 float scale = 0.5f;
 float offset = 0;
+int16_t* out_cv = nullptr;
 
 const char *shape_names[] = {"SIN", "TRI", "SQR", "STEPS", "NOISE"};
-
-struct
-{
-    int8_t scope[128] = {};
-    int i = 0;
-
-    void draw(int x0, int y)
-    {
-        for (int x = x0; x < 127; x++)
-        {
-            if (x % 3 == 0)
-                gfx::setPixel(x, y);
-            gfx::drawLine(x, y - scope[(i + x) % 128], x + 1, y - scope[(1 + i + x) % 128]);
-        }
-    }
-
-    void push(int y)
-    {
-        scope[i++ % 128] = y;
-        if (i > 127)
-            i = 0;
-    }
-} _scope;
 
 void engine::setup()
 {
@@ -79,7 +57,9 @@ void engine::setup()
     engine::addParam("Wavefrm", &waveform, 0, UINT16_MAX);
     engine::addParam("Offset", &offset, -1, 1);
 
-    engine::setMode(ENGINE_MODE_COMPACT | ENGINE_MODE_CV_OUT);
+    out_cv = engine::outputBuffer_i16(OUT_CV);
+
+    engine::setMode(ENGINE_MODE_COMPACT);
 }
 
 void engine::process()
@@ -105,21 +85,17 @@ void engine::process()
         std::fill(&flags[1], &flags[FRAME_BUFFER_SIZE], peaks::GATE_FLAG_LOW);
     }
 
-    int16_t *buffer = engine::outputBuffer_i16<0>();
-    _processor.Process(flags, buffer, FRAME_BUFFER_SIZE);
+    _processor.Process(flags, out_cv, FRAME_BUFFER_SIZE);
 
     for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
     {
-        buffer[i] >>= 1;
-        buffer[i] *= scale;
-        buffer[i] += (offset * PITCH_PER_OCTAVE * 5);
+        out_cv[i] >>= 1;
+        out_cv[i] *= scale;
+        out_cv[i] += (offset * PITCH_PER_OCTAVE * 5);
     }
-
-    if ((engine::t() % 50) == 0)
-        _scope.push(buffer[0] >> 10);
 }
 
 void engine::draw()
 {
-    _scope.draw(64, 51);
+    gfx::drawWaveform(out_cv, 64);
 }

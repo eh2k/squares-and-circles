@@ -23,95 +23,125 @@
 // See http://creativecommons.org/licenses/MIT/ for more information.
 //
 
-
-// Adapted from: plaits virtual_analog_vcf_engine.h / virtual_analog_vcf_engine.cc
+// https://www.earlevel.com/main/2003/03/02/the-digital-state-variable-filter/
 
 #include "../squares-and-circles-api.h"
-#include "plaits/dsp/envelope.h"
-#include "stmlib/dsp/dsp.h"
-#include "stmlib/dsp/filter.h"
+#include <array>
+#include <cmath>
+#include <algorithm>
 #include "stmlib/dsp/units.h"
 
-using namespace stmlib;
-
-const float a0 = (440.0f / 8.0f) / SAMPLE_RATE;
-
-inline float NoteToFrequency(float midi_note)
+inline float clamp(float x, float a, float b)
 {
-    midi_note -= 9.0f;
-    CONSTRAIN(midi_note, -128.0f, 127.0f);
-    return a0 * 0.25f * stmlib::SemitonesToRatio(midi_note);
+    return fmax(a, fmin(x, b));
 }
 
-float _cutoff = 0.5f;
-float _q = 0.5f;
-float _envMod = 0.5f;
-float _envDecay = 0.5f;
+// https://www.musicdsp.org/en/latest/Filters/142-state-variable-filter-chamberlin-version.html
+struct SVFilter
+{
+    float lastLp = 0, lastHp = 0, lastBp = 0;
+    inline void process(float input, float kf, float kq)
+    {
+        auto lp = lastLp + kf * lastBp;
+        auto hp = input - lp - kq * lastBp;
+        auto bp = lastBp + kf * hp;
+        lastLp = lp;
+        lastHp = hp;
+        lastBp = bp;
+    }
+};
 
-stmlib::Svf svfL[2];
-stmlib::Svf svfR[2];
-plaits::DecayEnvelope decay_envelope_;
+class Filter
+{
+    SVFilter f[2];
+    float kf = 0.1f, kq = .3f;
+
+  public:
+    void set_f_q(float f, float q)
+    {
+        kq = q;
+        kf = stmlib::Pow2Fast<1>(std::min(0.f, f));
+        // kf = std::pow(2.f, std::min(0.f, f));
+    }
+
+    inline auto process(float input)
+    {
+        // 2x oversampling
+
+        f[0].process(input, kf, kq);
+        f[1].process(f[0].lastLp, kf, kq);
+
+        f[0].process(input, kf, kq);
+        f[1].process(f[0].lastLp, kf, kq);
+
+        return f[1].lastLp;
+    }
+};
+
+float venv = 0, fenv = 0;
+float att = 0, aenv = 0;
+
+float _cutoff = 0.28f;
+float _resonance = 0.6f;
+float _envmod = 0.3f;
+float _decay = 0.f;
+float _overdrive = 0.f;
+
+Filter flt[2] = {};
+
+float *audio_out[2] = {nullptr, nullptr};
+float *audio_in[2] = {nullptr, nullptr};
 
 void engine::setup()
 {
-    svfL[0].Init();
-    svfL[1].Init();
-    svfR[0].Init();
-    svfR[1].Init();
-
-    decay_envelope_.Init();
+    audio_out[0] = engine::outputBuffer_f32(OUT_AUDIO_L);
+    audio_out[1] = engine::outputBuffer_f32(OUT_AUDIO_R);
 
     engine::addParam("Cutoff", &_cutoff);
-    engine::addParam("Q", &_q);
-    engine::addParam("EnvMod", &_envMod);
-    engine::addParam("Decay", &_envDecay);
+    engine::addParam("Reso", &_resonance);
+    engine::addParam("EnvMod", &_envmod);
+    engine::addParam("Decay", &_decay);
+    engine::addParam("Overdrive", &_overdrive);
 }
 
 void engine::process()
 {
-    auto inputL = engine::inputBuffer<0>();
-    auto inputR = engine::inputBuffer<1>();
-    auto outputL = engine::outputBuffer<0>();
-    auto outputR = engine::outputBuffer<1>();
+    audio_in[0] = engine::inputBuffer<0>();
+    audio_in[1] = engine::inputBuffer<1>();
 
     if (engine::trig())
-        decay_envelope_.Trigger();
-
-    const float short_decay = (200.0f * FRAME_BUFFER_SIZE) / SAMPLE_RATE * SemitonesToRatio(-96.0f * _envDecay);
-
-    decay_envelope_.Process(short_decay);
-    float cutoff = _cutoff + _envMod * decay_envelope_.value();
-    CONSTRAIN(cutoff, 0.f, 1.f);
-
-    const float f0 = NoteToFrequency(DEFAULT_NOTE + (engine::cv() * 12));
-    cutoff = f0 * SemitonesToRatio((cutoff - 0.2f) * 120.0f);
-
-    const float q = _q * 4;
-    const float stage2_gain = 1.f;
-    const float sub_gain = 1.0f;
-    const float gain = 1.f;
-    float input, lp, hp;
-
-    for (size_t i = 0; i < FRAME_BUFFER_SIZE; ++i)
     {
-        svfL[0].set_f_q<FREQUENCY_FAST>(cutoff, 0.5f + q);
-        svfL[1].set_f_q<FREQUENCY_FAST>(cutoff, 0.5f + 0.025f * q);
+        fenv = 1;
+        att = 0;
+        aenv = engine::accent() ? 1.f : 0.f;
+    }
 
-        input = SoftClip((inputL[i] * sub_gain) * gain);
-        svfL[0].Process<FILTER_MODE_LOW_PASS, FILTER_MODE_HIGH_PASS>(input, &lp, &hp);
-        lp = SoftClip(lp * gain);
-        lp += stage2_gain * (SoftClip(svfL[1].Process<FILTER_MODE_LOW_PASS>(lp)) - lp);
-        outputL[i] = lp;
+    for (size_t i = 0; i < FRAME_BUFFER_SIZE; i++)
+    {
+        att = std::min(att + 2000.f / SAMPLE_RATE, 1.f);
 
-        svfR[0].set_f_q<FREQUENCY_FAST>(cutoff, 0.5f + q);
-        svfR[1].set_f_q<FREQUENCY_FAST>(cutoff, 0.5f + 0.025f * q);
+        if (engine::gate() || !engine::hasTrig())
+            venv = 1;
+        
+        venv *= .995f;
+        fenv *= std::exp(-(1.f - _decay) * .004f);
 
-        input = SoftClip((inputR[i] * sub_gain) * gain);
-        svfR[0].Process<FILTER_MODE_LOW_PASS, FILTER_MODE_HIGH_PASS>(input, &lp, &hp);
-        lp = SoftClip(lp * gain);
-        lp += stage2_gain * (SoftClip(svfR[1].Process<FILTER_MODE_LOW_PASS>(lp)) - lp);
-        outputR[i] = lp;
+        for (int ch = 0; ch < 2; ++ch)
+        {
+            float v = audio_in[ch][i];
+
+            flt[ch].set_f_q(_cutoff * 5.f - 5.f + fenv * _envmod * 5.f + aenv * .4f,
+                            1.f - _resonance * .8f - aenv * .1f);
+
+            v = flt[ch].process(v);
+            v *= venv * att * (aenv + 1.f) * .5f;
+
+            if (_overdrive > 0)
+                v = tanhf(v * (1 + _overdrive * 8.f));
+
+            audio_out[ch][i] = v;
+        }
+
+        aenv *= .999f;
     }
 }
-
-#include "lib/stmlib/dsp/units.cc"

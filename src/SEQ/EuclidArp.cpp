@@ -38,7 +38,10 @@
 #include "lib/stmlib/utils/random.cc"
 
 #include "lib/stmlib/utils/dsp.h"
+
+#ifndef PEAKS_RESOURCES_H_
 #include "lib/peaks/resources.cc"
+#endif
 
 // This app is copiled with soft-fpu - for running on teensy3.2 & teensy 4.x
 
@@ -100,6 +103,9 @@ int32_t len = 16;
 int32_t pulses = 4;
 int32_t rotate = 0;
 int32_t swing = 128;
+
+int16_t* out_gate;
+int16_t* out_cv;
 
 int32_t seq_pos = UINT8_MAX;
 bool playing = true;
@@ -233,7 +239,9 @@ void engine::setup()
     engine::addParam("CHRD", &chord, 0, plaits::kChordNumChords - 1, (const char **)plaits::chord_names);
     engine::addParam("RNGE", &octaves, 0, LEN_OF(soctaves) - 1, soctaves);
     engine::addParam("SLIDE", &_slide, 0, LEN_OF(slides) - 1, slides);
-    engine::setMode(ENGINE_MODE_CV_OUT);
+
+    out_gate = engine::outputBuffer_i16(OUT_TRIG);
+    out_cv = engine::outputBuffer_i16(OUT_VOCT);
 }
 
 uint8_t pattern[64] = {};
@@ -426,8 +434,8 @@ void engine::process()
             scope_pos -= LEN_OF(scope);
     }
 
-    std::fill_n(engine::outputBuffer_i16<1>(), FRAME_BUFFER_SIZE, _cv_out * PITCH_PER_OCTAVE);
-    std::fill_n(engine::outputBuffer_i16<0>(), FRAME_BUFFER_SIZE, trig);
+    std::fill_n(out_cv, FRAME_BUFFER_SIZE, _cv_out * PITCH_PER_OCTAVE);
+    std::fill_n(out_gate, FRAME_BUFFER_SIZE, trig);
 }
 
 void engine::draw()
