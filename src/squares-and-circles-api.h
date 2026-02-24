@@ -41,7 +41,6 @@
 #define V_QTZ "V_QTZ"
 #define SEQ_SWING "$SWING"
 #define MULTI_TRIGS ">TRIGS"
-#define IO_STEREOLIZE ".IO_STEREO"
 
 #define OUT_CV "CV"
 #define OUT_VOCT "VOCT"
@@ -322,6 +321,7 @@ void __attribute__((weak)) onMidiPitchbend(int16_t pitch);
 void __attribute__((weak)) onMidiCC(uint8_t ccc, uint8_t value);
 void __attribute__((weak)) onMidiSysex(uint8_t byte);
 
+EXTERN_C void setupMultiTrigs(size_t count, const char **names, const std::pair<uint8_t, uint8_t> *keyMap);
 EXTERN_C void setMultiTrigMidiKeyMap(const std::pair<uint8_t, uint8_t> *keyMap);
 
 inline uint8_t getMidiCC(uint8_t ccc)

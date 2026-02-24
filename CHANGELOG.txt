@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+== 2026-02-24
+   * Enhancements:
+     * Merged TR-909-Ride into TR-909-HiHat engine
+     * IO-Page: Indent on MultiTrigs level/pan
+   * Bugfix:
+     * SYNTH/DxFM - Stereo parameter fix
+     * Midi cc to an unexisting parameter crashes s&c #152
 == 2026-02-21
    * New Engines
      * SEQ/303-Patterns
@@ -10,7 +17,7 @@ All notable changes to this project will be documented in this file.
       * Trig Gates "inverted" fix
       * Output designation according to the latest rev3 panel.
       * Patches are stored end of 8MB flash range (T40 2MB)
-   * Enchancement:
+   * Enhancements:
      * Default IO config - (reset on load empty patch)
      * Named Output/Inputs (outputBuffer_f32(name)/inputBuffer_f32(name))
      * M-OSC/Waveforms - Attack removed, Stereo parameter added
@@ -26,7 +33,7 @@ All notable changes to this project will be documented in this file.
    * Bugfix:
      * Modulation Clock disabled (except clocked engines) -> global clock default for non clocked engines #118
 == 2025-12-14
-   * Enchancement
+   * Enhancements
      * SEQ engines: support any input for clock-source #118
      * Midi+Clock+Timing: Tigger-Input-Delay setting #150
 == 2025-12-07
@@ -34,7 +41,7 @@ All notable changes to this project will be documented in this file.
      * IO-page/Stereo control not allways visible (depends on output settings)
      * IO-page/Input level not visible for CV-Engines (now allways visible, scope usecase etc)
      * GND/Scope performance issue (range limit)
-   * Enchancement
+   * Enhancements
      * Modulation CV - Attenuverter min/max = ±2 #149
      * Scope/FFT stereo signal pass through
      * WhitePink noise stereo (+BROWN mode)
@@ -48,7 +55,7 @@ All notable changes to this project will be documented in this file.
      * FX/Delay - patch restore allways default control values
      * FX/Delay - dynamic time parameter by internal clock (general bpm == 0 case)
      * FX/Delay - heap corruption (cause DelayLine array)
-   * Enchancement
+   * Enhancements
      * FX/Delay - Dry/Wet control #101
      * UsbHid - remote display (https://eh2k.github.io/%E2%96%A1%E2%97%8F/remote/)
      * DrumSynth - MidiNote mapping implemented
@@ -64,7 +71,7 @@ All notable changes to this project will be documented in this file.
      * Glitch/Noise caused in some cases by drawing x > 128 (TR707 sample visualization)
      * TR707: fixed TOM samplerate from 25000 to 12500
      * MIDI CC doesn't reach last step of a parameter #139
-   * Enchancement
+   * Enhancements
      * TR707 
       - optional crash & ride crymbals added
       - Midi CC04 (Footcontroller) support for Closed/OpenHihat
@@ -144,7 +151,7 @@ All notable changes to this project will be documented in this file.
    * Enhancements
      * DrumSynth ...
 == 2024-12-17
-   * Bugfix/Enchancement #117
+   * Bugfix/Enhancements #117
      * Parameter value was not visualized when modulations set (Bug since 2024-12-16)
      * Midi pitch was added before quantizer
      * V_OCT parameter value was added before quantized
@@ -153,10 +160,10 @@ All notable changes to this project will be documented in this file.
    * New paramters io-page
      * Quantizer-Root
      * Transpose-Finetune
-   * Bugfix/Enchancement
+   * Bugfix/Enhancements
      * tanspose offset was quantized
 == 2024-12-14
-   * Bugfix/Enchancement
+   * Bugfix/Enhancements
      * SEQ triggered & trig-input triggered engines were not in sync
      * V_OCT/Scale parameter, semitones from active quantizer (#117)
      * Claps less RAM usage

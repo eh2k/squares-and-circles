@@ -213,7 +213,6 @@ void engine::setup()
         const uint8_t *sysexData = fm_patches_table[prog / 32];
     }
 
-    engine::addParam(IO_STEREOLIZE, &_stereolize);
     engine::addParam(V_OCT, &_pitch);
 
     if (nprogs == 0)
@@ -229,6 +228,7 @@ void engine::setup()
 
     _hold = 0;
     engine::addParam("Hold", &_hold, 0, SAMPLE_RATE / FRAME_BUFFER_SIZE);
+    engine::addParam("Stereo", &_stereolize);
 
     Exp2::init();
     Tanh::init();

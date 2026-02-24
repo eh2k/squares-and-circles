@@ -79,7 +79,7 @@ The available engine types include drums, synthesizers, oscillators, sequencers,
   * [Analog-HH2](https://github.com/eh2k/squares-and-circles/wiki/Analog-HH2),
   * [909ish-BD](https://github.com/eh2k/squares-and-circles/wiki/909ish-BD),
   * [909ish-SD](https://github.com/eh2k/squares-and-circles/wiki/909ish-SD),
-  * [TR909-HiHat, TR909-Ride](https://github.com/eh2k/squares-and-circles/wiki/TR909_HiHats)
+  * [TR909-HiHat](https://github.com/eh2k/squares-and-circles/wiki/TR909_HiHats)
   * [808ish-BD](https://github.com/eh2k/squares-and-circles/wiki/808ish-BD),
   * [808ish-SD](https://github.com/eh2k/squares-and-circles/wiki/808ish-SD),
   * [808ish-HiHat](https://github.com/eh2k/squares-and-circles/wiki/808ish-HiHat),
