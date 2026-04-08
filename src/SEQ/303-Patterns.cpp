@@ -78,9 +78,9 @@ inline uint8_t &pattern_at(int pos)
 
 void engine::setup()
 {
-    engine::addParam("#PAT", &pattern_select, 0, LEN_OF(x0xb0x_patterns)-1);
+    engine::addParam("#PAT", &pattern_select, 0, LEN_OF(x0xb0x_patterns) - 1);
     engine::addParam("#SHFT", &pattern_shift, -16, 16);
-    engine::addParam("#LEN", &pattern_len, 1, 16);
+    engine::addParam("#LEN", &pattern_len, 0, 16);
     engine::addParam("#GATE", &gate_len, 1, 6);
 
     out_gate = engine::outputBuffer_i16(OUT_GATE);
@@ -104,6 +104,15 @@ int32_t _voct = 0.f;
 
 void engine::process()
 {
+    if(pattern_len == 0)
+    {
+        std::fill_n(out_gate, FRAME_BUFFER_SIZE, 0);
+        std::fill_n(out_voct, FRAME_BUFFER_SIZE, 0);
+        std::fill_n(out_accent, FRAME_BUFFER_SIZE, 0);
+        std::fill_n(out_slide, FRAME_BUFFER_SIZE, 0);
+        return;
+    }
+
     if (pattern_shift < 0)
         pattern_shift += 16;
     else if (pattern_shift >= 16)
@@ -199,7 +208,7 @@ void engine::draw()
 
             if (i == cur_pos)
             {
-                gfx::drawCircle(x + r, y + r, r-1);
+                gfx::drawCircle(x + r, y + r, r - 1);
             }
 
             i++;

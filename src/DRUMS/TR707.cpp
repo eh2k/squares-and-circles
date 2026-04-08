@@ -38,7 +38,7 @@ static float _amp = 1.f;
 
 int32_t _select = 0;
 const char *sample_names[15] = {};
-void *sample_ptr[LEN_OF(sample_names)] = {};
+sample *sample_ptr[LEN_OF(sample_names)] = {};
 #define SETUP_SAMPLE(name, ptr)                                                                                        \
     sample_names[_select] = name;                                                                                      \
     sample_ptr[_select] = ptr;                                                                                         \
@@ -67,29 +67,29 @@ void engine::setup()
     auto HT = &IC35_TR707_SNDROM_bin[0x0000];
     auto HH = &IC35_TR707_SNDROM_bin[0x2000];
 
-    SETUP_SAMPLE("BD0", dsp_sample_u8(BD0, 0x1000, 25000, 1)); // 0
-    SETUP_SAMPLE("BD1", dsp_sample_u8(BD1, 0x1000, 25000, 1)); // 1
-    SETUP_SAMPLE("SD0", dsp_sample_u8(SD0, 0x1000, 25000, 1)); // 2
-    SETUP_SAMPLE("SD1", dsp_sample_u8(SD1, 0x1000, 25000, 1)); // 3
+    SETUP_SAMPLE("BD0", sample_u8(BD0, 0x1000, 25000, 1)); // 0
+    SETUP_SAMPLE("BD1", sample_u8(BD1, 0x1000, 25000, 1)); // 1
+    SETUP_SAMPLE("SD0", sample_u8(SD0, 0x1000, 25000, 1)); // 2
+    SETUP_SAMPLE("SD1", sample_u8(SD1, 0x1000, 25000, 1)); // 3
 
-    SETUP_SAMPLE("CP", dsp_sample_u8(CP, 0x1000, 25000, 1));   // 4
-    SETUP_SAMPLE("TMB", dsp_sample_u8(TMB, 0x1000, 25000, 1)); // 5
-    SETUP_SAMPLE("RM", dsp_sample_u8(RM, 0x1000, 25000, 1));   // 6
-    SETUP_SAMPLE("CB", dsp_sample_u8(CB, 0x1000, 25000, 1));   // 7
+    SETUP_SAMPLE("CP", sample_u8(CP, 0x1000, 25000, 1));   // 4
+    SETUP_SAMPLE("TMB", sample_u8(TMB, 0x1000, 25000, 1)); // 5
+    SETUP_SAMPLE("RM", sample_u8(RM, 0x1000, 25000, 1));   // 6
+    SETUP_SAMPLE("CB", sample_u8(CB, 0x1000, 25000, 1));   // 7
 
-    SETUP_SAMPLE("LT", dsp_sample_u8(LT, 0x1000, 12500, 0)); // 8
-    SETUP_SAMPLE("MT", dsp_sample_u8(MT, 0x1000, 12500, 0)); // 9
-    SETUP_SAMPLE("HT", dsp_sample_u8(HT, 0x1000, 12500, 0)); // 10
-    SETUP_SAMPLE("CH", dsp_sample_u8(HH, 0x1000, 25000, 0)); // 11
-    SETUP_SAMPLE("OH", dsp_sample_u8(HH, 0x1000, 25000, 0)); // 12
+    SETUP_SAMPLE("LT", sample_u8(LT, 0x1000, 12500, 0)); // 8
+    SETUP_SAMPLE("MT", sample_u8(MT, 0x1000, 12500, 0)); // 9
+    SETUP_SAMPLE("HT", sample_u8(HT, 0x1000, 12500, 0)); // 10
+    SETUP_SAMPLE("CH", sample_u8(HH, 0x1000, 25000, 0)); // 11
+    SETUP_SAMPLE("OH", sample_u8(HH, 0x1000, 25000, 0)); // 12
 
     if (IC22_Ride != nullptr)
     {
-        SETUP_SAMPLE("RD", dsp_sample_u8(IC22_Ride, 0x8000, 25000, 0)); // 14
+        SETUP_SAMPLE("RD", sample_u8(IC22_Ride, 0x8000, 25000, 0)); // 14
     }
     if (IC19_Crash != nullptr)
     {
-        SETUP_SAMPLE("CR", dsp_sample_u8(IC19_Crash, 0x8000, 25000, 0)); // 13
+        SETUP_SAMPLE("CR", sample_u8(IC19_Crash, 0x8000, 25000, 0)); // 13
     }
 
     engine::addParam("Pitch", &_pitch);
@@ -120,25 +120,25 @@ void engine::process()
             {
                 if (!(engine::trig() & (1 << (i + 1)))) // OH
                 {
-                    dsp_set_sample_pos(sample_ptr[i], _start, 0.7f * engine::trigLevel(i), 0.2f);
-                    dsp_set_sample_pos(sample_ptr[i + 1], _start, 0, 1.0f);
+                    sample_set_pos(sample_ptr[i], _start, 0.7f * engine::trigLevel(i), 0.2f);
+                    sample_set_pos(sample_ptr[i + 1], _start, 0, 1.0f);
                 }
             }
             else if (i == 12) // OH
             {
-                dsp_set_sample_pos(sample_ptr[i], _start, engine::trigLevel(i),
-                                   1.f - (float)engine::getMidiCC(4) / 127.f);
+                sample_set_pos(sample_ptr[i], _start, engine::trigLevel(i),
+                                    1.f - (float)engine::getMidiCC(4) / 127.f);
             }
             else
             {
-                dsp_set_sample_pos(sample_ptr[i], _start, engine::trigLevel(i), 1.f);
+                sample_set_pos(sample_ptr[i], _start, engine::trigLevel(i), 1.f);
             }
         }
         float tmp[FRAME_BUFFER_SIZE] = {};
 
-        float f = (-2.f + _pitch * 4) * powf(2.f, engine::cv());
+        float v_oct = (-2.f + _pitch * 4) + engine::cv();
 
-        dsp_process_sample(sample_ptr[i], _start, _end, f, tmp);
+        sample_process(sample_ptr[i], _start, _end, 1.f, v_oct, tmp);
         float levelL = engine::mixLevelL(i);
         float levelR = engine::mixLevelR(i);
         for (size_t i = 0; i < FRAME_BUFFER_SIZE; i++)

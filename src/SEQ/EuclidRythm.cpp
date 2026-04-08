@@ -103,7 +103,7 @@ void draw_eclid_cyrcle(int x, int y, uint8_t pattern[64], int _len, int rot)
     int xx = x;
     int yy = y;
 
-    if ((fpsin((INT16_MAX / (_len))) / 194) > 6)
+    if (_len > 0 && (fpsin((INT16_MAX / (_len))) / 194) > 6)
     {
         gfx::drawCircle(xx + 3, 31 + 3, 21);
 
@@ -157,7 +157,7 @@ void draw_eclid_cyrcle(int x, int y, uint8_t pattern[64], int _len, int rot)
     {
         int x = xx - 2;
         int y = 40 - 7;
-        if (pattern[seq_pos % _len])
+        if (_len > 0 && pattern[seq_pos % _len])
         {
             if (x < 64)
                 gfx::fillRect(x - 3, y - 7, 17, 17);
@@ -182,15 +182,15 @@ int32_t lenB = 16;
 int32_t pulsesB = 4;
 int32_t rotateB = 0;
 
-int16_t* out_trig0;
-int16_t* out_trig1;
-int16_t* out_trig_or;
-int16_t* out_trig_and;
+int16_t *out_trig0;
+int16_t *out_trig1;
+int16_t *out_trig_or;
+int16_t *out_trig_and;
 
 void engine::setup()
 {
-    engine::addParam("#LEN", &len, 1, 20);
-    engine::addParam("#LEN", &lenB, 1, 20);
+    engine::addParam("#LEN", &len, 0, 20);
+    engine::addParam("#LEN", &lenB, 0, 20);
     engine::addParam("#HIT", &pulses, 0, 16);
     engine::addParam("#HIT", &pulsesB, 0, 16);
     engine::addParam("#ROT", &rotate, 0, 32);
@@ -224,9 +224,6 @@ static auto _last_rotateB = rotateB;
 
 void update_seq_pattern()
 {
-    CONSTRAIN(pulses, pulses, len);
-    rotate %= len;
-
     if (_last_len != len || _last_pulses != pulses || _last_rotate != rotate || _last_lenB != lenB ||
         _last_pulsesB != pulsesB || _last_rotateB != rotateB)
     {
@@ -248,7 +245,7 @@ void update_seq_pattern()
     {
         seq_pos = engine_sync::step();
 
-        bool trig = pattern[seq_pos % len];
+        bool trig = len > 0 ? pattern[seq_pos % len] : false;
 
         if (trig)
         {
@@ -256,7 +253,7 @@ void update_seq_pattern()
             gate_until_t += 2; // 10ms trigger
         }
 
-        bool trig2 = pattern2[seq_pos % lenB];
+        bool trig2 = lenB > 0 ? pattern2[seq_pos % lenB] : false;
         if (trig2)
         {
             hit2 = 64;
@@ -297,7 +294,7 @@ void engine::process()
 
     std::fill_n(out_trig1, FRAME_BUFFER_SIZE, trig);
 
-    for(size_t i = 0; i < FRAME_BUFFER_SIZE; i++)
+    for (size_t i = 0; i < FRAME_BUFFER_SIZE; i++)
     {
         out_trig_or[i] = std::max(out_trig0[i], out_trig1[i]);
         out_trig_and[i] = std::min(out_trig0[i], out_trig1[i]);

@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+== 2026-04-08
+   * Bugfix:
+     * Calibration Page: Last DAC was not displayed #153
+     * O_C T4.1: Aux "L+R" Input option
+     * DRUMS/TR707: CV-input pitch fixed
+   * Enhancements:
+     * DRUMS/TR707: Waveform visualization
+     * SEQ engines
+      * set len = 0 to stop the sequencer
+      * removed hit < len limits.. 
+     * Midi-Channel setting - moved from IO-Page to Clock-Timing-Midi Page
+     * USB PRODUCT_ID changed to 0x0483 // https://forum.pjrc.com/index.php?threads/linux-usb-midi-unable-to-open-mtp-device.75887/
 == 2026-02-24
    * Enhancements:
      * Merged TR-909-Ride into TR-909-HiHat engine

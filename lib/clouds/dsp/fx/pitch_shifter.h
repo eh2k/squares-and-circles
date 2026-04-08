@@ -49,14 +49,15 @@ class PitchShifter {
     engine_.Clear();
   }
 
-  inline void Process(FloatFrame* input_output, size_t size) {
+  inline void Process(float *in_out_l, float *in_out_r, size_t size) {
     while (size--) {
-      Process(input_output);
-      ++input_output;
+      Process(*in_out_l, *in_out_r);
+      ++in_out_l;
+      ++in_out_r;
     }
   }
   
-  void Process(FloatFrame* input_output) {
+  void Process(float& in_out_l, float& in_out_r) {
     typedef E::Reserve<2047, E::Reserve<2047> > Memory;
     E::DelayLine<Memory, 0> left;
     E::DelayLine<Memory, 1> right;
@@ -77,17 +78,17 @@ class PitchShifter {
       half -= size_;
     }
     
-    c.Read(input_output->l, 1.0f);
+    c.Read(in_out_l, 1.0f);
     c.Write(left, 0.0f);
     c.Interpolate(left, phase, tri);
     c.Interpolate(left, half, 1.0f - tri);
-    c.Write(input_output->l, 0.0f);
+    c.Write(in_out_l, 0.0f);
 
-    c.Read(input_output->r, 1.0f);
+    c.Read(in_out_r, 1.0f);
     c.Write(right, 0.0f);
     c.Interpolate(right, phase, tri);
     c.Interpolate(right, half, 1.0f - tri);
-    c.Write(input_output->r, 0.0f);
+    c.Write(in_out_r, 0.0f);
   }
   
   inline void set_ratio(float ratio) {

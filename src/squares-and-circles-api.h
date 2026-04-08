@@ -51,7 +51,6 @@
 #define OUT_AUDIO_L "AUDIO_L"
 #define OUT_AUDIO_R "AUDIO_R"
 
-
 constexpr uint32_t ENGINE_MODE_COMPACT = 1 << 5;
 constexpr uint32_t ENGINE_MODE_MIDI_IN = 1 << 7;
 
@@ -67,14 +66,9 @@ constexpr uint32_t ENGINE_MODE_MIDI_IN = 1 << 7;
 #define M_PI_2 1.57079632679489661923
 #endif
 
-#ifndef MOD 
-#define MOD(x, y) ((x) % (y))
+#ifndef MOD
+#define MOD(x, y) ((y > 0 ? (x % y) : 0))
 #endif
-
-#ifndef MACHINE_INTERNAL
-
-#define LEN_OF(x) (sizeof(x) / sizeof(x[0]))
-
 
 #ifndef CONSTRAIN
 #define CONSTRAIN(var, min, max)                                                                                       \
@@ -89,11 +83,9 @@ constexpr uint32_t ENGINE_MODE_MIDI_IN = 1 << 7;
 
 #endif
 
-template <typename T> inline T constrain(T val, T min, T max)
-{
-    CONSTRAIN(val, min, max);
-    return val;
-}
+#ifndef MACHINE_INTERNAL
+
+#define LEN_OF(x) (sizeof(x) / sizeof(x[0]))
 
 #ifdef __cplusplus
 #ifdef __GNUC__
@@ -219,199 +211,208 @@ EXTERN_C
 
 namespace engine
 {
-inline const char *name()
-{
-    return __name;
-}
-
-inline uint32_t t()
-{
-    return *__t;
-}
-
-inline uint32_t trig()
-{
-    return *__trig;
-}
-
-inline bool hasTrig()
-{
-    return *__io_tr;
-}
-
-inline uint8_t qz()
-{
-    return *__io_qz;
-}
-
-inline uint32_t gate()
-{
-    return *__gate;
-}
-inline uint32_t accent()
-{
-    return *__accent;
-}
-inline float cv()
-{
-    return (float)*__cv / PITCH_PER_OCTAVE;
-}
-inline int32_t cv_i32()
-{
-    return *__cv;
-}
-
-template <int channel> inline float *outputBuffer();
-
-template <> inline float *outputBuffer<0>()
-{
-    return __output_l_fp;
-}
-
-template <> inline float *outputBuffer<1>()
-{
-    return __output_r_fp;
-}
-
-template <int channel> inline float *inputBuffer();
-
-template <> inline float *inputBuffer<0>()
-{
-    return *__audio_in_l_fpp;
-}
-
-template <> inline float *inputBuffer<1>()
-{
-    return *__audio_in_r_fpp;
-}
-
-inline float trigLevel(int ch)
-{
-    return ((4.f / UINT16_MAX) * __trig_level[ch] * __trig_level[ch]);
-}
-inline float mixLevel(int ch)
-{
-    return ((4.f / UINT16_MAX) * __mixer_level[ch]) * __mixer_level[ch];
-} // exp range 0 - 4
-inline float mixLevelL(int ch)
-{
-    return cosf((float)__mixer_pan[ch] / 255.f * (float)M_PI_2) * mixLevel(ch);
-}
-inline float mixLevelR(int ch)
-{
-    return sinf((float)__mixer_pan[ch] / 255.f * (float)M_PI_2) * mixLevel(ch);
-}
-
-EXTERN_C void setup();
-EXTERN_C void process();
-EXTERN_C void draw();
-EXTERN_C void screensaver();
-EXTERN_C void release();
-/////
-
-inline void setUIHandler(uiHandler handler)
-{
-    __ui_event_handler_ptr = nullptr;
-    __ui_event_handler();
-    __ui_event_handler_ptr = handler;
-}
-
-void __attribute__((weak)) onMidiNote(uint8_t key, uint8_t velocity); // NoteOff: velocity == 0
-void __attribute__((weak)) onMidiPitchbend(int16_t pitch);
-void __attribute__((weak)) onMidiCC(uint8_t ccc, uint8_t value);
-void __attribute__((weak)) onMidiSysex(uint8_t byte);
-
-EXTERN_C void setupMultiTrigs(size_t count, const char **names, const std::pair<uint8_t, uint8_t> *keyMap);
-EXTERN_C void setMultiTrigMidiKeyMap(const std::pair<uint8_t, uint8_t> *keyMap);
-
-inline uint8_t getMidiCC(uint8_t ccc)
-{
-    return __midi_cc[ccc];
-}
-
-// 1V == 1.f, 5V = 5.f
-EXTERN_C float* outputBuffer_f32(const char *name);
-
-// 1V == PITCH_PER_OCTAVE, 5V == 5 * PITCH_PER_OCTAVE
-EXTERN_C int16_t* outputBuffer_i16(const char *name);
-
-// 1V == 1.f, 5V = 5.f
-EXTERN_C float* inputBuffer_f32(const char *name);
-
-// 1V == PITCH_PER_OCTAVE, 5V == 5 * PITCH_PER_OCTAVE
-EXTERN_C int16_t* inputBuffer_i16(const char *name);
-
-
-EXTERN_C void addParam_f32(const char *name, float *value, float min = 0.f, float max = 1.f); // min...max
-EXTERN_C void addParam_i32(const char *name, int32_t *value, int32_t min, int32_t max,
-                           const char **valueMap); // 0...max
-
-inline void addParam(const char *name, int32_t *value, int32_t min, int32_t max,
-                     const char **valueMap = nullptr) // 0...max
-{
-    addParam_i32(name, value, min, max, &valueMap[0]);
-}
-
-inline void addParam(const char *name, float *value, float min = 0.f, float max = 1.f) // 0...max
-{
-    addParam_f32(name, value, min, max);
-}
-
-EXTERN_C void setPatchStateEx(void *ptr, size_t size);
-
-inline void setMode(uint32_t mode) // 1: compact_mode, 2: sample_view
-{
-    *__engine_props |= mode;
-    if (mode & ENGINE_MODE_MIDI_IN)
+    inline const char *name()
     {
-        __midi_event_handler_ptr = []() {
-            switch (__midi_event->type)
-            {
-            case 0:
-                onMidiNote(__midi_event->key, __midi_event->value);
-                return;
-            case 1:
-                onMidiPitchbend(__midi_event->value);
-                return;
-            case 2:
-                onMidiCC(__midi_event->key, __midi_event->value);
-                return;
-            case 3:
-                onMidiSysex(__midi_event->key);
-                return;
-            }
-        };
+        return __name;
     }
-}
 
-constexpr uint32_t PARAM_SELECTED = 0x1;
-constexpr uint32_t PARAM_MODULATION = 0x2;
+    inline uint32_t t()
+    {
+        return *__t;
+    }
 
-EXTERN_C float getParamValueModulated_f32(const void *valuePtr);
-EXTERN_C int32_t getParamValueModulated_i32(const void *valuePtr);
+    inline uint32_t trig()
+    {
+        return *__trig;
+    }
 
-EXTERN_C uint32_t getParamFlags(const void *valuePtr);
-EXTERN_C void selectParam(const void *val);
-inline uint32_t isParamModulated(const void *valuePtr)
-{
-    return getParamFlags(valuePtr) & PARAM_MODULATION;
-}
-inline uint32_t isParamSelected(const void *valuePtr)
-{
-    return getParamFlags(valuePtr) & PARAM_SELECTED;
-}
+    inline bool hasTrig()
+    {
+        return *__io_tr;
+    }
 
-EXTERN_C void setParamName(const void *valuePtr, const char *name);
+    inline uint8_t qz()
+    {
+        return *__io_qz;
+    }
 
-EXTERN_C void *dsp_sample_u8(const uint8_t *data, int len, int sample_rate, int addr_shift);
-EXTERN_C void *dsp_sample_Am6070(const uint8_t *data, int len, int sample_rate, int amp_mul);
-EXTERN_C void dsp_set_sample_pos(void *smpl, float pos, float amplitude, float decay);
-EXTERN_C void dsp_process_sample(void *smpl, float start, float end, float pitch, float output[FRAME_BUFFER_SIZE]);
+    inline uint32_t gate()
+    {
+        return *__gate;
+    }
+    inline uint32_t accent()
+    {
+        return *__accent;
+    }
+    inline float cv()
+    {
+        return (float)*__cv / PITCH_PER_OCTAVE;
+    }
+    inline int32_t cv_i32()
+    {
+        return *__cv;
+    }
 
-EXTERN_C bool qz_enabled();
-EXTERN_C const char *qz_name();
-EXTERN_C int32_t qz_process(int32_t pitch, int8_t *note = nullptr);
-EXTERN_C int16_t qz_lookup(int8_t note); // 0-127 note-values
+    template <int channel>
+    inline float *outputBuffer();
+
+    template <>
+    inline float *outputBuffer<0>()
+    {
+        return __output_l_fp;
+    }
+
+    template <>
+    inline float *outputBuffer<1>()
+    {
+        return __output_r_fp;
+    }
+
+    template <int channel>
+    inline float *inputBuffer();
+
+    template <>
+    inline float *inputBuffer<0>()
+    {
+        return *__audio_in_l_fpp;
+    }
+
+    template <>
+    inline float *inputBuffer<1>()
+    {
+        return *__audio_in_r_fpp;
+    }
+
+    inline float trigLevel(int ch)
+    {
+        return ((4.f / UINT16_MAX) * __trig_level[ch] * __trig_level[ch]);
+    }
+    inline float mixLevel(int ch)
+    {
+        return ((4.f / UINT16_MAX) * __mixer_level[ch]) * __mixer_level[ch];
+    } // exp range 0 - 4
+    inline float mixLevelL(int ch)
+    {
+        return cosf((float)__mixer_pan[ch] / 255.f * (float)M_PI_2) * mixLevel(ch);
+    }
+    inline float mixLevelR(int ch)
+    {
+        return sinf((float)__mixer_pan[ch] / 255.f * (float)M_PI_2) * mixLevel(ch);
+    }
+
+    EXTERN_C void setup();
+    EXTERN_C void process();
+    EXTERN_C void draw();
+    EXTERN_C void screensaver();
+    EXTERN_C void release();
+    /////
+
+    inline void setUIHandler(uiHandler handler)
+    {
+        __ui_event_handler_ptr = nullptr;
+        __ui_event_handler();
+        __ui_event_handler_ptr = handler;
+    }
+
+    constexpr uint8_t MIDI_RTM_STOP = 252;
+    constexpr uint8_t MIDI_RTM_START = 250;
+    constexpr uint8_t MIDI_RTM_CONTINUE = 251;
+
+    void __attribute__((weak)) onMidiNote(uint8_t key, uint8_t velocity); // NoteOff: velocity == 0
+    void __attribute__((weak)) onMidiPitchbend(int16_t pitch);
+    void __attribute__((weak)) onMidiCC(uint8_t ccc, uint8_t value);
+    void __attribute__((weak)) onMidiSysex(uint8_t byte);
+    void __attribute__((weak)) onMidiRTM(uint8_t code);
+
+    EXTERN_C void setupMultiTrigs(size_t count, const char **names, const std::pair<uint8_t, uint8_t> *keyMap);
+    EXTERN_C void setMultiTrigMidiKeyMap(const std::pair<uint8_t, uint8_t> *keyMap);
+
+    inline uint8_t getMidiCC(uint8_t ccc)
+    {
+        return __midi_cc[ccc];
+    }
+
+    // 1V == 1.f, 5V = 5.f
+    EXTERN_C float *outputBuffer_f32(const char *name);
+
+    // 1V == PITCH_PER_OCTAVE, 5V == 5 * PITCH_PER_OCTAVE
+    EXTERN_C int16_t *outputBuffer_i16(const char *name);
+
+    // 1V == 1.f, 5V = 5.f
+    EXTERN_C float *inputBuffer_f32(const char *name);
+
+    // 1V == PITCH_PER_OCTAVE, 5V == 5 * PITCH_PER_OCTAVE
+    EXTERN_C int16_t *inputBuffer_i16(const char *name);
+
+    EXTERN_C void addParam_f32(const char *name, float *value, float min = 0.f, float max = 1.f); // min...max
+    EXTERN_C void addParam_i32(const char *name, int32_t *value, int32_t min, int32_t max,
+                               const char **valueMap); // 0...max
+
+    inline void addParam(const char *name, int32_t *value, int32_t min, int32_t max,
+                         const char **valueMap = nullptr) // 0...max
+    {
+        addParam_i32(name, value, min, max, &valueMap[0]);
+    }
+
+    inline void addParam(const char *name, float *value, float min = 0.f, float max = 1.f) // 0...max
+    {
+        addParam_f32(name, value, min, max);
+    }
+
+    EXTERN_C void setPatchStateEx(void *ptr, size_t size);
+
+    inline void setMode(uint32_t mode) // 1: compact_mode, 2: sample_view
+    {
+        *__engine_props |= mode;
+        if (mode & ENGINE_MODE_MIDI_IN)
+        {
+            __midi_event_handler_ptr = []()
+            {
+                switch (__midi_event->type)
+                {
+                case 0:
+                    onMidiNote(__midi_event->key, __midi_event->value);
+                    return;
+                case 1:
+                    onMidiPitchbend(__midi_event->value);
+                    return;
+                case 2:
+                    onMidiCC(__midi_event->key, __midi_event->value);
+                    return;
+                case 3:
+                    onMidiSysex(__midi_event->key);
+                    return;
+                case 4:
+                    engine::onMidiRTM(__midi_event->key);
+                    return;
+                }
+            };
+        }
+    }
+
+    constexpr uint32_t PARAM_SELECTED = 0x1;
+    constexpr uint32_t PARAM_MODULATION = 0x2;
+
+    EXTERN_C float getParamValueModulated_f32(const void *valuePtr);
+    EXTERN_C int32_t getParamValueModulated_i32(const void *valuePtr);
+
+    EXTERN_C uint32_t getParamFlags(const void *valuePtr);
+    EXTERN_C void selectParam(const void *val);
+    inline uint32_t isParamModulated(const void *valuePtr)
+    {
+        return getParamFlags(valuePtr) & PARAM_MODULATION;
+    }
+    inline uint32_t isParamSelected(const void *valuePtr)
+    {
+        return getParamFlags(valuePtr) & PARAM_SELECTED;
+    }
+
+    EXTERN_C void setParamName(const void *valuePtr, const char *name);
+
+    EXTERN_C bool qz_enabled();
+    EXTERN_C const char *qz_name();
+    EXTERN_C int32_t qz_process(int32_t pitch, int8_t *note = nullptr);
+    EXTERN_C int16_t qz_lookup(int8_t note); // 0-127 note-values
 } // namespace engine
 
 enum EventType : uint16_t
@@ -429,64 +430,64 @@ constexpr uint16_t ENCODER_R = (1 << 9);
 
 namespace engine_sync
 {
-constexpr uint8_t CLOCK_RESET = 97;
+    constexpr uint8_t CLOCK_RESET = 97;
 
-inline uint8_t ppn()
-{
-    return *__clock;
-}
-inline uint32_t samples_per_step()
-{
-    return *__samples_per_step;
-}
-inline uint32_t clk_bpm() // BPM x 100
-{
-    return *__bpm;
-}
+    inline uint8_t ppn()
+    {
+        return *__clock;
+    }
+    inline uint32_t samples_per_step()
+    {
+        return *__samples_per_step;
+    }
+    inline uint32_t clk_bpm() // BPM x 100
+    {
+        return *__bpm;
+    }
 
-inline void clk_bpm(uint32_t bpm)
-{
-    *__bpm = bpm;
-}
+    inline void clk_bpm(uint32_t bpm)
+    {
+        *__bpm = bpm;
+    }
 
-inline uint8_t step()
-{
-    return *__step;
-}
-inline bool stepChanged()
-{
-    return *__step_changed != 0;
-}
-inline bool stepReset()
-{
-    return *__step_changed > 1;
-}
+    inline uint8_t step()
+    {
+        return *__step;
+    }
+    inline bool stepChanged()
+    {
+        return *__step_changed != 0;
+    }
+    inline bool stepReset()
+    {
+        return *__step_changed > 1;
+    }
 } // namespace engine_sync
 
 namespace machine
 {
-EXTERN_C const uint8_t *fs_read(const char *blobName);
+    EXTERN_C const uint8_t *fs_read(const char *blobName, size_t *blobSize = nullptr);
 
-inline uint32_t raw_digital_inputs()
-{
-    return *__digital_inputs_u32_p;
-}
+    inline uint32_t raw_digital_inputs()
+    {
+        return *__digital_inputs_u32_p;
+    }
 
-inline float *raw_adc_voltage(uint32_t index)
-{
-    if (index < __adc_count)
-        return &__adc_voltage_f_p[index];
-    else
-        return nullptr;
-}
+    inline float *raw_adc_voltage(uint32_t index)
+    {
+        if (index < __adc_count)
+            return &__adc_voltage_f_p[index];
+        else
+            return nullptr;
+    }
 
-inline float *raw_dac_buffer(uint32_t index)
-{
-    if (index < __dac_count)
-        return &__dac_voltage_fp_p[index];
-    else
-        return nullptr;
-}
+    inline float *raw_dac_buffer(uint32_t index)
+    {
+        if (index < __dac_count)
+            return &__dac_voltage_fp_p[index];
+        else
+            return nullptr;
+    }
 } // namespace machine
 #else
 using namespace ui;
@@ -496,47 +497,73 @@ using namespace UI;
 #ifndef GFX_API
 namespace gfx
 {
-EXTERN_C void drawCircle(int x, int y, int r);
-EXTERN_C void fillCircle(int x, int y, int r);
-EXTERN_C void clearCircle(int x, int y, int r);
-EXTERN_C void drawRect(int x, int y, int w, int h);
-EXTERN_C void fillRect(int x, int y, int w, int h);
-EXTERN_C void clearRect(int x, int y, int w, int h);
-EXTERN_C void invertRect(int x, int y, int w, int h);
-EXTERN_C void drawString(int x, int y, const char *s, uint8_t font = 1);
-EXTERN_C void drawStringCenter(int x, int y, const char *s, uint8_t font = 1);
-EXTERN_C void drawLine(int x1, int y1, int x2, int y2);
-EXTERN_C void setPixel(int x, int y);
-EXTERN_C void drawXbm(int x, int y, int width, int height, const uint8_t *xbm);
-EXTERN_C void drawWaveform(void *wavefrom, int x = 0, int y = -1);
-EXTERN_C void message(const char *msg);
-EXTERN_C void drawPiano(int x, int y, float note);
+    EXTERN_C void drawCircle(int x, int y, int r);
+    EXTERN_C void fillCircle(int x, int y, int r);
+    EXTERN_C void clearCircle(int x, int y, int r);
+    EXTERN_C void drawRect(int x, int y, int w, int h);
+    EXTERN_C void fillRect(int x, int y, int w, int h);
+    EXTERN_C void clearRect(int x, int y, int w, int h);
+    EXTERN_C void invertRect(int x, int y, int w, int h);
+    EXTERN_C void drawString(int x, int y, const char *s, uint8_t font = 1);
+    EXTERN_C void drawStringEx(int x, int y, uint8_t font, const char *fmt, ...);
+    EXTERN_C void drawStringCenter(int x, int y, const char *s, uint8_t font = 1);
+    EXTERN_C void drawLine(int x1, int y1, int x2, int y2);
+    EXTERN_C void setPixel(int x, int y);
+    EXTERN_C void drawXbm(int x, int y, int width, int height, const uint8_t *xbm);
+    EXTERN_C void drawWaveform(void *wavefrom, int x = 0, int y = -1);
+    EXTERN_C void message(const char *msg);
+    EXTERN_C void drawPiano(int x, int y, float note);
+    EXTERN_C void drawMessageBox(const char *title, const char *message);
 
-inline uint8_t *displayBuffer()
-{
-    return __display_buffer_u8_p;
-}
+    EXTERN_C void drawScope(int y, float *inputFrame, int x_scale = 32 /* 0 - 63*/, int y_scale = 63 /* 0 - 63*/);
+
+    inline uint8_t *displayBuffer()
+    {
+        return __display_buffer_u8_p;
+    }
 } // namespace gfx
 #endif
 
 #ifndef SERIAL_API
 namespace machine
 {
-EXTERN_C void serial_write(void const *buffer, uint32_t bufsiz);
-EXTERN_C uint32_t serial_read(void *buffer, uint32_t length);
-EXTERN_C uint32_t serial_available();
+    EXTERN_C void serial_write(void const *buffer, uint32_t bufsiz);
+    EXTERN_C uint32_t serial_read(void *buffer, uint32_t length);
+    EXTERN_C uint32_t serial_available();
 
-EXTERN_C void get_device_id(uint8_t *mac);
+    EXTERN_C void get_device_id(uint8_t *mac);
 
-EXTERN_C float cpu_load_percent();
+    EXTERN_C float cpu_load_percent();
 
-EXTERN_C uint8_t *engine_malloc(uint32_t size);
-EXTERN_C void engine_start(uint32_t args);
-EXTERN_C void engine_stop(uint32_t result);
+    EXTERN_C uint8_t *engine_malloc(uint32_t size);
+    EXTERN_C void engine_start(uint32_t args);
+    EXTERN_C void engine_stop(uint32_t result);
 } // namespace machine
 #endif
 
 #endif // MACHINE_INTERNAL
+
+struct sample;
+struct sample_info
+{
+    const char *name;
+    uint32_t len;
+    uint16_t sample_rate;
+    uint8_t channels;
+    const char *labels[32];
+    float label_pos[32];
+    uint8_t label_num;
+};
+
+EXTERN_C sample *sample_u8(const uint8_t *data, int len, int sample_rate, int addr_shift);
+EXTERN_C sample *sample_Am6070(const uint8_t *data, int len, int sample_rate, int amp_mul);
+EXTERN_C sample *sample_wav(const uint8_t *data, int len);
+EXTERN_C sample *sample_wav_from_file(const char *filepath, sample *dispose_reuse_mem = nullptr);
+EXTERN_C void sample_dispose(sample *smpl);
+EXTERN_C void sample_set_pos(sample *smpl, float pos, float amplitude, float decay);
+EXTERN_C void sample_process(sample *smpl, float start, float end, float speed, float cv, float *outputL_frame,
+                             float *outputR_frame = nullptr);
+EXTERN_C bool sample_get_info(sample *smpl, sample_info *info);
 
 // fatfs api -- ff.h
 
@@ -544,12 +571,19 @@ enum FRESULT : int
 {
     FR_OK = 0,
     FR_DISK_ERR = 1,
+    FR_INT_ERR = 2,
     FR_NO_FILE = 4,
+    FR_INVALID_OBJECT = 9,
+    FR_NOT_ENOUGH_CORE = 17, /* NOT ENOUGH RAM */
+    FR_TOO_MANY_OPEN_FILES = 18,
+    FR_INVALID_PARAMETER = 19,
 };
+
+struct FIL_IMPL;
 
 typedef struct
 {
-    void *impl;
+    FIL_IMPL *impl;
 } FIL;
 
 typedef unsigned int UINT;  /* int must be 16-bit or 32-bit */
@@ -568,11 +602,40 @@ typedef DWORD FSIZE_t;
 #define FA_OPEN_ALWAYS 0x10
 #define FA_OPEN_APPEND 0x30
 
-EXTERN_C FRESULT f_open(FIL *f, const char *name, uint32_t mode);
-EXTERN_C FRESULT f_read(FIL *f, void *p, UINT size, UINT *bytes_read);
+EXTERN_C FRESULT f_open(FIL *fp, const char *name, uint32_t mode);
+EXTERN_C FRESULT f_read(FIL *fp, void *p, UINT size, UINT *bytes_read);
 EXTERN_C FSIZE_t f_tell(FIL *fp);
 EXTERN_C FSIZE_t f_size(FIL *fp);
-EXTERN_C FRESULT f_truncate(FIL *fp);
-EXTERN_C FRESULT f_lseek(FIL *fp, FSIZE_t ofs);
-EXTERN_C FRESULT f_close(FIL *f);
+// EXTERN_C FRESULT f_truncate(FIL *fp);
+// EXTERN_C FRESULT f_lseek(FIL *fp, FSIZE_t ofs);
+EXTERN_C FRESULT f_close(FIL *fp);
 EXTERN_C FRESULT f_write(FIL *fp, const void *buff, UINT btw, UINT *bw);
+
+struct DIR_IMPL;
+
+typedef struct
+{
+    DIR_IMPL *impl;
+} DIR;
+
+#define AM_DIR 0x10 /* Directory */
+
+typedef struct
+{
+    FSIZE_t fsize;
+    BYTE fattrib;
+    char fname[256 + 1]; /* Object name */
+} FILINFO;
+
+EXTERN_C FRESULT f_opendir(DIR *dp,         /* [OUT] Pointer to the directory object structure */
+                           const char *path /* [IN] Directory name */
+);
+
+EXTERN_C FRESULT f_closedir(DIR *dp /* [IN] Pointer to the directory object */
+);
+
+EXTERN_C FRESULT f_findnext(DIR *dp,     /* [IN] Poninter to the directory object */
+                            FILINFO *fno /* [OUT] Pointer to the file information structure */
+);
+
+EXTERN_C const char *stristr(const char *str1, const char *str2);

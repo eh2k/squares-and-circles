@@ -10,9 +10,9 @@ static float _rd_dec = 0.5f;
 int32_t _select;
 const char *sample_names[] = {"CH", "OH", "RD"};
 // void *_samples[3] = {};
-void *_ch = nullptr;
-void *_oh = nullptr;
-void *_rd = nullptr;
+sample *_ch = nullptr;
+sample *_oh = nullptr;
+sample *_rd = nullptr;
 
 static std::pair<uint8_t, uint8_t> midi_key_map[] = {
     {42, 0}, // HH - Closed
@@ -39,9 +39,9 @@ void engine::setup()
         return;
 
     const int ch_start = 24576;
-    _ch = dsp_sample_u8(HiHats_bin + ch_start, 32768 - ch_start, 32000, 0);
-    _oh = dsp_sample_u8(HiHats_bin, 24576, 32000, 0);
-    _rd = dsp_sample_u8(Ride_bin, 32768, 32000, 0);
+    _ch = sample_u8(HiHats_bin + ch_start, 32768 - ch_start, 32000, 0);
+    _oh = sample_u8(HiHats_bin, 24576, 32000, 0);
+    _rd = sample_u8(Ride_bin, 32768, 32000, 0);
 
     engine::addParam("CH-Lev", &_ch_vol);
     engine::addParam("CH-Dec", &_ch_dec);
@@ -62,26 +62,26 @@ void engine::process()
 
     if (engine::trig() & (1 << 1)) // OH
     {
-        dsp_set_sample_pos(_oh, 0, _oh_vol, _oh_dec);
+        sample_set_pos(_oh, 0, _oh_vol, _oh_dec);
     }
     else if (engine::trig() & (1 << 0)) // CH
     {
-        dsp_set_sample_pos(_ch, 0, _ch_vol, _ch_dec);
-        dsp_set_sample_pos(_oh, 0, 0, _oh_dec);
+        sample_set_pos(_ch, 0, _ch_vol, _ch_dec);
+        sample_set_pos(_oh, 0, 0, _oh_dec);
     }
 
     if (engine::trig() & (1 << 2)) // RD
     {
-        dsp_set_sample_pos(_rd, 0, _rd_vol, _rd_dec);
+        sample_set_pos(_rd, 0, _rd_vol, _rd_dec);
     }
 
     memset(_outputL, 0, sizeof(float) * FRAME_BUFFER_SIZE);
     memset(_outputR, 0, sizeof(float) * FRAME_BUFFER_SIZE);
-    void *_samples[] = {_ch, _oh, _rd};
+    sample *_samples[] = {_ch, _oh, _rd};
     for (size_t i = 0; i < LEN_OF(_samples) && _samples[i] != nullptr; i++)
     {
         float tmp[FRAME_BUFFER_SIZE] = {};
-        dsp_process_sample(_samples[i], 0, 1, engine::cv(), tmp);
+        sample_process(_samples[i], 0, 1, 1.f, engine::cv(), tmp);
         float levelL = engine::mixLevelL(i);
         float levelR = engine::mixLevelR(i);
         for (size_t j = 0; j < FRAME_BUFFER_SIZE; j++)

@@ -68,6 +68,7 @@ The available engine types include drums, synthesizers, oscillators, sequencers,
   * [FFT](https://github.com/eh2k/squares-and-circles/wiki/FFT)
 * **CV**
   * [V_OCT](https://github.com/eh2k/squares-and-circles/wiki/V_OCT)
+  * [Slew](https://github.com/eh2k/squares-and-circles/wiki/Slew)
   * [EnvGen_AD](https://github.com/eh2k/squares-and-circles/wiki/EnvGen_AD)
   * [EnvGen_ADSR](https://github.com/eh2k/squares-and-circles/wiki/EnvGen_ADSR)
   * [LFO](https://github.com/eh2k/squares-and-circles/wiki/LFO)
@@ -247,22 +248,6 @@ The I/O-Configuration page lets you virtually patch the engine with the hardware
  * **Transpose**: -48 to 24  (semitone per step)
    * **FINE**: semitone/128
 
-*In case MIDI-Control is enabled (Midi-Settings) - Midi-Channel is configurable:*
-
-### Ctrl / Midi
-
-<img align="right" src="doc/io-midi-channel.png" width=196px />
-
-* **Midi-Channel**: `-`, `1`...`16`
-  - The Midi messages are translated to analog events
-    - Trig: NoteOn
-    - Gate: NoteOn until NoteOff
-    - CV: 0V = Key 60
-  - [Multi-Trig-Drum-Engines](https://github.com/eh2k/squares-and-circles/wiki/DrumSynth)
-    - In case trigger to `-` - individual drums/instruments are triggered by individual keys:
-        - GM Standard Drum Map: https://github.com/eh2k/squares-and-circles/wiki/TR707#midi-mapping
-        - or Keys 60-75 for instrument 1-16
-
 ### Mix / Outputs
 
 <img align="right" src="doc/outputs2.png" width=196px />
@@ -280,23 +265,9 @@ The I/O-Configuration page lets you virtually patch the engine with the hardware
 <br/>
 <div style="page-break-after: always;"></div>
 
-## MIDI+CLOCK+TIMING-Settings
+## CLOCK+TIMING+MIDI-Settings
 
->[Long press [LEFT] + [RIGHT]] for getting to the MIDI-Settings page.
-
-The MIDI&Clock-Settings page lets you select the MIDI-Control.
-
-<img align="right" src="doc/config_midi0.png" width=196px />
-
-### - **MIDI-Control**:
-  - `-` disabled
-  - In case OC_T40
-    - `USB+T1` [T1 input can be used as MIDI-Input](https://github.com/eh2k/squares-and-circles/wiki/Ornament%E2%80%90and%E2%80%90Crime#-midi-expander)
-  - else
-    - `MIDI/USB` the USB-MIDI and/or hardware Midi-Input
-
-In case the MIDI-Control is enabled, you can setup the Midi-Channel in the engine IO-settings.
-> Each engine can be assigned to a MIDI-Channel - it is possible to control single mono engines together polyphonically (for this all engines have to be set to the same midi channel). [Midi-Engines](app/MIDI/VAx6.cpp) consume the MIDI-Stream directly, therefore the MIDI-Messages are not converted as incoming CVs or triggers.
+>[Long press [LEFT] + [RIGHT]] for getting to the CLOCK+TIMING+MIDI-Settings page.
 
 <img align="right" src="doc/config_midi1.png" width=196px />
 
@@ -314,6 +285,18 @@ In case the MIDI-Control is enabled, you can setup the Midi-Channel in the engin
 
 ### - **TRIG-In-Delay**: 
    * `0-50ms`Trigger input processing delay in ms. Usecase: sync trig signals with midi or CV
+
+<img align="right" src="doc/config_midi0.png" width=196px />
+
+### - **MIDI-Control**:
+  - `-` disabled
+  - In case OC_T40
+    - `USB+T1` [T1 input can be used as MIDI-Input](https://github.com/eh2k/squares-and-circles/wiki/Ornament%E2%80%90and%E2%80%90Crime#-midi-expander)
+  - else
+    - `MIDI/USB` the USB-MIDI and/or hardware Midi-Input
+
+In case the MIDI-Control is enabled, you can setup the Midi-Channel for each engine.
+> Each engine can be assigned to a MIDI-Channel - it is possible to control single mono engines together polyphonically (for this all engines have to be set to the same midi channel). [Midi-Engines](app/MIDI/VAx6.cpp) consume the MIDI-Stream directly, therefore the MIDI-Messages are not converted as incoming CVs or triggers.
 
 #### Midi-Control
   * Engines can be loaded/selected by midi program change
@@ -334,6 +317,16 @@ In case the MIDI-Control is enabled, you can setup the Midi-Channel in the engin
     ````
   > CC 48-56 (HEX 30-38) for LSB (14Bit CC)
 
+* **Midi-Channel**: `-`, `1`...`16`
+  - The Midi messages are translated to analog events
+    - Trig: NoteOn
+    - Gate: NoteOn until NoteOff
+    - CV: 0V = Key 60
+  - [Multi-Trig-Drum-Engines](https://github.com/eh2k/squares-and-circles/wiki/DrumSynth)
+    - In case trigger to `-` - individual drums/instruments are triggered by individual keys:
+        - GM Standard Drum Map: https://github.com/eh2k/squares-and-circles/wiki/TR707#midi-mapping
+        - or Keys 60-75 for instrument 1-16
+        
 # Patch Storage
 <img align="right" src="doc/patch_storage_load.png" width=196px />
 

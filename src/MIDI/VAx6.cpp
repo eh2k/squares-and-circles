@@ -199,3 +199,7 @@ void engine::onMidiCC(uint8_t ccc, uint8_t value)
 void engine::onMidiSysex(uint8_t byte)
 {
 }
+
+void engine::onMidiRTM(uint8_t code)
+{
+}

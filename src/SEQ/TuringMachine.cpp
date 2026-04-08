@@ -201,7 +201,7 @@ void engine::setup()
         output(i, &pulse_modes[i]);
 
     engine::addParam("@Prob\n%d%%", &_turing_prob, 0, 100);
-    engine::addParam("@Length\n%d", &_turing_length, 1, 16);
+    engine::addParam("@Length\n%d", &_turing_length, 0, 16);
     engine::addParam("@Out1\n%s", &_pulse1, 0, LEN_OF(pulse_modes) - 1, pulse_modes);
     engine::addParam("@Out2\n%s", &_pulse2, 0, LEN_OF(pulse_modes) - 1, pulse_modes);
 
@@ -239,7 +239,7 @@ void engine::process()
         _last_steps = _turing_length;
     }
 
-    if (engine_sync::stepChanged())
+    if (_turing_length > 0 && engine_sync::stepChanged())
     {
         if (engine_sync::stepReset()) // Second Trig!
         {

@@ -25,8 +25,14 @@ if [[ ! -d ./.build/xpack-arm-none-eabi-gcc-10.3.1-2.1 ]] ; then
     cd -
 fi
 
-export GCC_PATH=$(realpath .)/.build/xpack-arm-none-eabi-gcc-10.3.1-2.1/bin/
+export GCC_PATH=$(realpath ./.build/xpack-arm-none-eabi-gcc-10.3.1-2.1/bin/)
 export PATH="${PATH}:${GCC_PATH}"
+
+if [[ ! -d ./.build/udynlink ]]; then
+    git clone https://github.com/eh2k/udynlink.git ./.build/udynlink/
+fi
+
+mkmodule=$(realpath ./.build/udynlink/scripts/mkmodule)
 
 if ! which arm-none-eabi-gcc; then
     echo arm-none-eabi-gcc not found!
@@ -52,10 +58,7 @@ NAME=${NAME:-"$(realpath --relative-to=${SCRIPT_PATH} $X)"}
 
 echo ----- "$NAME" -----
 
-mkmodule=$(ls lib/udynlink/scripts/mkmodule | head -n1)
-
 BUILD_FLAGS=$(grep "build_flags:" $X.cpp | cut -d':' -f2- | xargs)
-
 BUILD_FLAGS=${BUILD_FLAGS:-"-mfloat-abi=hard -mfpu=fpv5-d16 -ffast-math"}
 
 echo "BUILD_FLAGS:$BUILD_FLAGS"
@@ -82,12 +85,12 @@ X="${X/src/app}"
 
 arm-none-eabi-objdump -Dztr --source $X.elf | arm-none-eabi-c++filt -t > $X.elf.txt
 #arm-none-eabi-nm -l -t d -S -C --size-sort --synthetic --special-syms --with-symbol-versions --reverse-sort ./$X.elf > $X.log
-which elf-size-analyze >/dev/null && elf-size-analyze -t arm-none-eabi- $(realpath $X.elf --relative-base=.) -F -R --no-color >> $X.log
+python -m elf_size_analyze -t arm-none-eabi- $(realpath $X.elf --relative-base=.) -F -R --no-color >> $X.log
 ${SCRIPT_PATH}/dump.py "$(realpath $X.bin --relative-base=.)" | tee -a $X.log
 #rm $X.elf
 
 if [[ "$1" == "--rebuild" ]]; then
-    ${SCRIPT_PATH}/dump.py "$(realpath $X.bin --relative-base=.)" > ${SCRIPT_PATH}/../app/apps.txt
+    ${SCRIPT_PATH}/dump.py "$(realpath $X.bin --relative-base=.)" >> ${SCRIPT_PATH}/../app/apps.txt
 fi
 
 grep "__aeabi_" $X.log && exit 1

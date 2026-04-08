@@ -86,7 +86,10 @@ int16_t fpsin(int16_t i)
 }
 
 // Cos(x) = sin(x + pi/2)
-inline int16_t fpcos(int16_t i) { return fpsin((int16_t)(((uint16_t)(i)) + 8192U)); }
+inline int16_t fpcos(int16_t i)
+{
+    return fpsin((int16_t)(((uint16_t)(i)) + 8192U));
+}
 
 // https://xbm.jazzychad.net/
 const uint8_t xmb_note_6x8[8] = {0xc8, 0xd8, 0xe8, 0xd8, 0xe8, 0xce, 0xcf, 0xc6};
@@ -96,7 +99,8 @@ const uint8_t xmb_arrow_up_5x6[6] = {0xe4, 0xee, 0xff, 0xe4, 0xe4, 0xe4};
 const uint8_t xmb_arrow_dn_5x6[6] = {0xe4, 0xe4, 0xe4, 0xf5, 0xee, 0xe4};
 const uint8_t xmb_circle_7x7[7] = {0x9c, 0xa2, 0xc1, 0xc1, 0xc1, 0xa2, 0x9c};
 const uint8_t xmb_filled_circle_7x7[7] = {0x9c, 0xa2, 0xdd, 0xdd, 0xdd, 0xa2, 0x9c};
-const uint8_t xbm_play_11x11[] = {0x03, 0xf8, 0x0d, 0xf8, 0x31, 0xf8, 0xc1, 0xf8, 0x01, 0xfb, 0x01, 0xfc, 0x01, 0xfb, 0xc1, 0xf8, 0x31, 0xf8, 0x0d, 0xf8, 0x03, 0xf8};
+const uint8_t xbm_play_11x11[] = {0x03, 0xf8, 0x0d, 0xf8, 0x31, 0xf8, 0xc1, 0xf8, 0x01, 0xfb, 0x01,
+                                  0xfc, 0x01, 0xfb, 0xc1, 0xf8, 0x31, 0xf8, 0x0d, 0xf8, 0x03, 0xf8};
 const uint8_t xbm_stop_7x11[] = {0x80, 0xf7, 0xd5, 0xd5, 0xd5, 0xd5, 0xd5, 0xd5, 0xd5, 0xf7, 0x80};
 
 int32_t len = 16;
@@ -104,8 +108,8 @@ int32_t pulses = 4;
 int32_t rotate = 0;
 int32_t swing = 128;
 
-int16_t* out_gate;
-int16_t* out_cv;
+int16_t *out_gate;
+int16_t *out_cv;
 
 int32_t seq_pos = UINT8_MAX;
 bool playing = true;
@@ -118,7 +122,7 @@ void draw_eclid_cyrcle(int x, int y, uint8_t pattern[64], int _len, int rot, boo
     int xx = x;
     int yy = y;
 
-    if ((fpsin((INT16_MAX / (_len))) / 194) > 6)
+    if (_len > 0 && (fpsin((INT16_MAX / (_len))) / 194) > 6)
     {
         gfx::drawCircle(xx + 3, 31 + 3, 21);
 
@@ -195,7 +199,8 @@ int32_t mode = 0;
 int32_t chord = 0;
 plaits::Arpeggiator arpeggiator_;
 plaits::ChordBank chords_;
-int32_t chords_mem[(plaits::kChordNumChords * plaits::kChordNumNotes) + plaits::kChordNumChords + plaits::kChordNumNotes];
+int32_t
+    chords_mem[(plaits::kChordNumChords * plaits::kChordNumNotes) + plaits::kChordNumChords + plaits::kChordNumNotes];
 
 int32_t octaves = 1;
 int32_t _slide = 0;
@@ -215,11 +220,7 @@ const char *soctaves[] = {
 };
 
 const char *slides[] = {
-    "OFF",
-    "ON",
-    "RND25",
-    "RND50",
-    "RND75",
+    "OFF", "ON", "RND25", "RND50", "RND75",
 };
 
 void engine::setup()
@@ -231,7 +232,7 @@ void engine::setup()
     chords_.chord_index_quantizer_.hysteresis_ = 0; // input => output
     chords_.Reset();
 
-    engine::addParam("#LEN", &len, 1, 20);
+    engine::addParam("#LEN", &len, 0, 20);
     engine::addParam(V_OCT, &arp_root); // arp_root ist automatically added to engine::cv()
     engine::addParam("#HIT", &pulses, 0, 16);
     engine::addParam("Mode", &mode, 0, LEN_OF(smodes) - 1, smodes);
@@ -274,24 +275,15 @@ float _cv_out = 0;
 
 void update_seq_pattern()
 {
-    CONSTRAIN(pulses, pulses, len);
-    rotate %= len;
     _swing = swing;
 
-    if ((mode == plaits::ArpeggiatorMode::ARPEGGIATOR_MODE_RANDOM | _slide > 1) && engine_sync::stepChanged() && (engine_sync::step() % len) == 0)
+    if ((mode == plaits::ArpeggiatorMode::ARPEGGIATOR_MODE_RANDOM | _slide > 1) && engine_sync::stepChanged() &&
+        MOD(engine_sync::step(), len) == 0)
         _last_mode = -1; // randomize!!!
 
-    if (_last_len != len ||
-        _last_pulses != pulses ||
-        _last_rotate != rotate ||
-        _last_mode != mode ||
-        _last_octaves != octaves ||
-        _last_chord != chord ||
-        _last_slide != _slide)
+    if (_last_len != len || _last_pulses != pulses || _last_rotate != rotate || _last_mode != mode ||
+        _last_octaves != octaves || _last_chord != chord || _last_slide != _slide)
     {
-        if (_last_len != len && _last_len == _last_pulses)
-            pulses = len;
-
         _last_len = len;
         _last_pulses = pulses;
         _last_rotate = rotate;
@@ -304,7 +296,8 @@ void update_seq_pattern()
 
         make_pattern(pattern, len, pulses, rotate);
 
-        if (len == 16 && pulses == 16 && mode == plaits::ArpeggiatorMode::ARPEGGIATOR_MODE_RANDOM && chord == 0 && octaves == 0)
+        if (len == 16 && pulses == 16 && mode == plaits::ArpeggiatorMode::ARPEGGIATOR_MODE_RANDOM && chord == 0 &&
+            octaves == 0)
         {
             // Easter EGG ;-)
             for (int i = 0; i < len; i++)
@@ -359,14 +352,14 @@ void update_seq_pattern()
         }
     }
 
-    if (engine_sync::stepChanged())
+    if (len > 0 && engine_sync::stepChanged())
     {
-        seq_pos = engine_sync::step() % len;
+        seq_pos = MOD(engine_sync::step(), len);
 
         bool trig = pattern[seq_pos];
 
         _cv = (float)(patternCV[seq_pos] - DEFAULT_NOTE) / 12;
-        _last_cv = (float)(patternCV[(len + seq_pos - 1) % len] - DEFAULT_NOTE) / 12;
+        _last_cv = (float)(patternCV[MOD(len + seq_pos - 1, len)] - DEFAULT_NOTE) / 12;
 
         if (trig)
         {

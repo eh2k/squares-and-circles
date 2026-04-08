@@ -60,8 +60,8 @@ void write_wav(const std::vector<int16_t> &buffer, int nchannels, const std::str
     wav_hdr wav;
     wav.NumOfChan = nchannels;
     wav.blockAlign *= nchannels;
-    wav.ChunkSize = fsize + sizeof(wav_hdr) - 8;
-    wav.Subchunk2Size = fsize + sizeof(wav_hdr) - 44;
+    wav.ChunkSize = -1; //fsize + sizeof(wav_hdr) - 8;
+    wav.Subchunk2Size = -1; //fsize;
 
     std::ofstream out(fileName, std::ios::binary);
     out.write(reinterpret_cast<const char *>(&wav), sizeof(wav));
@@ -86,7 +86,6 @@ void __ui_event_handler()
 
 UI_EVENT_t *__ui_event = nullptr;
 MIDI_EVENT_t *__midi_event = nullptr;
-IO_t *__io = new IO_t();
 
 uint8_t *__clock = new uint8_t[1];
 uint8_t *__step = new uint8_t[1];
@@ -239,8 +238,23 @@ void write_frame()
     }
 }
 
+#include "extern/eproms/lm2/CLAP.BIN.h"
+#include "../machine/src/base/sample.hxx"
+
 int main()
 {
+    std::ofstream out("LM2-CLAP.bin", std::ios::binary);
+
+    sample s(SAMPLE_FORMAT_AM6070, "", CLAP_BIN, sizeof(CLAP_BIN), 48000, 1);
+
+    for(size_t i = 0; i < sizeof(CLAP_BIN); i++)
+    {
+        auto f = s.get_i16(i);
+        out.write(reinterpret_cast<const char *>(&f), sizeof(f));
+    }
+
+    return 0;
+
     engine::setup();
 
     // engine::process();
@@ -267,8 +281,8 @@ int main()
         osc.Render<plaits::OSCILLATOR_SHAPE_SAW>(phase_inc_, 0.5f, __audio_in_l_fp, FRAME_BUFFER_SIZE);
         memcpy(__audio_in_r_fp, __audio_in_l_fp, sizeof(float) * FRAME_BUFFER_SIZE);
 
-        // __trig[0] = (i % (SAMPLE_RATE / 2)) == 0;
-        // __gate[0] = (i % (SAMPLE_RATE / 2)) < SAMPLE_RATE / 3;
+        __trig[0] = (i % (SAMPLE_RATE / 2)) == 0;
+        __gate[0] = (i % (SAMPLE_RATE / 2)) < SAMPLE_RATE / 3;
 
         // if (((i / SAMPLE_RATE) % 2) == 1)
         //     __cv[0] = PITCH_PER_OCTAVE;
