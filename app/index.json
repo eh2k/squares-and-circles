@@ -11,6 +11,7 @@
     "DRUMS/Djembe.bin",
     "DRUMS/DrumSynth.bin",
     "DRUMS/FM-Drum.bin",
+    "DRUMS/RZ-1.bin",
     "DRUMS/TR707.bin",
     "DRUMS/TR909-HiHat.bin",
     "FILTER/MoogLadder.bin",
@@ -21,15 +22,15 @@
     "FX/Gated-Reverb.bin",
     "FX/JU60_chorus.bin",
     "FX/Rev-Dattorro.bin",
-    "FX/Reverb.bin",
     "FX/Reverb-HP-LP.bin",
+    "FX/Reverb.bin",
     "FX/ReverbSC.bin",
     "GND/FFT.bin",
     "GND/Scope.bin",
+    "M-OSC/Waveforms.bin",
     "MIDI/Clock.bin",
     "MIDI/Monitor.bin",
     "MIDI/VAx6.bin",
-    "M-OSC/Waveforms.bin",
     "NOISE/808_squares.bin",
     "NOISE/NES.bin",
     "NOISE/WhitePink.bin",
@@ -41,7 +42,7 @@
     "SPEECH/SAM.bin",
     "SYNTH/DxFM.bin",
     "SYNTH/Open303.bin",
-    "SYNTH/plaits.bin",
-    "SYNTH/Resonator.bin"
+    "SYNTH/Resonator.bin",
+    "SYNTH/plaits.bin"
   ]
 }

@@ -85,6 +85,7 @@ The available engine types include drums, synthesizers, oscillators, sequencers,
   * [808ish-SD](https://github.com/eh2k/squares-and-circles/wiki/808ish-SD),
   * [808ish-HiHat](https://github.com/eh2k/squares-and-circles/wiki/808ish-HiHat),
   * [TR707](https://github.com/eh2k/squares-and-circles/wiki/TR707),
+  * [RZ-1](https://github.com/eh2k/squares-and-circles/wiki/RZ-1),
   * [FM-Drum](https://github.com/eh2k/squares-and-circles/wiki/FM-Drum)
   * [Djembe](https://github.com/eh2k/squares-and-circles/wiki/Djembe)
   * [Claps](https://github.com/eh2k/squares-and-circles/wiki/Claps)

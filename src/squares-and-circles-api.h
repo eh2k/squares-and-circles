@@ -555,6 +555,7 @@ struct sample_info
     uint8_t label_num;
 };
 
+EXTERN_C sample *sample_s8(const uint8_t *data, int len, int sample_rate, int addr_shift);
 EXTERN_C sample *sample_u8(const uint8_t *data, int len, int sample_rate, int addr_shift);
 EXTERN_C sample *sample_Am6070(const uint8_t *data, int len, int sample_rate, int amp_mul);
 EXTERN_C sample *sample_wav(const uint8_t *data, int len);
