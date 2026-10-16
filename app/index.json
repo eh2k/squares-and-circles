@@ -1,48 +1,260 @@
 {
   "apps": [
-    "CV/EnvFollower.bin",
-    "CV/EnvGen.bin",
-    "CV/LFO.bin",
-    "CV/V_OCT.bin",
-    "DRUMS/808ish-BD.bin",
-    "DRUMS/808ish-HiHat.bin",
-    "DRUMS/808ish-SD.bin",
-    "DRUMS/Claps.bin",
-    "DRUMS/Djembe.bin",
-    "DRUMS/DrumSynth.bin",
-    "DRUMS/FM-Drum.bin",
-    "DRUMS/RZ-1.bin",
-    "DRUMS/TR707.bin",
-    "DRUMS/TR909-HiHat.bin",
-    "FILTER/MoogLadder.bin",
-    "FILTER/SVF.bin",
-    "FILTER/TeeBee.bin",
-    "FX/Delay.bin",
-    "FX/FV1emu.bin",
-    "FX/Gated-Reverb.bin",
-    "FX/JU60_chorus.bin",
-    "FX/Rev-Dattorro.bin",
-    "FX/Reverb-HP-LP.bin",
-    "FX/Reverb.bin",
-    "FX/ReverbSC.bin",
-    "GND/FFT.bin",
-    "GND/Scope.bin",
-    "M-OSC/Waveforms.bin",
-    "MIDI/Clock.bin",
-    "MIDI/Monitor.bin",
-    "MIDI/VAx6.bin",
-    "NOISE/808_squares.bin",
-    "NOISE/NES.bin",
-    "NOISE/WhitePink.bin",
-    "SEQ/303-Patterns.bin",
-    "SEQ/EuclidArp.bin",
-    "SEQ/EuclidRythm.bin",
-    "SEQ/TuringMachine.bin",
-    "SPEECH/LPC.bin",
-    "SPEECH/SAM.bin",
-    "SYNTH/DxFM.bin",
-    "SYNTH/Open303.bin",
-    "SYNTH/Resonator.bin",
-    "SYNTH/plaits.bin"
-  ]
+    "CV/EnvFollower/EnvFollower.bin",
+    "CV/EnvGen/EnvGen.bin",
+    "CV/LFO/LFO.bin",
+    "CV/V_OCT/V_OCT.bin",
+    "DRUMKITS/DMX/DMX.bin",
+    "DRUMKITS/DrumSynth/DrumSynth.bin",
+    "DRUMKITS/Linn/Linn.bin",
+    "DRUMKITS/RZ-1/RZ-1.bin",
+    "DRUMKITS/TR-707/TR-707.bin",
+    "DRUMS/808ish-BD/808ish-BD.bin",
+    "DRUMS/808ish-HiHat/808ish-HiHat.bin",
+    "DRUMS/808ish-SD/808ish-SD.bin",
+    "DRUMS/Claps/Claps.bin",
+    "DRUMS/Djembe/Djembe.bin",
+    "DRUMS/FM-Drum/FM-Drum.bin",
+    "DRUMS/TR909-HiHat/TR909-HiHat.bin",
+    "FILTER/MoogLadder/MoogLadder.bin",
+    "FILTER/SVF/SVF.bin",
+    "FILTER/TeeBee/TeeBee.bin",
+    "FX/Compressor/Compressor.bin",
+    "FX/Delay/Delay.bin",
+    "FX/Drive/Drive.bin",
+    "FX/Ducker/Ducker.bin",
+    "FX/FV1emu/FV1emu.bin",
+    "FX/Gated-Reverb/Gated-Reverb.bin",
+    "FX/JU60_chorus/JU60_chorus.bin",
+    "FX/Rev-Dattorro/Rev-Dattorro.bin",
+    "FX/Reverb-HP-LP/Reverb-HP-LP.bin",
+    "FX/Reverb/Reverb.bin",
+    "FX/ReverbSC/ReverbSC.bin",
+    "GND/FFT/FFT.bin",
+    "GND/Scope/Scope.bin",
+    "GND/Tuner/Tuner.bin",
+    "MIDI/Clock/Clock.bin",
+    "MIDI/Monitor/Monitor.bin",
+    "MIDI/VAx6/VAx6.bin",
+    "NOISE/808_squares/808_squares.bin",
+    "NOISE/NES/NES.bin",
+    "NOISE/NoiseGen/NoiseGen.bin",
+    "SEQ/303-Patterns/303-Patterns.bin",
+    "SEQ/EuclidArp/EuclidArp.bin",
+    "SEQ/EuclidRythm/EuclidRythm.bin",
+    "SEQ/TuringMachine/TuringMachine.bin",
+    "SPEECH/LPC/LPC.bin",
+    "SPEECH/SAM/SAM.bin",
+    "SYNTH/DxFM/DxFM.bin",
+    "SYNTH/Open303/Open303.bin",
+    "SYNTH/Resonator/Resonator.bin",
+    "SYNTH/SawSqr/SawSqr.bin",
+    "SYNTH/braids/braids.bin",
+    "SYNTH/plaits/plaits.bin"
+  ],
+  "engines": {
+    "CV/EnvFollower/EnvFollower.bin": [
+      "CV/EnvFollower",
+      "CV/Vactrol"
+    ],
+    "CV/EnvGen/EnvGen.bin": [
+      "CV/EnvGen_AD",
+      "CV/EnvGen_ADSR"
+    ],
+    "CV/LFO/LFO.bin": [
+      "CV/LFO"
+    ],
+    "CV/V_OCT/V_OCT.bin": [
+      "CV/V_OCT"
+    ],
+    "DRUMKITS/DMX/DMX.bin": [
+      "DRUMKITS/DMX"
+    ],
+    "DRUMKITS/DrumSynth/DrumSynth.bin": [
+      "DRUMKITS/@!RC8"
+    ],
+    "DRUMKITS/Linn/Linn.bin": [
+      "DRUMKITS/Linn"
+    ],
+    "DRUMKITS/RZ-1/RZ-1.bin": [
+      "DRUMKITS/RZ-1"
+    ],
+    "DRUMKITS/TR-707/TR-707.bin": [
+      "DRUMKITS/TR-707"
+    ],
+    "DRUMS/808ish-BD/808ish-BD.bin": [
+      "DRUMS/808ish-BD"
+    ],
+    "DRUMS/808ish-HiHat/808ish-HiHat.bin": [
+      "DRUMS/808ish-HiHat"
+    ],
+    "DRUMS/808ish-SD/808ish-SD.bin": [
+      "DRUMS/808ish-SD"
+    ],
+    "DRUMS/Claps/Claps.bin": [
+      "DRUMS/Claps"
+    ],
+    "DRUMS/Djembe/Djembe.bin": [
+      "DRUMS/Djembe"
+    ],
+    "DRUMS/FM-Drum/FM-Drum.bin": [
+      "DRUMS/FM-Drum"
+    ],
+    "DRUMS/TR909-HiHat/TR909-HiHat.bin": [
+      "DRUMS/TR909-HiHat"
+    ],
+    "FILTER/MoogLadder/MoogLadder.bin": [
+      "FILTER/MoogLadder"
+    ],
+    "FILTER/SVF/SVF.bin": [
+      "FILTER/SVF"
+    ],
+    "FILTER/TeeBee/TeeBee.bin": [
+      "FILTER/TeeBee"
+    ],
+    "FX/Compressor/Compressor.bin": [
+      "FX/Compressor"
+    ],
+    "FX/Delay/Delay.bin": [
+      "FX/Delay"
+    ],
+    "FX/Drive/Drive.bin": [
+      "FX/Drive"
+    ],
+    "FX/Ducker/Ducker.bin": [
+      "FX/Ducker"
+    ],
+    "FX/FV1emu/FV1emu.bin": [
+      "FX/@!FV1"
+    ],
+    "FX/Gated-Reverb/Gated-Reverb.bin": [
+      "FX/Gated-Reverb"
+    ],
+    "FX/JU60_chorus/JU60_chorus.bin": [
+      "FX/JU60_chorus"
+    ],
+    "FX/Rev-Dattorro/Rev-Dattorro.bin": [
+      "FX/Rev-Dattorro"
+    ],
+    "FX/Reverb-HP-LP/Reverb-HP-LP.bin": [
+      "FX/Reverb-HP-LP"
+    ],
+    "FX/Reverb/Reverb.bin": [
+      "FX/Reverb"
+    ],
+    "FX/ReverbSC/ReverbSC.bin": [
+      "FX/ReverbSC"
+    ],
+    "GND/FFT/FFT.bin": [
+      "GND/FFT"
+    ],
+    "GND/Scope/Scope.bin": [
+      "GND/Scope"
+    ],
+    "GND/Tuner/Tuner.bin": [
+      "GND/Tuner"
+    ],
+    "MIDI/Clock/Clock.bin": [
+      "MIDI/Clock"
+    ],
+    "MIDI/Monitor/Monitor.bin": [
+      "MIDI/Monitor"
+    ],
+    "MIDI/VAx6/VAx6.bin": [
+      "MIDI/VAx6"
+    ],
+    "NOISE/808_squares/808_squares.bin": [
+      "NOISE/808_squares"
+    ],
+    "NOISE/NES/NES.bin": [
+      "NOISE/NES"
+    ],
+    "NOISE/NoiseGen/NoiseGen.bin": [
+      "NOISE/NoiseGen"
+    ],
+    "SEQ/303-Patterns/303-Patterns.bin": [
+      "SEQ/303-Patterns"
+    ],
+    "SEQ/EuclidArp/EuclidArp.bin": [
+      "SEQ/EuclidArp"
+    ],
+    "SEQ/EuclidRythm/EuclidRythm.bin": [
+      "SEQ/EuclidRythm"
+    ],
+    "SEQ/TuringMachine/TuringMachine.bin": [
+      "SEQ/TuringMachine"
+    ],
+    "SPEECH/LPC/LPC.bin": [
+      "SPEECH/LPC"
+    ],
+    "SPEECH/SAM/SAM.bin": [
+      "SPEECH/SAM"
+    ],
+    "SYNTH/DxFM/DxFM.bin": [
+      "SYNTH/DxFM",
+      "SYNTH/DxFM_BNK1-3"
+    ],
+    "SYNTH/Open303/Open303.bin": [
+      "SYNTH/Open303"
+    ],
+    "SYNTH/Resonator/Resonator.bin": [
+      "SYNTH/Resonator"
+    ],
+    "SYNTH/SawSqr/SawSqr.bin": [
+      "M-OSC/SawSqr"
+    ],
+    "SYNTH/braids/braids.bin": [
+      "M-OSC/Waveforms"
+    ],
+    "SYNTH/plaits/plaits.bin": [
+      "M-OSC/Virt.Analog",
+      "M-OSC/Waveshaping",
+      "M-OSC/2-OP-FM",
+      "M-OSC/Grain",
+      "M-OSC/Harmonic",
+      "M-OSC/Wavetable",
+      "M-OSC/Chord",
+      "DRUMS/Analog BD",
+      "DRUMS/Analog SD",
+      "DRUMS/Analog HH2",
+      "DRUMS/Analog HH",
+      "DRUMS/909ish-BD",
+      "DRUMS/909ish-SD",
+      "SYNTH/ClassicVAVCF"
+    ]
+  },
+  "blobs": {
+    "DRUMKITS/CR-78": {
+      "file": "DRUMKITS/CR-78/CR-78.rc8",
+      "app": "DRUMKITS/DrumSynth/DrumSynth.bin"
+    },
+    "DRUMKITS/CR-8000": {
+      "file": "DRUMKITS/CR-8000/CR-8000.rc8",
+      "app": "DRUMKITS/DrumSynth/DrumSynth.bin"
+    },
+    "DRUMKITS/DR-110": {
+      "file": "DRUMKITS/DR-110/DR-110.rc8",
+      "app": "DRUMKITS/DrumSynth/DrumSynth.bin"
+    },
+    "DRUMKITS/KR-55": {
+      "file": "DRUMKITS/KR-55/KR-55.rc8",
+      "app": "DRUMKITS/DrumSynth/DrumSynth.bin"
+    },
+    "DRUMKITS/MFB-512": {
+      "file": "DRUMKITS/MFB-512/MFB-512.rc8",
+      "app": "DRUMKITS/DrumSynth/DrumSynth.bin"
+    },
+    "DRUMKITS/TR-606": {
+      "file": "DRUMKITS/TR-606/TR-606.rc8",
+      "app": "DRUMKITS/DrumSynth/DrumSynth.bin"
+    },
+    "DRUMKITS/TR-808": {
+      "file": "DRUMKITS/TR-808/TR-808.rc8",
+      "app": "DRUMKITS/DrumSynth/DrumSynth.bin"
+    },
+    "DRUMKITS/TR-909": {
+      "file": "DRUMKITS/TR-909/TR-909.rc8",
+      "app": "DRUMKITS/DrumSynth/DrumSynth.bin"
+    }
+  }
 }

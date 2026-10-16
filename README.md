@@ -5,7 +5,7 @@
 <!-- ⧉⦾ ⧇ ⟥⧂ -->
 **squares-and-circles** is an alternate firmware for the Eurorack module Ornament & Crime (O_C), specifically targeting the Teensy 4.0.
 
->  <a href="CHANGELOG.txt">CHANGELOG.txt</a>
+>  <a href="CHANGELOG.txt">CHANGELOG.txt</a> · New here? Start with the <a href="quick-start.md">Quick start</a>
 
 ## ■ Demos
 
@@ -34,9 +34,10 @@ The available engine types include drums, synthesizers, oscillators, sequencers,
 
 * [Short Press [LEFT]/[RIGHT]] scrolls through the 4 machine-tracks.
 * [Long press [LEFT]] enters the machine-selection-page.
-* [Long press [RIGHT]] enters the menu-page.
+* [Long press [RIGHT]] enters the [I/O-Configuration page](#io-configuration).
+* [Long press [LEFT] + [RIGHT]] opens the menu: turn an encoder to choose machines/engines, I/O, CLK & MIDI settings or patch storage, press it to open (on any other page: back to the engine page).
 * [Long press left or right [ENCODER]] shows the modulation popup
-* [Long press [L-ENCODER] + [R-ENCODER]] saves the patch - will be restored at startup
+* [Long press [L-ENCODER] + [R-ENCODER]] enters the [patch storage page](#patch-storage) - the patch saved or loaded last is restored at startup
   - DEBUG: skip restore - press [RIGHT] button while startup ).
 
 <br/>
@@ -47,11 +48,12 @@ The available engine types include drums, synthesizers, oscillators, sequencers,
 <img align="right" src="doc/menu_engines.png" width=196px />
 
 * [Long press [LEFT]] enters the machine-selection-page.<br/>
+* [Turn [L-ENCODER]] selects the machine (category), [Turn [R-ENCODER]] the engine - the engine of the track is highlighted.<br/>
 * [Short press [R-ENCODER]] loads the selected engine.<br/>
-* [Long press [R-ENCODER]] loads the selected engine - extended mode.<br/>
-   * Load & reset I/O settings
-   * Load & keep IO settings <img align="right" src="doc/engine_load_resetio.png" width=196px />
-   * Copy #1-4 (parameter values + modulations + I/O settings)
+* [Long press [R-ENCODER]] loads the selected engine - extended mode: turn [R-ENCODER] to choose, press it to confirm.<br/>
+   * Load & reset I/O settings <img align="right" src="doc/engine_load_resetio.png" width=196px />
+   * Load & keep IO settings
+   * Copy #1-4 (parameter values + modulations + I/O settings of track 1-4) <img align="right" src="doc/engine_copy_from.png" width=196px />
 
 <br/>
 
@@ -62,76 +64,21 @@ The available engine types include drums, synthesizers, oscillators, sequencers,
 ---
 
 ## Engines
-* **GND**
-  * `---`
-  * [Scope](https://github.com/eh2k/squares-and-circles/wiki/Scope)
-  * [FFT](https://github.com/eh2k/squares-and-circles/wiki/FFT)
-* **CV**
-  * [V_OCT](https://github.com/eh2k/squares-and-circles/wiki/V_OCT)
-  * [Slew](https://github.com/eh2k/squares-and-circles/wiki/Slew)
-  * [EnvGen_AD](https://github.com/eh2k/squares-and-circles/wiki/EnvGen_AD)
-  * [EnvGen_ADSR](https://github.com/eh2k/squares-and-circles/wiki/EnvGen_ADSR)
-  * [LFO](https://github.com/eh2k/squares-and-circles/wiki/LFO)
-  * [EnvFollower](https://github.com/eh2k/squares-and-circles/wiki/EnvFollower)
-* **Drums**
-  * [Analog-BD](https://github.com/eh2k/squares-and-circles/wiki/Analog-BD),
-  * [Analog-SD](https://github.com/eh2k/squares-and-circles/wiki/Analog-SD),
-  * [Analog-HH](https://github.com/eh2k/squares-and-circles/wiki/Analog-HH),
-  * [Analog-HH2](https://github.com/eh2k/squares-and-circles/wiki/Analog-HH2),
-  * [909ish-BD](https://github.com/eh2k/squares-and-circles/wiki/909ish-BD),
-  * [909ish-SD](https://github.com/eh2k/squares-and-circles/wiki/909ish-SD),
-  * [TR909-HiHat](https://github.com/eh2k/squares-and-circles/wiki/TR909_HiHats)
-  * [808ish-BD](https://github.com/eh2k/squares-and-circles/wiki/808ish-BD),
-  * [808ish-SD](https://github.com/eh2k/squares-and-circles/wiki/808ish-SD),
-  * [808ish-HiHat](https://github.com/eh2k/squares-and-circles/wiki/808ish-HiHat),
-  * [TR707](https://github.com/eh2k/squares-and-circles/wiki/TR707),
-  * [RZ-1](https://github.com/eh2k/squares-and-circles/wiki/RZ-1),
-  * [FM-Drum](https://github.com/eh2k/squares-and-circles/wiki/FM-Drum)
-  * [Djembe](https://github.com/eh2k/squares-and-circles/wiki/Djembe)
-  * [Claps](https://github.com/eh2k/squares-and-circles/wiki/Claps)
-* **M-OSC**
-  * [Waveforms](https://github.com/eh2k/squares-and-circles/wiki/Waveforms)
-  * [Virt.Analog](https://github.com/eh2k/squares-and-circles/wiki/Virt.Analog)
-  * [Waveshaping](https://github.com/eh2k/squares-and-circles/wiki/Waveshaping)
-  * [2-OP-FM](https://github.com/eh2k/squares-and-circles/wiki/2-OP-FM)
-  * [Formant/PD](https://github.com/eh2k/squares-and-circles/wiki/Formant-PD)
-  * [Harmonic](https://github.com/eh2k/squares-and-circles/wiki/Harmonic)
-  * [Wavetable](https://github.com/eh2k/squares-and-circles/wiki/Waveforms)
-  * [Chord](https://github.com/eh2k/squares-and-circles/wiki/Waveforms)
-* **SYNTH**
-  * [Resonator](https://github.com/eh2k/squares-and-circles/wiki/Resonator)
-  * [DxFM](https://github.com/eh2k/squares-and-circles/wiki/DxFM)
-  * [DxFM_BNK1-3](lib/plaits/resources.cc#L41)
-  * [Open303](https://github.com/eh2k/squares-and-circles/wiki/Open303)
-  * [ClassicVAVCF](lib/plaits/dsp/engine2/virtual_analog_vcf_engine.cc)
-* **FX**
-  * [Reverb](https://github.com/eh2k/squares-and-circles/wiki/clouds_reverb)
-  * [ReverbSC](https://github.com/eh2k/squares-and-circles/wiki/ReverbSC)
-  * [Rev-Dattorro](https://github.com/eh2k/squares-and-circles/wiki/Rev-Dattorro)
-  * [Delay](https://github.com/eh2k/squares-and-circles/wiki/Delay)
-  * [Gated-Reverb](https://github.com/eh2k/squares-and-circles/wiki/Gated-Reverb)
-  * [Reverb-HP-LP](https://github.com/eh2k/squares-and-circles/wiki/Reverb-HP-LP)
-  * [JU60_chorus](https://github.com/eh2k/squares-and-circles/wiki/JU60_chorus)
-* **NOISE**
-  * [White/Pink](https://github.com/eh2k/squares-and-circles/wiki/White_Pink_noise)
-  * [NES_noise](https://github.com/eh2k/squares-and-circles/wiki/NES_noise)
-  * [808_squares](https://github.com/eh2k/squares-and-circles/wiki/808_squares)
-* **FILTER**
-  * [SVF](https://github.com/eh2k/squares-and-circles/wiki/filter_plaits_svf)
-  * [MoogLadder](https://github.com/eh2k/squares-and-circles/wiki/moog_ladder)
-  * [TeeBee](https://github.com/eh2k/squares-and-circles/wiki/filter_teebee)
-* **SPEECH**
-  * [LPC](https://github.com/eh2k/squares-and-circles/wiki/LPC)
-  * [SAM](https://github.com/eh2k/squares-and-circles/wiki/SAM)
-* **MIDI**
-  * [Monitor](https://github.com/eh2k/squares-and-circles/wiki/Monitor)
-  * [Clock](https://github.com/eh2k/squares-and-circles/wiki/Clock)
-  * [VAx6](https://github.com/eh2k/squares-and-circles/wiki/VAx6)
-* **SEQ**
-  * [EuclidRythm](https://github.com/eh2k/squares-and-circles/wiki/EuclidRythm)
-  * [EuclidArp](https://github.com/eh2k/squares-and-circles/wiki/EuclidArp)
-  * [TuringMachine](https://github.com/eh2k/squares-and-circles/wiki/TM)
-  * [303-Patterns](https://github.com/eh2k/squares-and-circles/wiki/303-Patterns)
+
+| Group | Engines |
+|---|---|
+| **GND** | `---`, [Scope](app/GND/Scope/README.md), [FFT](app/GND/FFT/README.md), [Tuner](app/GND/Tuner/README.md) |
+| **CV** | [V_OCT](app/CV/V_OCT/README.md), [EnvGen_AD](app/CV/EnvGen/README.md), [EnvGen_ADSR](app/CV/EnvGen/README.md), [LFO](app/CV/LFO/README.md), [EnvFollower](app/CV/EnvFollower/README.md), [Vactrol](app/CV/EnvFollower/README.md) |
+| **Drums** | [Analog-BD](app/SYNTH/plaits/README.md), [Analog-SD](app/SYNTH/plaits/README.md), [Analog-HH](app/SYNTH/plaits/README.md), [Analog-HH2](app/SYNTH/plaits/README.md), [909ish-BD](app/SYNTH/plaits/README.md), [909ish-SD](app/SYNTH/plaits/README.md), [TR909-HiHat](app/DRUMS/TR909-HiHat/README.md), [808ish-BD](app/DRUMS/808ish-BD/README.md), [808ish-SD](app/DRUMS/808ish-SD/README.md), [808ish-HiHat](app/DRUMS/808ish-HiHat/README.md), [FM-Drum](app/DRUMS/FM-Drum/README.md), [Djembe](app/DRUMS/Djembe/README.md), [Claps](app/DRUMS/Claps/README.md) |
+| **DRUMKITS** | [TR-707](app/DRUMKITS/TR-707/README.md), [RZ-1](app/DRUMKITS/RZ-1/README.md), [DMX](app/DRUMKITS/DMX/README.md), [Linn](app/DRUMKITS/Linn/README.md), [DrumSynth](app/DRUMKITS/DrumSynth/README.md): [CR-78](app/DRUMKITS/CR-78/README.md), [CR-8000](app/DRUMKITS/CR-8000/README.md), [DR-110](app/DRUMKITS/DR-110/README.md), [KR-55](app/DRUMKITS/KR-55/README.md), [MFB-512](app/DRUMKITS/MFB-512/README.md), [TR-606](app/DRUMKITS/TR-606/README.md), [TR-808](app/DRUMKITS/TR-808/README.md), [TR-909](app/DRUMKITS/TR-909/README.md) |
+| **M-OSC** | [Waveforms](app/SYNTH/braids/README.md), [Virt.Analog](app/SYNTH/plaits/README.md), [Waveshaping](app/SYNTH/plaits/README.md), [2-OP-FM](app/SYNTH/plaits/README.md), [Harmonic](app/SYNTH/plaits/README.md), [Wavetable](app/SYNTH/plaits/README.md), [Chord](app/SYNTH/plaits/README.md), [SawSqr](app/SYNTH/SawSqr/README.md), [Grain](app/SYNTH/plaits/README.md) |
+| **SYNTH** | [Resonator](app/SYNTH/Resonator/README.md), [DxFM](app/SYNTH/DxFM/README.md), [DxFM_BNK1-3](app/SYNTH/DxFM/README.md), [Open303](app/SYNTH/Open303/README.md), [ClassicVAVCF](app/SYNTH/plaits/README.md) |
+| **FX** | [Reverb](app/FX/Reverb/README.md), [ReverbSC](app/FX/ReverbSC/README.md), [Rev-Dattorro](app/FX/Rev-Dattorro/README.md), [Delay](app/FX/Delay/README.md), [Gated-Reverb](app/FX/Gated-Reverb/README.md), [Reverb-HP-LP](app/FX/Reverb-HP-LP/README.md), [JU60_chorus](app/FX/JU60_chorus/README.md), [Drive](app/FX/Drive/README.md), [Ducker](app/FX/Ducker/README.md), [Compressor](app/FX/Compressor/README.md), [FV1emu](app/FX/FV1emu/README.md): FV-1 programs from a flash blob |
+| **NOISE** | [NoiseGen](app/NOISE/NoiseGen/README.md), [NES_noise](app/NOISE/NES/README.md), [808_squares](app/NOISE/808_squares/README.md) |
+| **FILTER** | [SVF](app/FILTER/SVF/README.md), [MoogLadder](app/FILTER/MoogLadder/README.md), [TeeBee](app/FILTER/TeeBee/README.md) |
+| **SPEECH** | [LPC](app/SPEECH/LPC/README.md), [SAM](app/SPEECH/SAM/README.md) |
+| **MIDI** | [Monitor](app/MIDI/Monitor/README.md), [Clock](app/MIDI/Clock/README.md), [VAx6](app/MIDI/VAx6/README.md) |
+| **SEQ** | [EuclidRythm](app/SEQ/EuclidRythm/README.md), [EuclidArp](app/SEQ/EuclidArp/README.md), [TuringMachine](app/SEQ/TuringMachine/README.md), [303-Patterns](app/SEQ/303-Patterns/README.md) |
 
 ## Machine/Engine
 
@@ -148,52 +95,55 @@ Machines/Engines are controlled by individual parameters.
 For each parameter a modulation can be assigned:
   * **CV**: <img align="right" src="doc/mod_cv.png" width=196px />
     * SRC:
-      * `C1`, `C2`, `C3`, `C4` - Analog inputs
+      * `C1`, `C2`, `C3`, `C4` - Analog inputs, `$1A`..`$4D` - virtual signals (outputs of the engines, see [I/O-Configuration](#io-configuration))
         * OP: `THRU`, `SLEW`, `S&H`, `T&H`
           * THRU - Thru Input
           * SLEW - Slew Limiter
             - Rising
             - Falling
           * S&H - Sample and Hold 
-            - Trig Source
+            - TRIG: Trig Source
           * T&H - Track and Hold 
-            - Gate Source
+            - GATE: Gate Source
       * `+` - Constant internal voltage
-        * 10V with 1/1000 resolution - nice for fine adjustments (detuning etc)
+        * -9.99V..+9.99V in 10mV steps, set with the knob - nice for fine adjustments (detuning etc)
+    * The attenuverter of CV goes from -2 to +2; the bottom line shows the input voltage and the factor (e.g. `+2.5V X 1.0`)
     * Hints:
       * Parameter 0 (top-left) is primarily used for V/OCT control. Therefore, a single V/OCT signal or CV input can be shared by applying modulation to parameter 0 with an attenuverter set to +1, within the -3V to +6V range. It is also possible to select the V/OCT input in the io-configuration page.
       * All other parameters can be modulated via CV-input with a assumed voltage-range of -4V..4V at 2kHz sample rate.
       * Be aware the CV-range is probably limited by hardware to: -3.5v..6.5V
   * **RND**: Trigger generates a random voltage <img align="right" src="doc/mod_rnd.png" width=196px />
-    * TRIG: `!`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`
+    * TRIG: `!`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`, `$1A`..`$4D`
     <br/>
      <br/>
   * **ENV**: Triggered Envelope (Attack, Decay) <img align="right" src="doc/mod_env.png" width=196px />
 
-    * TRIG: `!`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`
-    * ATTACK
-    * DECAY
+    * TRIG: `!`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`, `$1A`..`$4D`
+    * ATT.: Attack
+    * DEC.: Decay
  * **LFO**: Free/Triggered Sine-LFO <img align="right" src="doc/mod_lfo.png" width=196px />
-    * TRIG: `-`, `!`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`
+    * TRIG: `-` (free running), `!`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`, `$1A`..`$4D`
     * SHAPE: `SIN`, `TRI`, `SQR`, `STEPS`, `NOISE`
-    * FREQUENCY: `0-127`
-    * WAVEFORM: `0-127`
+    * FREQ.: `0-127`
+    * WAVEFRM: `0-127`
   * **EF**: Envelope Follower <img align="right" src="doc/mod_ef.png" width=196px />
-    * SRC: `C1`, `C2`, `C3`, `C4`
-    * ATTACK
-    * RELEASE
+    * SRC: `C1`, `C2`, `C3`, `C4`, `$1A`..`$4D`
+    * ATT: Attack
+    * REL: Release
   * **TM**: Turing Machine  <img align="right" src="doc/mod_tm.png" width=196px />
-    * TRIG: `!`, `CLK`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`
+    * TRIG: `!`, `CLK`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`, `$1A`..`$4D`
+    * RESET: `-`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`, `$1A`..`$4D`
     * PROB: `0-9` (0-100%)
     * STEPS: `1-16`
   * **SEQ**: 4-Step Sequencer <img align="right" src="doc/mod_seq.png" width=196px />
-    * TRIG: `!`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`, `CLK/1`, `CLK/4`, `CLK/16`, `CLK/32`, `CLK/96`
-    * RESET: `-`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`
-    * 4-STEPS: `-64..64`
+    * TRIG: `!`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`, `$1A`..`$4D`, `CLK/1`, `CLK/4`, `CLK/16`, `CLK/32`, `CLK/96`
+    * RESET: `-`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`, `$1A`..`$4D`
+    * 4-STEPS: `-64..64` (shown as sliders; integer parameters: at most half their range)
  >`!` = current engine trigger<br/>
  >`CLK` = internal clock<br/>
- All modulations have an attenuverter parameter (-/+).
-  * The modulation-voltage is attenuverted/multiplied by -1..+1;
+ All modulations have an attenuverter parameter (the knob at the top right of the popup, -/+).
+  * The modulation-voltage is attenuverted/multiplied by -1..+1 (CV: -2..+2);
+ >Press the encoder of the popup's side to step through its rows (the modulation type first), turn it to change the value.
 
 <div style="page-break-after: always;"></div>
 
@@ -201,7 +151,11 @@ For each parameter a modulation can be assigned:
 
 >[Long press [RIGHT]] enters the I/O-Configuration page.
 
-The I/O-Configuration page lets you virtually patch the engine with the hardware ports and internal gate/cv signals ($1a-$4d). Depending on the engine interface, trigger, gate, accent and V/OCT can be configured. In addition to the trigger, which is set with a rising edge, a gate state is also provided, that can be processed by the engine. Engines like Closed/Open-HiHats have an additional accent input - this works technically like a second trigger. The V/OCT input can optionally be quantized and transposed. In addition to the Tx inputs, the Cx inputs can also be used as a source for triggers and accents. The output can be configured as mono or stereo. Several engines can share the same output - the signal is mixed.
+The I/O-Configuration page lets you virtually patch the engine with the hardware ports and internal gate/cv signals ($1A-$4D). The page title is the engine of the track; the page is a list in two sections, `CTRL/INPUTS` and `MIX/OUTPUTS` - which rows appear depends on the engine interface. In addition to the trigger, which is set with a rising edge, a gate state is also provided, that can be processed by the engine. Engines like Closed/Open-HiHats have an additional accent input - this works technically like a second trigger. The V/OCT input can optionally be quantized and transposed. In addition to the Tx inputs, the Cx inputs can also be used as a source for triggers and accents. The output can be configured as mono or stereo. Several engines can share the same output - the signal is mixed.
+
+The small symbol in front of an input's value shows what arrives there: a dot that lights up on each trigger (trigger/accent inputs), a small box with the voltage (V/OCT input).
+
+*Virtual signals* `$1A`..`$4D`: the outputs of the engines can be used as trigger or CV source of another track - `$<track><output>`, e.g. `$3A` is the first output of track 3. While turning to a virtual signal, a box shows the track's engine and the output behind it; turning skips the places without an output (shown as `-`, e.g. `-2C`). The trigger lists (TRIG-INPUT, ACCENT, CLOCK, RESET, the modulations' TRIG) offer only the CV outputs, not the audio outputs.
 
 ### Ctrl / Inputs
 
@@ -209,72 +163,90 @@ The I/O-Configuration page lets you virtually patch the engine with the hardware
 
 *In case the Engine supports Triggers/Gates - Trigger Input is configurable:*
 
- * **Trig-Input**:
+ * **TRIG-INPUT**:
    * `-`
    * `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`
-   * `$1-$9`
+   * `$1A`..`$4D`
 
-*In case the Engine supports Clock-Input - Clock-Source is configurable:*
+*While another track's engine sends MIDI (e.g. [MIDI/GM-Drums](app/MIDI/GM-Drums/README.md)) - for engines that play notes:*
 
- * **Clock-Source**:
-   * `CLK` - global clock -> Midi/Clock/Timing settings.
+ * **MIDI-INPUT**:
+   * `-`
+   * `$1MIDI`..`$4MIDI`: the MIDI out of that track (whatever its MIDI-OUT and channel), in addition to the MIDI
+     channel of the settings page
+     - MIDI engines (e.g. [MIDI/VAx6](app/MIDI/VAx6/README.md)) get every message as on their channel
+     - drum kits play their instruments by the keys of the notes (GM keys), with their velocity, whatever TRIG-INPUT
+       is; their trigger inputs play along
+     - the other engines get trigger, gate, accent (velocity > 100) and V/OCT from the notes; several tracks with
+       the same source share its notes as voices, as the tracks of one MIDI channel do
+   * turning passes over the own track and tracks without MIDI output; the row is shown only while there is one
+     (or a source is set). Changing it, or the source track's engine, ends the notes held
+
+
+ * **CLOCK-SOURCE**:
+   * `CLK` - global clock -> [CLOCK+TIMING+MIDI-Settings](#clocktimingmidi-settings).
    * `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`
-   * `$1-$9`
+   * `$1A`..`$4D`
 
-*In case the Engine supports Accents (Closed/Open HiHat) - Accent Input is configurable:*
+*In case the Engine supports Accents (Closed/Open HiHat) - Accent Input is configurable (engines without trigger input: **RESET-TRIG**):*
 
- * **Accent-Input**:
+ * **ACCENT-INPUT**:
    * `-`
    * `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`
-   * `$1-$9`
-   
-<img align="right" src="doc/inputs2.png" width=196px />
-
-*In case the Engine is an AUDIO_PROCESSOR - Input signal mix is configurable:*
- * **Aux-Input**: `-`, `C1`, `C2`, `C3`, `C4`
-   * AUX-IN: -3V..3V for additional audio source for effects (prefer CV4).
- * **Insert-1**: Feed-in signal from engine-1
- * **Insert-2**: Feed-in signal from engine-2
- * **Insert-3**: Feed-in signal from engine-3
- * **Insert-Aux**: Feed-in signal from aux-input
-
-<br/>
+   * `$1A`..`$4D`
 
  *In case the Engine supports V/OCT - V/OCT Input is configurable:*
 
- * **CV-Input**: `-`, `C1`, `C2`, `C3`, `C4`
+ * **V/OCT-INPUT**: `-`, `C1`, `C2`, `C3`, `C4`, `$1A`..`$4D`
    * V/OCT: -3V..6V for frequency-control (default)
- * **Quantizer**: [Off, Semitones, Ionian, Dorian, ...](lib/braids/quantizer_scales.h)
+ * **QUANTIZER**: [OFF, Semitones, Ionian, Dorian, ...](lib/braids/quantizer_scales.h)
    * **ROOT**: `C`, `C#`, `D`, `D#`, `E`, `F`, `F#`, `G`, `G#`, `A`, `A#`, `B`
- * **Transpose**: -48 to 24  (semitone per step)
+ * **TRANSPOSE**: semitone per step
    * **FINE**: semitone/128
+
+*Engines with additional CV inputs (e.g. CV/EnvFollower) show a `<name>-INPUT` row for each; trigger and CV inputs of the parameter modulations follow in a `MODULATIONS` section.*
+
+<img align="right" src="doc/inputs2.png" width=196px />
+
+*In case the Engine is an AUDIO_PROCESSOR - Input signal mix is configurable:*
+ * **AUX-INPUT**: `-`, `C1`, `C2`, `C3`, `C4`, `USB`
+   * AUX-IN: -3V..3V for additional audio source for effects (prefer CV4).
+   * `USB`: what the computer plays on the module's USB sound card (see [USB-Audio](#--usb-audio))
+ * **INSERT-&lt;engine&gt;**: Feed-in level (0-100) of the signal of another track, named by its engine (e.g. `INSERT-Claps`); only tracks with an audio engine are listed
+ * **INSERT-AUX**: Feed-in level of the aux-input
+
+<br/>
 
 ### Mix / Outputs
 
 <img align="right" src="doc/outputs2.png" width=196px />
 
- * **Level**: Output volume level
-   - can result in distortion
-   - not available on CV-Engines
- * **Pan**: Stereo panning
+ * **AUDIO-OUT**
+   * `-`, `A`, `B`, `C`, `D`, `A+B`, `C+D`
+     - The option `-` (no output) is useful if the signal is to be routed into an AUDIO_PROCESSOR engine
+     - `A+B` / `C+D`: stereo engines play in stereo, mono engines on both outputs
+ * **PAN**: Stereo panning
    - on stereo engines with mono output, panning is also used for mixing
- * **Output**
-   * `-`, `A`, `A+B`, `B`, `C`, `C+D`, `D`
-     - The option `-(no output)` is useful if the signal is to be routed into an AUDIO_PROCESSOR engine
- * **Stereo**
-   * Experimental stereo feature - see STERIOLIZED Flag ;-)
+ * **LEVEL**: Output volume level
+   - can result in distortion
+ * CV-Engines have a `<name>-OUT` row for each CV output instead (`-`, `A`..`D`)
+ * Engines that send MIDI (e.g. [MIDI/GM-Drums](app/MIDI/GM-Drums/README.md)) have a **MIDI-OUT** row, like a CV output:
+   * `-` (off), `USB` (the USB MIDI to the computer, the default), on the OCT41 also `MIDI` (the MIDI out jack, merged
+     with the MIDI thru) and `HOST` (a MIDI device at the USB host port)
+   * **CHANNEL**: `APP` (the channel the engine sends on) or `1`-`16` in its place
+   * changing either sends All Notes Off on the channels the engine played notes on; so does an engine change
 <br/>
 <div style="page-break-after: always;"></div>
 
 ## CLOCK+TIMING+MIDI-Settings
 
->[Long press [LEFT] + [RIGHT]] for getting to the CLOCK+TIMING+MIDI-Settings page.
+>[Long press [LEFT] + [RIGHT]] opens the menu - turn an encoder to `CLK & MIDI SETTINGS` and press it to get to the CLOCK+TIMING+MIDI-Settings page.
 
 <img align="right" src="doc/config_midi1.png" width=196px />
 
 ### - **CLOCK-Source**:
    * `-` none
-   * `INT` Internal Clock-Source (BPM)
+   * `INT` Internal Clock-Source - with an additional row **TEMPO (BPM)**: `30`-`255`
    * `T1` T1 as Clock-Input (4ppqn)
    * `MIDI` Clock received from MIDI
 
@@ -285,19 +257,20 @@ The I/O-Configuration page lets you virtually patch the engine with the hardware
 <img align="right" src="doc/config_midi2.png" width=196px />
 
 ### - **TRIG-In-Delay**: 
-   * `0-50ms`Trigger input processing delay in ms. Usecase: sync trig signals with midi or CV
+   * `0.0ms`-`49.5ms` (0.5 ms steps): Trigger input processing delay. Usecase: sync trig signals with midi or CV
 
 <img align="right" src="doc/config_midi0.png" width=196px />
 
 ### - **MIDI-Control**:
   - `-` disabled
   - In case OC_T40
+    - `USB` the USB-MIDI
     - `USB+T1` [T1 input can be used as MIDI-Input](https://github.com/eh2k/squares-and-circles/wiki/Ornament%E2%80%90and%E2%80%90Crime#-midi-expander)
   - else
     - `MIDI/USB` the USB-MIDI and/or hardware Midi-Input
 
-In case the MIDI-Control is enabled, you can setup the Midi-Channel for each engine.
-> Each engine can be assigned to a MIDI-Channel - it is possible to control single mono engines together polyphonically (for this all engines have to be set to the same midi channel). [Midi-Engines](app/MIDI/VAx6.cpp) consume the MIDI-Stream directly, therefore the MIDI-Messages are not converted as incoming CVs or triggers.
+In case the MIDI-Control is enabled, you can setup the Midi-Channel for each engine (rows **#1 CHANNEL** .. **#4 CHANNEL**). Tracks sharing a channel are shown as voices of it (`1A`, `1B`, ...).
+> Each engine can be assigned to a MIDI-Channel - it is possible to control single mono engines together polyphonically (for this all engines have to be set to the same midi channel). [Midi-Engines](app/MIDI/VAx6/VAx6.cpp) consume the MIDI-Stream directly, therefore the MIDI-Messages are not converted as incoming CVs or triggers.
 
 #### Midi-Control
   * Engines can be loaded/selected by midi program change
@@ -326,17 +299,26 @@ In case the MIDI-Control is enabled, you can setup the Midi-Channel for each eng
   - [Multi-Trig-Drum-Engines](https://github.com/eh2k/squares-and-circles/wiki/DrumSynth)
     - In case trigger to `-` - individual drums/instruments are triggered by individual keys:
         - GM Standard Drum Map: https://github.com/eh2k/squares-and-circles/wiki/TR707#midi-mapping
-        - or Keys 60-75 for instrument 1-16
+        - keys the drum machine does not map are silent (an app without a key map: keys 60-75 for instrument 1-16)
         
+### - **USB-Audio**:
+  - `on` (default), `off` - DSM0, O_C T4.0 and O_C T4.1, stored in the module (not in the patch)
+  - The module is also a USB sound card (48 kHz, 16 bit, stereo; class compliant, no driver needed):
+    - Recording: the stereo sum of all engines (with level and pan)
+    - Playback: AUX-Input `USB` of AUDIO_PROCESSOR engines
+  - Switching it takes effect at once: the module reconnects to the computer, with or without the sound card
+
 # Patch Storage
 <img align="right" src="doc/patch_storage_load.png" width=196px />
 
-> [Press `L-ENC + R-ENC`] to enter the patch storage page
+> [Long press `L-ENC + R-ENC`] to enter the patch storage page
 
 
-* Use `L-ENC` for patch slot selection
-* Use `R-ENC` for LOAD/SAVE
-  * Load `empty` - restores all engines to `GND/-`
+* Use `L-ENC` for patch slot selection - `*` marks the patch loaded last
+* Turn `R-ENC` to choose `[SAVE]` or `[LOAD]`
+* Press `R-ENC` - a box asks `SAVE?` / `LOAD?`, press `R-ENC` again to confirm (any other action cancels)
+  * Load `(empty)` - restores all engines to `GND/-` <img align="right" src="doc/patch_storage_save.png" width=196px />
+  * Save on `(empty)` adds a new patch slot
 
 # Supported Hardware
 

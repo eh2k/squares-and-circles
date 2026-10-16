@@ -2,6 +2,124 @@
 
 All notable changes to this project will be documented in this file.
 
+== 2026-10-XX
+   * New Engines:
+     * DRUMKITS: new engine category behind DRUMS
+       * DRUMKITS/DMX (Oberheim DMX, the EPROMs of the 8 voice cards as flash blobs)
+       * DRUMKITS/Linn (LinnDrum, the EPROMs as flash blobs)
+       * DRUMKITS/CR-78, CR-8000, DR-110, KR-55, MFB-512, TR-606, TR-808, TR-909 (DrumSynth kits)
+       * DRUMS/DrumSynth -> DRUMKITS/DrumSynth (own kits saved with the DrumSynth web app stay DRUMS/<name>)
+       * DRUMS/RZ-1 -> DRUMKITS/RZ-1, DRUMS/TR707 -> DRUMKITS/TR-707 (patches saved with the old names still load)
+     * FX/Compressor (stereo compressor with soft knee, gain reduction display, D/W for parallel compression)
+     * FX/Drive (saturation, wave folder and bit crusher)
+     * FX/Ducker (a trigger ducks the input: sidechain "pumping" without the kick's audio)
+     * GND/Tuner (note, cents, frequency and needle; the input passes through)
+     * M-OSC/SawSqr (saw to square oscillator with decay envelope)
+     * NOISE/WhitePink -> NOISE/NoiseGen, with the Crackle and Dust modes (chaotic noise and random impulses, from HetrickCV; WhitePink patches still load)
+   * Bugfix:
+     * Midi: USB-MIDI pitchbend was one octave too low (since 2023)
+     * Boot: LEFT/RIGHT on power-up opens setup / starts without patch again (O_C: only LEFT+RIGHT enters the Teensy bootloader)
+     * Setup/Calibration: no more than 4 rows above the step bar (O_C T4.1, DSM0), engines are unloaded while calibrating
+     * Web-Flasher: ENTER CALIBRATION no longer restarts the module immediately #155
+     * Stereo engines on a mono output are mixed as (L+R)/2 (were up to 6 dB louder than mono engines)
+       -> existing setups may need more level on mono outputs
+     * Apps and saved patches can no longer overwrite each other in flash (too large uploads are rejected)
+     * Midi key mapping could trigger a wrong instrument (read beyond the app's key map)
+     * O_C T4.0: stack overwrite when an engine used more CV outputs than configured
+     * O_C T4.1: ring buffer underflow/overflow miscalculation (sporadic silence blocks)
+     * O_C T4.1: watchdog reset during app uploads / firmware update
+     * DSM0: MIDI-In did not work sporadically / stopped after an overrun / lost bytes while the flash was written
+     * DSM0: audio stopped for up to 1s while the flash was written (saving a patch, app uploads) or the web app read files
+     * DSM0: sporadic reset at boot (USB start)
+     * O_C T4.1: USB host MIDI: program change and channel aftertouch were sent twice (the second as 0), MIDI clock
+       produced stray CC/notes, SysEx got lost
+     * O_C T4.1: a USB stick that stops answering no longer freezes the module
+     * O_C T4.1: a hanging UI/USB resets the module instead of leaving it unresponsive with running audio
+     * DSM0: firmware images > 2MB were truncated on DFU upload
+     * DSM0: triggers shorter than a frame could be missed
+     * O_C T4.1: board calibration defaults were lost (offset on codec input L/R, right encoder reversed without saved calibration)
+     * O_C T4.1: ~30% of the ADC samples were duplicates; triggers on inputs 5-8 shorter than 0.5ms could be missed
+     * O_C T4.0: single outliers of the CV inputs are filtered
+     * Engine page: audio clicks (the engine list was rebuilt on every redraw)
+     * UI: a full event queue could hang the module (e.g. during boot)
+     * Modulation CV "+": the constant voltage follows the knob again (was always -10V)
+     * Modulation CV SLEW: Rising/Falling 10ms..10s per 10V (only 1..2ms before)
+     * Modulation CV S&H/T&H: one Trig/Gate source per encoder step also when turned fast
+     * Modulation RND: attenuverter in 1/1000 steps like the other modulations
+     * Copying a track with a SEQ modulation (step 4 not 0) crashed the module
+     * Modulations were not freed on engine change (RAM ran out after many program changes)
+     * Modulations after loading a patch: CV Slew times / S&H / T&H input, LFO TRIG and EF attack/release were lost
+     * I/O page: long modulation rows (e.g. "Form.Shift-SEQ-RESET") ran into their value or off the screen
+     * CV/EnvGen: release was not triggered on falling gate edge (depending on compiler)
+     * CV/EnvFollower: decay over full range, level bar inside frame
+     * CV/V_OCT: slew stopped up to 8 semitones before the target
+     * DRUMKITS/RZ-1: key map and CH/OH choke follow the sample order, toms on the GM keys by pitch (TM1 48/50, TM3 41/43)
+     * DRUMKITS/TR-707: ride/crash keys according to the available ROMs
+     * DRUMS/FM-Drum: V/OCT no longer quantized to octaves
+     * SEQ/EuclidRythm, SEQ/EuclidArp: hits >= 8 got lost (e.g. 18/14 gave 12), trigger length 10ms
+     * SEQ/303-Patterns: SLIDE output on the following note, gate length
+     * SEQ/TuringMachine: pulse outputs without V/OCT offset
+     * MIDI/Clock: offset longer than one tick muted CLK; RST as long as pulses
+     * MIDI/Monitor: crash on note-off of a stolen voice
+     * MIDI/VAx6: velocity affects volume
+     * FX/JU60_chorus: right input was lost, "Off" is a bypass
+     * FX/Delay: clocked times > 1s are limited instead of wrapped
+     * FX/Reverb: damp direction
+     * FX/Gated-Reverb: PreD/G-Time labels
+     * FX/FV1emu: pot names, empty bank
+     * GND/FFT: no 0/0 levels between FFT blocks
+     * NOISE/WhitePink: BROWN mode had -1 DC offset
+     * SYNTH/Open303: starts at the exact pitch
+     * SYNTH/DxFM: patch name display, invalid patch reloaded every block
+     * FILTER/TeeBee: a new RES value takes effect at once (was only with the next cutoff change)
+   * Enhancements:
+     * Performance: apps run from RAM instead of QSPI flash (DSM0, O_C T4.0, O_C T4.1)
+     * Performance: ADC averaging and display transfer (O_C) cost much less CPU
+     * Performance: faster display drawing and transfer (all modules)
+     * O_C T4.0: audio processing in software IRQ (no more clicks on UI/USB activity)
+     * O_C T4.1: apps can use PSRAM when RAM2 is full
+     * O_C T4.0: 600 MHz instead of 498 MHz, CV inputs with less noise
+     * Engine change: the new engine is created while the audio keeps running (fewer dropouts on program change)
+     * Saving settings no longer interrupts the audio (EEPROM values kept in RAM)
+     * New screensaver: a wandering shape per track (circle for audio, square for CV), a ring on each hit (also DSM0)
+     * New boot animation
+     * DSM0, O_C T4.0, O_C T4.1: USB audio - the module is also a USB sound card (48 kHz, stereo, no driver needed)
+       * the computer records the stereo sum of all tracks (level/pan, like the O_C T4.1 codec output)
+       * what the computer plays is the new AUX-INPUT "USB" of audio processors (FX, filters, ...)
+       * CLOCK+TIMING+MIDI page: USB-AUDIO on/off (stored in the module, takes effect at once)
+     * DSM0: internal ADCs synchronous to the codec clock (exactly 48 kHz), CV inputs with less noise
+     * DSM0: memory protection (NULL pointer, code, stack) shows a crash report instead of failing silently; after
+       three crashes in a row at boot the module stays in the DFU bootloader and can be flashed again
+     * O_C T4.1: MIDI clock to a USB host MIDI device when the module is clock master (e.g. two modules over one
+       USB cable)
+     * Crash report: same on all modules, shown after reset until a button is pressed
+     * Lists (I/O, CLK & MIDI, patches, engines with more than 10 parameters): whole rows only, the selection as an
+       inverted row, values as the knob shows them (0..127, V/OCT as a note), section labels, level/pan as bars
+     * I/O page: a dot at TRIG/ACCENT-INPUT lights on each trigger, a box at V/OCT-INPUT shows the voltage; the same
+       in the box of a virtual signal ($1A..$4D), also for the sources of modulations
+     * Choosing a source ($1A..$4D) shows a box with track, engine and output for a moment; empty slots are skipped
+     * All apps ~31KB smaller (symbol names stripped)
+     * App API: ENGINE_NAME("CAT/Name") macro (max 19 chars, checked at compile time), ENGINE_ALIAS("OLD/Name")
+       keeps patches of renamed apps, apps can call memcmp; src/build.sh uses GCC 15.2.1
+     * DRUMKITS/DrumSynth: drumsynth library updated to upstream (less CPU, no clipping, sample support)
+     * DRUMKITS/DrumSynth: kits in drumsynth's packed format, a third of the size (the 8 kits 82 -> 33 KB), with the
+       current fits; kits saved before no longer load -> open the .json in the drumsynth web app, save/flash again
+     * DRUMS/Claps: 7 KB smaller (the claps are a drumkit of the DrumSynth format)
+     * DRUMS/Claps, DRUMS/Djembe, FX/ReverbSC: soft knee instead of hard clipping
+     * DRUMS/Djembe: Freq starts at 60 Hz
+     * FX/ReverbSC: feedback default 0.85
+     * FX/JU60_chorus: 1.7x less CPU, "Off" costs nothing
+     * FILTER/MoogLadder: stereo (one ladder for L and one for R; ~12 % more CPU, half the RAM)
+     * FILTER/TeeBee: 4.6x less CPU
+     * SPEECH/LPC: output limiter (peaks 2.0 -> 1.1)
+     * SPEECH/SAM: renders while playing (RAM 53.8 -> 3.6 KB, no dropouts on trigger), 22.05 kHz
+     * Web-Flasher: new design
+       * Library page: the engines by category (as in the engine menu) with filter and extras, without a module as a
+         catalog
+       * Emulator: every engine runs in the browser with display, sound, knobs, MIDI in and a scope of its outputs;
+         FX/FILTER engines get a test signal (loop, drums, bass, noise); a link opens an engine directly
+         (?emu=<GROUP>/<Name>)
+       * no GitHub login needed any more
 == 2026-05-04
    * New Engines:
      * DRUMS/RZ-1 (Casio RZ-1 sound roms)

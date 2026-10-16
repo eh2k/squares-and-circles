@@ -1,4 +1,0 @@
-Jinja2==3.1.6
-pyelftools==0.32
-pyusb
-elf-size-analyze
