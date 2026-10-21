@@ -186,7 +186,7 @@ void instanceResetUserInterfacemydsp(mydsp* dsp) {
 	dsp->fHslider0 = (FAUSTFLOAT)0.5f;
 	dsp->fButton0 = (FAUSTFLOAT)0.0f;
 	dsp->fHslider1 = (FAUSTFLOAT)0.5f;
-	dsp->fHslider2 = (FAUSTFLOAT)0.5f;
+	dsp->fHslider2 = (FAUSTFLOAT)60.0f;
 }
 
 void instanceClearmydsp(mydsp* dsp) {
@@ -471,7 +471,7 @@ void initmydsp(mydsp* dsp, int sample_rate) {
 
 void buildUserInterfacemydsp(mydsp* dsp, UIGlue* ui_interface) {
 	ui_interface->openVerticalBox(ui_interface->uiInterface, "djembe");
-	ui_interface->addHorizontalSlider(ui_interface->uiInterface, "Freq", &dsp->fHslider2, (FAUSTFLOAT)0.5f, (FAUSTFLOAT)0.0f, (FAUSTFLOAT)1000.0f, (FAUSTFLOAT)0.00999999978f);
+	ui_interface->addHorizontalSlider(ui_interface->uiInterface, "Freq", &dsp->fHslider2, (FAUSTFLOAT)60.0f, (FAUSTFLOAT)0.0f, (FAUSTFLOAT)1000.0f, (FAUSTFLOAT)0.00999999978f);
 	ui_interface->addHorizontalSlider(ui_interface->uiInterface, "Pos", &dsp->fHslider0, (FAUSTFLOAT)0.5f, (FAUSTFLOAT)0.0f, (FAUSTFLOAT)1.0f, (FAUSTFLOAT)9.99999975e-06f);
 	ui_interface->addHorizontalSlider(ui_interface->uiInterface, "Sharpness", &dsp->fHslider1, (FAUSTFLOAT)0.5f, (FAUSTFLOAT)0.0f, (FAUSTFLOAT)5.0f, (FAUSTFLOAT)9.99999975e-06f);
 	ui_interface->addButton(ui_interface->uiInterface, "trigger", &dsp->fButton0);

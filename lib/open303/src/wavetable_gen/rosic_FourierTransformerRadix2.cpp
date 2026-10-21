@@ -42,6 +42,13 @@ FourierTransformerRadix2::~FourierTransformerRadix2()
 
 void FourierTransformerRadix2::setBlockSize(int newBlockSize)
 {
+#ifdef STATIC_N
+  if( newBlockSize > STATIC_N )
+  {
+    DEBUG_BREAK; //[eh2k] more than the static work areas hold
+    return;
+  }
+#endif
   // check new blocksize for validity:
   if( newBlockSize >= 2 && isPowerOfTwo(newBlockSize) )
   {
@@ -111,6 +118,7 @@ void FourierTransformerRadix2::setRealSignalMode(bool willBeUsedForRealSignals)
 //-------------------------------------------------------------------------------------------------
 // signal processing:
 
+#ifndef STATIC_N
 void FourierTransformerRadix2::transformComplexBufferInPlace(Complex *buffer)
 {
   // retrieve the adresses of the real part of the first array entries in order to treat the 
@@ -162,6 +170,8 @@ void FourierTransformerRadix2::transformComplexBuffer(Complex *inBuffer, Complex
   cdft(2*N, sign, d_outBuffer, ip, w);
 }
 
+#endif
+
 //-------------------------------------------------------------------------------------------------
 // convenience functions for real signal:
 
@@ -202,6 +212,7 @@ void FourierTransformerRadix2::transformRealSignal(real_t *signal, real_t *reAnd
 }
 
 
+#ifndef STATIC_N
 void FourierTransformerRadix2::getRealSignalMagnitudesAndPhases(real_t *signal, 
                                                                 real_t *magnitudes, real_t *phases)
 {
@@ -244,6 +255,8 @@ void FourierTransformerRadix2::getRealSignalMagnitudes(real_t *signal, real_t *m
   }
 }
 
+#endif
+
 void FourierTransformerRadix2::transformSymmetricSpectrum(Complex *inSpectrum, real_t *outSignal)
 {
   setDirection(INVERSE);
@@ -280,6 +293,7 @@ void FourierTransformerRadix2::transformSymmetricSpectrum(real_t *reAndIm, real_
   transformSymmetricSpectrum(c_reAndIm, signal);
 }
 
+#ifndef STATIC_N
 void FourierTransformerRadix2::getRealSignalFromMagnitudesAndPhases(real_t *magnitudes, 
                                                                     real_t *phases, 
                                                                     real_t *signal)
@@ -299,6 +313,8 @@ void FourierTransformerRadix2::getRealSignalFromMagnitudesAndPhases(real_t *magn
 
   transformSymmetricSpectrum(tmpBuffer, signal);
 }
+
+#endif
 
 //-------------------------------------------------------------------------------------------------
 // pre-calculations:

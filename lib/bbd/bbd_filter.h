@@ -26,15 +26,17 @@ struct BBD_Filter_Spec {
 /*
   Discretized matrix of filters coefficients.
   M=order, N=interpolation steps, H=feedback factor
+
+  [eh2k] Input and output of the filters are real, so the state of a pole is the conjugate of its partner's: only one
+  pole of each conjugate pair is kept (M is the reduced order), with G doubled. The real part of the sum stays exact.
 */
 struct BBD_Filter_Coef {
+    static constexpr unsigned max_M = 8;
     unsigned M;
     unsigned N;
     std::unique_ptr<cdouble[]> G;/*[M*N]*/
     std::unique_ptr<cdouble[]> P;/*[M]*/
     cdouble::value_type H;
-    //
-    void interpolate_G(cdouble::value_type d, cdouble *g/*[M]*/) const noexcept;
 };
 
 namespace BBD {

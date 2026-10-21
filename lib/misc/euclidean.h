@@ -107,10 +107,10 @@ void bjorklund_pattern(uint8_t *pattern, int len, int pulses, int rotate)
     int k = 0;
     for (int i = 1; i <= x_amount; i++)
         for (auto j = 0; j < x.len; j++)
-            pattern[(k++ + rotate) % len] = (x.hits & (0x1 << j));
+            pattern[(k++ + rotate) % len] = (x.hits >> j) & 1; // not "hits & (1 << j)": the pattern is uint8_t
     for (int i = 1; i <= y_amount; i++)
         for (auto j = 0; j < y.len; j++)
-            pattern[(k++ + rotate) % len] = (y.hits & (0x1 << j));
+            pattern[(k++ + rotate) % len] = (y.hits >> j) & 1;
 }
 
 #ifndef make_pattern

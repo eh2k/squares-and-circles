@@ -2,6 +2,54 @@
 
 All notable changes to this project will be documented in this file.
 
+== 2026-10-XX
+   * New Engines:
+     * DRUMKITS: new category with DRUMKITS/DMX and Linn (the original EPROMs, installed from the web app Library),
+       CR-78, CR-8000, DR-110, KR-55, MFB-512, TR-606, TR-808, TR-909 (DrumSynth kits); DRUMS/DrumSynth, RZ-1 and
+       TR707 moved to DRUMKITS (DRUMKITS/TR-707), patches saved with the old names still load
+     * SYNTH/plaits: the remaining Plaits models M-OSC/Swarm, PhaseDist, WaveTerrain, Chiptune, NOISE/Filtered,
+       Particle, SYNTH/String, Modal, Str.Machine
+     * FX/Compressor (stereo, soft knee, D/W for parallel compression), FX/Drive (saturation, wave folder, bit
+       crusher), FX/Ducker (a trigger ducks the input, sidechain "pumping" without the kick's audio)
+     * GND/Tuner (note, cents, frequency and needle; the input passes through)
+     * NOISE/WhitePink -> NOISE/NoiseGen with the new modes Crackle and Dust (WhitePink patches still load)
+   * Bugfix:
+     * Midi: USB-MIDI pitchbend was one octave too low (since 2023)
+     * Midi clock: tempo jumped or showed wrong values after Start; every position came one pulse late (~21 ms at
+       120 BPM); a Start directly followed by the first clock did not reset the sequencers
+       -> existing setups with MIDI clock play one pulse earlier
+     * T1 clock: above ~143 BPM every step of the sequencers came one clock pulse late after a start (15-17 ms at
+       150-170 BPM)
+     * Sequencers loaded while the clock runs (engine change, patch load, boot) played one clock pulse early until
+       the next Start
+     * Levels: stereo engines on a mono output are mixed as (L+R)/2 (were up to 6 dB louder than mono engines)
+       -> existing setups may need more level
+     * Apps and saved patches can no longer overwrite each other in flash (too large uploads are rejected)
+     * DSM0: MIDI-In stopped or lost bytes, audio stopped for up to 1s while the flash was written (saving a patch,
+       app uploads), sporadic reset at boot
+     * Modulations: CV "+" was always -10V, SLEW only 1..2ms, settings lost after loading a patch, copying a track with
+       a SEQ modulation crashed, RAM ran out after many engine changes
+     * Engine page: "Load & keep I/O" reset the I/O settings (since 2024); no more audio clicks on the engine page
+     * Engines: SEQ/EuclidRythm and EuclidArp lost hits >= 8, CV/EnvGen release on falling gate, CV/V_OCT slew stopped
+       before the target, SEQ/303-Patterns slide, FX/JU60_chorus right input, FX/Delay clocked times > 1s
+   * Enhancements:
+     * USB audio (DSM0, O_C T4.0): the module is also a USB sound card (48 kHz stereo, no driver); the
+       computer records the sum of all tracks and plays into the new AUX-INPUT "USB"; USB-AUDIO on/off on the
+       CLOCK+TIMING+MIDI page
+     * Midi: 
+       - SYNTH/DxFM is polyphonic via MIDI (8 voices), 
+       - SYNTH/plaits engine is polyphonic with 4 voices except the drums, both with sustain (CC 64); they replace MIDI/VAx6 
+     * Performance: apps run from RAM instead of QSPI flash, less CPU for ADC and display, O_C T4.0 at 600 MHz with
+       audio in a software IRQ (no clicks on UI/USB activity); engine changes and saving settings no longer interrupt
+       the audio; FILTER/TeeBee 4.6x and FX/JU60_chorus 1.7x less CPU
+     * Drum kits: an engine change keeps the per-instrument trigger wiring (matched by MIDI note); DrumSynth with the
+       upstream library (less CPU, no clipping) and the packed kit format (a third of the size)
+       -> own kits saved before must be saved/flashed again from the drumsynth web app
+     * UI: lists with whole rows and values as the knob shows them, the I/O page shows each trigger and the V/OCT
+       voltage, new screensaver and boot animation, the same crash report on all modules
+     * Web-Flasher: new design with a Library (all engines by category, also without a module) and an Emulator (every
+       engine in the browser with display, sound, knobs and MIDI in); no GitHub login; Update writes the loader and
+       all apps of the release
 == 2026-05-04
    * New Engines:
      * DRUMS/RZ-1 (Casio RZ-1 sound roms)

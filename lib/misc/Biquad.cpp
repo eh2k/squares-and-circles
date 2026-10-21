@@ -137,7 +137,7 @@ void Biquad::calcBiquad(void)
         break;
 
     case bq_type_peak:
-        if (peakGain >= 1)
+        if (peakGain >= 0) // as in RC-808.exe: the boost formula also cuts for V < 1
         { // boost
             norm = 1 / (1 + 1 / Q * K + K * K);
             a0 = (1 + V / Q * K + K * K) * norm;
@@ -157,7 +157,7 @@ void Biquad::calcBiquad(void)
         }
         break;
     case bq_type_lowshelf:
-        if (peakGain >= 1)
+        if (peakGain >= 0) // as in RC-808.exe: the boost formula also cuts for V < 1
         { // boost
             norm = 1 / (1 + sqrtf(2) * K + K * K);
             a0 = (1 + sqrtf(2 * V) * K + V * K * K) * norm;
@@ -177,7 +177,7 @@ void Biquad::calcBiquad(void)
         }
         break;
     case bq_type_highshelf:
-        if (peakGain >= 1)
+        if (peakGain >= 0) // as in RC-808.exe: the boost formula also cuts for V < 1
         { // boost
             norm = 1 / (1 + sqrtf(2) * K + K * K);
             a0 = (V + sqrtf(2 * V) * K + K * K) * norm;

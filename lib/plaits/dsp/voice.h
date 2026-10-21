@@ -150,6 +150,8 @@ struct Modulations {
   bool morph_patched;
   bool trigger_patched;
   bool level_patched;
+
+  bool hold;  // [eh2k] the LPG stays open after the ping while set (key or gate held)
 };
 
 // char (*__foo)[sizeof(HiHatEngine)] = 1;

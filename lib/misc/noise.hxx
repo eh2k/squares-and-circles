@@ -36,7 +36,7 @@ struct WhiteNoise
 
     WhiteNoise()
     {
-        seed = (uint32_t)(void *)this;
+        seed = (uint32_t)(uintptr_t)(void *)this; // the low bits of the address (64 bit: a cast to uint32_t is an error)
     }
 
     int32_t next() // 0 to INT32_MAX
@@ -58,6 +58,34 @@ struct WhiteNoise
     {
         return ((float)next() / INT32_MAX) * (max - min) + min;
     }
+
+    // x mod (2^31 - 1) for x < 2^63, without a 64-bit division (__aeabi_uldivmod is not available to the
+    // squares-and-circles apps)
+    static inline uint64_t mod_m31(uint64_t x)
+    {
+        x = (x & 0x7FFFFFFF) + (x >> 31); // 2^31 = 1 mod (2^31 - 1)
+        x = (x & 0x7FFFFFFF) + (x >> 31);
+        return x >= 0x7FFFFFFF ? x - 0x7FFFFFFF : x;
+    }
+
+    // advance by k steps as if next() was called k times: seed * 16807^k mod (2^31 - 1)
+    void skip(uint32_t k)
+    {
+        while (k && (seed == 0 || seed >= 0x7FFFFFFF)) // seed not in the generator's range yet (initial value)
+        {
+            next();
+            k--;
+        }
+
+        uint64_t a = 16807, r = 1;
+        for (; k; k >>= 1)
+        {
+            if (k & 1)
+                r = mod_m31(r * a);
+            a = mod_m31(a * a);
+        }
+        seed = (uint32_t)mod_m31(seed * r);
+    }
 };
 
 struct BrownNoise
@@ -75,7 +103,12 @@ struct BrownNoise
         float white = _white.nextf(-1, +1);
         // MoogLadders -> BrowningFilter
         this->out = (this->out + 0.02f * white) / 1.02f;
-        return this->out * (max - min) + min;
+        float brown = this->out * 3.5f; // -1..1, as the BrowningFilter compensates the gain; centred on 0
+        if (brown < -1.f)
+            brown = -1.f;
+        else if (brown > 1.f)
+            brown = 1.f;
+        return (brown + 1.f) * 0.5f * (max - min) + min; // was out * (max - min) + min: always at min
     }
 };
 
