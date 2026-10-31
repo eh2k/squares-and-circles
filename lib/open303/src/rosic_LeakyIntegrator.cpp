@@ -99,7 +99,7 @@ void LeakyIntegrator::reset()
   y1 = 0;
 }
 
-void LeakyIntegrator::calculateCoefficient()
+__attribute__((noinline)) void LeakyIntegrator::calculateCoefficient() // [eh2k] not inlined: smaller
 {
   if( tau > 0.0 )
     coeff = exp( -1.0 / (sampleRate*0.001*tau)  );

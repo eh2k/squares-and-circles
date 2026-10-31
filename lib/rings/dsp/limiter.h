@@ -52,6 +52,18 @@ class Limiter {
       float* r,
       size_t size,
       float pre_gain) {
+    // [eh2k] A silent block (the modes at rest) stays silent, only the peak decays as in the loop below
+    size_t n = 0;
+    while (n < size && l[n] == 0.0f && r[n] == 0.0f) {
+      ++n;
+    }
+    if (n == size) {
+      while (size--) {
+        float peak = fabsf(*l++); // 0, as below; from the samples, so that fast-math rounds the slope as below
+        SLOPE(peak_, peak, 0.05f, 0.00002f);
+      }
+      return;
+    }
     while (size--) {
       float l_pre = *l * pre_gain;
       float r_pre = *r * pre_gain;

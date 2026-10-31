@@ -41,6 +41,13 @@ public:
     void process(unsigned n, const float *input, float *output, const float *clock);
 
     /**
+     * Process two delay lines with the same input and filters, e.g. the two BBDs of a chorus. (RT)
+     * @note The input filter runs once for both, with the state of @p a.
+     */
+    static void process2(BBD_Line &a, BBD_Line &b, unsigned n, const float *input, float *output_a, float *output_b,
+                         const float *clock_a, const float *clock_b);
+
+    /**
      * Get the discretization of the input filter. (RT)
      * @return digital filter model
      */
@@ -71,17 +78,20 @@ public:
         { return 2 * ns / rate; }
 
 private:
+    template <unsigned Min, unsigned Mout>
+    static void process_t(BBD_Line &a, BBD_Line *b, unsigned n, const float *input, float *output_a, float *output_b,
+                          const float *clock_a, const float *clock_b);
+    template <unsigned Min, unsigned Mout>
+    float step(const cdouble *Xin, float fclk);
+
     unsigned ns_; // delay size
     std::vector<float> mem_; // delay memory
     unsigned imem_; // delay memory index
-    cdouble::value_type pclk_; // clock phase
+    float pclk_; // clock phase
     unsigned ptick_; // clock tick counter
-    cdouble::value_type ybbd_old_;
+    float ybbd_old_;
     const BBD_Filter_Coef *fin_;
     const BBD_Filter_Coef *fout_;
     std::unique_ptr<cdouble[]> Xin_;
-    std::unique_ptr<cdouble[]> Xout_;
     std::unique_ptr<cdouble[]> Xout_mem_; // sample memory of output filter
-    std::unique_ptr<cdouble[]> Gin_;
-    std::unique_ptr<cdouble[]> Gout_;
 };

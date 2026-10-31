@@ -52,41 +52,35 @@ public:
     template <typename T, uint32_t samplerate = 48000, bool ntsc = true>
     T generateSample(T level)
     {
-        while (true)
+        // APU ticks per sample (37.29 at 48 kHz) as the float of before. It is a multiple of 2^-18 below 64, and so
+        // was every value of the float sampling: in fixed point with 18 fractional bits it adds up exactly the same
+        constexpr float ticks = (ntsc ? clock_NTSC : clock_PAL) / samplerate;
+        constexpr int32_t ticks_q18 = static_cast<int32_t>(ticks * 262144.f);
+        static_assert(ticks_q18 == ticks * 262144.f && ticks < 64.f, "ticks per sample: a multiple of 2^-18 below 64");
+
+        // The APU ticks until sampling < 0: the n-th tick returns the sample, the ones before clock the timer on
+        // the even ticks. All n at once instead of tick by tick: the LFSR shifts only at the timer's reloads
+        const uint32_t n = (sampling >> 18) + 1;    // sampling >= 0
+        uint32_t steps = (n - 1 + (tick & 1)) >> 1; // even ticks among tick + 1 ... tick + n - 1
+        tick += n;
+        sampling += ticks_q18 - static_cast<int32_t>(n << 18);
+
+        while (steps > timer_counter)
         {
-            tick++;
-            sampling -= 1.f;
+            steps -= timer_counter + 1u;
 
-            if (sampling < 0)
-            {
-                if (ntsc)
-                    sampling += (clock_NTSC / samplerate);
-                else
-                    sampling += (clock_PAL / samplerate);
+            if (ntsc)
+                timer_counter = periodLookup_NTSC[period_index % 16];
+            else
+                timer_counter = periodLookup_PAL[period_index % 16];
 
-                return (shift_reg & 0x1) ? 0 : level;
-            }
-
-            if ((tick % 2) == 0)
-            {
-                if (timer_counter > 0)
-                {
-                    timer_counter--;
-                }
-                else
-                {
-                    if (ntsc)
-                        timer_counter = periodLookup_NTSC[period_index % 16];
-                    else
-                        timer_counter = periodLookup_PAL[period_index % 16];
-
-                    uint32_t feedback = 1 & ((shift_reg & 0x0001) ^ ((mode_bit == 0) ? ((shift_reg >> 6) & 0x0001) : ((shift_reg >> 1) & 0x0001)));
-                    shift_reg >>= 1;
-                    shift_reg |= (feedback << 14);
-                }
-            }
+            uint32_t feedback = 1 & ((shift_reg & 0x0001) ^ ((mode_bit == 0) ? ((shift_reg >> 6) & 0x0001) : ((shift_reg >> 1) & 0x0001)));
+            shift_reg >>= 1;
+            shift_reg |= (feedback << 14);
         }
-        return 0;
+        timer_counter -= steps;
+
+        return (shift_reg & 0x1) ? 0 : level;
     }
 
     uint8_t mode_bit;
@@ -95,7 +89,7 @@ public:
 
 private:
     uint16_t timer_counter = 0;
-    float sampling = 0;
+    int32_t sampling = 0; // APU ticks to the next sample, 18 fractional bits
     uint32_t tick = 0;
     const uint16_t periodLookup_NTSC[16] = {4, 8, 16, 32, 64, 96, 128, 160, 202, 254, 380, 508, 762, 1016, 2034, 4068};
     const uint16_t periodLookup_PAL[16] = {4, 8, 14, 30, 60, 88, 118, 148, 188, 236, 354, 472, 708, 944, 1890, 3778};

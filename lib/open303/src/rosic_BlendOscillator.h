@@ -84,6 +84,16 @@ namespace rosic
 
     INLINE real_t interpolateLinear(const real_t* tableSet, int integerPart, real_t fractionalPart);
 
+    /** [eh2k] Sets the pulse's width (the delay between the two reads of the table) and sag from
+    the frequency. */
+    void calculatePulse();
+
+    /** [eh2k] The pulse: gain*(saw(t) - sag*saw(t + width)), width = width[0] + width[1]x +
+    width[2]x^2, sag = sag[0] + sag[1]x (x the octaves above C2, held to -1.5...2), a one-pole lowpass
+    at smoothing times the frequency (0: none), and the table offset (1: frequencies up to nyquist/2,
+    2: up to nyquist/4). The arrays are kept, not copied. */
+    void setPulse(const real_t *width, const real_t *sag, real_t gain, real_t smoothing, int newTableOffset);
+
     /** Resets the phaseIndex to startIndex. */
     void resetPhase();
 
@@ -102,6 +112,16 @@ namespace rosic
     real_t startIndex;        // start-phase-index of the osc (range: 0 - tableLength)
     real_t sampleRate;        // the samplerate
     real_t sampleRateRec;     // 1/sampleRate
+    real_t pulseFreq;         // [eh2k] the frequency the pulse's terms are for
+    real_t pulseDelay;        // the pulse's width as a delay in the table (in samples)
+    real_t pulseSag;          // the scale of the delayed copy
+    real_t pulseGain;         // the pulse's level
+    const real_t *pulseWidthPoly, *pulseSagPoly; // setPulse()'s
+    real_t pulseGainSet;
+    real_t pulseSmoothing;    // the lowpass at this many times the frequency (0: none)
+    real_t pulseLowpass;      // its coefficient
+    real_t pulseState;
+    int    tableOffset;
 
     const WaveTable *waveTable1, *waveTable2; // the 2 wavetables between which we blend
 
@@ -119,6 +139,8 @@ namespace rosic
   INLINE void BlendOscillator::calculateIncrement()
   {
     increment = tableLengthDbl*freq*sampleRateRec;
+    if( freq != pulseFreq ) // [eh2k]
+      calculatePulse();
   }
 
   INLINE real_t BlendOscillator::interpolateLinear(const real_t* tableSet, int integerPart, real_t fractionalPart)
@@ -134,9 +156,11 @@ namespace rosic
 
     // from this increment, decide which table is to be used:
     tableNumber  = ((int)EXPOF(increment));
-    //tableNumber += 1;           // generate frequencies up to nyquist/2 on the highest note
-    tableNumber += 2;             // generate frequencies up to nyquist/4 on the highest note
-                                  // \todo: make this number adjustable from outside
+    tableNumber += tableOffset;   // [eh2k] 1: frequencies up to nyquist/2, 2: up to nyquist/4
+    if( tableNumber > 11 )
+      tableNumber = 11;
+    if( tableNumber < 0 ) // [eh2k] below 48000 / 2048 / 2^tableOffset Hz (11.7 Hz with 1): the first table, not the
+      tableNumber = 0;    // memory before the mip map
 
     // wraparound if necessary:
     while( phaseIndex>=tableLengthDbl )
@@ -144,16 +168,26 @@ namespace rosic
 
     int    intIndex = floorInt(phaseIndex);
     real_t frac     = phaseIndex  - (real_t) intIndex;
+    const real_t *table = &(*waveTable1)[tableNumber][0];
 
-    out1 = (1.0-blend) * interpolateLinear(&(*waveTable1)[tableNumber][0], intIndex, frac);
-    out2 =      blend  * interpolateLinear(&(*waveTable2)[tableNumber][0], intIndex, frac);
-    
-    out2 *= 0.5; // \todo: this is preliminary to scale the square in AciDevil we need to
-                 // implement something more general here (like a kind of crest-compensation in 
-                 // the wavetable-class)
+    out1 = interpolateLinear(table, intIndex, frac);
+    out2 = 0.0;
+    if( blend > 0.0 )
+    {
+      // [eh2k] the pulse: the saw minus a delayed and scaled copy of itself, its width and
+      // the scale (the top's sag) by the pitch
+      real_t phase2 = phaseIndex + pulseDelay;
+      if( phase2 >= tableLengthDbl )
+        phase2 -= tableLengthDbl;
+      int    intIndex2 = floorInt(phase2);
+      real_t frac2     = phase2 - (real_t) intIndex2;
+      out2 = pulseGain * (out1 - pulseSag * interpolateLinear(table, intIndex2, frac2));
+      if( pulseSmoothing > 0.0 )
+        out2 = pulseState += pulseLowpass * (out2 - pulseState);
+    }
 
     phaseIndex += increment;
-    return out1 + out2;
+    return (1.0-blend) * out1 + blend * out2;
   }
 
 } // end namespace rosic

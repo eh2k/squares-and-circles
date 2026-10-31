@@ -81,9 +81,11 @@ namespace rosic
       // fundamental frequency (the frequency where the increment is 1) of 11025 which is good for 
       // the highest frequency. 
 
-    void generateMipMap(WaveTable& wavTable);
+    bool generateMipMap(WaveTable& wavTable);
       // generates a multisample from the prototype table, where each of the
       // successive tables contains one half of the spectrum of the previous one
+      // [eh2k] its spectrum (8 KB) on the heap, not the stack: false (the tables unchanged) without
+      // the memory
 
     // internal 'back-panel' parameters:
 

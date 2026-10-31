@@ -2,6 +2,121 @@
 
 All notable changes to this project will be documented in this file.
 
+== 2026-10-31
+   Note: This is a special release - actually a feasibility study on my part. In short: I think what has happened
+         here over the past four weeks was like riding a bike at supersonic speed - accelerated by "AI".
+         Despite the many possibilities, I wanted to keep the firmware fairly minimalistic and polished, and more or
+         less just implement the things that were already on my to-do list. The following changelog is actually a
+         summary of over 600 commits...
+         The highlights: multi-page parameters, DrumSynth kits, the XX-303 (matching its sound to the originals took
+         a lot of computing), MIDI polyphony and USB audio - plus many details such as performance optimizations and
+         documentation. The flash of the O_C T4.0 is not full yet: there are still 496 KB left for new ideas.
+         Enjoy - feel free to star the project, or leave feedback and suggestions.
+   -------------------------------------------------------------------------------------------------------------------
+   * New Engines:
+     * DRUMKITS: new category with DRUMKITS/DMX and Linn (the original EPROMs, installed from the web app's Module
+       page), CR-78, CR-8000, DR-110, KR-55, MFB-512, TR-606, TR-808, TR-909 (DrumSynth kits; TR-909's hi-hats, crash
+       and ride need the 909 ROMs from the web app); DRUMS/DrumSynth, RZ-1 and TR707 moved to DRUMKITS
+       (DRUMKITS/TR-707), patches saved with the old names still load
+     * SYNTH/Plaits: Plaits' synth models in one engine, picked with the Model knob (also by modulation): VA, Shaping,
+       2-OP-FM, Grain, Harmonic, Wavetbl, Chord, VA-VCF (before M-OSC/Virt.Analog .. Chord and SYNTH/ClassicVAVCF)
+       and the new Speech, Swarm, String, Modal, PhaseDst, Terrain, Str.Mach, Chiptune; page 2: F-Env, AuxMix,
+       Stereo, T-Env, M-Env, Color. Speech is Plaits' speech engine (vowels of a formant filter, SAM and LPC, LPC
+       phonemes and the 92 words of SPEECH/LPC, which it replaces), the knobs show the word bank and the word
+     * FX/Compressor (stereo, soft knee, D/W for parallel compression), FX/Drive (saturation, wave folder, bit
+       crusher), FX/Ducker (a trigger ducks the input, sidechain "pumping" without the kick's audio)
+     * GND/Tuner (note, cents, frequency and needle; the input passes through)
+     * NOISE/WhitePink -> NOISE/NoiseGen with the new modes Crackle and Dust (WhitePink patches still load)
+     * M-OSC/Waveforms -> SYNTH/Braids, SYNTH/Resonator -> SYNTH/Rings, SYNTH/Open303 -> SYNTH/XX-303, MIDI/Clock ->
+       SEQ/Clock, MIDI/Monitor -> GND/Midi-Monitor, M-OSC/*, SYNTH/ClassicVAVCF and SPEECH/LPC -> SYNTH/Plaits,
+       SPEECH/SAM -> SYNTH/SAM (no more SPEECH category): patches saved with the old names load the new engines with
+       their settings and pitch
+     * FILTER/TeeBee removed: its patches load SYNTH/XX-303 with Wave AUX (the same filter, now with the 303's VCA:
+       it needs triggers)
+   * Bugfix:
+     * Midi: USB-MIDI pitchbend was one octave too low (since 2023); every Song Select worked as the old web app's
+       remote control (unloaded all engines, erased the app list, restarted the module, ...); 14-bit parameter CCs
+       moved integer parameters by a step with every LSB
+     * Midi clock: tempo jumped or showed wrong values after Start; every position came one pulse late (~21 ms at
+       120 BPM); a Start directly followed by the first clock did not reset the sequencers
+       -> existing setups with MIDI clock play one pulse earlier
+     * Midi Stop set the pitch of all MIDI tracks to C4 (a drone jumped); it ends the notes only now
+     * T1 clock: above ~143 BPM every step of the sequencers came one clock pulse late after a start (15-17 ms at
+       150-170 BPM), the tempo was far off after a Start or a pause (FX/Delay's clocked times too); the internal
+       clock ran slow (120 BPM played 119.05)
+     * Sequencers loaded while the clock runs (engine change, patch load, boot) played one clock pulse early until
+       the next Start
+     * Levels: stereo engines on a mono output are mixed as (L+R)/2 (were up to 6 dB louder than mono engines)
+       -> existing setups may need more level
+     * Apps and saved patches can no longer overwrite each other in flash (too large uploads are rejected); a damaged
+       app or an update of an app to fewer sectors no longer hides all apps after it, flashing a single app no longer
+       brings back old ones
+     * DSM0: MIDI-In stopped or lost bytes, audio stopped for up to 1s while the flash was written (saving a patch,
+       app uploads), sporadic reset at boot; the audio ran at 47.69 kHz (every engine ~11 cents flat); triggers
+       shorter than ~0.5 ms could be missed
+     * O_C T4.0: holding LEFT or RIGHT at power-on started the Teensy bootloader instead of the setup or the start
+       without the saved patch (since 2026-04-08); C1..C4 as trigger often fired twice and their gates were always
+       off; the USB connection to the web app could hang until the module was replugged
+     * Modulations: CV "+" was always -10V, SLEW only 1..2ms, settings lost after loading a patch, copying a track with
+       a SEQ modulation crashed, RAM ran out after many engine changes
+     * Engine page: "Load & keep I/O" reset the I/O settings (since 2024); no more audio clicks on the engine page
+     * Engines: SEQ/EuclidRythm and EuclidArp lost hits >= 8, CV/V_OCT slew stopped before the target,
+       SEQ/303-Patterns slide, FX/JU60_chorus right input, FX/Delay clocked times > 1s
+     * Sound: SYNTH/SAM (ex SPEECH/SAM) dropped the audio on every trigger; SYNTH/Rings (ex Resonator) was 20 cents
+       sharp; DRUMS/Claps, Djembe and FX/ReverbSC clipped (ReverbSC starts with Feedback 0.85 now); Djembe's Freq
+       started at 0.5 Hz; SYNTH/XX-303 (ex Open303): harmonics 2..17 of its wave were 6 dB too quiet
+     * Calibration: the CV inputs' auto calibration took a single sample (0 V up to ~15 mV off), now the mean over
+       ~128 ms -> calibrate the CV inputs again; Web-Flasher: ENTER CALIBRATION restarted the module (#155)
+   * Enhancements:
+     * USB audio (DSM0, O_C T4.0): the module is also a USB sound card (48 kHz stereo, no driver); the
+       computer records the sum of all tracks and plays into the new AUX-INPUT "USB"; USB-AUDIO on/off on the
+       CLOCK+TIMING+MIDI page
+     * Midi:
+       - SYNTH/DxFM is polyphonic via MIDI (8 voices),
+       - SYNTH/Plaits is polyphonic with 4 voices, both with sustain (CC 64); they replace MIDI/VAx6 (its patches
+         load SYNTH/Plaits); a held key or gate keeps Plaits' LPG open (before: a ping only)
+       - drum kits play only the keys of their key map (keys 60-75 played their instruments by order before)
+       - CHANNELS on the CLOCK+TIMING+MIDI page sets all tracks at once: a range (1-4 .. 13-16), all on one channel
+         (1 POLY .. 16 POLY) or CUSTOM (a channel per track, as before)
+       - a track with a MIDI channel counts as triggered: SYNTH/Braids & co. play their envelope with TRIG-INPUT "-"
+         (before: a drone, the notes only changed the pitch); with MIDI-CONTROL "-" the MIDI engines no
+         longer listen either
+       - program change loads the engine at that position of the engine page (its number at the top), Bank Select
+         (CC 0) for more than 128, with the default I/O; before: an index that moved with every app update
+     * V/OCT: with V_OCT at C4, 0 V and MIDI note 60 play C4, the knob shows the note of 0 V (SYNTH/Plaits, Braids,
+       Rings and SPEECH/LPC played 2 octaves lower); patches of the last release keep their pitch, only
+       SEQ/EuclidArp's output is 2 octaves higher (0 V in gives 0 V out) -> the apps of this release need its firmware
+     * Performance: apps run from RAM instead of QSPI flash, less CPU for ADC and display, O_C T4.0 at 600 MHz with
+       audio in a software IRQ (no clicks on UI/USB activity); engine changes and saving settings no longer interrupt
+       the audio; FX/JU60_chorus 1.7x less CPU; DSM0: up to 30 % less CPU (SYNTH/DxFM, FX/JU60_chorus), no dropouts
+       from the display or the web app; 32 KB more free RAM
+     * Drum kits: an engine change keeps the per-instrument trigger wiring (matched by MIDI note); DrumSynth with the
+       upstream library (less CPU, no clipping) and the packed kit format (a third of the size); LEVEL and PAN of
+       the instruments on a mix page after the kit's parameters (before on the I/O page)
+       -> own kits saved before must be saved/flashed again from the drumsynth web app
+     * UI: lists with whole rows and values as the knob shows them, the I/O page shows each trigger and the V/OCT
+       voltage, new screensaver and boot animation, the same crash report on all modules; no BPM box in the header
+     * UI: engines can have up to four pages of parameters (SYNTH/Plaits, SYNTH/XX-303, a drum kit's mix page),
+       [LEFT]/[RIGHT] step through the pages on the way to the next track (the channel bar shows them); the web app
+       has a tab per page
+     * SYNTH/XX-303: page 2 with Wave (SQR as before, SAW, AUX: the AUX input through the 303's filter and VCA,
+       played by the notes), Character (Open303 as before, TB03, RB303, TB303, ABL3) and Drive (DIODE, TANH, HARD,
+       ASINH, FOLD); the accent comes from the ACCENT input (before, every note was accented while Acc > 0)
+     * SYNTH/Rings: the audio input excites the resonator as on Rings with IN patched; in StrQuant. Struc. picks one of
+       Rings' 11 chords (was always the octave), Sympath. with its tonic string
+     * SEQ/Clock: MODE SYNC follows the CLOCK-SOURCE as before, FREE runs its own clock at BPM (30..255, turning BPM
+       in SYNC switches to FREE); the former MODE is PPQN (4, 8, 24)
+     * DSM0: a bootloader of its own, installed from the web app's Loader page: the firmware starts in 0.7 s instead
+       of 3.4 s, recovery mode for a damaged image (both buttons at power-on), no BOOT button needed
+     * Web-Flasher: new design, opens on the Module page (all engines by category, also without a module) with an
+       Emulator (every engine in the browser with display, sound, knobs and MIDI in); no GitHub login; Update writes
+       the loader and all apps of the release (only what changed; an interrupted update is finished by starting it
+       again); release notes as a popup, the Live page shows the CLOCK+TIMING+MIDI settings; the FV1emu and DXFM
+       banks are built and played in the emulator before [Flash to module] (FX/FV1emu: more exact LOG/EXP)
+     * Patches and calibration: the web app shows the saved patches (engines, I/O wiring, parameters) and the
+       calibration data, as a link to share or a .syx file; [Save to module] writes them back (calibration of another
+       module with a warning); a .syx sent to any MIDI input loads the patch or stores the calibration (confirmed on
+       the module); a patch loads the other tracks if one engine is missing
 == 2026-05-04
    * New Engines:
      * DRUMS/RZ-1 (Casio RZ-1 sound roms)

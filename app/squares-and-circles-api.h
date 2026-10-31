@@ -1,0 +1,773 @@
+
+// Copyright (C)2023 - E.Heidt
+//
+// Author: E.Heidt (eh2k@gmx.de)
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+//
+// See http://creativecommons.org/licenses/MIT/ for more information.
+//
+
+////////////////////////////////////////////////////////////////////////////////
+// Work in Progress: API will have breaking changes !!!!
+////////////////////////////////////////////////////////////////////////////////
+
+#pragma once
+
+#include <math.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+#include <utility>
+
+#define V_OCT "V_OCT"
+#define V_QTZ "V_QTZ"
+#define SEQ_SWING "$SWING"
+#define MULTI_TRIGS ">TRIGS"
+
+#define OUT_CV "CV"
+#define OUT_VOCT "VOCT"
+#define OUT_TRIG "TRIG"
+#define OUT_GATE "GATE"
+#define OUT_ACCENT "ACCENT"
+#define OUT_AUDIO "AUDIO"
+#define OUT_AUDIO_L "AUDIO_L"
+#define OUT_AUDIO_R "AUDIO_R"
+
+constexpr uint32_t ENGINE_MODE_COMPACT = 1 << 5;
+constexpr uint32_t ENGINE_MODE_MIDI_IN = 1 << 7;
+
+#ifndef EXTERN_C
+#define EXTERN_C extern "C"
+#endif
+
+// The engine's menu name, CATEGORY/Name, in place of the folder and file name (src/<CATEGORY>/<Name>.cpp). One binary,
+// several engines: several names, ';' between them, or the macro once per name, at the start of its line. app/build.sh
+// reads these lines and gives the names to mkmodule (--name: the module name in the binary, which the firmware reads);
+// the macro itself only checks that each name fits the firmware's 19 characters (engine_def::name[20], longer names
+// would be cut silently).
+// A version after the name, "SEQ/Clock#v2", is part of the ID a patch stores (ENGINE_ID()), not of the name shown:
+// an engine whose patches of before mean something else gets the next version, with an ENGINE_ALIAS of the name
+// before ("SEQ/Clock") and a restore() that converts them (below).
+#define ENGINE_NAME(names) static_assert(__engine_names_fit(names), "ENGINE_NAME: more than 19 characters")
+constexpr bool __engine_names_fit(const char *s, int len = 0)
+{
+    return *s == '\0' ? len <= 19 : *s == ';' ? len <= 19 && __engine_names_fit(s + 1) : __engine_names_fit(s + 1, len + 1);
+}
+
+// A name an engine had before (renamed, or the app moved to another category: src/DRUMS/TR707.cpp ->
+// app/DRUMKITS/TR-707/TR-707.cpp): a patch stores the engine as the CRC32 of its name, with ENGINE_ALIAS("DRUMS/TR707") the
+// patches saved with the old name find DRUMKITS/TR-707. An alias belongs to the ENGINE_NAME before it (to the first
+// engine without one before it), the macro once per old name, as many as the engine had.
+// With other parameters than the engine has now, the second argument gives the old ones in their order, a letter each
+// as a patch stores them: 'f' float, 'b' int 0 ... 255, 'h' int 0 ... 65535, 'i' another int; a patch of that old
+// name then loads the engine, and the app's engine::restore() (below) gets the old values to set its own from. A patch
+// whose values have another length (the name had other parameters at some time) loads them as they are, as one of an
+// alias without a layout; restore() then gets these.
+//   ENGINE_ALIAS("M-OSC/Chord", "fbffff"); // V_OCT, Chord (int 0 ... 16), Inv., Shape, Decay, Color
+// Like ENGINE_NAME the macro only checks the arguments; app/build.sh reads these lines and puts the aliases into the
+// binary (__engine_alias, the first alias of each engine, for the firmwares before; __engine_aliases, all of them).
+#define ENGINE_ALIAS(...)                                                                                              \
+    static_assert(__engine_alias_fits(__VA_ARGS__), "ENGINE_ALIAS: more than 19 characters, or a layout letter not f, b, h, i")
+constexpr bool __engine_alias_fits(const char *name, const char *layout = "")
+{
+    int len = 0;
+    for (; name[len] != '\0'; len++)
+        if (name[len] == ';' || name[len] == '|' || name[len] == '=') // the separators in the binary
+            return false;
+    for (; *layout != '\0'; layout++)
+        if (*layout != 'f' && *layout != 'b' && *layout != 'h' && *layout != 'i')
+            return false;
+    return len > 0 && len <= 19;
+}
+
+// The id a patch stores for the engine NAME: the CRC32 of the name, as the firmware makes it (engine_def::id), for
+// engine::restore(): case ENGINE_ID("M-OSC/Chord"):
+constexpr uint32_t ENGINE_ID(const char *name)
+{
+    uint32_t crc = 0xFFFFFFFF;
+    for (; *name != '\0'; name++)
+    {
+        crc ^= (uint8_t)*name;
+        for (int k = 0; k < 8; k++)
+            crc = (crc & 1) ? (crc >> 1) ^ 0xEDB88320 : crc >> 1;
+    }
+    return ~crc;
+}
+
+#ifndef FLASHMEM
+#define FLASHMEM
+#endif
+
+#ifndef M_PI_2
+#define M_PI_2 1.57079632679489661923
+#endif
+
+#ifndef MOD
+#define MOD(x, y) ((y > 0 ? (x % y) : 0))
+#endif
+
+#ifndef CONSTRAIN
+#define CONSTRAIN(var, min, max)                                                                                       \
+    if (var < (min))                                                                                                   \
+    {                                                                                                                  \
+        var = (min);                                                                                                   \
+    }                                                                                                                  \
+    else if (var > (max))                                                                                              \
+    {                                                                                                                  \
+        var = (max);                                                                                                   \
+    }
+
+#endif
+
+#ifndef MACHINE_INTERNAL
+
+#define LEN_OF(x) (sizeof(x) / sizeof(x[0]))
+
+#ifdef __cplusplus
+#ifdef __GNUC__
+/* poision memory functions */
+// #   pragma GCC poison _ZSt17__throw_bad_allocv
+// #   pragma GCC poison new delete
+// #   pragma GCC poison malloc new
+// #   pragma GCC poison virtual
+#endif
+
+EXTERN_C uint32_t micros();
+EXTERN_C uint32_t millis();
+EXTERN_C uint32_t crc32(uint32_t crc, const void *buf, size_t size);
+
+inline float linToExp(float in, float inMin, float inMax, float outMin, float outMax)
+{
+    float tmp = (in - inMin) / (inMax - inMin);
+    return outMin * expf(tmp * (logf(outMax / outMin)));
+}
+
+#endif
+
+#ifndef DEFAULT_NOTE
+#define DEFAULT_NOTE 60
+#endif
+#ifndef SAMPLE_RATE
+#define SAMPLE_RATE 48000
+#endif
+#ifndef FRAME_BUFFER_SIZE
+#define FRAME_BUFFER_SIZE 24
+#endif
+#ifndef PITCH_PER_OCTAVE
+#define PITCH_PER_OCTAVE (12 << 7)
+#endif
+
+#ifndef engine
+
+EXTERN_C
+{
+    extern const char *__name;
+    extern const uint8_t *__data;
+    extern uint32_t *__t;
+    extern uint8_t *__clock;
+    extern uint8_t *__step;
+    extern uint32_t *__step_changed;
+    extern uint32_t *__samples_per_step;
+    extern uint32_t *__trig;
+    extern uint32_t *__gate;
+    extern uint32_t *__accent;
+    // V/OCT (engine::cv()): 0 = C4 with the V_OCT knob at C4. The apps of before read __cv instead, from which the
+    // firmware still subtracts 2 octaves when they have a V_OCT knob (machine::engine_cv()); a firmware of before
+    // doesn't know __cv_c4 and doesn't start the app
+    extern int32_t *__cv_c4;
+
+    extern float *__output_l_fp;
+    extern float *__output_r_fp;
+
+    extern uint8_t *__trig_level;
+    extern uint8_t *__midi_cc;
+    extern uint8_t *__mixer_level;
+    extern uint8_t *__mixer_pan;
+    extern uint32_t *__multi_trigs_mask;
+
+    extern float **__audio_in_l_fpp;
+    extern float **__audio_in_r_fpp;
+
+    extern uint8_t *__display_buffer_u8_p;
+    extern uint32_t *__engine_props;
+
+    extern float *__adc_voltage_f_p;
+    extern uint32_t __adc_count;
+    extern float *__dac_voltage_fp_p;
+    extern uint32_t __dac_count;
+    extern uint32_t *__digital_inputs_u32_p;
+    extern uint32_t *__bpm;
+
+    struct UI_EVENT_t
+    {
+        uint16_t type;
+        uint16_t control;
+        int16_t value;
+        uint16_t mask;
+        bool handled;
+    };
+
+    extern UI_EVENT_t *__ui_event;
+
+    typedef bool (*uiHandler)(uint16_t type, uint16_t control, int16_t value, uint16_t mask);
+
+#ifndef NO_UI_EVENT_HANDLER
+
+    uiHandler __ui_event_handler_ptr = nullptr;
+    /* EXPORT */
+    void __ui_event_handler()
+    {
+        if (__ui_event_handler_ptr)
+            __ui_event->handled =
+                __ui_event_handler_ptr(__ui_event->type, __ui_event->control, __ui_event->value, __ui_event->mask);
+    }
+
+#endif
+
+    struct MIDI_EVENT_t
+    {
+        uint8_t type;
+        uint8_t key;
+        int16_t value;
+    };
+
+    extern MIDI_EVENT_t *__midi_event;
+
+#ifndef NO_MIDI_EVENT_HANDLER
+
+    void (*__midi_event_handler_ptr)() = nullptr;
+    /* EXPORT */
+    void __midi_event_handler()
+    {
+        if (__midi_event_handler_ptr)
+            __midi_event_handler_ptr();
+    }
+#endif
+
+    extern uint8_t *__io_tr;
+    extern uint8_t *__io_qz;
+}
+
+namespace engine
+{
+    inline const char *name()
+    {
+        return __name;
+    }
+
+    inline uint32_t t()
+    {
+        return *__t;
+    }
+
+    inline uint32_t trig()
+    {
+        return *__trig;
+    }
+
+    inline bool hasTrig()
+    {
+        return *__io_tr;
+    }
+
+    inline uint8_t qz()
+    {
+        return *__io_qz;
+    }
+
+    inline uint32_t gate()
+    {
+        return *__gate;
+    }
+    inline uint32_t accent()
+    {
+        return *__accent;
+    }
+    inline float cv()
+    {
+        return (float)*__cv_c4 / PITCH_PER_OCTAVE;
+    }
+    inline int32_t cv_i32()
+    {
+        return *__cv_c4;
+    }
+
+    template <int channel>
+    inline float *outputBuffer();
+
+    template <>
+    inline float *outputBuffer<0>()
+    {
+        return __output_l_fp;
+    }
+
+    template <>
+    inline float *outputBuffer<1>()
+    {
+        return __output_r_fp;
+    }
+
+    template <int channel>
+    inline float *inputBuffer();
+
+    template <>
+    inline float *inputBuffer<0>()
+    {
+        return *__audio_in_l_fpp;
+    }
+
+    template <>
+    inline float *inputBuffer<1>()
+    {
+        return *__audio_in_r_fpp;
+    }
+
+    inline float trigLevel(int ch)
+    {
+        return ((4.f / UINT16_MAX) * __trig_level[ch] * __trig_level[ch]);
+    }
+    inline float mixLevel(int ch)
+    {
+        return ((4.f / UINT16_MAX) * __mixer_level[ch]) * __mixer_level[ch];
+    } // exp range 0 - 4
+    inline float mixLevelL(int ch)
+    {
+        return cosf((float)__mixer_pan[ch] / 255.f * (float)M_PI_2) * mixLevel(ch);
+    }
+    inline float mixLevelR(int ch)
+    {
+        return sinf((float)__mixer_pan[ch] / 255.f * (float)M_PI_2) * mixLevel(ch);
+    }
+
+    EXTERN_C void setup();
+    EXTERN_C void process();
+    EXTERN_C void draw();
+
+    // A parameter of a patch for restore(): its value (an int's as a float) and its modulation, which the app only
+    // moves (nullptr: none).
+    struct patch_param
+    {
+        float value;
+        void *mod;
+    };
+    // Optional: a patch saved under one of the engine's ENGINE_ALIAS names loads it (ID: ENGINE_ID() of that name).
+    // - An alias with the old parameters' layout: OLD the N old parameters in their order, PARAMS this engine's with
+    //   their defaults and no modulation. Set PARAMS from OLD: a value, or a whole entry (params[2] = old[1]) to take
+    //   the modulation along.
+    // - Otherwise (no layout, or values of another length) the values loaded as they are: OLD nullptr, N 0, PARAMS
+    //   them with their modulations, to change (params[0].value -= 2).
+    // The firmware sets the parameters afterwards (an int rounded, all within their ranges); an old modulation no
+    // parameter took is dropped. An older firmware never calls it.
+    EXTERN_C void restore(uint32_t id, const patch_param *old, int n, patch_param *params);
+    EXTERN_C void screensaver();
+    EXTERN_C void release();
+    /////
+
+    inline void setUIHandler(uiHandler handler)
+    {
+        __ui_event_handler_ptr = nullptr;
+        __ui_event_handler();
+        __ui_event_handler_ptr = handler;
+    }
+
+    constexpr uint8_t MIDI_RTM_STOP = 252;
+    constexpr uint8_t MIDI_RTM_START = 250;
+    constexpr uint8_t MIDI_RTM_CONTINUE = 251;
+
+    void __attribute__((weak)) onMidiNote(uint8_t key, uint8_t velocity); // NoteOff: velocity == 0
+    void __attribute__((weak)) onMidiPitchbend(int16_t pitch);
+    void __attribute__((weak)) onMidiCC(uint8_t ccc, uint8_t value);
+    void __attribute__((weak)) onMidiSysex(uint8_t byte);
+    void __attribute__((weak)) onMidiRTM(uint8_t code);
+
+    EXTERN_C void setupMultiTrigs(size_t count, const char **names, const std::pair<uint8_t, uint8_t> *keyMap);
+    EXTERN_C void setMultiTrigMidiKeyMap(const std::pair<uint8_t, uint8_t> *keyMap);
+
+    inline uint8_t getMidiCC(uint8_t ccc)
+    {
+        return __midi_cc[ccc];
+    }
+
+    // MIDI out: a message to the port of the track's MIDI-OUT on the I/O page (USB by default; a module lists its
+    // ports there: USB, the MIDI jack, the USB host). Referencing it gives the engine the MIDI-OUT setting. status is
+    // the raw status byte, the channel 0..15 in its low nibble; a channel set on the I/O page replaces it. Up to 3
+    // bytes, no SysEx. Works in process(), draw() and the handlers: queued (64 messages) and sent from the main loop,
+    // so it costs no time in process(). When the engine goes or its MIDI-OUT changes, the firmware sends All Notes
+    // Off on the channels it played notes on.
+    EXTERN_C void midiOut(uint8_t status, uint8_t data1, uint8_t data2);
+
+    // channel 1..16
+    inline void midiNoteOn(uint8_t channel, uint8_t key, uint8_t velocity)
+    {
+        midiOut(0x90 | ((channel - 1) & 0x0F), key & 0x7F, velocity & 0x7F);
+    }
+    inline void midiNoteOff(uint8_t channel, uint8_t key, uint8_t velocity = 0)
+    {
+        midiOut(0x80 | ((channel - 1) & 0x0F), key & 0x7F, velocity & 0x7F);
+    }
+    inline void midiCC(uint8_t channel, uint8_t cc, uint8_t value)
+    {
+        midiOut(0xB0 | ((channel - 1) & 0x0F), cc & 0x7F, value & 0x7F);
+    }
+    inline void midiProgramChange(uint8_t channel, uint8_t program)
+    {
+        midiOut(0xC0 | ((channel - 1) & 0x0F), program & 0x7F, 0);
+    }
+    inline void midiPitchbend(uint8_t channel, int16_t pitch) // +-8192
+    {
+        const int32_t p = (int32_t)pitch + 8192;
+        const uint16_t v = p < 0 ? 0 : p > 16383 ? 16383 : p;
+        midiOut(0xE0 | ((channel - 1) & 0x0F), v & 0x7F, (v >> 7) & 0x7F);
+    }
+    inline void midiRealtime(uint8_t code) // 0xF8 clock, MIDI_RTM_START / STOP / CONTINUE
+    {
+        midiOut(code, 0, 0);
+    }
+
+    // 1V == 1.f, 5V = 5.f
+    EXTERN_C float *outputBuffer_f32(const char *name);
+
+    // 1V == PITCH_PER_OCTAVE, 5V == 5 * PITCH_PER_OCTAVE
+    EXTERN_C int16_t *outputBuffer_i16(const char *name);
+
+    // 1V == 1.f, 5V = 5.f
+    EXTERN_C float *inputBuffer_f32(const char *name);
+
+    // 1V == PITCH_PER_OCTAVE, 5V == 5 * PITCH_PER_OCTAVE
+    EXTERN_C int16_t *inputBuffer_i16(const char *name);
+
+    EXTERN_C void addParam_f32(const char *name, float *value, float min = 0.f, float max = 1.f); // min...max
+    EXTERN_C void addParam_i32(const char *name, int32_t *value, int32_t min, int32_t max,
+                               const char **valueMap); // 0...max
+
+    inline void addParam(const char *name, int32_t *value, int32_t min, int32_t max,
+                         const char **valueMap = nullptr) // 0...max
+    {
+        addParam_i32(name, value, min, max, &valueMap[0]);
+    }
+
+    inline void addParam(const char *name, float *value, float min = 0.f, float max = 1.f) // 0...max
+    {
+        addParam_f32(name, value, min, max);
+    }
+
+    EXTERN_C void setPatchStateEx(void *ptr, size_t size);
+
+    inline void setMode(uint32_t mode) // 1: compact_mode, 2: sample_view
+    {
+        *__engine_props |= mode;
+        if (mode & ENGINE_MODE_MIDI_IN)
+        {
+            __midi_event_handler_ptr = []()
+            {
+                switch (__midi_event->type)
+                {
+                case 0:
+                    onMidiNote(__midi_event->key, __midi_event->value);
+                    return;
+                case 1:
+                    onMidiPitchbend(__midi_event->value);
+                    return;
+                case 2:
+                    onMidiCC(__midi_event->key, __midi_event->value);
+                    return;
+                case 3:
+                    onMidiSysex(__midi_event->key);
+                    return;
+                case 4:
+                    engine::onMidiRTM(__midi_event->key);
+                    return;
+                }
+            };
+        }
+    }
+
+    constexpr uint32_t PARAM_SELECTED = 0x1;
+    constexpr uint32_t PARAM_MODULATION = 0x2;
+    constexpr uint32_t PARAM_ON_PAGE = 0x4; // on the page of parameters shown ("\fName" begins a page)
+
+    EXTERN_C float getParamValueModulated_f32(const void *valuePtr);
+    EXTERN_C int32_t getParamValueModulated_i32(const void *valuePtr);
+
+    EXTERN_C uint32_t getParamFlags(const void *valuePtr);
+    EXTERN_C void selectParam(const void *val);
+    EXTERN_C void setParameterSelectionWrap(int8_t wrap_at);
+    inline uint32_t isParamModulated(const void *valuePtr)
+    {
+        return getParamFlags(valuePtr) & PARAM_MODULATION;
+    }
+    inline uint32_t isParamSelected(const void *valuePtr)
+    {
+        return getParamFlags(valuePtr) & PARAM_SELECTED;
+    }
+    inline uint32_t isParamOnPage(const void *valuePtr) // 0 on a firmware without pages
+    {
+        return getParamFlags(valuePtr) & PARAM_ON_PAGE;
+    }
+
+    EXTERN_C void setParamName(const void *valuePtr, const char *name);
+
+    EXTERN_C bool qz_enabled();
+    EXTERN_C const char *qz_name();
+    EXTERN_C int32_t qz_process(int32_t pitch, int8_t *note = nullptr);
+    EXTERN_C int16_t qz_lookup(int8_t note); // 0-127 note-values
+} // namespace engine
+
+enum EventType : uint16_t
+{
+    EVENT_NONE,
+    EVENT_BUTTON_UP = 2,
+    EVENT_BUTTON_HOLD,
+    EVENT_ENCODER,
+};
+
+constexpr uint16_t BUTTON_L = (1 << 0);
+constexpr uint16_t BUTTON_R = (1 << 1);
+constexpr uint16_t ENCODER_L = (1 << 8);
+constexpr uint16_t ENCODER_R = (1 << 9);
+
+namespace engine_sync
+{
+    constexpr uint8_t CLOCK_RESET = 97;
+
+    inline uint8_t ppn()
+    {
+        return *__clock;
+    }
+    inline uint32_t samples_per_step()
+    {
+        return *__samples_per_step;
+    }
+    inline uint32_t clk_bpm() // BPM x 100
+    {
+        return *__bpm;
+    }
+
+    inline void clk_bpm(uint32_t bpm)
+    {
+        *__bpm = bpm;
+    }
+
+    inline uint8_t step()
+    {
+        return *__step;
+    }
+    inline bool stepChanged()
+    {
+        return *__step_changed != 0;
+    }
+    inline bool stepReset()
+    {
+        return *__step_changed > 1;
+    }
+
+    // step() wraps at 128; steps() counts on from the last reset, for "steps() % len" with a len that does not
+    // divide 128. Call it at least once every 128 steps (e.g. in every process()).
+    inline uint32_t steps()
+    {
+        static uint8_t last = 0;
+        static uint32_t count = 0;
+        const uint8_t s = step();
+        if (stepReset())
+            count = s;
+        else
+            count += (uint8_t)(s - last) % 128;
+        last = s;
+        return count;
+    }
+} // namespace engine_sync
+
+namespace machine
+{
+    EXTERN_C const uint8_t *fs_read(const char *blobName, size_t *blobSize = nullptr);
+
+    inline uint32_t raw_digital_inputs()
+    {
+        return *__digital_inputs_u32_p;
+    }
+
+    inline float *raw_adc_voltage(uint32_t index)
+    {
+        if (index < __adc_count)
+            return &__adc_voltage_f_p[index];
+        else
+            return nullptr;
+    }
+
+    inline float *raw_dac_buffer(uint32_t index)
+    {
+        if (index < __dac_count)
+            return &__dac_voltage_fp_p[index];
+        else
+            return nullptr;
+    }
+} // namespace machine
+#else
+using namespace ui;
+using namespace UI;
+#endif
+
+#ifndef GFX_API
+namespace gfx
+{
+    EXTERN_C void drawCircle(int x, int y, int r);
+    EXTERN_C void fillCircle(int x, int y, int r);
+    EXTERN_C void clearCircle(int x, int y, int r);
+    EXTERN_C void drawRect(int x, int y, int w, int h);
+    EXTERN_C void fillRect(int x, int y, int w, int h);
+    EXTERN_C void clearRect(int x, int y, int w, int h);
+    EXTERN_C void invertRect(int x, int y, int w, int h);
+    EXTERN_C void drawString(int x, int y, const char *s, uint8_t font = 1);
+    EXTERN_C void drawStringEx(int x, int y, uint8_t font, const char *fmt, ...);
+    EXTERN_C void drawStringCenter(int x, int y, const char *s, uint8_t font = 1);
+    EXTERN_C void drawLine(int x1, int y1, int x2, int y2);
+    EXTERN_C void setPixel(int x, int y);
+    EXTERN_C void drawXbm(int x, int y, int width, int height, const uint8_t *xbm);
+    EXTERN_C void drawWaveform(void *wavefrom, int x = 0, int y = -1);
+    EXTERN_C void message(const char *msg);
+    EXTERN_C void drawPiano(int x, int y, float note);
+    EXTERN_C void drawMessageBox(const char *title, const char *message);
+
+    EXTERN_C void drawScope(int y, float *inputFrame, int x_scale = 32 /* 0 - 63*/, int y_scale = 63 /* 0 - 63*/);
+
+    inline uint8_t *displayBuffer()
+    {
+        return __display_buffer_u8_p;
+    }
+} // namespace gfx
+#endif
+
+#ifndef SERIAL_API
+namespace machine
+{
+    EXTERN_C void serial_write(void const *buffer, uint32_t bufsiz);
+    EXTERN_C uint32_t serial_read(void *buffer, uint32_t length);
+    EXTERN_C uint32_t serial_available();
+
+    EXTERN_C void get_device_id(uint8_t *mac);
+
+    EXTERN_C float cpu_load_percent();
+
+    EXTERN_C uint8_t *engine_malloc(uint32_t size);
+    EXTERN_C void engine_start(uint32_t args);
+    EXTERN_C void engine_stop(uint32_t result);
+} // namespace machine
+#endif
+
+#endif // MACHINE_INTERNAL
+
+struct sample;
+struct sample_info
+{
+    const char *name;
+    uint32_t len;
+    uint16_t sample_rate;
+    uint8_t channels;
+    const char *labels[32];
+    float label_pos[32];
+    uint8_t label_num;
+};
+
+EXTERN_C sample *sample_s8(const uint8_t *data, int len, int sample_rate, int addr_shift);
+EXTERN_C sample *sample_u8(const uint8_t *data, int len, int sample_rate, int addr_shift);
+EXTERN_C sample *sample_Am6070(const uint8_t *data, int len, int sample_rate, int amp_mul);
+EXTERN_C sample *sample_wav(const uint8_t *data, int len);
+EXTERN_C sample *sample_wav_from_file(const char *filepath, sample *dispose_reuse_mem = nullptr);
+EXTERN_C void sample_dispose(sample *smpl);
+EXTERN_C void sample_set_pos(sample *smpl, float pos, float amplitude, float decay);
+EXTERN_C void sample_process(sample *smpl, float start, float end, float speed, float cv, float *outputL_frame,
+                             float *outputR_frame = nullptr);
+EXTERN_C bool sample_get_info(sample *smpl, sample_info *info);
+
+// fatfs api -- ff.h
+
+enum FRESULT : int
+{
+    FR_OK = 0,
+    FR_DISK_ERR = 1,
+    FR_INT_ERR = 2,
+    FR_NO_FILE = 4,
+    FR_INVALID_OBJECT = 9,
+    FR_NOT_ENOUGH_CORE = 17, /* NOT ENOUGH RAM */
+    FR_TOO_MANY_OPEN_FILES = 18,
+    FR_INVALID_PARAMETER = 19,
+};
+
+struct FIL_IMPL;
+
+typedef struct
+{
+    FIL_IMPL *impl;
+} FIL;
+
+typedef unsigned int UINT;  /* int must be 16-bit or 32-bit */
+typedef unsigned char BYTE; /* char must be 8-bit */
+typedef uint16_t WORD;      /* 16-bit unsigned integer */
+typedef uint32_t DWORD;     /* 32-bit unsigned integer */
+typedef uint64_t QWORD;     /* 64-bit unsigned integer */
+typedef WORD WCHAR;         /* UTF-16 character type */
+typedef DWORD FSIZE_t;
+
+#define FA_READ 0x01
+#define FA_WRITE 0x02
+#define FA_OPEN_EXISTING 0x00
+#define FA_CREATE_NEW 0x04
+#define FA_CREATE_ALWAYS 0x08
+#define FA_OPEN_ALWAYS 0x10
+#define FA_OPEN_APPEND 0x30
+
+EXTERN_C FRESULT f_open(FIL *fp, const char *name, uint32_t mode);
+EXTERN_C FRESULT f_read(FIL *fp, void *p, UINT size, UINT *bytes_read);
+EXTERN_C FSIZE_t f_tell(FIL *fp);
+EXTERN_C FSIZE_t f_size(FIL *fp);
+// EXTERN_C FRESULT f_truncate(FIL *fp);
+// EXTERN_C FRESULT f_lseek(FIL *fp, FSIZE_t ofs);
+EXTERN_C FRESULT f_close(FIL *fp);
+EXTERN_C FRESULT f_write(FIL *fp, const void *buff, UINT btw, UINT *bw);
+
+struct DIR_IMPL;
+
+typedef struct
+{
+    DIR_IMPL *impl;
+} DIR;
+
+#define AM_DIR 0x10 /* Directory */
+
+typedef struct
+{
+    FSIZE_t fsize;
+    BYTE fattrib;
+    char fname[256 + 1]; /* Object name */
+} FILINFO;
+
+EXTERN_C FRESULT f_opendir(DIR *dp,         /* [OUT] Pointer to the directory object structure */
+                           const char *path /* [IN] Directory name */
+);
+
+EXTERN_C FRESULT f_closedir(DIR *dp /* [IN] Pointer to the directory object */
+);
+
+EXTERN_C FRESULT f_findnext(DIR *dp,     /* [IN] Poninter to the directory object */
+                            FILINFO *fno /* [OUT] Pointer to the file information structure */
+);
+
+EXTERN_C const char *stristr(const char *str1, const char *str2);

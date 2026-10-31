@@ -18,7 +18,8 @@ namespace rosic
 
   public:
 
-    /** Enumeration of the available filter modes. */
+    /** Enumeration of the available filter modes. [eh2k] calcCoeffs() has only LOWPASS12 and BANDREJECT (what
+    Open303 uses), the others bypass. */
     enum modes
     {
       BYPASS = 0,

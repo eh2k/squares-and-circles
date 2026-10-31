@@ -8,7 +8,9 @@
 #include "rosic_Complex.h"
 #include "../rosic_RealFunctions.h"
 
-#define STATIC_N 256 //[eh2k] remove this, to use the original implementation (with new/delete)
+//[eh2k] static work areas instead of new/delete, for the real transforms of up to STATIC_N points (the
+// MipMappedWaveTable's tableLength) -- remove this, to use the original implementation (with new/delete)
+#define STATIC_N 2048
 
 namespace rosic
 {
@@ -77,6 +79,7 @@ namespace rosic
     //---------------------------------------------------------------------------------------------
     // complex Fourier transforms:
 
+#ifndef STATIC_N
     /** Transforms a buffer of complex numbers into its (forward or inverse) fourier transform. 
     The inBuffer will remain intact. Both, inBuffer and outBuffer must be of the size which was 
     specified when setting up the blockSize with setBlockSize(). */
@@ -85,6 +88,7 @@ namespace rosic
     /** Does the same thing as transformComplexBuffer but performes in-place calculation 
     (overwrites the input buffer). */
     void transformComplexBufferInPlace(Complex *buffer);         
+#endif
 
     //---------------------------------------------------------------------------------------------
     // some convenience functions for dealing with real signals:
@@ -105,6 +109,7 @@ namespace rosic
     (they are conjugate symmetric). */
     void transformRealSignal(real_t *signal, real_t *reAndIm);  
 
+#ifndef STATIC_N
     /** Calculates spectral magnitudes and phases from a signal, where *signal should be of
     length N, where N is the block-size as chosen with setBlockSize() *magnitudes and *phases 
     should be of length N/2. */
@@ -112,6 +117,7 @@ namespace rosic
 
     /** Calculates the magnitudes only from a signal (useful for analyzer-stuff). */
     void getRealSignalMagnitudes(real_t *signal, real_t *magnitudes);
+#endif
 
     /** Transforms a complex conjugate symmetric spectrum (i.e. a spectrum of a real signal) into
     the corresponding real signal. */
@@ -122,10 +128,12 @@ namespace rosic
     symmetric). */
     void transformSymmetricSpectrum(real_t *reAndIm, real_t *signal);
 
+#ifndef STATIC_N
     /** Calculates a real time signal from its magnitudes and phases, *magnitudes and *phases
     should be of length N/2, *signal is of length N where N is the block-size as chosen with 
     setBlockSize(). */
     void getRealSignalFromMagnitudesAndPhases(real_t *magnitudes, real_t *phases, real_t *signal);
+#endif
 
     //---------------------------------------------------------------------------------------------
     // static functions
@@ -158,9 +166,11 @@ namespace rosic
     // our own temporary storage area:
     Complex* tmpBuffer;
 #else
-    real_t w[2*STATIC_N];
-    int    ip[4+16]; //ceil(4.0+sqrt(STATIC_N))]; 
-    Complex tmpBuffer[STATIC_N];
+    //[eh2k] what Ooura's rdft(n) needs, n = STATIC_N: w[n/2] and ip[2 + sqrt(n/2)]. The complex transforms
+    // (cdft(2N): w[N]) and the functions using the tmpBuffer are left out.
+    real_t w[STATIC_N/2];
+    int    ip[2+32];
+    static_assert(32*32 == STATIC_N/2, "ip[2 + sqrt(STATIC_N/2)]");
 #endif
 
   };

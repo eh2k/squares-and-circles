@@ -249,7 +249,7 @@ void Voice::Render(
       lpg_envelope_.ProcessLP(compressed_level, short_decay, decay_tail, hf);
     } else {
       const float attack = NoteToFrequency(p.note) * float(kBlockSize) * 2.0f;
-      lpg_envelope_.ProcessPing(attack, short_decay, decay_tail, hf);
+      lpg_envelope_.ProcessPing(attack, short_decay, decay_tail, hf, modulations.hold);
     }
   } else {
     lpg_envelope_.Init();
