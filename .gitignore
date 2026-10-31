@@ -5,6 +5,6 @@
 *.log
 *.txt
 *.bin.h
-src/__pycache__/app_hex.cpython-310.pyc
+app/__pycache__/
 .build/
 .venv/

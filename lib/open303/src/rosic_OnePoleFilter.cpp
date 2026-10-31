@@ -75,19 +75,11 @@ void OnePoleFilter::setInternalState(real_t newX1, real_t newY1)
 //-------------------------------------------------------------------------------------------------
 //others:
 
-void OnePoleFilter::calcCoeffs()
+// [eh2k] only the modes Open303 uses (HIGHPASS, ALLPASS), the others bypass; not inlined (smaller where it's called)
+__attribute__((noinline)) void OnePoleFilter::calcCoeffs()
 {
   switch(mode)
   {
-  case LOWPASS: 
-    {
-      // formula from dspguide:
-      real_t x = exp( -2.0 * PI * cutoff * sampleRateRec); 
-      b0 = 1-x;
-      b1 = 0.0;
-      a1 = x;
-    }
-    break;
   case HIGHPASS:  
     {
       // formula from dspguide:
@@ -97,51 +89,16 @@ void OnePoleFilter::calcCoeffs()
       a1 = x;
     }
     break;
-  case LOWSHELV:
-    {
-      // formula from DAFX:
-      real_t c = 0.5*(shelvingGain-1.0);
-      real_t t = tan(PI*cutoff*sampleRateRec);
-      real_t a;
-      if( shelvingGain >= 1.0 )
-        a = (t-1.0)/(t+1.0);
-      else
-        a = (t-shelvingGain)/(t+shelvingGain);
-
-      b0 = 1.0 + c + c*a;
-      b1 = c + c*a + a;
-      a1 = -a;
-    }
-    break;
-  case HIGHSHELV:
-    {
-      // formula from DAFX:
-      real_t c = 0.5*(shelvingGain-1.0);
-      real_t t = tan(PI*cutoff*sampleRateRec);
-      real_t a;
-      if( shelvingGain >= 1.0 )
-        a = (t-1.0)/(t+1.0);
-      else
-        a = (shelvingGain*t-1.0)/(shelvingGain*t+1.0);
-
-      b0 = 1.0 + c - c*a;
-      b1 = a + c*a - c;
-      a1 = -a;
-    }
-    break;
-
   case ALLPASS:  
     {
       // formula from DAFX:
       real_t t = tan(PI*cutoff*sampleRateRec);
       real_t x = (t-1.0) / (t+1.0);
-
       b0 = x;
       b1 = 1.0;
       a1 = -x;
     }
     break;
-
   default: // bypass
     {
       b0 = 1.0;

@@ -73,6 +73,14 @@ namespace rosic
     /** Sets the resonance in percent where 100% is self oscillation. */
     INLINE void setResonance(real_t newResonance, bool updateCoefficients = true);
 
+    /** [eh2k] Sets the resonance as the skewed value setResonance() computes (-0.5...1), and
+    updates the coefficients. */
+    INLINE void setResonanceSkewed(real_t newResonanceSkewed)
+    {
+      resonanceSkewed = clip(newResonanceSkewed, (real_t)-0.5, (real_t)1.0);
+      calculateCoefficientsApprox4();
+    }
+
     /** Sets the input drive in decibels. */
     void setDrive(real_t newDrive);
 
@@ -151,8 +159,8 @@ namespace rosic
   {
     if( newCutoff != cutoff )
     {
-      if( newCutoff < 200.0 )  // an absolute floor for the cutoff frequency - tweakable
-        cutoff = 200.0;  
+      if( newCutoff < 20.0 )  // an absolute floor for the cutoff frequency [eh2k: 20, was 200]
+        cutoff = 20.0;  
       else if( newCutoff > 20000.0 )
         cutoff = 20000.0;
       else
@@ -210,6 +218,18 @@ namespace rosic
     real_t wc2 = wc*wc;
     real_t r   = resonanceSkewed;
     real_t tmp;
+
+    if( mode == TB_303 ) // [eh2k] only what TB_303 uses (it overwrites a1's and k's polynomials below)
+    {
+      real_t fx = wc * ONE_OVER_SQRT2/(2*PI); 
+      b0 = (0.00045522346 + 6.1922189 * fx) / (1.0 + 12.358354 * fx + 4.4156345 * (fx * fx)); 
+      k  = fx*(fx*(fx*(fx*(fx*(fx+7198.6997)-5837.7917)-476.47308)+614.95611)+213.87126)+16.998792; 
+      g  = k * 0.058823529411764705882352941176471; // 17 reciprocal 
+      g  = (g - 1.0) * r + 1.0;                     // r is 0 to 1.0
+      g  = (g * (1.0 + r)); 
+      k  = k * r;                                   // k is ready now 
+      return;
+    }
 
     // compute the filter coefficient via a 12th order polynomial approximation (polynomial 
     // evaluation is done with a Horner-rule alike scheme with nested quadratic factors in the hope

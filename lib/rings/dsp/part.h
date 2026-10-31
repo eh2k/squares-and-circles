@@ -92,6 +92,12 @@ class Part {
     dirty_ = true;
   }
   
+  // [eh2k] The memory of the kNumStrings strings of the string models (~98 KB), from the app: not in the Part, so
+  // that the module's RAM stays small. Before Process() with a string model.
+  inline void set_strings(String* strings) {
+    string_ = strings;
+  }
+
   inline ResonatorModel model() const { return model_; }
   inline void set_model(ResonatorModel model) {
     if (model != model_) {
@@ -162,7 +168,7 @@ class Part {
   int32_t polyphony_;
   
   Resonator resonator_[kMaxPolyphony];
-  String string_[kNumStrings];
+  String* string_;
   stmlib::CosineOscillator lfo_[kNumStrings];
   FMVoice fm_voice_[kMaxPolyphony];
   

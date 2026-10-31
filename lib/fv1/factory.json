@@ -1,8 +1,8 @@
 [
     {
         "name": "FV1/Gated-Reverb",
-        "pot0": "PreD",
-        "pot1": "G-Time",
+        "pot0": "G-Time",
+        "pot1": "PreD",
         "pot2": "Damp",
         "url": "https://raw.githubusercontent.com/eh2k/squares-and-circles/main/lib/fv1/spn/OEM1_4.spn"
     },

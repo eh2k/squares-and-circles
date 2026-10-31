@@ -2,7 +2,7 @@
 
 import("stdfaust.lib");
 
-freq = hslider("Freq",0.5,0,1000,0.01):si.smoo;
+freq = hslider("Freq",60,0,1000,0.01):si.smoo;
 strikePosition = hslider("Pos",0.5,0,1,0.00001):si.smoo;
 strikeSharpness = hslider("Sharpness",0.5,0,5,0.00001):si.smoo;
 gain = 3;

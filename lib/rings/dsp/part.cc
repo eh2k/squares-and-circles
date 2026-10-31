@@ -324,7 +324,9 @@ void Part::RenderModalVoice(
   r.set_brightness(patch.brightness * patch.brightness);
   r.set_position(patch.position);
   r.set_damping(patch.damping);
-  r.Process(resonator_input_, out_buffer_, aux_buffer_, size);
+  if (!r.Rest(resonator_input_, out_buffer_, aux_buffer_, size)) {
+    r.Process(resonator_input_, out_buffer_, aux_buffer_, size);
+  }
 }
 
 void Part::RenderFMVoice(

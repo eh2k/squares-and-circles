@@ -4,6 +4,11 @@ Code generated with Faust 2.37.3 (https://faust.grame.fr)
 Compilation options: -lang c -es 1 -single -ftz 0
 ------------------------------------------------------------ */
 
+/* Edited by hand (no faust compiler at hand), see "hand-edited": the same arithmetic per sample as faust wrote it,
+   but the cosf of the modes once per block while the smoothed Freq stays, tanf only when the smoothed Pos changes,
+   and the modes skipped while they are silent. The output is bit-identical, also with -ffast-math (the helpers below
+   keep the compiler's arrangement of the arithmetic as it was), except for the denormal tail of the modes. */
+
 #ifndef  __mydsp_H__
 #define  __mydsp_H__
 
@@ -16,6 +21,7 @@ Compilation options: -lang c -es 1 -single -ftz 0
 extern "C" {
 #endif
 
+#include <float.h>
 #include <math.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -111,6 +117,8 @@ typedef struct {
 	float fConst64;
 	float fConst65;
 	float fRec26[3];
+	float fTanCache[2][2]; /* hand-edited: tanfmydsp() */
+	int iModesSilent;      /* hand-edited: all mode states are 0 */
 } mydsp;
 
 mydsp* newmydsp() { 
@@ -186,7 +194,7 @@ void instanceResetUserInterfacemydsp(mydsp* dsp) {
 	dsp->fHslider0 = (FAUSTFLOAT)0.5f;
 	dsp->fButton0 = (FAUSTFLOAT)0.0f;
 	dsp->fHslider1 = (FAUSTFLOAT)0.5f;
-	dsp->fHslider2 = (FAUSTFLOAT)0.5f;
+	dsp->fHslider2 = (FAUSTFLOAT)60.0f;
 }
 
 void instanceClearmydsp(mydsp* dsp) {
@@ -386,6 +394,12 @@ void instanceClearmydsp(mydsp* dsp) {
 			dsp->fRec26[l27] = 0.0f;
 		}
 	}
+	/* hand-edited */
+	for (int k = 0; k < 2; k = (k + 1)) {
+		dsp->fTanCache[k][0] = 0.0f;
+		dsp->fTanCache[k][1] = tanf(0.0f);
+	}
+	dsp->iModesSilent = 1;
 }
 
 void instanceConstantsmydsp(mydsp* dsp, int sample_rate) {
@@ -471,71 +485,96 @@ void initmydsp(mydsp* dsp, int sample_rate) {
 
 void buildUserInterfacemydsp(mydsp* dsp, UIGlue* ui_interface) {
 	ui_interface->openVerticalBox(ui_interface->uiInterface, "djembe");
-	ui_interface->addHorizontalSlider(ui_interface->uiInterface, "Freq", &dsp->fHslider2, (FAUSTFLOAT)0.5f, (FAUSTFLOAT)0.0f, (FAUSTFLOAT)1000.0f, (FAUSTFLOAT)0.00999999978f);
+	ui_interface->addHorizontalSlider(ui_interface->uiInterface, "Freq", &dsp->fHslider2, (FAUSTFLOAT)60.0f, (FAUSTFLOAT)0.0f, (FAUSTFLOAT)1000.0f, (FAUSTFLOAT)0.00999999978f);
 	ui_interface->addHorizontalSlider(ui_interface->uiInterface, "Pos", &dsp->fHslider0, (FAUSTFLOAT)0.5f, (FAUSTFLOAT)0.0f, (FAUSTFLOAT)1.0f, (FAUSTFLOAT)9.99999975e-06f);
 	ui_interface->addHorizontalSlider(ui_interface->uiInterface, "Sharpness", &dsp->fHslider1, (FAUSTFLOAT)0.5f, (FAUSTFLOAT)0.0f, (FAUSTFLOAT)5.0f, (FAUSTFLOAT)9.99999975e-06f);
 	ui_interface->addButton(ui_interface->uiInterface, "trigger", &dsp->fButton0);
 	ui_interface->closeBox(ui_interface->uiInterface);
 }
 
-void computemydsp(mydsp* dsp, int count, FAUSTFLOAT** inputs, FAUSTFLOAT** outputs) {
-	FAUSTFLOAT* output0 = outputs[0];
+/* hand-edited: tanf that remembers its last argument and result (the smoothed Pos settles, its arguments are > 0).
+   Declared const, so that the compiler treats it like tanf (same argument, same result), the cache is invisible to
+   it, and -ffast-math arranges the arithmetic around it as before. */
+static __attribute__((noinline, const)) float tanfmydsp(float x, float* cache) {
+	if (x != cache[0]) {
+		cache[0] = x;
+		cache[1] = tanf(x);
+	}
+	return cache[1];
+}
+
+/* hand-edited: a value the compiler treats like the result of the cosf call it replaces (an empty asm in the loop),
+   so that -ffast-math arranges the arithmetic around it as before */
+static inline __attribute__((always_inline)) float keepmydsp(float x) {
+	__asm__ volatile("" : "+t"(x));
+	return x;
+}
+
+/* hand-edited: the faust loop from sample i0 on. bSettled: fCos holds the 20 cosf of the settled Freq smoother.
+   !bModes: the modes are silent, only the noise filters and the smoothers run (output 0), until a strike. */
+static inline __attribute__((always_inline)) int computeloopmydsp(mydsp* dsp, int i0, int count, FAUSTFLOAT* output0, int bModes, int bSettled, const float* fCos) {
 	float fSlow0 = (dsp->fConst2 * (float)dsp->fHslider0);
 	float fSlow1 = (float)dsp->fButton0;
 	float fSlow2 = (dsp->fConst2 * (float)dsp->fHslider1);
 	float fSlow3 = (dsp->fConst2 * (float)dsp->fHslider2);
-	/* C99 loop */
-	{
-		int i0;
-		for (i0 = 0; (i0 < count); i0 = (i0 + 1)) {
-			dsp->iRec3[0] = ((1103515245 * dsp->iRec3[1]) + 12345);
-			dsp->fRec4[0] = (fSlow0 + (dsp->fConst3 * dsp->fRec4[1]));
-			float fTemp0 = tanf((dsp->fConst1 * ((500.0f * dsp->fRec4[0]) + 40.0f)));
-			float fTemp1 = (1.0f / fTemp0);
-			float fTemp2 = mydsp_faustpower2_f(fTemp0);
-			float fTemp3 = (((fTemp1 + 1.41421354f) / fTemp0) + 1.0f);
-			dsp->fRec2[0] = ((4.65661287e-10f * (float)dsp->iRec3[0]) - (((dsp->fRec2[2] * (((fTemp1 + -1.41421354f) / fTemp0) + 1.0f)) + (2.0f * (dsp->fRec2[1] * (1.0f - (1.0f / fTemp2))))) / fTemp3));
-			float fTemp4 = tanf((dsp->fConst1 * ((15000.0f * dsp->fRec4[0]) + 500.0f)));
-			float fTemp5 = (1.0f / fTemp4);
-			float fTemp6 = (((fTemp5 + 1.41421354f) / fTemp4) + 1.0f);
-			dsp->fRec1[0] = (((((dsp->fRec2[1] * (0.0f - (2.0f / fTemp2))) + (dsp->fRec2[0] / fTemp2)) + (dsp->fRec2[2] / fTemp2)) / fTemp3) - (((dsp->fRec1[2] * (((fTemp5 + -1.41421354f) / fTemp4) + 1.0f)) + (2.0f * (dsp->fRec1[1] * (1.0f - (1.0f / mydsp_faustpower2_f(fTemp4)))))) / fTemp6));
-			dsp->fVec0[0] = fSlow1;
-			dsp->iRec5[0] = (((dsp->iRec5[1] + (dsp->iRec5[1] > 0)) * (fSlow1 <= dsp->fVec0[1])) + (fSlow1 > dsp->fVec0[1]));
-			dsp->fRec6[0] = (fSlow2 + (dsp->fConst3 * dsp->fRec6[1]));
-			float fTemp7 = ((float)dsp->iRec5[0] / fmaxf(1.0f, (dsp->fConst4 * dsp->fRec6[0])));
-			float fTemp8 = (3.0f * (((dsp->fRec1[2] + (dsp->fRec1[0] + (2.0f * dsp->fRec1[1]))) * fmaxf(0.0f, fminf(fTemp7, (2.0f - fTemp7)))) / fTemp6));
-			dsp->fRec7[0] = (fSlow3 + (dsp->fConst3 * dsp->fRec7[1]));
-			dsp->fRec0[0] = (fTemp8 - ((dsp->fConst6 * (dsp->fRec0[1] * cosf((dsp->fConst7 * dsp->fRec7[0])))) + (dsp->fConst8 * dsp->fRec0[2])));
-			dsp->fRec8[0] = (fTemp8 - ((dsp->fConst10 * (dsp->fRec8[1] * cosf((dsp->fConst7 * (dsp->fRec7[0] + 200.0f))))) + (dsp->fConst11 * dsp->fRec8[2])));
-			dsp->fRec9[0] = (fTemp8 - ((dsp->fConst13 * (dsp->fRec9[1] * cosf((dsp->fConst7 * (dsp->fRec7[0] + 400.0f))))) + (dsp->fConst14 * dsp->fRec9[2])));
-			dsp->fRec10[0] = (fTemp8 - ((dsp->fConst16 * (dsp->fRec10[1] * cosf((dsp->fConst7 * (dsp->fRec7[0] + 600.0f))))) + (dsp->fConst17 * dsp->fRec10[2])));
-			dsp->fRec11[0] = (fTemp8 - ((dsp->fConst19 * (dsp->fRec11[1] * cosf((dsp->fConst7 * (dsp->fRec7[0] + 800.0f))))) + (dsp->fConst20 * dsp->fRec11[2])));
-			dsp->fRec12[0] = (fTemp8 - ((dsp->fConst22 * (dsp->fRec12[1] * cosf((dsp->fConst7 * (dsp->fRec7[0] + 1000.0f))))) + (dsp->fConst23 * dsp->fRec12[2])));
-			dsp->fRec13[0] = (fTemp8 - ((dsp->fConst25 * (dsp->fRec13[1] * cosf((dsp->fConst7 * (dsp->fRec7[0] + 1200.0f))))) + (dsp->fConst26 * dsp->fRec13[2])));
-			dsp->fRec14[0] = (fTemp8 - ((dsp->fConst28 * (dsp->fRec14[1] * cosf((dsp->fConst7 * (dsp->fRec7[0] + 1400.0f))))) + (dsp->fConst29 * dsp->fRec14[2])));
-			dsp->fRec15[0] = (fTemp8 - ((dsp->fConst31 * (dsp->fRec15[1] * cosf((dsp->fConst7 * (dsp->fRec7[0] + 1600.0f))))) + (dsp->fConst32 * dsp->fRec15[2])));
-			dsp->fRec16[0] = (fTemp8 - ((dsp->fConst34 * (dsp->fRec16[1] * cosf((dsp->fConst7 * (dsp->fRec7[0] + 1800.0f))))) + (dsp->fConst35 * dsp->fRec16[2])));
-			dsp->fRec17[0] = (fTemp8 - ((dsp->fConst37 * (dsp->fRec17[1] * cosf((dsp->fConst7 * (dsp->fRec7[0] + 2000.0f))))) + (dsp->fConst38 * dsp->fRec17[2])));
-			dsp->fRec18[0] = (fTemp8 - ((dsp->fConst40 * (dsp->fRec18[1] * cosf((dsp->fConst7 * (dsp->fRec7[0] + 2200.0f))))) + (dsp->fConst41 * dsp->fRec18[2])));
-			dsp->fRec19[0] = (fTemp8 - ((dsp->fConst43 * (dsp->fRec19[1] * cosf((dsp->fConst7 * (dsp->fRec7[0] + 2400.0f))))) + (dsp->fConst44 * dsp->fRec19[2])));
-			dsp->fRec20[0] = (fTemp8 - ((dsp->fConst46 * (dsp->fRec20[1] * cosf((dsp->fConst7 * (dsp->fRec7[0] + 2600.0f))))) + (dsp->fConst47 * dsp->fRec20[2])));
-			dsp->fRec21[0] = (fTemp8 - ((dsp->fConst49 * (dsp->fRec21[1] * cosf((dsp->fConst7 * (dsp->fRec7[0] + 2800.0f))))) + (dsp->fConst50 * dsp->fRec21[2])));
-			dsp->fRec22[0] = (fTemp8 - ((dsp->fConst52 * (dsp->fRec22[1] * cosf((dsp->fConst7 * (dsp->fRec7[0] + 3000.0f))))) + (dsp->fConst53 * dsp->fRec22[2])));
-			dsp->fRec23[0] = (fTemp8 - ((dsp->fConst55 * (dsp->fRec23[1] * cosf((dsp->fConst7 * (dsp->fRec7[0] + 3200.0f))))) + (dsp->fConst56 * dsp->fRec23[2])));
-			dsp->fRec24[0] = (fTemp8 - ((dsp->fConst58 * (dsp->fRec24[1] * cosf((dsp->fConst7 * (dsp->fRec7[0] + 3400.0f))))) + (dsp->fConst59 * dsp->fRec24[2])));
-			dsp->fRec25[0] = (fTemp8 - ((dsp->fConst61 * (dsp->fRec25[1] * cosf((dsp->fConst7 * (dsp->fRec7[0] + 3600.0f))))) + (dsp->fConst62 * dsp->fRec25[2])));
-			dsp->fRec26[0] = (fTemp8 - ((dsp->fConst64 * (dsp->fRec26[1] * cosf((dsp->fConst7 * (dsp->fRec7[0] + 3800.0f))))) + (dsp->fConst65 * dsp->fRec26[2])));
+	for (; (i0 < count); i0 = (i0 + 1)) {
+		dsp->iRec3[0] = ((1103515245 * dsp->iRec3[1]) + 12345);
+		dsp->fRec4[0] = (fSlow0 + (dsp->fConst3 * dsp->fRec4[1]));
+		float fTemp0 = tanfmydsp((dsp->fConst1 * ((500.0f * dsp->fRec4[0]) + 40.0f)), dsp->fTanCache[0]);
+		float fTemp1 = (1.0f / fTemp0);
+		float fTemp2 = mydsp_faustpower2_f(fTemp0);
+		float fTemp3 = (((fTemp1 + 1.41421354f) / fTemp0) + 1.0f);
+		dsp->fRec2[0] = ((4.65661287e-10f * (float)dsp->iRec3[0]) - (((dsp->fRec2[2] * (((fTemp1 + -1.41421354f) / fTemp0) + 1.0f)) + (2.0f * (dsp->fRec2[1] * (1.0f - (1.0f / fTemp2))))) / fTemp3));
+		float fTemp4 = tanfmydsp((dsp->fConst1 * ((15000.0f * dsp->fRec4[0]) + 500.0f)), dsp->fTanCache[1]);
+		float fTemp5 = (1.0f / fTemp4);
+		float fTemp6 = (((fTemp5 + 1.41421354f) / fTemp4) + 1.0f);
+		dsp->fRec1[0] = (((((dsp->fRec2[1] * (0.0f - (2.0f / fTemp2))) + (dsp->fRec2[0] / fTemp2)) + (dsp->fRec2[2] / fTemp2)) / fTemp3) - (((dsp->fRec1[2] * (((fTemp5 + -1.41421354f) / fTemp4) + 1.0f)) + (2.0f * (dsp->fRec1[1] * (1.0f - (1.0f / mydsp_faustpower2_f(fTemp4)))))) / fTemp6));
+		dsp->fVec0[0] = fSlow1;
+		dsp->iRec5[0] = (((dsp->iRec5[1] + (dsp->iRec5[1] > 0)) * (fSlow1 <= dsp->fVec0[1])) + (fSlow1 > dsp->fVec0[1]));
+		dsp->fRec6[0] = (fSlow2 + (dsp->fConst3 * dsp->fRec6[1]));
+		float fTemp7 = ((float)dsp->iRec5[0] / fmaxf(1.0f, (dsp->fConst4 * dsp->fRec6[0])));
+		float fEnv = fmaxf(0.0f, fminf(fTemp7, (2.0f - fTemp7))); /* hand-edited: the strike envelope */
+		float fTemp8 = (3.0f * (((dsp->fRec1[2] + (dsp->fRec1[0] + (2.0f * dsp->fRec1[1]))) * fEnv) / fTemp6));
+		dsp->fRec7[0] = (fSlow3 + (dsp->fConst3 * dsp->fRec7[1]));
+		if (bModes) {
+			dsp->fRec0[0] = (fTemp8 - ((dsp->fConst6 * (dsp->fRec0[1] * (bSettled ? keepmydsp(fCos[0]) : cosf((dsp->fConst7 * dsp->fRec7[0]))))) + (dsp->fConst8 * dsp->fRec0[2])));
+			dsp->fRec8[0] = (fTemp8 - ((dsp->fConst10 * (dsp->fRec8[1] * (bSettled ? keepmydsp(fCos[1]) : cosf((dsp->fConst7 * (dsp->fRec7[0] + 200.0f)))))) + (dsp->fConst11 * dsp->fRec8[2])));
+			dsp->fRec9[0] = (fTemp8 - ((dsp->fConst13 * (dsp->fRec9[1] * (bSettled ? keepmydsp(fCos[2]) : cosf((dsp->fConst7 * (dsp->fRec7[0] + 400.0f)))))) + (dsp->fConst14 * dsp->fRec9[2])));
+			dsp->fRec10[0] = (fTemp8 - ((dsp->fConst16 * (dsp->fRec10[1] * (bSettled ? keepmydsp(fCos[3]) : cosf((dsp->fConst7 * (dsp->fRec7[0] + 600.0f)))))) + (dsp->fConst17 * dsp->fRec10[2])));
+			dsp->fRec11[0] = (fTemp8 - ((dsp->fConst19 * (dsp->fRec11[1] * (bSettled ? keepmydsp(fCos[4]) : cosf((dsp->fConst7 * (dsp->fRec7[0] + 800.0f)))))) + (dsp->fConst20 * dsp->fRec11[2])));
+			dsp->fRec12[0] = (fTemp8 - ((dsp->fConst22 * (dsp->fRec12[1] * (bSettled ? keepmydsp(fCos[5]) : cosf((dsp->fConst7 * (dsp->fRec7[0] + 1000.0f)))))) + (dsp->fConst23 * dsp->fRec12[2])));
+			dsp->fRec13[0] = (fTemp8 - ((dsp->fConst25 * (dsp->fRec13[1] * (bSettled ? keepmydsp(fCos[6]) : cosf((dsp->fConst7 * (dsp->fRec7[0] + 1200.0f)))))) + (dsp->fConst26 * dsp->fRec13[2])));
+			dsp->fRec14[0] = (fTemp8 - ((dsp->fConst28 * (dsp->fRec14[1] * (bSettled ? keepmydsp(fCos[7]) : cosf((dsp->fConst7 * (dsp->fRec7[0] + 1400.0f)))))) + (dsp->fConst29 * dsp->fRec14[2])));
+			dsp->fRec15[0] = (fTemp8 - ((dsp->fConst31 * (dsp->fRec15[1] * (bSettled ? keepmydsp(fCos[8]) : cosf((dsp->fConst7 * (dsp->fRec7[0] + 1600.0f)))))) + (dsp->fConst32 * dsp->fRec15[2])));
+			dsp->fRec16[0] = (fTemp8 - ((dsp->fConst34 * (dsp->fRec16[1] * (bSettled ? keepmydsp(fCos[9]) : cosf((dsp->fConst7 * (dsp->fRec7[0] + 1800.0f)))))) + (dsp->fConst35 * dsp->fRec16[2])));
+			dsp->fRec17[0] = (fTemp8 - ((dsp->fConst37 * (dsp->fRec17[1] * (bSettled ? keepmydsp(fCos[10]) : cosf((dsp->fConst7 * (dsp->fRec7[0] + 2000.0f)))))) + (dsp->fConst38 * dsp->fRec17[2])));
+			dsp->fRec18[0] = (fTemp8 - ((dsp->fConst40 * (dsp->fRec18[1] * (bSettled ? keepmydsp(fCos[11]) : cosf((dsp->fConst7 * (dsp->fRec7[0] + 2200.0f)))))) + (dsp->fConst41 * dsp->fRec18[2])));
+			dsp->fRec19[0] = (fTemp8 - ((dsp->fConst43 * (dsp->fRec19[1] * (bSettled ? keepmydsp(fCos[12]) : cosf((dsp->fConst7 * (dsp->fRec7[0] + 2400.0f)))))) + (dsp->fConst44 * dsp->fRec19[2])));
+			dsp->fRec20[0] = (fTemp8 - ((dsp->fConst46 * (dsp->fRec20[1] * (bSettled ? keepmydsp(fCos[13]) : cosf((dsp->fConst7 * (dsp->fRec7[0] + 2600.0f)))))) + (dsp->fConst47 * dsp->fRec20[2])));
+			dsp->fRec21[0] = (fTemp8 - ((dsp->fConst49 * (dsp->fRec21[1] * (bSettled ? keepmydsp(fCos[14]) : cosf((dsp->fConst7 * (dsp->fRec7[0] + 2800.0f)))))) + (dsp->fConst50 * dsp->fRec21[2])));
+			dsp->fRec22[0] = (fTemp8 - ((dsp->fConst52 * (dsp->fRec22[1] * (bSettled ? keepmydsp(fCos[15]) : cosf((dsp->fConst7 * (dsp->fRec7[0] + 3000.0f)))))) + (dsp->fConst53 * dsp->fRec22[2])));
+			dsp->fRec23[0] = (fTemp8 - ((dsp->fConst55 * (dsp->fRec23[1] * (bSettled ? keepmydsp(fCos[16]) : cosf((dsp->fConst7 * (dsp->fRec7[0] + 3200.0f)))))) + (dsp->fConst56 * dsp->fRec23[2])));
+			dsp->fRec24[0] = (fTemp8 - ((dsp->fConst58 * (dsp->fRec24[1] * (bSettled ? keepmydsp(fCos[17]) : cosf((dsp->fConst7 * (dsp->fRec7[0] + 3400.0f)))))) + (dsp->fConst59 * dsp->fRec24[2])));
+			dsp->fRec25[0] = (fTemp8 - ((dsp->fConst61 * (dsp->fRec25[1] * (bSettled ? keepmydsp(fCos[18]) : cosf((dsp->fConst7 * (dsp->fRec7[0] + 3600.0f)))))) + (dsp->fConst62 * dsp->fRec25[2])));
+			dsp->fRec26[0] = (fTemp8 - ((dsp->fConst64 * (dsp->fRec26[1] * (bSettled ? keepmydsp(fCos[19]) : cosf((dsp->fConst7 * (dsp->fRec7[0] + 3800.0f)))))) + (dsp->fConst65 * dsp->fRec26[2])));
 			output0[i0] = (FAUSTFLOAT)(0.0500000007f * ((((((((((((((((((((dsp->fRec0[0] + (0.25f * (dsp->fRec8[0] - dsp->fRec8[2]))) + (0.111111112f * (dsp->fRec9[0] - dsp->fRec9[2]))) + (0.0625f * (dsp->fRec10[0] - dsp->fRec10[2]))) + (0.0399999991f * (dsp->fRec11[0] - dsp->fRec11[2]))) + (0.027777778f * (dsp->fRec12[0] - dsp->fRec12[2]))) + (0.0204081628f * (dsp->fRec13[0] - dsp->fRec13[2]))) + (0.015625f * (dsp->fRec14[0] - dsp->fRec14[2]))) + (0.0123456791f * (dsp->fRec15[0] - dsp->fRec15[2]))) + (0.00999999978f * (dsp->fRec16[0] - dsp->fRec16[2]))) + (0.00826446246f * (dsp->fRec17[0] - dsp->fRec17[2]))) + (0.0069444445f * (dsp->fRec18[0] - dsp->fRec18[2]))) + (0.00591715984f * (dsp->fRec19[0] - dsp->fRec19[2]))) + (0.00510204071f * (dsp->fRec20[0] - dsp->fRec20[2]))) + (0.00444444455f * (dsp->fRec21[0] - dsp->fRec21[2]))) + (0.00390625f * (dsp->fRec22[0] - dsp->fRec22[2]))) + (0.00346020772f * (dsp->fRec23[0] - dsp->fRec23[2]))) + (0.00308641978f * (dsp->fRec24[0] - dsp->fRec24[2]))) + (0.00277008303f * (dsp->fRec25[0] - dsp->fRec25[2]))) + (0.00249999994f * (dsp->fRec26[0] - dsp->fRec26[2]))) - dsp->fRec0[2]));
-			dsp->iRec3[1] = dsp->iRec3[0];
-			dsp->fRec4[1] = dsp->fRec4[0];
-			dsp->fRec2[2] = dsp->fRec2[1];
-			dsp->fRec2[1] = dsp->fRec2[0];
-			dsp->fRec1[2] = dsp->fRec1[1];
-			dsp->fRec1[1] = dsp->fRec1[0];
-			dsp->fVec0[1] = dsp->fVec0[0];
-			dsp->iRec5[1] = dsp->iRec5[0];
-			dsp->fRec6[1] = dsp->fRec6[0];
-			dsp->fRec7[1] = dsp->fRec7[0];
+		} else {
+			if (fEnv != 0.0f) {
+				break; /* a strike: the modes take over from this sample */
+			}
+			output0[i0] = 0.0f;
+		}
+		dsp->iRec3[1] = dsp->iRec3[0];
+		dsp->fRec4[1] = dsp->fRec4[0];
+		dsp->fRec2[2] = dsp->fRec2[1];
+		dsp->fRec2[1] = dsp->fRec2[0];
+		dsp->fRec1[2] = dsp->fRec1[1];
+		dsp->fRec1[1] = dsp->fRec1[0];
+		dsp->fVec0[1] = dsp->fVec0[0];
+		dsp->iRec5[1] = dsp->iRec5[0];
+		dsp->fRec6[1] = dsp->fRec6[0];
+		dsp->fRec7[1] = dsp->fRec7[0];
+		if (bModes) {
 			dsp->fRec0[2] = dsp->fRec0[1];
 			dsp->fRec0[1] = dsp->fRec0[0];
 			dsp->fRec8[2] = dsp->fRec8[1];
@@ -576,6 +615,64 @@ void computemydsp(mydsp* dsp, int count, FAUSTFLOAT** inputs, FAUSTFLOAT** outpu
 			dsp->fRec25[1] = dsp->fRec25[0];
 			dsp->fRec26[2] = dsp->fRec26[1];
 			dsp->fRec26[1] = dsp->fRec26[0];
+		}
+	}
+	return i0;
+}
+
+void computemydsp(mydsp* dsp, int count, FAUSTFLOAT** inputs, FAUSTFLOAT** outputs) {
+	FAUSTFLOAT* output0 = outputs[0];
+	int i0 = 0;
+	/* hand-edited: the modes are silent when every state is below FLT_MIN: 0 after loading, or ~7 s after a strike, when
+	   only a denormal tail is left (it never reaches 0, the output stays below 1e-34). Then they are set to 0 and skipped
+	   until a strike, the noise filters and the smoothers keep running. A strike absorbs the dropped tail within 2
+	   samples (with -ffast-math a rounding tie can go the other way: at most 1 LSB of 16 bit). */
+	if (!dsp->iModesSilent) {
+		float* fModes[20] = {dsp->fRec0, dsp->fRec8, dsp->fRec9, dsp->fRec10, dsp->fRec11, dsp->fRec12, dsp->fRec13, dsp->fRec14, dsp->fRec15, dsp->fRec16, dsp->fRec17, dsp->fRec18, dsp->fRec19, dsp->fRec20, dsp->fRec21, dsp->fRec22, dsp->fRec23, dsp->fRec24, dsp->fRec25, dsp->fRec26};
+		int k = 0;
+		while ((k < 20) && (fabsf(fModes[k][1]) < FLT_MIN) && (fabsf(fModes[k][2]) < FLT_MIN)) {
+			k = (k + 1);
+		}
+		if (k == 20) {
+			for (k = 0; (k < 20); k = (k + 1)) {
+				fModes[k][0] = fModes[k][1] = fModes[k][2] = 0.0f;
+			}
+			dsp->iModesSilent = 1;
+		}
+	}
+	if (dsp->iModesSilent) {
+		i0 = computeloopmydsp(dsp, i0, count, output0, 0, 0, 0);
+		dsp->iModesSilent = (i0 == count);
+	}
+	if (i0 < count) {
+		/* hand-edited: once the Freq smoother has settled (its next value is its last one) it stays for the block, and
+		   so do the cosf of the modes */
+		float fSlow3 = (dsp->fConst2 * (float)dsp->fHslider2);
+		if ((fSlow3 + (dsp->fConst3 * dsp->fRec7[1])) == dsp->fRec7[1]) {
+			float fCos[20];
+			fCos[0] = cosf((dsp->fConst7 * dsp->fRec7[1]));
+			fCos[1] = cosf((dsp->fConst7 * (dsp->fRec7[1] + 200.0f)));
+			fCos[2] = cosf((dsp->fConst7 * (dsp->fRec7[1] + 400.0f)));
+			fCos[3] = cosf((dsp->fConst7 * (dsp->fRec7[1] + 600.0f)));
+			fCos[4] = cosf((dsp->fConst7 * (dsp->fRec7[1] + 800.0f)));
+			fCos[5] = cosf((dsp->fConst7 * (dsp->fRec7[1] + 1000.0f)));
+			fCos[6] = cosf((dsp->fConst7 * (dsp->fRec7[1] + 1200.0f)));
+			fCos[7] = cosf((dsp->fConst7 * (dsp->fRec7[1] + 1400.0f)));
+			fCos[8] = cosf((dsp->fConst7 * (dsp->fRec7[1] + 1600.0f)));
+			fCos[9] = cosf((dsp->fConst7 * (dsp->fRec7[1] + 1800.0f)));
+			fCos[10] = cosf((dsp->fConst7 * (dsp->fRec7[1] + 2000.0f)));
+			fCos[11] = cosf((dsp->fConst7 * (dsp->fRec7[1] + 2200.0f)));
+			fCos[12] = cosf((dsp->fConst7 * (dsp->fRec7[1] + 2400.0f)));
+			fCos[13] = cosf((dsp->fConst7 * (dsp->fRec7[1] + 2600.0f)));
+			fCos[14] = cosf((dsp->fConst7 * (dsp->fRec7[1] + 2800.0f)));
+			fCos[15] = cosf((dsp->fConst7 * (dsp->fRec7[1] + 3000.0f)));
+			fCos[16] = cosf((dsp->fConst7 * (dsp->fRec7[1] + 3200.0f)));
+			fCos[17] = cosf((dsp->fConst7 * (dsp->fRec7[1] + 3400.0f)));
+			fCos[18] = cosf((dsp->fConst7 * (dsp->fRec7[1] + 3600.0f)));
+			fCos[19] = cosf((dsp->fConst7 * (dsp->fRec7[1] + 3800.0f)));
+			computeloopmydsp(dsp, i0, count, output0, 1, 1, fCos);
+		} else {
+			computeloopmydsp(dsp, i0, count, output0, 1, 0, 0);
 		}
 	}
 }

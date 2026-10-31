@@ -1,5 +1,6 @@
 #include "rosic_MipMappedWaveTable.h"
 #include <algorithm>
+#include <stdlib.h>
 using namespace rosic;
 
 MipMappedWaveTable::MipMappedWaveTable()
@@ -124,9 +125,11 @@ void MipMappedWaveTable::renderWaveform()
   }
 }
 
-void MipMappedWaveTable::generateMipMap(WaveTable& tableSet)
+bool MipMappedWaveTable::generateMipMap(WaveTable& tableSet)
 {
-  real_t spectrum[tableLength];
+  real_t *spectrum = (real_t*) malloc(tableLength * sizeof(real_t)); // [eh2k] not on the stack
+  if( spectrum == nullptr )
+    return false;
   //static int    position, offset;
   int t, i; // indices for the table and position
 
@@ -176,6 +179,9 @@ void MipMappedWaveTable::generateMipMap(WaveTable& tableSet)
     tableSet[t][tableLength+2] = tableSet[t][2];
     tableSet[t][tableLength+3] = tableSet[t][3];
   }
+
+  free(spectrum);
+  return true;
 }
 
 //-------------------------------------------------------------------------------------------------

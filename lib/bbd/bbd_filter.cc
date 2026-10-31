@@ -16,28 +16,49 @@ cdouble BBD_Filter_Spec::transfer(cdouble::value_type frequency) const noexcept
 }
 #endif
 
-template <class T>
-static void interpolate_row(cdouble::value_type d, unsigned rows, unsigned cols, const T *src, T *dst)
+// complex exp/pow written out: libstdc++ >= 12 calls clogf/cexpf for these, which the loader doesn't provide
+static inline cdouble c_exp(cdouble z)
 {
-    assert(d >= 0);
-    auto row = d * (rows - 1);
-    unsigned row1 = std::min((unsigned)row, rows - 1);
-    unsigned row2 = std::min(row1 + 1, rows - 1);
-    auto mu = row - (unsigned)row;
-    for (unsigned i = 0; i < cols; ++i)
-        dst[i] = (1 - mu) * src[row1 * cols + i] + mu * src[row2 * cols + i];
+    return std::polar(expf(z.real()), z.imag());
 }
 
-void BBD_Filter_Coef::interpolate_G(cdouble::value_type d, cdouble *g/*[M]*/) const noexcept
+// z^d = |z|^d e^(i d arg z): log |z| and arg z of a pole once, not for each of its steps
+struct c_log
 {
-    interpolate_row(d, N, M, G.get(), g);
+    cdouble::value_type lr, arg;
+};
+
+static inline c_log c_logof(cdouble z)
+{
+    const auto r = sqrtf(z.real() * z.real() + z.imag() * z.imag());
+    return {logf(r), atan2f(z.imag(), z.real())};
+}
+
+static inline cdouble c_pow(const c_log &z, cdouble::value_type d)
+{
+    return std::polar(expf(d * z.lr), d * z.arg);
 }
 
 BBD_Filter_Coef BBD::compute_filter(float fs, unsigned steps, const BBD_Filter_Spec &spec)
 {
     BBD_Filter_Coef coef;
     cdouble::value_type ts = 1.0 / fs;
-    unsigned M = spec.M;
+
+    // [eh2k] keep real poles and one pole of each conjugate pair (weight 2: Re(g*x) + Re(conj(g)*conj(x)))
+    unsigned keep[BBD_Filter_Coef::max_M];
+    cdouble::value_type weight[BBD_Filter_Coef::max_M];
+    unsigned M = 0;
+    for (unsigned m = 0; m < spec.M && M < BBD_Filter_Coef::max_M; ++m) {
+        const cdouble p = spec.P[m], r = spec.R[m];
+        bool partner_kept = false, partner_later = false;
+        for (unsigned k = 0; k < spec.M; ++k)
+            if (k != m && p.imag() != 0 && spec.P[k] == std::conj(p) && spec.R[k] == std::conj(r))
+                (k < m ? partner_kept : partner_later) = true;
+        if (partner_kept)
+            continue;
+        keep[M] = m;
+        weight[M++] = partner_later ? 2 : 1;
+    }
 
     coef.M = M;
     coef.N = steps;
@@ -45,8 +66,11 @@ BBD_Filter_Coef BBD::compute_filter(float fs, unsigned steps, const BBD_Filter_S
     coef.P.reset(new cdouble[M]);
 
     cdouble *pm = coef.P.get();
-    for (unsigned m = 0; m < M; ++m)
-        pm[m] = std::exp(ts * spec.P[m]);
+    c_log lm[BBD_Filter_Coef::max_M];
+    for (unsigned m = 0; m < M; ++m) {
+        pm[m] = c_exp(ts * spec.P[keep[m]]);
+        lm[m] = c_logof(pm[m]);
+    }
 
     for (unsigned step = 0; step < steps; ++step)  {
         auto d = (cdouble::value_type)step / (steps - 1);
@@ -54,17 +78,17 @@ BBD_Filter_Coef BBD::compute_filter(float fs, unsigned steps, const BBD_Filter_S
         switch (spec.kind) {
         case BBD_Filter_Kind::Input:
             for (unsigned m = 0; m < M; ++m)
-                gm[m] = ts * spec.R[m] * std::pow(pm[m], d);
+                gm[m] = weight[m] * ts * spec.R[keep[m]] * c_pow(lm[m], d);
             break;
         case BBD_Filter_Kind::Output:
             for (unsigned m = 0; m < M; ++m)
-                gm[m] = (spec.R[m] / spec.P[m]) * std::pow(pm[m], 1 - d);
+                gm[m] = weight[m] * (spec.R[keep[m]] / spec.P[keep[m]]) * c_pow(lm[m], 1 - d);
             break;
         }
     }
 
     cdouble H = 0;
-    for (unsigned m = 0; m < M; ++m)
+    for (unsigned m = 0; m < spec.M; ++m)
         H -= spec.R[m] / spec.P[m];
     coef.H = H.real();
 

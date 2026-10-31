@@ -5,17 +5,11 @@
 #include "rosic_BlendOscillator.h"
 #include "rosic_BiquadFilter.h"
 #include "rosic_TeeBeeFilter.h"
-#include "rosic_AnalogEnvelope.h"
 #include "rosic_DecayEnvelope.h"
 #include "rosic_LeakyIntegrator.h"
-#include "rosic_EllipticQuarterBandFilter.h"
-#ifdef SEQUENCER
-#include "rosic_AcidSequencer.h"
-#endif
-#define FLASHMEM_WAVETABLE
-#ifndef FLASHMEM_WAVETABLE
-#include "wavetable_gen/rosic_MipMappedWaveTable.h"
-#endif
+#include "rosic_OnePoleFilter.h"
+#include "rosic_Character.h"
+#include "rosic_CharacterOpen303.h"
 
 // #include <list>
 // using namespace std; // for the noteList
@@ -59,6 +53,13 @@ namespace rosic
   This is a monophonic bass-synth that aims to emulate the sound of the famous Roland TB 303 and
   goes a bit beyond.
 
+  [eh2k] The voice of Open303 (its wavetable oscillator, TeeBeeFilter, envelopes and one-pole
+  filters) with a control whose every constant is a character (rosic_Character.h), switched with
+  setCharacter(): Open303's own voicing (rosic_CharacterOpen303.h, the default) or one an app
+  brings, e.g. fitted to recordings of another voice (see ../README.md). The parameters keep Open303's
+  units: setCutoff() takes 314...2394 Hz, setDecay() 200...2000 ms (both read as knob
+  positions), setResonance(), setEnvMod() and setAccent() percent.
+
   */
 
   class Open303
@@ -69,7 +70,8 @@ namespace rosic
     //-----------------------------------------------------------------------------------------------
     // construction/destruction:
 
-    /** Constructor. */
+    /** Constructor, with Open303's own character. The oscillator reads the saw table; the square
+    (setWaveform(1)) is a pulse made from two reads of it, the second table is not used. */
     Open303(const rosic::WaveTable *saw, const rosic::WaveTable *square);
 
     /** Destructor. */
@@ -79,110 +81,68 @@ namespace rosic
     // parameter settings:
 
     /** Sets the sample-rate (in Hz). */
-    void setSampleRate(real_t newSampleRate, int oversampling = 4);
+    void setSampleRate(real_t newSampleRate, int oversampling = 1);
 
-    /** Sets up the waveform continuously between saw and square - the input should be in the range 
-    0...1 where 0 means pure saw and 1 means pure square. */
+    /** Sets the character (rosic_Character.h; it must stay valid while it is used). A change takes
+    effect with the next note (not on a slide), before the first note at once: switching in the
+    middle of a note would click. */
+    void setCharacter(const Character *newCharacter);
+
+    /** Sets up the waveform: 0 saw, 1 pulse (values in between mix the two). */
     void setWaveform(real_t newWaveform) { oscillator.setBlendFactor(newWaveform); }
 
     /** Sets the master tuning frequency for note A4 (usually 440 Hz). */
     void setTuning(real_t newTuning) { tuning = newTuning; }
 
-    /** Sets the filter's nominal cutoff frequency (in Hz). */
-    void setCutoff(real_t newCutoff); 
+    /** Sets the cutoff knob as Open303's nominal cutoff, 314...2394 Hz. */
+    void setCutoff(real_t newCutoff);
 
-    /** Sets the resonance amount for the filter. */
-    void setResonance(real_t newResonance) { filter.setResonance(newResonance); }
+    /** Sets the resonance knob (in percent). */
+    void setResonance(real_t newResonance);
 
-    /** Sets the modulation depth of the filter's cutoff frequency by the filter-envelope generator 
-    (in percent). */
+    /** Sets the env mod knob (in percent). */
     void setEnvMod(real_t newEnvMod);
 
-    /** Sets the main envelope's decay time for non-accented notes (in milliseconds). 
-    Devil Fish provides range of 30...3000 ms for this parameter. On the normal 303, this 
-    parameter had a range of 200...2000 ms.  */
-    void setDecay(real_t newDecay) { normalDecay = newDecay; }
+    /** Sets the decay knob as Open303's decay time for non-accented notes, 200...2000 ms. Accented
+    notes have a decay of their own. */
+    void setDecay(real_t newDecay);
 
-    /** Sets the accent (in percent).  */
+    /** Sets the accent knob (in percent).  */
     void setAccent(real_t newAccent);
 
     /** Sets the master volume level (in dB). */
-    void setVolume(real_t newVolume);     
+    void setVolume(real_t newVolume);
 
-    //  from here: parameter settings which were not available to the user in the 303:
-
-    /** Sets the amplitudes envelope's sustain level in decibels. Devil Fish uses the second half 
-    of the range of the (amplitude) decay pot for this and lets the user adjust it between 0 
-    and 100% of the full volume. In the normal 303, this parameter was fixed to zero. */
-    void setAmpSustain(real_t newAmpSustain) { ampEnv.setSustainInDecibels(newAmpSustain); }
-
-    /** Sets the cutoff frequency for the highpass before the main filter. */
-    void setPreFilterHighpass(real_t newCutoff) { highpass1.setCutoff(newCutoff); }
-
-    /** Sets the cutoff frequency for the highpass inside the feedback loop of the main filter. */
-    void setFeedbackHighpass(real_t newCutoff) { filter.setFeedbackHighpassCutoff(newCutoff); }
-
-    /** Sets the cutoff frequency for the highpass after the main filter. */
-    void setPostFilterHighpass(real_t newCutoff) { highpass2.setCutoff(newCutoff); }
-
-    /** Sets the slide-time (in ms). The TB-303 had a slide time of 60 ms. */
+    /** Sets the slide-time: the time constant of the glide (in ms, two one-poles in series). */
     void setSlideTime(real_t newSlideTime);
 
-    /** Sets the filter envelope's attack time for non-accented notes (in milliseconds). 
-    Devil Fish provides range of 0.3...30 ms for this parameter. */
-    void setNormalAttack(real_t newNormalAttack) 
-    { 
-      normalAttack = newNormalAttack; 
-      rc1.setTimeConstant(normalAttack);
-    }
-
-    /** Sets the filter envelope's attack time for accented notes (in milliseconds). In the 
-    Devil Fish, accented notes have a fixed attack time of 3 ms.  */
-    void setAccentAttack(real_t newAccentAttack) 
-    { 
-      accentAttack = newAccentAttack; 
+    /** Sets the time constant of the RC that smooths the accent's level (in ms). */
+    void setAccentAttack(real_t newAccentAttack)
+    {
+      accentAttack = newAccentAttack;
       rc2.setTimeConstant(accentAttack);
-    }
-
-    /** Sets the filter envelope's decay time for accented notes (in milliseconds). 
-    Devil Fish provides range of 30...3000 ms for this parameter. On the normal 303, this 
-    parameter was fixed to 200 ms.  */
-    void setAccentDecay(real_t newAccentDecay) { accentDecay = newAccentDecay; }
-
-    /** Sets the amplitudes envelope's decay time (in milliseconds). Devil Fish provides range of 
-    16...3000 ms for this parameter. On the normal 303, this parameter was fixed to 
-    approximately 3-4 seconds.  */
-    void setAmpDecay(real_t newAmpDecay) { ampEnv.setDecay(newAmpDecay); }
-
-    /** Sets the amplitudes envelope's release time (in milliseconds). On the normal 303, this 
-    parameter was fixed to .....  */
-    void setAmpRelease(real_t newAmpRelease) 
-    { 
-      normalAmpRelease = newAmpRelease;
-      ampEnv.setRelease(newAmpRelease); 
     }
 
     //-----------------------------------------------------------------------------------------------
     // inquiry:
 
-    /** Returns the waveform as a continuous value between 0...1 where 0 means pure saw and 1 means 
-    pure square. */
+    /** Returns the waveform as a continuous value between 0...1 where 0 means pure saw and 1 means
+    pure pulse. */
     real_t getWaveform() const { return oscillator.getBlendFactor(); }
 
     /** Sets the master tuning frequency for note A4 (usually 440 Hz). */
     real_t getTuning() const { return tuning; }
 
-    /** Returns the filter's nominal cutoff frequency (in Hz). */
+    /** Returns the cutoff knob (in Hz, as set). */
     real_t getCutoff() const { return cutoff; }
 
-    /** Returns the filter's resonance amount (in percent) */
-    real_t getResonance() const { return filter.getResonance(); }
+    /** Returns the resonance knob (in percent) */
+    real_t getResonance() const { return 100.0 * resonance; }
 
-    /** Returns the modulation depth of the filter's cutoff frequency by the filter-envelope 
-    generator (in percent). */
+    /** Returns the env mod knob (in percent). */
     real_t getEnvMod() const { return envMod; }
 
-    /** Returns the filter envelope's decay time for non-accented notes (in milliseconds). */
+    /** Returns the decay knob (in ms, as set). */
     real_t getDecay() const { return normalDecay; }
 
     /** Returns the accent (in percent). */
@@ -191,100 +151,72 @@ namespace rosic
     /** Returns the master volume level (in dB). */
     real_t getVolume() const { return level; }
 
-    //  from here: parameters which were not available to the user in the 303:
-
-    /** Returns the amplitudes envelope's sustain level (in dB). */
-    real_t getAmpSustain() const { return amp2dB(ampEnv.getSustain()); }
-
-    /** Returns the cutoff frequency for the highpass before the main filter. */
-    real_t getPreFilterHighpass() const { return highpass1.getCutoff(); }
-
-    /** Retruns the cutoff frequency for the highpass inside the feedback loop of the main 
-    filter. */
-    real_t getFeedbackHighpass() const { return filter.getFeedbackHighpassCutoff(); }
-
-    /** Returns the cutoff frequency for the highpass after the main filter. */
-    real_t getPostFilterHighpass() const { return highpass2.getCutoff(); }
-
     /** Returns the slide-time (in ms). */
     real_t getSlideTime() const { return slideTime; }
 
-    /** Returns the filter envelope's attack time for non-accented notes (in milliseconds). */
-    real_t getNormalAttack() const { return normalAttack; }
-
-    /** Returns the filter envelope's attack time for non-accented notes (in milliseconds). */
+    /** Returns the time constant of the accent level's RC (in ms). */
     real_t getAccentAttack() const { return accentAttack; }
 
-    /** Returns the filter envelope's decay time for non-accented notes (in milliseconds). */
-    real_t getAccentDecay() const { return accentDecay; }
-
-    /** Returns the amplitudes envelope's decay time (in milliseconds). */
-    real_t getAmpDecay() const { return ampEnv.getDecay(); }
-
-    /** Returns the amplitudes envelope's release time (in milliseconds). */
-    real_t getAmpRelease() const { return normalAmpRelease; }
+    /** Returns the character (the one sounding; a new one waits for the next note). */
+    const Character *getCharacter() const { return character; }
 
     //-----------------------------------------------------------------------------------------------
     // audio processing:
 
-    /** Calculates onse output sample at a time. */
-    INLINE real_t getSample(); 
+    /** Calculates onse output sample at a time. [eh2k] With an input, that sample goes through the
+    voice in place of the oscillator's (the highpass, the filter, the amp: the 303 as a filter and VCA
+    for an external signal); the oscillator stands. */
+    INLINE real_t getSample(const real_t *input = nullptr);
 
     //-----------------------------------------------------------------------------------------------
     // event handling:
 
-    /** Accepts note-on events (note offs are also handled here as note ons with velocity zero). */ 
+    /** Accepts note-on events (note offs are also handled here as note ons with velocity zero). */
     void noteOn(int noteNumber, int velocity, real_t detune);
 
     /** Turns all possibly running notes off. */
     void allNotesOff();
 
-    /** Sets the pitchbend value in semitones. */ 
-    void setPitchBend(real_t newPitchBend);  
+    /** Sets the pitchbend value in semitones. */
+    void setPitchBend(real_t newPitchBend);
 
     //-----------------------------------------------------------------------------------------------
-    // embedded objects: 
+    // embedded objects:
+
     BlendOscillator           oscillator;
     TeeBeeFilter              filter;
-    AnalogEnvelope            ampEnv; 
     DecayEnvelope             mainEnv;
-    LeakyIntegrator           pitchSlewLimiter;
-    //LeakyIntegrator           ampDeClicker;
-    BiquadFilter              ampDeClicker;
-    LeakyIntegrator           rc1, rc2;
-    OnePoleFilter             highpass1, highpass2, allpass; 
-    BiquadFilter              notch;
-    EllipticQuarterBandFilter antiAliasFilter;
-#ifdef SEQUENCER
-    AcidSequencer             sequencer;
-#endif
+    LeakyIntegrator           pitchSlewLimiter, pitchSlewLimiter2;
+    LeakyIntegrator           rc1, rc2, rc4;
+    OnePoleFilter             highpass1, highpass2, allpass;
+    BiquadFilter              notch, ampDeClicker;
 
   protected:
 
-    /** Triggers a note (called either directly in noteOn or in getSample when the sequencer is 
-    used). */
-    void triggerNote(int noteNumber, bool hasAccent);
+    /** Triggers a note; while the gate is still on (a note held) it slides to it instead if the
+    character says so (legatoSlides: with overlapping notes). The note may be fractional. */
+    void triggerNote(real_t noteNumber, bool hasAccent);
 
-    /** Slides to a note (called either directly in noteOn or in getSample when the sequencer is 
-    used). */
-    void slideToNote(int noteNumber, bool hasAccent);
+    /** Slides to a note (no new envelopes). */
+    void slideToNote(real_t noteNumber, bool hasAccent);
 
-    /** Releases a note (called either directly in noteOn or in getSample when the sequencer is 
-    used). */
-    void releaseNote(int noteNumber);
+    /** Releases a note (the gate goes off). */
+    void releaseNote(real_t noteNumber);
 
-    /** Sets the decay-time of the main envelope and updates the normalizers n1, n2 accordingly. */
-    void setMainEnvDecay(real_t newDecay);
+    /** Turns the knobs into the control's terms: cutoff, env and accent depth, resonance and gain. */
+    void calculateControl();
 
-    void calculateEnvModScalerAndOffset();
+    /** A setter changed a knob: calculateControl() before the next sample or note. */
+    void controlChange() { controlChanged = true; }
 
-    /** Updates the normalizer n1 according to the time-constant of rc1 and the decay-time of the
-    main envelope generator. */
-    void updateNormalizer1();
+    /** Sets up what depends on the character and the sample rate: time constants, filters. */
+    void calculateCharacter();
 
-    /** Updates the normalizer n2 according to the time-constant of rc2 and the decay-time of the
-    main envelope generator. */
-    void updateNormalizer2();
+    /** Makes a character the one sounding. */
+    void applyCharacter(const Character *newCharacter);
+
+    const Character *character;
+    const Character *pendingCharacter; // setCharacter()'s, for the next note
 
     int oversampling = 1;
 
@@ -293,129 +225,140 @@ namespace rosic
     real_t oscFreq;          // frequecy of the oscillator (without pitchbend)
     real_t sampleRate;       // the (non-oversampled) sample rate
     real_t level;            // master volume level (in dB)
-    real_t levelByVel;       // velocity dependence of the level (in dB)
-    real_t accent;           // scales all "byVel" parameters
-    real_t slideTime;        // the time to slide from one note to another (in ms)
-    real_t cutoff;           // nominal cutoff frequency of the filter
-    real_t envMod;           // strength of the envelope modulation in percent
-    real_t envUpFraction;    // fraction of the envelope that goes upward
-    real_t envOffset;        // offset for the normalized envelope ('bipolarity' parameter)
-    real_t envScaler;        // scale-factor for the normalized envelope (derived from envMod)
-    real_t normalAttack;     // attack time for the filter envelope on non-accented notes
-    real_t accentAttack;     // attack time for the filter envelope on accented notes
-    real_t normalDecay;      // decay time for the filter envelope on non-accented notes
-    real_t accentDecay;      // decay time for the filter envelope on accented notes
-    real_t normalAmpRelease; // amp-env release time for non-accented notes
-    real_t accentAmpRelease; // amp-env release time for accented notes
-    real_t accentGain;       // between 0.0...1.0 - to scale the 3rd amp-envelope on accents
+    real_t accent;           // the accent knob, 0...1
+    real_t slideTime;        // the glide's time constant (in ms)
+    real_t cutoff;           // the cutoff knob (in Hz)
+    real_t resonance;        // the resonance knob, 0...1
+    real_t envMod;           // the env mod knob (in percent)
+    real_t normalDecay;      // the decay knob (in ms)
+    real_t accentAttack;     // the accent RC's time constant (in ms)
+    real_t accentGain;       // 1 on an accented note, else 0
+    real_t accentHeld;       // accent knob on an accented note, else 0
     real_t pitchWheelFactor; // scale factor for oscillator frequency from pitch-wheel
-    real_t n1, n2;           // normalizers for the RCs that are driven by the MEG
+
+    // the control's terms (calculateControl): log2 of the cutoff in Hz = cutBase + cutEnv*shaped env +
+    // cutAccent*accent sweep; the filter's (skewed) resonance = resBase + resEnv*env; the gain in
+    // log2 = gainBase + gainEnv*env + gainAccent*accentEnv; the accent's level on the amp
+    real_t cutBase, cutEnv, cutAccent, resBase, resEnv, gainBase, gainEnv, ampAccent;
+    real_t normalDecayTau;   // the filter envelope's time constant for non-accented notes (in ms)
+    real_t gateLevel;        // the amp's gate, smoothed
+    real_t gateAttack, gateRelease, gateReleaseAccent; // its one-pole coefficients
+    real_t noteRelease;      // the release of the note sounding (gateRelease or gateReleaseAccent)
+    real_t gatedEnv;         // ampEnvGated + ampAccentGated * accent knob on an accented note
+
+    // the character's values getSample() uses, copied (calculateCharacter())
+    real_t accentThreshold, accentThresholdScale, envShape, envShapeNorm, cutMin, cutMax, ampTarget, gainAccent;
+    bool   hardGate, ampSmoothing;
+    real_t ampLevel, ampCoeff; // the amp envelope and its one-pole coefficient
+    real_t accentLevel, accentLevelCoeff; // the accent level's envelope (restarted by accented notes)
+    bool   accentCircuit;    // the character's: the accent's sweep as the TB-303's circuit
+    real_t accentDiode;      // its diode's drop
+    real_t sweepSamples;     // the time constant of its pot and capacitor in samples
+    real_t sweepCap;         // its capacitor's voltage
+    real_t sweepOn, sweepIn, sweepS, sweepC, sweepCoeffOn, sweepCoeffOff; // calculateControl()'s, per resonance
+    int    gateHoldSamples, gateHoldLeft; // the amp's gate after the gate
+    bool   gateOn;
+    bool   controlChanged;   // calculateControl() is due
+
     int    currentNote;      // note which is currently played (-1 if none)
     int    currentVel;       // velocity of currently played note
-    int    noteOffCountDown; // a countdown variable till next note-off in sequencer mode
-    bool   slideToNextNote;  // indicate that we need to slide to the next note in sequencer mode
     bool   idle;             // flag to indicate that we have currently nothing to do in getSample
-
     list<MidiNoteEvent> noteList;
 
   };
 
-  //-------------------------------------------------------------------------------------------------
+  //-----------------------------------------------------------------------------------------------
   // inlined functions:
 
-  INLINE real_t Open303::getSample()
+  INLINE real_t Open303::getSample(const real_t *input)
   {
-    //if( sequencer.getSequencerMode() == AcidSequencer::OFF && ampEnv.endIsReached() )
-    //  return 0.0;
     if( idle )
       return 0.0;
 
-#ifdef SEQUENCER
-    // check the sequencer if we have some note to trigger:
-    if( sequencer.getSequencerMode() != AcidSequencer::OFF )
+    if( controlChanged ) // [eh2k] a knob moved: once for all the setters of a block
+      calculateControl();
+
+    // calculate instantaneous oscillator frequency and set up the oscillator:
+    const real_t instFreq = pitchSlewLimiter2.getSample(pitchSlewLimiter.getSample(oscFreq));
+
+    // the filter envelope, its attack RC, the accent's level and its sweep's RC (fed only on accented notes):
+    const real_t env  = mainEnv.getSample();
+    const real_t env1 = rc1.getSample(env);
+    accentLevel *= accentLevelCoeff;                       // the accent's level: its own envelope
+    const real_t accentAmount = accentLevel > accentThreshold // above a threshold
+      ? (accentLevel - accentThreshold) * accentThresholdScale : 0.0;
+    const real_t env2 = rc2.getSample(accentAmount);
+    real_t env2c;                                          // the accent's sweep
+    if( accentCircuit ) // the TB-303's: the knob's share of the envelope through a diode into a pot and a capacitor
     {
-      noteOffCountDown--;
-      if( noteOffCountDown == 0 || sequencer.isRunning() == false )
-        releaseNote(currentNote);
-
-      AcidNote *note = sequencer.getNote();
-      if( note != NULL )
+      const real_t s = accentHeld*env - accentDiode;
+      if( s > sweepCap*sweepOn ) // the diode conducts, the capacitor charges
       {
-        if( note->gate == true && currentNote != -1)
-        {
-          int key = note->key + 12*note->octave + currentNote;
-          key = clip(key, 0, 127);
-
-          if( !slideToNextNote )
-            triggerNote(key, note->accent);
-          else
-            slideToNote(key, note->accent);
-
-          AcidNote* nextNote = sequencer.getNextScheduledNote();
-          if( note->slide && nextNote->gate == true )
-          {
-            noteOffCountDown = INT32_MAX;
-            slideToNextNote  = true;
-          }
-          else
-          {
-            noteOffCountDown = sequencer.getStepLengthInSamples();
-            slideToNextNote  = false;
-          }
-        }
+        sweepCap += (sweepIn*s - sweepCap) * sweepCoeffOn;
+        env2c = sweepS*s + sweepC*sweepCap;
+      }
+      else                       // it drains through the wiper
+      {
+        sweepCap -= sweepCap * sweepCoeffOff;
+        env2c = sweepCap*sweepOn;
       }
     }
-#endif
-    // calculate instantaneous oscillator frequency and set up the oscillator:
-    const real_t instFreq = pitchSlewLimiter.getSample(oscFreq);
+    else
+      env2c = rc4.getSample(accentGain * env);
 
-    // calculate instantaneous cutoff frequency from the nominal cutoff and all its modifiers and 
-    // set up the filter:
-    real_t mainEnvOut = mainEnv.getSample();
-    real_t tmp1       = n1 * rc1.getSample(mainEnvOut);
-    real_t tmp2       = 0.0;
-    if( accentGain > 0.0 )
-      tmp2 = mainEnvOut;
-    tmp2 = n2 * rc2.getSample(tmp2);  
-    tmp1 = envScaler * ( tmp1 - envOffset );  // seems not to work yet
-    tmp2 = accentGain*tmp2;
-    real_t instCutoff = cutoff * pow(2.0, tmp1+tmp2);
-    filter.setCutoff(instCutoff);
+    // log2 of the cutoff in Hz; the envelope adds between octaves (envShape 0) and Hz (large envShape)
+    const real_t shaped = envShape > 0.0 ? log2f(1.0 + envShape*env1) * envShapeNorm : env1;
+    real_t u = cutBase + cutEnv*shaped + cutAccent*env2c;
+    if( u > cutMax )
+      u = cutMax;
+    if( u < cutMin )
+      u = cutMin;
+    filter.setCutoff(exp2f(u), false);
+    filter.setResonanceSkewed(resBase + resEnv*env1);         // updates the coefficients
 
-    real_t ampEnvOut = ampEnv.getSample();
-    //ampEnvOut += 0.45*filterEnvOut + accentGain*6.8*filterEnvOut; 
-    if( ampEnv.isNoteOn() )
-      ampEnvOut += 0.45*mainEnvOut + accentGain*4.0*mainEnvOut; 
-    ampEnvOut = ampDeClicker.getSample(ampEnvOut);
-
-    oscillator.setFrequency(instFreq*pitchWheelFactor);
-    oscillator.calculateIncrement();
-    // oversampled calculations:
-    real_t tmp;
-    for(int i=1; i<=oversampling; i++)
+    // the amp: the gate times the amp envelope and some of the filter envelope (or that behind a
+    // hard gate), and the accent's level, which goes on after the gate
+    if( gateOn || gateHoldLeft > 0 )
     {
-      tmp  = -oscillator.getSample();         // the raw oscillator signal 
-      tmp  = highpass1.getSample(tmp);        // pre-filter highpass
-      tmp  = filter.getSample(tmp);           // now it's filtered
-      //[eh2k] tmp  = antiAliasFilter.getSample(tmp);  // anti-aliasing filtered
+      gateLevel += (1.0 - gateLevel) * gateAttack;
+      if( !gateOn )
+        gateHoldLeft--;
     }
+    else
+      gateLevel -= gateLevel * noteRelease;
+    ampLevel += (ampTarget - ampLevel) * ampCoeff; // the amp envelope: towards its target, held at 0
+    if( ampLevel < 0.0 )
+      ampLevel = 0.0;
+    const real_t gated = gatedEnv*env1;
+    real_t amp;
+    if( hardGate )
+      amp = gateLevel * ampLevel + (gateOn ? gated : 0.0) + ampAccent*env2;
+    else
+      amp = gateLevel * (ampLevel + gated) + ampAccent*env2;
+    if( ampSmoothing )
+      amp = ampDeClicker.getSample(amp);
+    amp *= exp2f(gainBase + gainEnv*env1 + gainAccent*env2); // the gain, log2
 
-    // these filters may actually operate without oversampling (but only if we reset them in
-    // triggerNote - avoid clicks)
+    real_t tmp;
+    if( input )                             // [eh2k] an external signal
+      tmp = *input;
+    else
+    {
+      oscillator.setFrequency(instFreq*pitchWheelFactor);
+      oscillator.calculateIncrement();
+      tmp = -oscillator.getSample();        // the raw oscillator signal
+    }
+    tmp  = highpass1.getSample(tmp);        // pre-filter highpass
+    tmp  = filter.getSample(tmp);           // now it's filtered
     tmp  = allpass.getSample(tmp);
-    tmp  = highpass2.getSample(tmp);        
+    tmp  = highpass2.getSample(tmp);
     tmp  = notch.getSample(tmp);
-    tmp *= ampEnvOut;                       // amplified
+    tmp *= amp;                             // amplified
     tmp *= ampScaler;
-
-    // find out whether we may switch ourselves off for the next call:
-    idle = false;
-    //idle = (sequencer.getSequencerMode() == AcidSequencer::OFF && ampEnv.endIsReached() 
-    //        && fabs(tmp) < 0.000001); // ampEnvOut < 0.000001;
 
     return tmp;
   }
 
 }
 
-#endif 
+#endif

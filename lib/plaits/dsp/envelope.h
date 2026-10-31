@@ -44,17 +44,22 @@ class LPGEnvelope {
     frequency_ = 0.5f;
     hf_bleed_ = 0.0f;
     ramp_up_ = false;
+    held_ = false;
   }
   
   inline void Trigger() {
     ramp_up_ = true;
+    held_ = true;
   }
   
+  // [eh2k] hold: after the ramp the gate stays open (sustain) instead of falling, as long as hold stays on from the
+  // Trigger() on; a hold without a ping before it opens nothing
   inline void ProcessPing(
       float attack,
       float short_decay,
       float decay_tail,
-      float hf) {
+      float hf,
+      bool hold = false) {
     if (ramp_up_) {
       vactrol_state_ += attack;
       if (vactrol_state_ >= 1.0f) {
@@ -62,7 +67,8 @@ class LPGEnvelope {
         ramp_up_ = false;
       }
     }
-    ProcessLP(ramp_up_ ? vactrol_state_ : 0.0f, short_decay, decay_tail, hf);
+    held_ = held_ && hold;
+    ProcessLP(ramp_up_ ? vactrol_state_ : (held_ ? 1.0f : 0.0f), short_decay, decay_tail, hf);
   }
   
   inline void ProcessLP(
@@ -96,6 +102,7 @@ class LPGEnvelope {
   float frequency_;
   float hf_bleed_;
   bool ramp_up_;
+  bool held_;  // [eh2k] pinged, and hold on since then
   
   DISALLOW_COPY_AND_ASSIGN(LPGEnvelope);
 };

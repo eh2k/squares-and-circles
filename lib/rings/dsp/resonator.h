@@ -36,10 +36,21 @@
 #include "rings/dsp/dsp.h"
 #include "stmlib/dsp/filter.h"
 #include "stmlib/dsp/delay_line.h"
+#include "stmlib/dsp/cosine_oscillator.h"
 
 namespace rings {
 
 const int32_t kMaxModes = 64;
+
+// [eh2k] A mode: the band-pass of stmlib::Svf (set_f_q<FREQUENCY_FAST>(), Process<FILTER_MODE_BAND_PASS>()), its
+// coefficients and state open to the block loops of Resonator::Process()
+struct ResonatorMode {
+  float g;
+  float r;
+  float h;
+  float state_1;
+  float state_2;
+};
 
 class Resonator {
  public:
@@ -53,6 +64,8 @@ class Resonator {
       float* aux,
       size_t size);
   
+  bool Rest(const float* in, float* out, float* aux, size_t size);
+
   inline void set_frequency(float frequency) {
     frequency_ = frequency;
   }
@@ -80,6 +93,15 @@ class Resonator {
   
  private:
   int32_t ComputeFilters();
+  template<int32_t n, bool varying>
+  void ProcessModes(
+      int32_t first,
+      const float* amplitudes,
+      stmlib::CosineOscillator* oscillators,
+      const float* in,
+      float* out,
+      float* aux,
+      size_t size);
   float frequency_;
   float structure_;
   float brightness_;
@@ -89,7 +111,17 @@ class Resonator {
   
   int32_t resolution_;
   
-  stmlib::Svf f_[kMaxModes];
+  // [eh2k] the inputs of the last ComputeFilters() and its result (filters_resolution_ -1: none since Init())
+  float filters_frequency_;
+  float filters_structure_;
+  float filters_brightness_;
+  float filters_damping_;
+  int32_t filters_resolution_;
+  int32_t num_modes_;
+  bool at_rest_; // [eh2k] the modes' states 0 (Rest())
+  int32_t ringing_; // [eh2k] the mode Rest() found ringing the last time
+  
+  ResonatorMode f_[kMaxModes];
   
   DISALLOW_COPY_AND_ASSIGN(Resonator);
 };
