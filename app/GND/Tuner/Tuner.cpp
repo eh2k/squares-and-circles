@@ -33,6 +33,8 @@
 // lag): on the DSM the app's data is far from the core, and every byte it streams counts.
 
 #include "../../squares-and-circles-api.h"
+
+ENGINE_INSERT_FX(); // offered as INSERT-FX of a track (the I/O page)
 #include <math.h>
 
 static int32_t _a4 = 25; // 415 + 25 = 440 Hz

@@ -25,6 +25,8 @@
 
 #include "../../squares-and-circles-api.h"
 
+ENGINE_INSERT_FX(); // offered as INSERT-FX of a track (the I/O page)
+
 extern "C"
 {
 #include "../lib/fft/fft4g.h"

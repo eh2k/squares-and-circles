@@ -30,6 +30,8 @@
 // Levels are in log2 units (6.02 dB) and computed with polynomial log2/exp2: a sample costs ~50 instructions, no libm.
 
 #include "../../squares-and-circles-api.h"
+
+ENGINE_INSERT_FX(); // offered as INSERT-FX of a track (the I/O page)
 #include <math.h>
 
 static float _mix = 1.f;

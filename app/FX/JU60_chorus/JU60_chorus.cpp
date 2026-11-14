@@ -32,6 +32,8 @@
 // build_flags: -mfloat-abi=hard -mfpu=fpv5-d16 -ffast-math
 
 #include "../../squares-and-circles-api.h"
+
+ENGINE_INSERT_FX(); // offered as INSERT-FX of a track (the I/O page)
 #ifdef ONE_POLE
 #undef ONE_POLE
 #endif

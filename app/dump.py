@@ -101,6 +101,21 @@ def blob_engines(engines):
                     blobs[name] = {"file": os.path.relpath(path, workingdir).replace(os.sep, '/'), "app": app}
     return blobs
 
+# "data": the data blobs of the apps (DATA_EXTS), files next to an app's .bin that the app reads with
+# machine::fs_read() (app/SYNTH/Elements/Elements.smp, the exciter samples), keyed by the blob name on the module,
+# <GROUP>/<file> as the rc8 kits (a "/": in the chain of apps, updated in place like an app):
+# {"SYNTH/Elements.smp": {"file": "SYNTH/Elements/Elements.smp", "app": "SYNTH/Elements/Elements.bin"}}
+DATA_EXTS = (".smp",)
+
+def data_blobs(apps):
+    data = {}
+    for app in apps:
+        folder = os.path.dirname(app)
+        for f in sorted(os.listdir(os.path.join(workingdir, folder))):
+            if f.endswith(DATA_EXTS):
+                data[folder.split("/")[0] + "/" + f] = {"file": folder + "/" + f, "app": app}
+    return data
+
 def write_index():
     apps = sorted(
         os.path.relpath(os.path.join(root, f), workingdir).replace(os.sep, '/')
@@ -113,7 +128,8 @@ def write_index():
     for app in apps:
         aliases.update(engine_aliases(os.path.join(workingdir, app), engines[app]))
     with open(os.path.join(workingdir, "index.json"), "w") as f:
-        json.dump({"apps": apps, "engines": engines, "blobs": blob_engines(engines), "aliases": dict(sorted(aliases.items()))},
+        json.dump({"apps": apps, "engines": engines, "blobs": blob_engines(engines), "data": data_blobs(apps),
+                   "aliases": dict(sorted(aliases.items()))},
                   f, indent=2)
         f.write("\n")
 

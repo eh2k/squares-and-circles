@@ -110,3 +110,5 @@ Code 4.0 KB, RAM 524 bytes, plus 16 sample players on the heap (13.6 KB).
 
 - `Linn.cpp`: © E.Heidt, MIT license (see [License](../../../README.md#license)).
 - Sample data: the EPROMs of the LinnDrum / Linn 9000 ([Linndrum Factory ROMs.zip](https://dbwbp.com/synthbin/Linndrum%20Factory%20ROMs.zip), [Linn 9000  roms 1.zip](https://dbwbp.com/synthbin/Linn%209000%20%20roms%201.zip)).
+
+Linn and LinnDrum are trademarks of their respective owners. Not affiliated with them.

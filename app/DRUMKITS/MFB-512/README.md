@@ -50,3 +50,5 @@ Instruments:
 ## License and credits
 
 - The kit is played by [DrumSynth](../DrumSynth/README.md) (`lib/drumsynth`, © E.Heidt, MIT license, see [License](../../../README.md#license)).
+
+MFB-512 is a trademark of its respective owner. Not affiliated with MFB.

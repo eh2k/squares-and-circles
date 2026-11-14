@@ -234,6 +234,7 @@
       "app": "DRUMKITS/DrumSynth/DrumSynth.bin"
     }
   },
+  "data": {},
   "aliases": {
     "CV/V/OCT": "CV/V_OCT",
     "DRUMS/RZ-1": "DRUMKITS/RZ-1",

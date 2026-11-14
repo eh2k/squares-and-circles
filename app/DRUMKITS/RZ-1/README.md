@@ -74,3 +74,5 @@ Code 3.4 KB, RAM 392 bytes.
 
 - `RZ-1.cpp`: © E.Heidt, MIT license (see [License](../../../README.md#license)).
 - Sample data: the ROMs of the Casio RZ-1 ([Casio RZ-1 Stock PCM ROMs.zip](https://dbwbp.com/synthbin/Casio%20RZ-1%20Stock%20PCM%20ROMs.zip)).
+
+RZ-1 is a trademark of Casio Computer Co., Ltd. Not affiliated with Casio.

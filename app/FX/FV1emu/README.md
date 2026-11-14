@@ -61,3 +61,5 @@ Code 6.4 KB, RAM 67 KB (plus 2 KB heap for the decoded program).
 
 - `FV1emu.cpp`: © 2021 E.Heidt, MIT license (see [License](../../../README.md#license)).
 - FV-1 emulator (`../../../lib/fv1`) of the Spin Semiconductor FV-1; the Spin Semiconductor programs under the Spin Semiconductor Open Reverb License (see [lib/fv1/spn/Readme.txt](../../../lib/fv1/spn/Readme.txt)).
+
+FV-1 is a trademark of Spin Semiconductor. Not affiliated with Spin Semiconductor.

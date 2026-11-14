@@ -91,8 +91,8 @@ echo ----- "$NAME" -----
 echo "BUILD_FLAGS:$BUILD_FLAGS"
 
 SRC_FILES=$(grep "src_files" $X.cpp  | cut -d':' -f2 | xargs)
-# the ENGINE_ALIAS lines (squares-and-circles-api.h) as the constants __engine_alias and __engine_aliases, a C file
-# of their own compiled with the app (none without an alias)
+# the ENGINE_ALIAS and ENGINE_INSERT_FX lines (squares-and-circles-api.h) as the constants __engine_alias,
+# __engine_aliases and __insert_fx, a C file of their own compiled with the app (none without an alias or a mark)
 ALIAS_SRC="${BUILD_DIR}/aliases/${X//\//_}.c"
 echo "$PREPROCESSED" | python app/engine_aliases.py "$ALIAS_SRC"
 [ -f "$ALIAS_SRC" ] && SRC_FILES="$SRC_FILES $ALIAS_SRC"
@@ -105,7 +105,7 @@ for s in $SRC_FILES; do rm -f "${s%.*}.o" "${s%.*}.o.temp.o" "${s%.*}.o_prologue
 $mkmodule $(realpath $X.cpp --relative-base=.) \
     --no-opt $MCPU_ARG \
     --build_flags="-fsingle-precision-constant -DNDEBUG -pedantic -fno-exceptions $BUILD_FLAGS -I. -I./lib/ " \
-    --public-symbols="setup,process,draw,screensaver,restore,__ui_event_handler,__midi_event_handler,__engine_alias,__engine_aliases" \
+    --public-symbols="setup,process,draw,screensaver,restore,__ui_event_handler,__midi_event_handler,__engine_alias,__engine_aliases,__insert_fx" \
     --name="$NAME" $SRC_FILES> $X.log
 sed -i "s|$(realpath .)|.|" $X.log
 touch -d "$(date -R -r $X.cpp)" $X.bin

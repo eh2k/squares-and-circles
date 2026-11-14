@@ -295,7 +295,7 @@ void engine::setup()
         voices[v].lfo.reset(&LFO_RATE());
     }
 
-    engine::setMode(ENGINE_MODE_MIDI_IN);
+    engine::setMode(ENGINE_MODE_MIDI_IN | ENGINE_MODE_SOFT_LIMIT);
 }
 
 // Velocity of a Trig, and the cap of a MIDI velocity: the left half of Rate lowers it down to 64
@@ -357,18 +357,6 @@ static void render(dxfm &voice)
         voice.quiet = peak < (1 << 12) ? voice.quiet + 1 : 0;
         voice.idle = voice.quiet >= 8;
     }
-}
-
-// Up to KNEE as it is (single notes of the built-in voices peak at 0.84), above it rounded off softly, 1.0 at
-// KNEE + 3 * (1 - KNEE) = 1.3: the chords sum their notes (eight notes up to 2.6)
-static inline float softLimit(float x)
-{
-    constexpr float KNEE = 0.85f;
-    if (x > KNEE)
-        return KNEE + (1.f - KNEE) * stmlib::SoftClip((x - KNEE) / (1.f - KNEE));
-    if (x < -KNEE)
-        return -KNEE - (1.f - KNEE) * stmlib::SoftClip((-x - KNEE) / (1.f - KNEE));
-    return x;
 }
 
 static void mix(dxfm &voice, float *out)
@@ -482,11 +470,14 @@ void engine::process()
     for (size_t v = 0; v < LEN_OF(voices); v++)
         mix(voices[v], side[v % 2]);
 
+    // the chords sum their notes (eight notes up to 2.6; single notes of the built-in voices peak at 0.84): the
+    // firmware limits each channel softly in the mix, after the part of the track's LEVEL below the middle
+    // (ENGINE_MODE_SOFT_LIMIT, setup())
     float stereo = (1.f - _stereolize);
     for (int i = 0; i < FRAME_BUFFER_SIZE; i++)
     {
-        bufferL[i] = softLimit(side[0][i] * stereo + side[1][i]);
-        bufferR[i] = softLimit(side[0][i] + side[1][i] * stereo);
+        bufferL[i] = side[0][i] * stereo + side[1][i];
+        bufferR[i] = side[0][i] + side[1][i] * stereo;
     }
 }
 

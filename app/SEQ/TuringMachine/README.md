@@ -45,8 +45,8 @@ Hemisphere Suite.
 ## Inputs and outputs
 
 - CLOCK-SOURCE: `CLK` (internal, T1 or MIDI) or a trigger input with one pulse per step. One step per 16th.
-- RESET-TRIG: jumps back to the stored reset point (see below). MIDI notes with velocity > 100 and a clock restart
-  reset too.
+- RESET-TRIG: jumps back to the stored reset point (see below). MIDI notes on the track's channel with a velocity
+  over 100 and a clock restart reset too (not the notes of another track on V/OCT-INPUT `$<n>MIDI`).
 - V/OCT-INPUT with QUANTIZER/ROOT, TRANSPOSE and FINE transposes CV_5V and the NOTE modes; MIDI notes on the
   track's channel too (note 60 = no change). Pulse outputs stay 0 / 5 V.
 - Outputs Out1-OUT and Out2-OUT, routed on the I/O page.

@@ -106,3 +106,5 @@ Code 3.9 KB, RAM 504 bytes, plus 16 sample players on the heap (13.6 KB).
 
 - `DMX.cpp`: © E.Heidt, MIT license (see [License](../../../README.md#license)).
 - Sample data: the EPROMs of the Oberheim DMX ([Stock DMX Sounds EPROM.zip](https://dbwbp.com/synthbin/Stock%20DMX%20Sounds%20EPROM.zip), [Standard DMX Cymbals Sound EPROM.zip](https://dbwbp.com/synthbin/Standard%20DMX%20Cymbals%20Sound%20EPROM.zip)).
+
+Oberheim and DMX are trademarks of their respective owner. Not affiliated with Oberheim.

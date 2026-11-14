@@ -32,10 +32,11 @@ Similar to the Monomachine and Machinedrum, this device features four fully conf
 
 The available engine types include drums, synthesizers, oscillators, sequencers, and audio processors. The hardware ports and the generated output signals can be internally routed to any engine. For example, you can route the mono audio signal from an oscillator engine to a neighboring effects engine with stereo outputs, enabling seamless signal chaining.
 
-* [Short Press [LEFT]/[RIGHT]] scrolls through the 4 machine-tracks; an engine with a second page of parameters (SYNTH/XX-303) comes with its pages on the way (track 1 page 1, track 1 page 2, track 2, ...; the channel bar shows the page in the track's segment). A drum kit (DRUMKITS/*) has its mix page after its parameters, while two instruments or more play (their own TRIGs, MIDI): LEVEL and PAN of each instrument.
+* [Short Press [LEFT]/[RIGHT]] scrolls through the 4 machine-tracks; an engine with a second page of parameters (SYNTH/XX-303) comes with its pages on the way, then the pages of the track's insert effects (`+1 FX/...`, see [Mix / Outputs](#mix--outputs)) (track 1 page 1, track 1 page 2, track 1 insert, track 2, ...; the channel bar shows the page in the track's segment). A drum kit (DRUMKITS/*) has its mix page after its parameters, while two instruments or more play (their own TRIGs, MIDI): LEVEL and PAN of each instrument.
 * [Long press [LEFT]] enters the machine-selection-page.
 * [Long press [RIGHT]] enters the [I/O-Configuration page](#io-configuration).
-* [Long press [LEFT] + [RIGHT]] opens the menu: turn an encoder to choose machines/engines, I/O, CLK & MIDI settings or patch storage, press it to open (on any other page: back to the engine page).
+* [Long press [LEFT] + [RIGHT]] opens the menu: turn an encoder to choose machines/engines, silent mode, CLK & MIDI settings or patch storage, press it to open (on any other page: back to the engine page).
+* Silent mode (menu tile with the crossed-out speaker; O_C T4.1/DSM0: long press [MID] too): all outputs at 0 V, USB audio silent, while the engines keep running; any button or encoder press leaves it. While the computer plays USB audio (the tile shows a speaker instead), that playback stays on the outputs and only the tracks are muted. The display shows a `[SILENT]` screen with VU bars of that playback, drifting like a screensaver. The I/O page stays a long press on [RIGHT] away.
 * [Long press left or right [ENCODER]] shows the modulation popup
 * [Long press [L-ENCODER] + [R-ENCODER]] enters the [patch storage page](#patch-storage) - the patch saved or loaded last is restored at startup
   - DEBUG: skip restore - press [RIGHT] button while startup ).
@@ -83,6 +84,8 @@ Machines/Engines are controlled by individual parameters.
 
 >[Short press left/right [ENCODER]] changes parameter selection<br/>
 >[Rotate left/right [ENCODER]] changes parameter value
+
+An engine that does not fit stays on its track and says so on its page: `OUT OF MEMORY!` when its app got no RAM, `OUT OF CPU!` when the engines of all tracks together need more than the 500 µs of an audio frame. In that case the firmware stops, after 150 ms of overload, the engine or insert FX loaded last (within 3 s), otherwise the most expensive one: its track plays silence (a stopped insert is bypassed), its parameters and the patch keep it, and a message names the track. Loading any engine or insert FX lets all of them run again.
 
 ### Modulations
 
@@ -164,8 +167,8 @@ The small symbol in front of an input's value shows what arrives there: a dot th
    * `$1A`..`$4D`
    * `$1MIDI`..`$4MIDI`: the MIDI out of that track (e.g. [MIDI/GM-Drums](app/MIDI/GM-Drums/README.md), whatever
      its MIDI-OUT and channel), in addition to the MIDI channel of the settings page
-     - the notes trigger the engine like a trigger input: trigger, gate, accent (velocity > 100), and a modulation
-       with TRIG `!` fires on each note
+     - the notes trigger the engine like a trigger input: trigger, gate, accent (velocity > 100; not for a sequencer
+       engine, whose accent input is the reset), and a modulation with TRIG `!` fires on each note
      - engines with V/OCT take the pitch from the notes as well: V/OCT-INPUT shows the same `$nMIDI` and the CV
        input is left out (it comes back when TRIG-INPUT is turned to an input again); drum kits keep their V/OCT
        input, their notes pick the instruments
@@ -200,10 +203,15 @@ The small symbol in front of an input's value shows what arrives there: a dot th
  * **V/OCT-INPUT**: `-`, `C1`, `C2`, `C3`, `C4`, `$1A`..`$4D`
    * V/OCT: -3V..6V for frequency-control (default)
    * `$1MIDI`..`$4MIDI` for engines without TRIG-INPUT (e.g. [CV/V_OCT](app/CV/V_OCT/README.md), the SEQ engines):
-     the pitch from the notes of that track, as TRIG-INPUT `$nMIDI` above (the CV input is left out). With
-     TRIG-INPUT `$nMIDI` the row shows the same and does not turn
+     the pitch from the notes of that track, as TRIG-INPUT `$nMIDI` above (the CV input is left out, MIDI note 60 =
+     0 V): a sequencer on [MIDI/Chords](app/MIDI/Chords/README.md) is transposed by the chord's root (Chords sends
+     it last, a single receiver keeps it). A sequencer takes no accent from the notes (no reset by an accented
+     chord), RESET-TRIG restarts it. With TRIG-INPUT `$nMIDI` the row shows the same and does not turn
  * **QUANTIZER**: [OFF, Semitones, Ionian, Dorian, ...](lib/braids/quantizer_scales.h)
    * **ROOT**: `C`, `C#`, `D`, `D#`, `E`, `F`, `F#`, `G`, `G#`, `A`, `A#`, `B`
+   * a sequencer (SEQ/303-Patterns, SEQ/303-SeqGen) quantizes its note plus the V/OCT input (the CV or the notes of
+     `$nMIDI`) together, so the transposed line stays in the scale; a note midway between two tones of the scale
+     takes the upper one, whatever played before
  * **TRANSPOSE**: semitone per step
    * **FINE**: semitone/128
 
@@ -215,6 +223,7 @@ The small symbol in front of an input's value shows what arrives there: a dot th
  * **AUX-INPUT**: `-`, `C1`, `C2`, `C3`, `C4`, `USB`
    * AUX-IN: -3V..3V for additional audio source for effects (prefer CV4).
    * `USB`: what the computer plays on the module's USB sound card (see [USB-Audio](#--usb-audio))
+   * `HOST` (O_C T4.1): the microphone or line input of a USB sound card or headset in the USB host port
    * **AUX-LEVEL**: Feed-in level of the aux-input; only with an AUX-INPUT
  * **#&lt;track&gt; &lt;engine&gt;**: Feed-in level (0-100) of the signal of another track, named by its number and engine (e.g. `#3 Claps`); only tracks with an audio engine are listed
 
@@ -226,6 +235,21 @@ The small symbol in front of an input's value shows what arrives there: a dot th
 
 <img align="right" src="doc/outputs2.png" width=196px />
 
+ * **INSERT-FX**, **INSERT-FX 2**: `-` or an effect in series behind the engine, on the track itself: its audio runs
+   through the effect before PAN and LEVEL, and what the track plays (also its sends to other tracks and its virtual
+   signals) is the effect's output. The second row appears once the first is set: a chain of two (Delay, then Reverb).
+   The row offers the effects made for it: the FX first (Delay, Reverb, Compressor, Drive, the FV-1 programs, ...),
+   then the FILTERs (their envelope from the track's trigger, their key tracking from its V/OCT), then the GND tools
+   (Scope, FFT, Tuner on the track's signal); not a synth with an external input (Rings, the 303s'
+   Wave `AUX`) nor an effect that needs a trigger of its own (Ducker): those stay apps of a track with an AUX-INPUT.
+   While the row is turned, a box shows the group and the engine. A mono engine with a stereo effect plays in stereo. The effects' parameters come as pages
+   after the engine's own (the title shows the slot: `+1 FX/Delay`, `+2 FX/Reverb`), stepped through with
+   [LEFT]/[RIGHT], modulations and all as on a track of its own; an insert shares the track's I/O (a trigger or V/OCT
+   it uses is the track's, the quantizer too) and has no AUX-INPUT or sends of its own. The inserts belong to the
+   track: loading another engine keeps them, `Load & reset I/O` (and a MIDI program change) drops them, `Copy #n`
+   copies them along, a patch saves them (a firmware before 2026-11-11 does not read a patch with an insert). An insert
+   is loaded 300 ms after the last turn of its row, as a change of engine; without RAM for it (`OUT OF RAM`, a
+   Teensy 4.0 holds two Delays) the row goes back to `-`
  * **AUDIO-OUT**
    * `-`, `A`, `B`, `C`, `D`, `A+B`, `C+D`
      - The option `-` (no output) is useful if the signal is to be routed into an AUDIO_PROCESSOR engine
@@ -236,9 +260,21 @@ The small symbol in front of an input's value shows what arrives there: a dot th
    - can result in distortion
  * CV-Engines have a `<name>-OUT` row for each CV output instead (`-`, `A`..`D`)
  * Engines that send MIDI (e.g. [MIDI/GM-Drums](app/MIDI/GM-Drums/README.md)) have a **MIDI-OUT** row, like a CV output:
-   * `-` (off), `USB` (the USB MIDI to the computer, the default)
-   * **CHANNEL**: `APP` (the channel the engine sends on) or `1`-`16` in its place
-   * changing either sends All Notes Off on the channels the engine played notes on; so does an engine change
+   port and channel in one value
+   * `-` (off), `USB-CH01` .. `USB-CH16` (the USB MIDI to the computer, the default port); on the O_C T4.1 also
+     `MIDI-CH01` .. (the MIDI jack) and `HOST-CH01` .. (the USB host port)
+   * `USB` only while a computer is connected (it has set up the module's USB and is not asleep), `HOST` only while a
+     MIDI device is in the USB host port, as the page opens; without any, no row. A port set before that is not
+     there shows `-` and comes back by itself when it is there again
+   * the O_C T4.1's MIDI out jack sends only what the engines send there, it is no MIDI thru: what comes in at the
+     MIDI input or from a USB host device is not passed on (a synth on MIDI in and out, e.g. a 303 clone played by
+     `SEQ/303-Patterns`, would get its own messages back, doubled or in a loop)
+   * the channel all the engine sends goes in: by default the track's MIDI channel of the
+     [MIDI settings](#clocktimingmidi-settings) (the track's number while it has none), and it follows that until
+     another channel is chosen here
+   * `USB-ANY` (first on each port) only for an engine that sends on several channels: each message on its own
+     channel, its default
+   * a change sends All Notes Off on the channels the engine played notes on; so does an engine change
 <br clear="right"/>
 <div style="page-break-after: always;"></div>
 
@@ -273,7 +309,7 @@ The small symbol in front of an input's value shows what arrives there: a dot th
     - `USB` the USB-MIDI
     - `USB+T1` [T1 input can be used as MIDI-Input](https://github.com/eh2k/squares-and-circles/wiki/Ornament%E2%80%90and%E2%80%90Crime#-midi-expander)
   - else
-    - `MIDI/USB` the USB-MIDI and/or hardware Midi-Input
+    - `MIDI/USB` the USB-MIDI and/or hardware Midi-Input (O_C T4.1: not passed on to its MIDI out, no thru)
 
 In case the MIDI-Control is enabled, the row **CHANNELS** sets the Midi-Channels of the engines (switching it on without any channel set gives `1-4`):
   - `1-4` .. `13-16`: one channel per engine, track 1 on the first of the range, track 2 on the next, ...
@@ -316,11 +352,21 @@ In case the MIDI-Control is enabled, the row **CHANNELS** sets the Midi-Channels
         - keys the drum machine does not map are silent (an app without a key map: keys 60-75 for instrument 1-16)
         
 ### - **USB-Audio**:
-  - `on` (default), `off` - DSM0 and O_C T4.0, stored in the module (not in the patch)
+  - `on` (default), `off` - stored in the module (not in the patch)
   - The module is also a USB sound card (48 kHz, 16 bit, stereo; class compliant, no driver needed):
     - Recording: the stereo sum of all engines (with level and pan, -6 dB headroom)
-    - Playback: AUX-Input `USB` of AUDIO_PROCESSOR engines
+    - Playback: AUX-Input `USB` of AUDIO_PROCESSOR engines; without an engine taking it, the module plays it as a
+      sound card: O_C T4.0 and DSM0 on the outputs a track plays audio on (a stereo pair L/R, a single output
+      (L + R) / 2), O_C T4.1 on its codec output (an FX with AUX-Input `USB` replaces it: its output has the dry
+      signal)
   - Switching it takes effect at once: the module reconnects to the computer, with or without the sound card
+  - O_C T4.1: a USB sound card or headset in the USB host port (also behind a USB 2.0 hub) plays the same stereo sum,
+    e.g. as headphones. Its microphone or line input is the AUX-Input `HOST` of AUDIO_PROCESSOR engines.
+    - It starts when plugged in (popup "audio out", "audio in" or "audio out+in").
+    - Supported: class compliant USB Audio 1.0, full speed, 48 kHz/16 bit; the output with an adaptive or synchronous
+      endpoint (most headsets and simple sound cards). The input follows the device's own clock.
+    - A device without that shows why (e.g. "no 48k/16bit out", "async out").
+    - The microphone stays muted on the device's own headphones.
 
 # Patch Storage
 <img align="right" src="doc/patch_storage_load.png" width=196px />
@@ -341,7 +387,7 @@ In case the MIDI-Control is enabled, the row **CHANNELS** sets the Midi-Channels
  * [O_C T4.1](https://github.com/eh2k/squares-and-circles/wiki/O_C_T41)
 
 ## Hardware setup procedure
-  > Use [![WebFlasher](https://img.shields.io/badge/Web-Flasher-blue)](https://eh2k.github.io/□●/flash/?firmware)  to enter callibration mode, or execute advanced setup commands </br>
+  > Use [![WebFlasher](https://img.shields.io/badge/Web-Flasher-blue)](https://eh2k.github.io/□●/flash/?firmware)  to enter calibration mode, or execute advanced setup commands </br>
   >Press and hold the [LEFT] button during power-on to enter the setup procedure.
 
 ### Display setup
@@ -394,6 +440,10 @@ For the exact license and copyright holder - see the header of individual source
 
 The firmware as a whole is for personal use only.
 If you are considering commercial distributing hardware with this firmware, please contact me (eh2k◯gmx.de).
+
+## Trademarks
+
+TR-606, TR-707, TR-808, TR-909, CR-78, CR-8000, DR-110, TB-03 and Juno-60 are trademarks of Roland Corporation. Mutable Instruments, Braids, Plaits, Rings, Elements, Beads and Marbles are trademarks of Mutable Instruments. Oberheim, DMX, Linn, KR-55, RZ-1, MFB-512, Moog, NES, FV-1 and all other product names are trademarks of their respective owners. They only name what an engine emulates; squares-and-circles is not affiliated with or endorsed by any of them.
 
 <!--
 

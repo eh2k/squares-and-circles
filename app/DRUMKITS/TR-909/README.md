@@ -53,3 +53,5 @@ A version with noise-only hats and cymbals (no ROMs) was fitted too, but the kit
 
 - `hardware.jpg`: Photo: Brandon Daniel (derivative work: Clusternote), [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Roland_TR-909_(large).jpg) (not part of the MIT license).
 - The kit is played by [DrumSynth](../DrumSynth/README.md) (`lib/drumsynth`, © E.Heidt, MIT license, see [License](../../../README.md#license)).
+
+TR-909 is a trademark of Roland Corporation. Not affiliated with Roland.

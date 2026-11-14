@@ -1,5 +1,7 @@
 #include "../../squares-and-circles-api.h"
 
+ENGINE_INSERT_FX(); // offered as INSERT-FX of a track (the I/O page)
+
 #define INLINE __attribute__((always_inline))
 
 #include "fv1/FV1.hpp"

@@ -4,7 +4,7 @@
 
 Euclidean rhythm that plays an arpeggio. Each hit of the #LEN/#HIT/#ROT pattern plays the next note of a chord over
 the root set by V_OCT. Chords and arpeggiator are taken from Mutable Instruments Plaits. Outputs trigger and V/OCT,
-optionally with slides.
+optionally with slides, and the same notes as MIDI.
 
 ```
 #LEN 8, #HIT 5, Mode UP, CHRD Maj7, RNGE 1-OCT
@@ -53,14 +53,25 @@ min11, HD, FD).
 ## Inputs and outputs
 
 - CLOCK-SOURCE: `CLK` (internal, T1 or MIDI) or a trigger input with one pulse per step. One step per 16th.
-- RESET-TRIG: restarts the pattern. MIDI notes with velocity > 100 and a clock restart reset too.
+- RESET-TRIG: restarts the pattern. MIDI notes on the track's channel with velocity > 100 and a clock restart reset
+  too (not the notes of another track on V/OCT-INPUT `$<n>MIDI`).
 - V/OCT-INPUT with QUANTIZER/ROOT, TRANSPOSE and FINE transposes the arpeggio; MIDI notes on the track's channel
-  too (note 60 = no change). The QUANTIZER scale also quantizes the output, glides included.
+  too (note 60 = no change); V/OCT-INPUT `$<n>MIDI` takes the notes of track n in place of the CV
+  ([MIDI/Chords](../../MIDI/Chords/README.md): the chords' roots). The QUANTIZER scale also quantizes the output,
+  glides included.
 
 | Output | Signal |
 |---|---|
 | TRIG-OUT | 5 V for half a step per hit. Stays high across slides |
 | VOCT-OUT | 1 V/oct: V_OCT + V/OCT input + chord note |
+| MIDI-OUT | the hits as notes on the track's MIDI channel (or the one of MIDI-OUT on the I/O page), the note of VOCT-OUT with 0 V (V_OCT C4) = MIDI 60, velocity 100 |
+
+A hit without slide ends the note before and starts its own, which ends where TRIG-OUT falls. A hit with slide goes
+legato: its Note On before the Note Off of the note before (nothing when the key stays), and the note lasts as long
+as TRIG-OUT, to the end of the next hit without slide. When the clock stops (no step for two step lengths) the MIDI
+note ends, though TRIG-OUT stays high after a slide. On the OCT41 the I/O page's MIDI-OUT can also be the MIDI jack
+(no MIDI thru: a synth on MIDI in and out does not get its notes back) or the USB host port, and another track takes
+the notes with TRIG-INPUT `$<track>MIDI`.
 
 ## How it works
 

@@ -8,7 +8,8 @@
   --no-new      only update the apps the module has, install none
   --no-reset    no "ui:reset" afterwards
 
-The apps are app/<GROUP>/<Name>/<Name>.bin (and app/<GROUP>/<Name>.bin), on the module <GROUP>/<Name>.bin. Every
+The apps are app/<GROUP>/<Name>/<Name>.bin (and app/<GROUP>/<Name>.bin), on the module <GROUP>/<Name>.bin, and the data
+blobs of the apps (app/index.json "data": app/SYNTH/Elements/Elements.smp is SYNTH/Elements.smp). Every
 module lists its blobs with their CRC32s ("blobs"): an app here with another CRC32 is written in place, one the module
 does not have is appended after its apps (WRI over the vendor interface, machine/src/usb_com.cpp). The firmware takes
 an app in place only on as many 4 KB sectors as its place has, and a new one only as far as the flash up to the blob
@@ -19,7 +20,7 @@ drumkits, ROMs and patches stay. WRI unloads the four engines; "ui:reset" afterw
 registers the new apps.
 
 Needs pyusb (app/requirements.txt). Without a udev rule for the modules (Linux) their nodes in /dev/bus/usb must be
-writable: the flasher's "udev-rules" prints one (flasher/README.md).
+writable: the loader's "udev-rules" prints one (loader/README.md).
 """
 
 import argparse
@@ -49,13 +50,22 @@ class UploadError(Exception):
 
 
 def local_apps():
-    """name on the module -> file here: app/<GROUP>/<Name>/<Name>.bin is the app <GROUP>/<Name>.bin."""
+    """name on the module -> file here: app/<GROUP>/<Name>/<Name>.bin is the app <GROUP>/<Name>.bin, a data blob of
+    index.json "data" (app/SYNTH/Elements/Elements.smp) is SYNTH/Elements.smp."""
     apps = {os.path.relpath(f, APP_DIR).replace(os.sep, "/"): f
             for f in sorted(glob.glob(os.path.join(APP_DIR, "*", "*.bin")))}
     for f in sorted(glob.glob(os.path.join(APP_DIR, "*", "*", "*.bin"))):
         group, name, fn = os.path.relpath(f, APP_DIR).split(os.sep)
         if fn == name + ".bin":
             apps[group + "/" + fn] = f
+    # the data blobs of the apps (index.json "data", app/dump.py), written and updated like an app
+    try:
+        with open(os.path.join(APP_DIR, "index.json")) as fd:
+            data = json.load(fd).get("data", {})
+    except (OSError, ValueError):
+        data = {}
+    for name, d in data.items():
+        apps[name] = os.path.join(APP_DIR, *d["file"].split("/"))
     return apps
 
 

@@ -626,7 +626,7 @@ static const plaits_model _models[] = {
     // clocked at 5.5 kHz at Clock 0.9
     {"Noise", NOISE_ENGINE, "Filter", "Clock", "Reson.", {-1.0f, -1.0f, false}, plaits::kMaxBlockSize, plaits::kMaxBlockSize, MAKE(plaits::NoiseEngine)},
     // OUT x3 without Plaits' limiter (-2 in Plaits): its peak follower, slow to let go, held the spiky impulses down
-    // 10 dB below the oscillators; process()'s softLimit() rounds the peaks
+    // 10 dB below the oscillators; the firmware's soft limit (ENGINE_MODE_SOFT_LIMIT) rounds the peaks
     {"Particle", PARTICLE_ENGINE, "Spread", "Density", "Filter", {3.0f, 1.0f, false}, kParticleMem, kParticleMem, MAKE(plaits::ParticleEngine)},
 #endif
     // Plaits' limiter with a gain of 5 (1 in Plaits): the string is 14 dB below the oscillators else. The Trig/CV
@@ -1060,11 +1060,12 @@ void engine::setup()
     // the LPG in Trig mode does not sound before it (the chiptune's bass on AUX, the speech engine's scan mode)
     _cv_voice.idle = true;
 
+    // the drums: one voice, not limited, as before
     if (is_poly())
     {
         _allocator.Init();
         _allocator.set_size(MIDI_VOICES);
-        engine::setMode(ENGINE_MODE_MIDI_IN);
+        engine::setMode(ENGINE_MODE_MIDI_IN | ENGINE_MODE_SOFT_LIMIT);
     }
 }
 
@@ -1138,18 +1139,6 @@ static void render(poly_voice &v, bool trigger, float *out)
     // silent, the LPG no longer rising and not held: not computed until the next trigger
     v.quiet = (peak < kQuiet && !v.voice.lpg_envelope_.ramp_up_) ? v.quiet + 1 : 0;
     v.idle = v.quiet >= kQuietFrames && !v.held;
-}
-
-// Up to KNEE as it is (single notes of the engines peak below 0.8 at their defaults), above it rounded off
-// softly, 1.0 at KNEE + 3 * (1 - KNEE) = 1.3: chords sum their notes
-static inline float softLimit(float x)
-{
-    constexpr float KNEE = 0.85f;
-    if (x > KNEE)
-        return KNEE + (1.f - KNEE) * stmlib::SoftClip((x - KNEE) / (1.f - KNEE));
-    if (x < -KNEE)
-        return -KNEE - (1.f - KNEE) * stmlib::SoftClip((-x - KNEE) / (1.f - KNEE));
-    return x;
 }
 
 // SYNTH/Plaits: the voices go over to the model of the Model knob, one a frame, the sounding ones first: a change is
@@ -1253,11 +1242,9 @@ void engine::process()
     modulations.level_patched = false;
     modulations.level = 1.f;
 
-    // a MIDI voice sounds: the sum is limited. The engines added later (speech ... modal, phase distortion ...
-    // chiptune) always: Plaits' limiter of Modal or Swarm lets the attack of a Trig through, up to 1.35. And with the
-    // pitch envelope (F-Env): Chord and Wavetbl, 48 semitones down, peak at 1.5
-    bool limit = (_mode.engine >= SPEECH_ENGINE && !is_drum() && _mode.engine != CLASSIC_VAVCF_ENGINE) ||
-                 (_fm_env != 0.f && !drone());
+    // The sum of the voices goes over 1 (a chord, Modal's or Swarm's Trig attack through Plaits' limiter up to 1.35,
+    // Chord and Wavetbl 48 semitones down by F-Env up to 1.5): the firmware limits it softly in the mix, after the
+    // part of the track's LEVEL below the middle (ENGINE_MODE_SOFT_LIMIT, setup()); single notes stay below its knee
     for (int i = 0; i < MIDI_VOICES; i++)
     {
         auto &v = _midi_voices[i];
@@ -1285,17 +1272,10 @@ void engine::process()
         v.note = v.key + midi_offset;
 
         if (!v.idle)
-        {
             render(v, false, out);
-            limit = true;
-        }
     }
 
     _last_out = _mode.output == 1 ? bufferOut[0] : out[0]; // aux engines (drums only): Plaits' OUT
-
-    // the Trig/CV voice of the first engines alone stays as it was (the Wavetable drone peaks at 0.94)
-    for (int i = 0; limit && i < FRAME_BUFFER_SIZE; i++)
-        out[i] = softLimit(out[i]);
 
     if (_out_r == nullptr)
         return;
@@ -1310,13 +1290,9 @@ void engine::process()
     _ensemble_on = true;
     // amount and depth as the string machine's ensemble at its Filter knob's ends. Dry and wet cancel each other in
     // part (a comb, the taps 4 ms late): each channel 2 dB down at 0.5 and 2.6 dB at 1 (QEMU, six models), made up
+    // (dry and wet add up to more than 1: the firmware's soft limit, each channel)
     _ensemble.Process(_stereo, 0.35f + 0.65f * _stereo, 1.f + 0.35f * sqrtf(_stereo), out, out, _out_r,
                       FRAME_BUFFER_SIZE);
-    for (int i = 0; i < FRAME_BUFFER_SIZE; i++) // the dry and the wet signal add up to more than 1
-    {
-        out[i] = softLimit(out[i]);
-        _out_r[i] = softLimit(_out_r[i]);
-    }
 }
 
 static void releaseAll()

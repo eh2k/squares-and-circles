@@ -66,3 +66,5 @@ Code 46 KB, RAM 12 KB + 98 KB heap.
 
 - `rings.cpp`: © E.Heidt, MIT license (see [License](../../../README.md#license)).
 - [lib/rings](../../../lib/rings): Mutable Instruments Rings, © Emilie Gillet, MIT license.
+
+Mutable Instruments and Rings are trademarks of Mutable Instruments. Not affiliated with Mutable Instruments.

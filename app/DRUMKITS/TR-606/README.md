@@ -59,3 +59,5 @@ offset of the waveshaper).
 
 - `hardware.jpg`: Photo: Midas Wouters, [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Roland_TR-606.jpg) (not part of the MIT license).
 - The kit is played by [DrumSynth](../DrumSynth/README.md) (`lib/drumsynth`, © E.Heidt, MIT license, see [License](../../../README.md#license)).
+
+TR-606 is a trademark of Roland Corporation. Not affiliated with Roland.

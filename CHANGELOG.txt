@@ -2,6 +2,43 @@
 
 All notable changes to this project will be documented in this file.
 
+== 2026-11-14
+   * Bugfix:
+     * ACCENT-INPUT: an accent gate that rose before the trigger or was held over several steps gave a normal note
+       (SYNTH/XX-303, FILTER/SVF); a MIDI note on the track's channel dropped the accent of the input
+     * O_C T4.0: FX/Delay showed "OUT OF MEMORY" after loading a patch (e.g. with Plaits or Analog BD on a track)
+     * SYNTH/Plaits, SYNTH/DxFM: chords over MIDI saturated at any LEVEL of the I/O page (four notes from about
+       velocity 64 on), turning it down only made them quieter: the soft limit of the voices' sum now comes after
+       the part of LEVEL below the middle - turned down, a chord stays clean; at the middle and above as before
+       (app API: ENGINE_MODE_SOFT_LIMIT)
+   * Enhancements:
+     * INSERT-FX on the I/O page (MIX/OUTPUTS): effects in series on the track itself, behind the engine and before
+       PAN and LEVEL, so a synth and its delay or reverb need no second track and no send; up to two (INSERT-FX 2
+       appears once the first is set) out of the effects made for it (the FX but Ducker, the FILTERs, MM/FX-*, the
+       GND tools; app API: ENGINE_INSERT_FX), a box shows the group and the engine while the row is turned; their
+       parameters as pages after the engine's
+       own (the title with the slot: "+1 FX/Delay", "+2 FX/Reverb"), with modulations; the inserts stay over a change
+       of engine ("Load & reset I/O" drops them), "Copy #n" copies them, a patch saves them (the web app's patch view
+       shows them; a firmware before does not read such a patch, one without an insert is as before); without RAM
+       for an insert ("OUT OF RAM") its row goes back to "-"
+     * OUT OF CPU: when the engines of the tracks need more than the 500 µs of an audio frame, the audio ran dry for
+       good and the module no longer answered over USB (only a reset helped); now, after 150 ms of such overload,
+       the engine or insert FX loaded last (within 3 s), else the most expensive one, is stopped: its track plays
+       silence (a stopped insert is bypassed), it stays loaded with its parameters and in the patch, its page shows
+       "OUT OF CPU!" and a message names the track; loading any engine or insert lets all run again (the web app's
+       debug page marks a stopped track)
+     * Silent mode: all outputs at 0 V (and USB audio silent) while the engines keep running, any button press ends
+       it - in the menu in place of I/O CONFIG (the I/O page stays a long press on RIGHT away), on the DSM0 also a
+       long press on the middle button; what the computer plays over USB audio stays audible (the menu tile shows a
+       speaker then), only the tracks are muted; the display shows "[SILENT]" with VU bars of that playback, drifting
+       like a screensaver
+     * USB audio: what the computer plays is heard without loading an engine, on the outputs a track plays audio
+       on (O_C T4.0, DSM0); a track with AUX-INPUT "USB" (e.g. an FX) takes it over
+     * SEQ/303-Patterns, SEQ/EuclidArp: the notes also as MIDI over USB, next to the CV, for a synth on the computer
+       or on another track (its TRIG-INPUT `$<n>MIDI`): slides legato, the 303-Patterns' accents with velocity 127;
+       the row MIDI-OUT on the I/O page sets port and channel in one (`-`, `USB-CH01` .. `USB-CH16`), by default the
+       track's MIDI channel of the MIDI settings; it is there while a computer is connected
+
 == 2026-10-31
    Note: This is a special release - actually a feasibility study on my part. In short: I think what has happened
          here over the past four weeks was like riding a bike at supersonic speed - accelerated by "AI".

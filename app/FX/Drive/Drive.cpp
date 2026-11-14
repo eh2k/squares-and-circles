@@ -31,6 +31,8 @@
 // denominator where it could get small (ill-conditioned in float).
 
 #include "../../squares-and-circles-api.h"
+
+ENGINE_INSERT_FX(); // offered as INSERT-FX of a track (the I/O page)
 #include <math.h>
 #include <stddef.h>
 

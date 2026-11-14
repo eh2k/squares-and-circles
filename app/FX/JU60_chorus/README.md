@@ -47,3 +47,5 @@ and II (11 % of a frame on the DSM).
 
 - `JU60_chorus.cpp`: © 2022 E.Heidt, MIT license (see [License](../../../README.md#license)).
 - BBD delay line from [bbd-delay-experimental](https://github.com/jpcima/bbd-delay-experimental) by Jean Pierre Cimalando, Boost Software License 1.0.
+
+Juno-60 is a trademark of Roland Corporation. Not affiliated with Roland.

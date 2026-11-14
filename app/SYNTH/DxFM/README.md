@@ -47,9 +47,9 @@ play eight voices of their own, next to the two Trig/CV voices. Trig and V/OCT k
   voices).
 - While MIDI voices sound, eight squares at the bottom right show them: filled = key held, open = release.
 - A chord sums its notes: eight notes are 4-7x the level of one (single notes of the 96 built-in voices peak at
-  0.84, eight-note chords at velocity 127 at up to 2.6). Above 0.85 the output is rounded off softly and reaches
-  1.0 at 1.3: single notes stay as they are, loud chords saturate a little instead of clipping hard. The track
-  level comes after it: lower that if a track output or the sum still clips.
+  0.84, eight-note chords at velocity 127 at up to 2.6). Above 0.85 the firmware rounds the output off softly, 1.0
+  at 1.3: single notes stay as they are, loud chords saturate a little instead of clipping hard. The track's LEVEL
+  below the middle comes before that limit (turned down, a chord saturates less), above the middle after it.
 
 ## Notes
 

@@ -111,6 +111,23 @@ int32_t swing = 128;
 int16_t *out_gate;
 int16_t *out_cv;
 
+// MIDI-OUT plays the hits as notes: a hit with slide goes legato (its Note On before the Note Off of the note
+// before, nothing when the key stays), a hit without slide ends the note before and starts its own. The note ends
+// where TRIG-OUT falls (half a step; after a slide at the next hit without slide). The key is the hit's note as
+// VOCT-OUT gives it, 0 V (V_OCT C4) = MIDI 60, velocity 100. A stopped clock (no step for two step lengths) ends the
+// MIDI note, though TRIG-OUT stays high after a slide.
+static constexpr uint8_t MIDI_CHANNEL = 1; // replaced by the I/O page's MIDI-OUT (the track's channel)
+static int _midi_key = -1;                 // the key sounding, -1 none
+static uint8_t _hit = 0;                   // update_seq_pattern(): 1 a hit in this frame, 2 a hit with slide
+static uint32_t _last_step_t = 0;          // engine::t() of the last step
+
+static void midi_off()
+{
+    if (_midi_key >= 0)
+        engine::midiNoteOff(MIDI_CHANNEL, _midi_key);
+    _midi_key = -1;
+}
+
 int32_t seq_pos = UINT8_MAX;
 bool playing = true;
 bool pre_start = false;
@@ -358,6 +375,7 @@ void update_seq_pattern()
 
     if (len > 0 && engine_sync::stepChanged())
     {
+        _last_step_t = engine::t();
         seq_pos = MOD(steps, len);
 
         bool trig = pattern[seq_pos];
@@ -381,10 +399,12 @@ void update_seq_pattern()
                 _slide_phase = 0;
                 _slide_phase_inc = UINT32_MAX / n;
                 gate_until_t = INT32_MAX;
+                _hit = 2;
             }
             else
             {
                 gate_until_t = n; // 10ms trigger
+                _hit = 1;
             }
             key++;
         }
@@ -395,13 +415,37 @@ void engine::process()
 {
     if (!playing)
     {
+        midi_off();
         gate_until_t = 0;
         seq_pos = len - 1;
         pre_start = true;
         return;
     }
 
+    _hit = 0;
     update_seq_pattern();
+
+    // the hit's note, the glide's target (the quantizer as for VOCT-OUT, 128 units a semitone)
+    if (_hit)
+    {
+        const int32_t p = engine::qz_process(engine::cv_i32() + _cv * PITCH_PER_OCTAVE, nullptr);
+        int key = DEFAULT_NOTE + (p >= 0 ? (p + 64) / 128 : -((-p + 64) / 128));
+        CONSTRAIN(key, 0, 127);
+        if (_hit == 2 && _midi_key >= 0) // legato
+        {
+            if (key != _midi_key)
+            {
+                engine::midiNoteOn(MIDI_CHANNEL, key, 100);
+                engine::midiNoteOff(MIDI_CHANNEL, _midi_key);
+            }
+        }
+        else
+        {
+            midi_off();
+            engine::midiNoteOn(MIDI_CHANNEL, key, 100);
+        }
+        _midi_key = key;
+    }
 
     int32_t trig = 0;
 
@@ -410,6 +454,11 @@ void engine::process()
         --gate_until_t;
         trig = 5 * PITCH_PER_OCTAVE; // 5V
     }
+
+    // TRIG-OUT fell, or the clock stands
+    const uint32_t frames_per_step = engine_sync::samples_per_step() / FRAME_BUFFER_SIZE;
+    if (!trig || engine::t() - _last_step_t > 2 * frames_per_step + 2)
+        midi_off();
 
     if (_slide_phase < (UINT32_MAX - _slide_phase_inc))
     {

@@ -24,6 +24,8 @@
 //
 
 #include "../../squares-and-circles-api.h"
+
+ENGINE_INSERT_FX(); // offered as INSERT-FX of a track (the I/O page)
 #include "stmlib/dsp/filter.h"
 #include "stmlib/dsp/delay_line.h"
 #include <stdio.h>

@@ -42,3 +42,5 @@ by least squares on the spectrogram. Levels are set by the loudest 10 ms RMS, pe
 
 - `hardware.jpg`: Photo: Extra drowsy Formula, [CC BY-NC-SA 2.0](https://creativecommons.org/licenses/by-nc-sa/2.0/), via [Flickr](https://www.flickr.com/photos/38232643@N05/3517472919) (not part of the MIT license; non-commercial use only).
 - The kit is played by [DrumSynth](../DrumSynth/README.md) (`lib/drumsynth`, © E.Heidt, MIT license, see [License](../../../README.md#license)).
+
+DR-110 is a trademark of Roland Corporation. Not affiliated with Roland.

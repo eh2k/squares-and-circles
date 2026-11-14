@@ -61,3 +61,5 @@ render and score, refine, set the levels.
 ## License and credits
 
 - The kit is played by [DrumSynth](../DrumSynth/README.md) (`lib/drumsynth`, © E.Heidt, MIT license, see [License](../../../README.md#license)).
+
+CR-78 is a trademark of Roland Corporation. Not affiliated with Roland.

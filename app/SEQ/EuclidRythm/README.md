@@ -28,7 +28,8 @@ current step. The shape in the middle lights on a hit. The top centre shows the 
 ## Inputs and outputs
 
 - CLOCK-SOURCE: `CLK` (internal, T1 or MIDI) or a trigger input with one pulse per step. One step per 16th.
-- RESET-TRIG: both rhythms restart. MIDI notes with velocity > 100 and a clock restart reset too.
+- RESET-TRIG: both rhythms restart. MIDI notes on the track's channel with velocity > 100 and a clock restart reset
+  too (not the notes of another track, `$<n>MIDI`).
 - Outputs (I/O page), all 5 V / 10 ms triggers:
 
 | Output | Trigger on |

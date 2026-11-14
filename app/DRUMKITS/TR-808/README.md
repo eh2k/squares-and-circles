@@ -74,3 +74,5 @@ The other kits were made the same way.
 
 - `hardware.jpg`: Photo: Brandon Daniel (derivative work: Clusternote), [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Roland_TR-808_(large).jpg) (not part of the MIT license).
 - The kit is played by [DrumSynth](../DrumSynth/README.md) (`lib/drumsynth`, © E.Heidt, MIT license, see [License](../../../README.md#license)).
+
+TR-808 is a trademark of Roland Corporation. Not affiliated with Roland.

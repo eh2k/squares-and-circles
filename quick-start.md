@@ -16,8 +16,8 @@ modulation in about 15 minutes. The [README](README.md) has the full reference f
 * The module has **4 tracks**. Each track runs **one engine**: a drum, an oscillator, a synth, an effect, a
   sequencer, a CV tool, ... The engines are grouped in *machines* (`DRUMS`, `SYNTH`, `FX`, `SEQ`, `CV`, `MIDI`, ...),
   see the [engine list](README.md#engines).
-* On the **I/O page** every track picks its sources (trigger, V/OCT, clock, audio input) and its output.
-  Nothing is hard-wired: any track can listen to any jack.
+* On the **I/O page** every track picks its sources (trigger, V/OCT, clock, audio input), its output and its
+  insert effects. Nothing is hard-wired: any track can listen to any jack.
 * The CV outputs of a track (not the audio) are also available inside the module as **virtual signals** `$1A` …
   `$4D` (`$3A` = first output of track 3). With them a sequencer on one track can trigger a drum on another track
   without a cable.
@@ -96,6 +96,7 @@ triggers. The engine has a second page (the dotted cell in the bottom bar), **pr
 * **L-ENC** selects a row, **R-ENC** changes its value.
 * `TRIG-INPUT`, `V/OCT-INPUT` - where trigger and pitch come from.
 * `QUANTIZER` / `ROOT` - quantize the pitch to a scale, `TRANSPOSE` / `FINE` - shift it.
+* `INSERT-FX` - an effect on the track itself, in series behind the engine (see [step 5](#step-5---an-effect)).
 * `AUDIO-OUT` - `A` … `D`, `A+B` / `C+D` for stereo, or `-` for no output; `PAN` and `LEVEL` below it.
 
 The small dot in front of a trigger input flashes on every trigger, the small box in front of `V/OCT-INPUT` shows the
@@ -123,9 +124,32 @@ output `C` - set its `TRIG1-OUT` to `-` on its I/O page if you need the jack for
 
 ### Step 5 - an effect
 
+<img align="right" src="doc/quick-start/io_insert.png" width=256px />
+
+Effects (`FX`, `FILTER`, ...) are engines with an audio input. The simplest way to use one is an **insert**: the
+effect runs on the track itself, in series behind the engine and before `PAN` and `LEVEL`.
+
+1. **Hold ▶** on track 2, select `INSERT-FX` (under `MIX/OUTPUTS`) and turn **R-ENC** to `Rev-Dattorro`. A box
+   shows the group and the engine while you turn; the effect loads a moment after the last turn.
+2. Once the first insert is set, `INSERT-FX 2` appears below it for a chain of two (a delay before the reverb, for
+   example).
+
+<br clear="right"/>
+
+<img align="right" src="doc/quick-start/main_insert.png" width=256px />
+
+3. **Hold ▶** to go back. The effect's parameters are a page of their own after the engine's pages: **press ▶**
+   until the title reads `+1 FX/Rev-Dattorro`. `D/W` is the dry/wet mix.
+
+Inserts belong to the track: a patch saves them, they stay when you load another engine (`Load & reset I/O` drops
+them), and `Copy #n` copies them along.
+
+<br clear="right"/>
+
 <img align="right" src="doc/quick-start/io_fx.png" width=256px />
 
-Effects (`FX`, `FILTER`, ...) are engines with an audio input:
+An effect **shared by several tracks** is an engine on a track of its own instead, fed by sends (with the `INSERT-FX`
+of track 2 back at `-`):
 
 1. Go to track 4, load `FX` / `Rev-Dattorro`.
 2. **Hold ▶**: turn up `#2 Plaits` - the level at which track 2 (its number and engine) is fed into the reverb.
@@ -141,7 +165,7 @@ Effects (`FX`, `FILTER`, ...) are engines with an audio input:
 
 Every parameter can be modulated:
 
-1. On track 2, select `Square` with **R-ENC** (press it until the `Square` knob is big).
+1. On the first page of track 2, select `Square` with **R-ENC** (press it until the `Square` knob is big).
 2. **Hold R-ENC** - the modulation popup opens on the other side.
 3. Use the encoder on the popup's side: turn it to choose the type (`CV`, `RND`, `ENV`, `LFO`, `EF`, `TM`, `SEQ`),
    press it to step through the rows (for the `LFO`: `TRIG`, `SHAPE`, `FREQ.`, `WAVEFRM`) and the amount knob at
@@ -161,8 +185,9 @@ With the type `CV` a parameter follows a `C` input (or a virtual signal), so all
 * `CLOCK-Source`: `-`, `INT` (with `TEMPO (BPM)`), `T1` (4 ppqn) or `MIDI`. Sequencers, clocked delays and the
   modulation sources with `CLK` follow it.
 * `TRIG-IN-DELAY`: delays the trigger inputs, e.g. to line them up with MIDI.
-* `MIDI-CONTROL` and `#1 CHANNEL` … `#4 CHANNEL`: play the tracks from USB MIDI (or the MIDI input) - note on/off
-  becomes trigger, gate and pitch; CC 16 … 23 set the parameters. Tracks on the same channel play polyphonically.
+* `MIDI-CONTROL` and `CHANNELS`: play the tracks from USB MIDI (or the MIDI input) - note on/off becomes trigger,
+  gate and pitch; CC 16 … 23 set the parameters. `CHANNELS` `1-4` puts track 1 on channel 1, track 2 on 2, ...;
+  `1 POLY` plays the tracks together polyphonically on one channel, `CUSTOM` gives each track its own row.
 
 <br clear="right"/>
 
@@ -183,7 +208,7 @@ The patch you saved or loaded last comes back at the next power-on.
 
 | Where | Control | Does |
 |---|---|---|
-| track page | press ◀ / ▶ | previous / next track (an engine with two pages of parameters: its pages first; a drum kit with two instruments or more playing: its mix page, LEVEL and PAN of each instrument) |
+| track page | press ◀ / ▶ | previous / next track - after the further pages of the track: the second parameter page of an engine, the pages of its insert effects (`+1 FX/...`), the mix page of a drum kit with two instruments or more playing (LEVEL and PAN of each instrument) |
 | track page | turn L-ENC / R-ENC | change the parameter with the big knob |
 | track page | press L-ENC / R-ENC | next parameter on that side |
 | track page | hold L-ENC / R-ENC | modulation popup for that parameter |
@@ -192,9 +217,10 @@ The patch you saved or loaded last comes back at the next power-on.
 | I/O page | press ◀ / ▶ | I/O page of the previous / next track |
 | mix page (drum kit) | turn L-ENC / R-ENC | instrument / its LEVEL or PAN |
 | mix page (drum kit) | press / hold R-ENC | switch LEVEL ↔ PAN / value back to 0 dB, the middle |
-| track page | hold ◀ + ▶ | menu (engines, I/O, clock & MIDI, patches) |
+| track page | hold ◀ + ▶ | menu (engines, silent mode, clock & MIDI, patches) |
 | other pages | hold ◀ + ▶ | back to the track page |
 | track page | hold L-ENC + R-ENC | patch storage |
+| menu | choose the speaker tile (O_C T4.1, DSM0: or hold the middle button) | silent: all outputs at 0 V, `[SILENT]` on the display, the engines keep running; press any button to leave |
 | engine page | hold R-ENC | load with options: reset or keep the I/O settings, or copy track 1-4 |
 | power-on | hold ◀ | hardware setup: display, encoders, calibration, I/O test |
 | power-on | hold ▶ | start without restoring the patch |
@@ -205,8 +231,10 @@ The patch you saved or loaded last comes back at the next power-on.
   orientation, encoder direction and the DAC/ADC calibration (you need a multimeter for the outputs).
 * **Firmware and engines** are installed with the [web flasher](https://eh2k.github.io/□●/flash/?firmware) in Chrome
   or Edge (WebUSB).
-* **USB:** the module is a class-compliant USB MIDI device and a USB sound card (the stereo sum of all tracks goes to
-  the computer; the computer's playback arrives at `AUX-INPUT` `USB` of effect engines).
+* **USB:** the module is a class-compliant USB MIDI device and a USB sound card: the stereo sum of all tracks goes to
+  the computer, and what the computer plays is heard on the outputs the tracks play on - or goes into an effect
+  engine with `AUX-INPUT` `USB`, which then takes it over. `USB-AUDIO` on the `CLK & MIDI SETTINGS` page switches
+  the sound card off.
 * **Screensaver:** after a while without touching the module the display shows a screensaver - any control brings
   the page back.
 * **More:** every engine has its own page with all parameters - follow the links in the

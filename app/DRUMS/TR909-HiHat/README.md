@@ -10,9 +10,9 @@ own trigger, MIDI keys, level, decay and pan.
 | Knob | Range | Default | |
 |---|---|---|---|
 | **CH-Lev** | 0 ... 1 | 1 | closed hat level |
-| **CH-Dec** | 0 ... 1 | 0.2 (38 ms) | closed hat fade, 12 ... 140 ms; 1 = no fade |
+| **CH-Dec** | 0 ... 1 | 0.2 (38 ms) | closed hat fade, 12 ... 142 ms; 1 = no fade |
 | **OH-Lev** | 0 ... 1 | 1 | open hat level |
-| **OH-Dec** | 0 ... 1 | 0.5 (204 ms) | open hat fade, 12 ... 396 ms; 1 = full sample (0.77 s) |
+| **OH-Dec** | 0 ... 1 | 0.5 (207 ms) | open hat fade, 12 ... 401 ms; 1 = full sample (0.78 s) |
 | **RD-Lev** | 0 ... 1 | 1 | ride level |
 | **RD-Dec** | 0 ... 1 | 0.5 (268 ms) | ride fade, 12 ... 524 ms; 1 = full sample (1.02 s) |
 
@@ -46,8 +46,9 @@ Download [eproms_9090.zip](http://www.synthdiy.com/files/2006/eproms_9090.zip)
 (`HiHats.bin`, `Ride.bin`) and send them with **LIBRARY → Extras → Drum ROMs → TR909**.
 Without them the screen shows `ROMS NOT FOUND`.
 
-`909_HIGH` holds the open hat (first 24 KB) and the closed hat (last 8 KB). The samples are unsigned 8-bit at 32 kHz,
-played with Hermite interpolation. `DRUMS/TR-09` uses the same ROMs for its hats and cymbals.
+`909_HIGH` holds the open hat (first 24 KB) and the closed hat (last 8 KB). The samples are unsigned 8-bit, played
+with Hermite interpolation: the hats at 31.57 kHz, the 909's hat clock as measured on recordings
+(`lib/va909/MODEL.md`), the ride at 32 kHz (on the 909 its TUNE sets the clock, 26.7 ... 55.5 kHz).
 
 Code 2.7 KB, RAM 264 bytes.
 
@@ -55,3 +56,5 @@ Code 2.7 KB, RAM 264 bytes.
 
 - `TR909-HiHat.cpp`: © E.Heidt, MIT license (see [License](../../../README.md#license)).
 - Sample data: the ROMs of the Roland TR-909 ([eproms_9090.zip](http://www.synthdiy.com/files/2006/eproms_9090.zip), the EPROMs of Trevor Page's 9090).
+
+TR-909 is a trademark of Roland Corporation. Not affiliated with Roland.

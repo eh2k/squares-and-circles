@@ -76,3 +76,5 @@ Code 3.7 KB, RAM 424 bytes.
 
 - `TR-707.cpp`: © E.Heidt, MIT license (see [License](../../../README.md#license)).
 - Sample data: the ROMs of the Roland TR-707 ([Roland TR-707 sound ROMs.zip](https://dbwbp.com/synthbin/Roland%20TR-707%20sound%20ROMs.zip)).
+
+TR-707 is a trademark of Roland Corporation. Not affiliated with Roland.

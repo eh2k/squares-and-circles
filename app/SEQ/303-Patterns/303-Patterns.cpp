@@ -44,6 +44,14 @@ int16_t *out_voct;
 int16_t *out_accent;
 int16_t *out_slide;
 
+// MIDI-OUT follows GATE-OUT: a Note On where the gate rises, a Note Off where it falls. A new note while the gate is
+// held (a slide, #GATE 6) goes legato: its Note On before the Note Off of the note before, so a 303 clone slides; the
+// same note held on sends nothing. The key is the note without the VOCT-OUT's +2 V: pattern C4 = MIDI 60, plus the
+// V/OCT input. Accents with velocity 127, other notes 100. A stopped clock (no step for two step lengths) ends the
+// MIDI note, though the CV gate of a slide step stays high.
+static constexpr uint8_t MIDI_CHANNEL = 1; // replaced by the I/O page's MIDI-OUT (the track's channel)
+static int _midi_key = -1;                 // the key sounding, -1 none
+
 // https://xbm.jazzychad.net/
 const uint8_t xmb_note_6x8[8] = {0xc8, 0xd8, 0xe8, 0xd8, 0xe8, 0xce, 0xcf, 0xc6};
 const uint8_t xmb_rest_6x8[8] = {0xd6, 0xde, 0xd0, 0xd6, 0xde, 0xd0, 0xd0, 0xd0};
@@ -67,6 +75,29 @@ inline int32_t note_to_voct(uint8_t note)
 inline uint8_t voct_to_note(int32_t voct)
 {
     return C4 + voct / (PITCH_PER_OCTAVE / 12);
+}
+
+// the pattern note in the I/O page's scale after the V/OCT input (a CV, or a chord's root on V/OCT-INPUT $<n>MIDI)
+// transposed it, less that input: VOCT-OUT and MIDI add it again. The sum is quantized (engine::qz_note()), not the
+// note alone: two tones of the scale add up to one outside it (A minor: D + E = F#); without a scale the note as it is
+static int32_t note_pitch(uint8_t note)
+{
+    return engine::qz_note(note_to_voct(note)) - engine::cv_i32();
+}
+
+static int midi_key(uint8_t note)
+{
+    int32_t p = engine::qz_note(note_to_voct(note)); // 0 = pattern C4
+    int key = DEFAULT_NOTE + (p >= 0 ? (p + 64) / 128 : -((-p + 64) / 128));
+    CONSTRAIN(key, 0, 127);
+    return key;
+}
+
+static void midi_off()
+{
+    if (_midi_key >= 0)
+        engine::midiNoteOff(MIDI_CHANNEL, _midi_key);
+    _midi_key = -1;
 }
 
 inline uint8_t &pattern_at(int pos)
@@ -106,6 +137,7 @@ void engine::process()
 {
     if(pattern_len == 0)
     {
+        midi_off();
         std::fill_n(out_gate, FRAME_BUFFER_SIZE, 0);
         std::fill_n(out_voct, FRAME_BUFFER_SIZE, 0);
         std::fill_n(out_accent, FRAME_BUFFER_SIZE, 0);
@@ -151,7 +183,7 @@ void engine::process()
 
     if (prev_note & SLIDE)
     {
-        auto cv = engine::qz_process(note_to_voct(curr_note));
+        auto cv = note_pitch(curr_note);
         float delta = (cv - _voct);
         CONSTRAIN(delta, -PITCH_PER_OCTAVE, PITCH_PER_OCTAVE);
         _voct += delta / 100;
@@ -161,7 +193,7 @@ void engine::process()
     else
     {
         _slide = 0;
-        _voct = engine::qz_process(note_to_voct(curr_note));
+        _voct = note_pitch(curr_note);
     }
 
     if (((curr_note & NOTE_MASK) && gate_until_t > 0) || (curr_note & SLIDE))
@@ -173,6 +205,35 @@ void engine::process()
         _acc = 5 * PITCH_PER_OCTAVE;
     else
         _acc = 0;
+
+    // the clock stands when no step came for two step lengths (t_: the frame of the last step)
+    const uint32_t frames_per_step = engine_sync::samples_per_step() / FRAME_BUFFER_SIZE;
+    const bool running = engine::t() - t_ <= 2 * frames_per_step + 2;
+
+    if (_gate && running)
+    {
+        if (curr_note & NOTE_MASK) // (a rest with the slide bit holds the gate: the note before goes on)
+        {
+            const uint8_t velocity = (curr_note & ACCENT) ? 127 : 100;
+            if (_midi_key < 0)
+            {
+                _midi_key = midi_key(curr_note);
+                engine::midiNoteOn(MIDI_CHANNEL, _midi_key, velocity);
+            }
+            else if (engine_sync::stepChanged()) // the gate held into this step: legato
+            {
+                const int key = midi_key(curr_note);
+                if (key != _midi_key)
+                {
+                    engine::midiNoteOn(MIDI_CHANNEL, key, velocity);
+                    engine::midiNoteOff(MIDI_CHANNEL, _midi_key);
+                    _midi_key = key;
+                }
+            }
+        }
+    }
+    else
+        midi_off();
 
     if (gate_until_t > 0)
         --gate_until_t;

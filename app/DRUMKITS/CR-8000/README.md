@@ -52,3 +52,5 @@ adjust. Later passes fitted filters and levels by least squares on the spectrogr
 
 - `hardware.jpg`: Photo: Blair Rideout, [CC BY 2.0](https://creativecommons.org/licenses/by/2.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Roland_CR-8000_CompuRhythm.jpg) (not part of the MIT license).
 - The kit is played by [DrumSynth](../DrumSynth/README.md) (`lib/drumsynth`, © E.Heidt, MIT license, see [License](../../../README.md#license)).
+
+CR-8000 is a trademark of Roland Corporation. Not affiliated with Roland.

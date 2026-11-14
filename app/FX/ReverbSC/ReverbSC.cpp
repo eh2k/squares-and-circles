@@ -25,6 +25,8 @@
 
 #include "../../squares-and-circles-api.h"
 
+ENGINE_INSERT_FX(); // offered as INSERT-FX of a track (the I/O page)
+
 #include "soundpipe/revsc.c"
 
 static sp_data sp_data_ = {};

@@ -53,6 +53,13 @@
 
 constexpr uint32_t ENGINE_MODE_COMPACT = 1 << 5;
 constexpr uint32_t ENGINE_MODE_MIDI_IN = 1 << 7;
+// the app sends MIDI on several channels (engine::midiOut()): the I/O page's MIDI-OUT offers USB-ANY & Co., each
+// message in its own channel, and has it by default; without it all the app sends goes in one channel (below)
+constexpr uint32_t ENGINE_MODE_MIDI_OUT_ANY = 1 << 8;
+// the app's audio may go over 1 (a polyphonic synth: the sum of its voices): the firmware limits it softly in the mix
+// (machine::soft_limit(): as it is up to 0.85, 1.0 at 1.3), after the part of the track's LEVEL below the middle
+// (turned down, a chord saturates less) and before the part above it; the FX sends get it raw (before LEVEL, unlimited)
+constexpr uint32_t ENGINE_MODE_SOFT_LIMIT = 1 << 9;
 
 #ifndef EXTERN_C
 #define EXTERN_C extern "C"
@@ -96,6 +103,22 @@ constexpr bool __engine_alias_fits(const char *name, const char *layout = "")
         if (*layout != 'f' && *layout != 'b' && *layout != 'h' && *layout != 'i')
             return false;
     return len > 0 && len <= 19;
+}
+
+// An effect the track's INSERT-FX rows offer (the I/O page: up to two engines in series behind the track's engine,
+// in its audio, with their parameters as pages after its own; the firmware's app/CLAUDE.md "insert FX"). The macro
+// marks the engine of the ENGINE_NAME before it (the first engine without one before it, or the one engine of an app
+// without ENGINE_NAME), once per engine to offer; an app without it is not offered, whatever it reads. Mark an effect
+// that works on the audio alone, or whose trigger and V/OCT are optional (the FILTERs: an envelope and key tracking
+// from the track's inputs, a static filter without); not one that needs a trigger of its own (FX/Ducker: the track's
+// own trigger would duck the track itself), nor a synth with an external input (SYNTH/Rings, XX-303's AUX wave), nor
+// an engine without an audio output (CV/EnvFollower: an insert plays what it outputs). app/build.sh reads these lines
+// and puts them into the binary (__insert_fx, a letter per engine in ENGINE_NAME order, '1' offered), which the
+// firmware reads at the boot (machine::add()).
+#define ENGINE_INSERT_FX() static_assert(__engine_insert_fx("INSERT-FX"), "ENGINE_INSERT_FX")
+constexpr bool __engine_insert_fx(const char *)
+{
+    return true;
 }
 
 // The id a patch stores for the engine NAME: the CRC32 of the name, as the firmware makes it (engine_def::id), for
@@ -264,6 +287,8 @@ EXTERN_C
 
     extern uint8_t *__io_tr;
     extern uint8_t *__io_qz;
+    // ACCENT-INPUT set (engine::hasAccent()); a firmware up to fw 36de86e doesn't know it and doesn't start the app
+    extern uint8_t *__io_ac;
 }
 
 namespace engine
@@ -286,6 +311,12 @@ namespace engine
     inline bool hasTrig()
     {
         return *__io_tr;
+    }
+
+    // the ACCENT-INPUT is patched (an input or a virtual signal); a MIDI note's velocity over 100 sets accent() without
+    inline bool hasAccent()
+    {
+        return *__io_ac;
     }
 
     inline uint8_t qz()
@@ -408,7 +439,10 @@ namespace engine
 
     // MIDI out: a message to the port of the track's MIDI-OUT on the I/O page (USB by default; a module lists its
     // ports there: USB, the MIDI jack, the USB host). Referencing it gives the engine the MIDI-OUT setting. status is
-    // the raw status byte, the channel 0..15 in its low nibble; a channel set on the I/O page replaces it. Up to 3
+    // the raw status byte, the channel 0..15 in its low nibble; the channel of MIDI-OUT on the I/O page (USB-CH01 ..)
+    // replaces it, by default the track's MIDI channel (CLK & MIDI settings). An app that sends on several channels
+    // says so with setMode(ENGINE_MODE_MIDI_OUT_ANY): then MIDI-OUT is USB-ANY by default, which keeps the channel of
+    // each message. Up to 3
     // bytes, no SysEx. Works in process(), draw() and the handlers: queued (64 messages) and sent from the main loop,
     // so it costs no time in process(). When the engine goes or its MIDI-OUT changes, the firmware sends All Notes
     // Off on the channels it played notes on.
@@ -502,7 +536,8 @@ namespace engine
 
     constexpr uint32_t PARAM_SELECTED = 0x1;
     constexpr uint32_t PARAM_MODULATION = 0x2;
-    constexpr uint32_t PARAM_ON_PAGE = 0x4; // on the page of parameters shown ("\fName" begins a page)
+    // on the page of parameters shown ("\fName" begins a page, "\f\vName" one drawn as the list)
+    constexpr uint32_t PARAM_ON_PAGE = 0x4;
 
     EXTERN_C float getParamValueModulated_f32(const void *valuePtr);
     EXTERN_C int32_t getParamValueModulated_i32(const void *valuePtr);
@@ -529,6 +564,12 @@ namespace engine
     EXTERN_C const char *qz_name();
     EXTERN_C int32_t qz_process(int32_t pitch, int8_t *note = nullptr);
     EXTERN_C int16_t qz_lookup(int8_t note); // 0-127 note-values
+    // A sequencer's note: pitch (PITCH_PER_OCTAVE a volt, 0 = C4) transposed by the V/OCT input, the sum in the I/O
+    // page's scale (QUANTIZER, ROOT), plus pitch bend, TRANSPOSE and FINE: in place of qz_process(pitch) + cv_i32(),
+    // whose sum of two tones of the scale leaves it (A minor: D + a transposition to E is F#). Without the hysteresis
+    // of qz_process(): the same note gives the same tone, whatever played before; midway between two tones the upper.
+    // Without a scale pitch + cv_i32(). A firmware of before 2026-11-09 doesn't know it and doesn't start the app
+    EXTERN_C int32_t qz_note(int32_t pitch);
 } // namespace engine
 
 enum EventType : uint16_t

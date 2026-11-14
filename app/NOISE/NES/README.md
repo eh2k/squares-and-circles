@@ -24,3 +24,5 @@ Code 2.1 KB, RAM 196 bytes.
 
 - `NES.cpp`: © 2022 E.Heidt, MIT license (see [License](../../../README.md#license)).
 - helpers in `../../../lib/misc`: Biquad by Nigel Redmon (EarLevel Engineering), biquad.hpp by KORG (BSD 3-Clause), others see the headers.
+
+NES is a trademark of Nintendo. Not affiliated with Nintendo.

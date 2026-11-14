@@ -24,6 +24,8 @@
 //
 
 #include "../../squares-and-circles-api.h"
+
+ENGINE_INSERT_FX(); // offered as INSERT-FX of a track (the I/O page)
 #include "clouds/dsp/fx/reverb.h"
 
 float raw = 1.f;

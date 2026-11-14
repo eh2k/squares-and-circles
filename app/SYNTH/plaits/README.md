@@ -263,8 +263,8 @@ Only with `PLAITS_NOISE` 1.
 | **Filter** | 0.7 | below 0.5 an all-pass diffuser, more of it toward 0 (a smear like a reverb); above 0.5 the band-passes resonate more and more |
 
 AuxMix: OUT into AUX (the raw impulses). A Trig fires an impulse at once. OUT is 3 times as loud as in Plaits and
-without its limiter, which held the spiky impulses 10 dB below the oscillators; the soft limit of the output (see
-[MIDI](#midi)) rounds off their peaks.
+without its limiter, which held the spiky impulses 10 dB below the oscillators; the firmware's soft limit of the
+output (see [MIDI](#midi)) rounds off their peaks.
 
 ### String and Modal
 
@@ -413,11 +413,14 @@ V/OCT keep working as before. The drums take MIDI as Trig and V/OCT.
   to them as voices).
 - CC 120/123 (All Sound/Notes Off) and MIDI Stop let go of all keys (the pedal too); what sounds dies away
   with Decay.
-- A chord sums its notes. While MIDI voices sound, the output is rounded off softly above 0.85 and reaches 1.0 at
-  1.3, as in SYNTH/DxFM: single notes stay as they are, loud chords saturate a little instead of clipping hard.
-  Lower the track level if that is too much. The Trig/CV voice alone of the models VA ... Chord and VA-VCF is
-  limited only with a pitch envelope (F-Env: Chord and Wavetbl 48 semitones down peak at 1.5); that of the others
-  always (Plaits' own limiter lets the attack of a Trig through, in Modal up to 1.35).
+- A chord sums its notes (four at velocity 127 up to 2.2). The firmware rounds the output off softly above 0.85, 1.0
+  at 1.3 (as SYNTH/DxFM; the Trig/CV voice too: F-Env takes Chord and Wavetbl up to 1.5, Plaits' own limiter lets
+  the attack of a Trig through, in Modal up to 1.35): single notes stay as they are, loud chords saturate a little
+  instead of clipping hard. The track's LEVEL below the middle comes before that limit: turn it down and a chord
+  saturates less (at LEVEL 64, -12 dB, four notes of VA at velocity 127 stay clean); above the middle it comes
+  after it, as on every track. The FX sends to other tracks take the voices' sum unlimited, before LEVEL (a drive gets
+  its peaks; FX/Delay's echoes and the WAV-Recorder keep 16 bits: turn the send down for a loud chord). Not the
+  drums: as before.
 
 ## Inputs and outputs
 
@@ -460,3 +463,5 @@ Code 184 KB (the model Speech 26 KB of it; with the noise models 5 KB more, with
 
 - `plaits.cpp`: © 2022 E.Heidt, MIT license (see [License](../../../README.md#license)).
 - [lib/plaits](../../../lib/plaits): Mutable Instruments Plaits, © Emilie Gillet, MIT license.
+
+Mutable Instruments and Plaits are trademarks of Mutable Instruments. Not affiliated with Mutable Instruments.

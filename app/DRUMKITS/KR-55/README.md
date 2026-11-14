@@ -61,3 +61,5 @@ crossing), and the peak-to-RMS ratio of the hats, because the KR-55 clips the su
 
 - `hardware.jpg`: Photo: anders pearson, [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Korg_Rhythm_55_(KR-55).jpg) (not part of the MIT license).
 - The kit is played by [DrumSynth](../DrumSynth/README.md) (`lib/drumsynth`, © E.Heidt, MIT license, see [License](../../../README.md#license)).
+
+KR-55 is a trademark of Korg Inc. Not affiliated with Korg.

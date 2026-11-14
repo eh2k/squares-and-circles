@@ -26,6 +26,8 @@
 // https://www.earlevel.com/main/2003/03/02/the-digital-state-variable-filter/
 
 #include "../../squares-and-circles-api.h"
+
+ENGINE_INSERT_FX(); // offered as INSERT-FX of a track (the I/O page)
 #include <array>
 #include <cmath>
 #include <algorithm>

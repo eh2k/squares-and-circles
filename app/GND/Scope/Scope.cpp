@@ -24,6 +24,8 @@
 //
 
 #include "../../squares-and-circles-api.h"
+
+ENGINE_INSERT_FX(); // offered as INSERT-FX of a track (the I/O page)
 #include <utility>
 
 float apmlitude = 1.f;

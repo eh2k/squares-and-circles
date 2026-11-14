@@ -90,3 +90,5 @@ Code 117 KB, RAM 37 KB.
 - `braids.cpp`: © 2021 E.Heidt, MIT license (see [License](../../../README.md#license)).
 - [lib/braids](../../../lib/braids): Mutable Instruments Braids, © Emilie Gillet, MIT license.
 - [lib/plaits](../../../lib/plaits): Mutable Instruments Plaits, © Emilie Gillet, MIT license.
+
+Mutable Instruments and Braids are trademarks of Mutable Instruments. Not affiliated with Mutable Instruments.

@@ -46,3 +46,5 @@ Code 5.4 KB, RAM 264 bytes.
 - `MoogLadder.cpp`: © 2025 E.Heidt, MIT license (see [License](../../../README.md#license)).
 - [MoogLadders](https://github.com/ddiakopoulos/MoogLadders) by Dimitri Diakopoulos and the authors of the ladder models in it, see [LICENSE](../../../lib/MoogLadders/LICENSE) (public domain).
 - [lib/plaits](../../../lib/plaits): Mutable Instruments Plaits, © Emilie Gillet, MIT license.
+
+Moog is a trademark of Moog Music Inc. Not affiliated with Moog Music.

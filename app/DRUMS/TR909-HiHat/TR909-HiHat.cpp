@@ -39,10 +39,13 @@ void engine::setup()
     if (HiHats_bin == nullptr || Ride_bin == nullptr || size_hh < 32768 || size_rd < 32768)
         return;
 
+    // the hats' ROM clock: the 909's fixed one, measured on recordings (on the branch va909: lib/va909/MODEL.md);
+    // the ride's clock is tuned on the 909 (TUNE: 26.7 ... 55.5 kHz), 32 kHz is one setting of it
+    const int hh_rate = 31570, rd_rate = 32000;
     const int ch_start = 24576;
-    _ch = sample_u8(HiHats_bin + ch_start, 32768 - ch_start, 32000, 0);
-    _oh = sample_u8(HiHats_bin, 24576, 32000, 0);
-    _rd = sample_u8(Ride_bin, 32768, 32000, 0);
+    _ch = sample_u8(HiHats_bin + ch_start, 32768 - ch_start, hh_rate, 0);
+    _oh = sample_u8(HiHats_bin, 24576, hh_rate, 0);
+    _rd = sample_u8(Ride_bin, 32768, rd_rate, 0);
 
     engine::addParam("CH-Lev", &_ch_vol);
     engine::addParam("CH-Dec", &_ch_dec);

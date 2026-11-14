@@ -26,6 +26,7 @@
 #include "../../squares-and-circles-api.h"
 
 ENGINE_NAME("FX/@!FV1");
+ENGINE_INSERT_FX(); // offered as INSERT-FX of a track (the I/O page)
 
 #define INLINE __attribute__((always_inline))
 
