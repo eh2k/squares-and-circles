@@ -16,6 +16,7 @@
     "DRUMS/Djembe/Djembe.bin",
     "DRUMS/FM-Drum/FM-Drum.bin",
     "DRUMS/TR909-HiHat/TR909-HiHat.bin",
+    "DRUMS/VA-909/VA-909.bin",
     "FILTER/MoogLadder/MoogLadder.bin",
     "FILTER/SVF/SVF.bin",
     "FX/Compressor/Compressor.bin",
@@ -43,7 +44,7 @@
     "SEQ/TuringMachine/TuringMachine.bin",
     "SYNTH/DxFM/DxFM.bin",
     "SYNTH/SAM/SAM.bin",
-    "SYNTH/XX-303/XX-303.bin",
+    "SYNTH/VA-303/VA-303.bin",
     "SYNTH/braids/braids.bin",
     "SYNTH/plaits/plaits.bin",
     "SYNTH/rings/rings.bin"
@@ -98,6 +99,13 @@
     ],
     "DRUMS/TR909-HiHat/TR909-HiHat.bin": [
       "DRUMS/TR909-HiHat"
+    ],
+    "DRUMS/VA-909/VA-909.bin": [
+      "DRUMS/VA909-BD",
+      "DRUMS/VA909-SD",
+      "DRUMS/VA909-RS",
+      "DRUMS/VA909-CP",
+      "DRUMS/VA909-Toms"
     ],
     "FILTER/MoogLadder/MoogLadder.bin": [
       "FILTER/MoogLadder"
@@ -181,8 +189,8 @@
     "SYNTH/SAM/SAM.bin": [
       "SYNTH/SAM"
     ],
-    "SYNTH/XX-303/XX-303.bin": [
-      "SYNTH/XX-303"
+    "SYNTH/VA-303/VA-303.bin": [
+      "SYNTH/VA-303"
     ],
     "SYNTH/braids/braids.bin": [
       "SYNTH/Braids"
@@ -239,7 +247,7 @@
     "CV/V/OCT": "CV/V_OCT",
     "DRUMS/RZ-1": "DRUMKITS/RZ-1",
     "DRUMS/TR707": "DRUMKITS/TR-707",
-    "FILTER/TeeBee": "SYNTH/XX-303",
+    "FILTER/TeeBee": "SYNTH/VA-303",
     "M-OSC/2-OP-FM": "SYNTH/Plaits",
     "M-OSC/Chord": "SYNTH/Plaits",
     "M-OSC/Grain": "SYNTH/Plaits",
@@ -257,8 +265,9 @@
     "SPEECH/LPC": "SYNTH/Plaits",
     "SPEECH/SAM": "SYNTH/SAM",
     "SYNTH/ClassicVAVCF": "SYNTH/Plaits",
-    "SYNTH/Open303": "SYNTH/XX-303",
+    "SYNTH/Open303": "SYNTH/VA-303",
     "SYNTH/Resonator": "SYNTH/Rings",
-    "SYNTH/Speech": "SYNTH/Plaits"
+    "SYNTH/Speech": "SYNTH/Plaits",
+    "SYNTH/XX-303": "SYNTH/VA-303"
   }
 }

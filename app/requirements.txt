@@ -3,3 +3,4 @@ pyelftools==0.32
 pyusb
 elf-size-analyze
 Pillow
+intelhex

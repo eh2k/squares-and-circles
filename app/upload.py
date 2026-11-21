@@ -15,9 +15,9 @@ does not have is appended after its apps (WRI over the vendor interface, machine
 an app in place only on as many 4 KB sectors as its place has, and a new one only as far as the flash up to the blob
 index has room, a sector kept for each patch slot not saved yet (machine::app_blob_fits()); what it does not take
 stays as it is on the module. The web app's [Update all] writes the chain of apps again for those, so does a firmware
-image with the apps (machine/make_OCT40.sh / make_OCT41.sh FULL). Nothing else is touched: no app is removed, the
-drumkits, ROMs and patches stay. WRI unloads the four engines; "ui:reset" afterwards loads the patch again and
-registers the new apps.
+image with the apps (machine/make_OCT40.sh / make_OCT41.sh / make_DSM0.sh --full). Nothing else is touched: no app is
+removed, the drumkits, ROMs and patches stay. WRI unloads the four engines; "ui:reset" afterwards loads the patch
+again and registers the new apps.
 
 Needs pyusb (app/requirements.txt). Without a udev rule for the modules (Linux) their nodes in /dev/bus/usb must be
 writable: the loader's "udev-rules" prints one (loader/README.md).

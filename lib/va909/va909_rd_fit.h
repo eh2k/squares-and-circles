@@ -1,0 +1,34 @@
+// This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not
+// distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
+//
+// va909 -- the ride's constants fitted to the Rob Roy recordings of a TR-909 (written by
+// lib/va909/fit/gen_params.py from fit/runs/rd3.txt on the branch va909; MODEL.md). (c) 2026 E. Heidt.
+#pragma once
+#include "hh.h"
+
+namespace va909
+{
+    static_assert(cyNumParams == 20, "the params list changed: run gen_params.py again");
+    static const CYParams rdFit = {
+        (real)6800, // r443
+        (real)10000, // vr25
+        (real)4.7e-10, // c131
+        (real)2.0612, // kOsc // fitted, circuit 1.95
+        (real)2.418e-06, // tOsc // fitted, circuit 2.7e-06
+        (real)0.1819, // tune3 // fitted, circuit 0.3
+        (real)0.7348, // tune7 // fitted, circuit 0.7
+        (real)0.02585, // vt
+        (real)0.0218452492, // vNode // fitted, circuit 0.011
+        (real)22, // r431
+        (real)250, // qBf
+        (real)29.2268989, // qBr // fitted, circuit 5
+        (real)3.34244516e-06, // i0 // fitted, circuit 2e-05
+        (real)64.0181155, // aEnd // fitted, circuit 64
+        (real)1.18483636, // aPow // fitted, circuit 1
+        (real)0.0447, // accK
+        (real)470000, // rRef
+        (real)1e-09, // cRef
+        (real)47000, // r425
+        (real)13.5, // vsat
+    };
+}

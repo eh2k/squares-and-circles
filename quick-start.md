@@ -19,7 +19,7 @@ modulation in about 15 minutes. The [README](README.md) has the full reference f
 * On the **I/O page** every track picks its sources (trigger, V/OCT, clock, audio input), its output and its
   insert effects. Nothing is hard-wired: any track can listen to any jack.
 * The CV outputs of a track (not the audio) are also available inside the module as **virtual signals** `$1A` …
-  `$4D` (`$3A` = first output of track 3). With them a sequencer on one track can trigger a drum on another track
+  `$4H` (`$3A` = first output of track 3). With them a sequencer on one track can trigger a drum on another track
   without a cable.
 * Several tracks can share one output - they are mixed.
 
@@ -91,7 +91,8 @@ triggers. The engine has a second page (the dotted cell in the bottom bar), **pr
 
 <img align="right" src="doc/quick-start/io_va.png" width=256px />
 
-**Hold ▶** on track 2. The I/O page lists the inputs (`CTRL/INPUTS`) and outputs (`MIX/OUTPUTS`) of the engine:
+**Hold ▶** on track 2. The I/O page lists the inputs (`CTRL/INPUTS`), the insert effects (`INSERT-FX`) and the
+outputs (`MIX/OUTPUTS`) of the engine:
 
 * **L-ENC** selects a row, **R-ENC** changes its value.
 * `TRIG-INPUT`, `V/OCT-INPUT` - where trigger and pitch come from.
@@ -129,8 +130,9 @@ output `C` - set its `TRIG1-OUT` to `-` on its I/O page if you need the jack for
 Effects (`FX`, `FILTER`, ...) are engines with an audio input. The simplest way to use one is an **insert**: the
 effect runs on the track itself, in series behind the engine and before `PAN` and `LEVEL`.
 
-1. **Hold ▶** on track 2, select `INSERT-FX` (under `MIX/OUTPUTS`) and turn **R-ENC** to `Rev-Dattorro`. A box
-   shows the group and the engine while you turn; the effect loads a moment after the last turn.
+1. **Hold ▶** on track 2, select the row `INSERT-FX` (in the section of the same name, before `MIX/OUTPUTS`) and
+   turn **R-ENC** to `Rev-Dattorro`. A box shows the group and the engine while you turn; the effect loads a moment
+   after the last turn.
 2. Once the first insert is set, `INSERT-FX 2` appears below it for a chain of two (a delay before the reverb, for
    example).
 

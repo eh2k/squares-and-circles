@@ -22,12 +22,15 @@
 //
 
 // Ducker: a trigger pulls the input down and lets it come back, the "pumping" of sidechain compression.
-// Patch the kick's trigger (or play the track's MIDI channel) and insert the pad, bass or reverb.
+// Patch the kick's trigger (or play the track's MIDI channel) and insert the pad, bass or reverb; or put it on the
+// pad's track as INSERT-FX with a TRIG-INPUT of its own (the kick's trigger, its track's $nA).
 //
 // gain = 1 - Depth * duck, duck: attack 0 -> 1 (linear), hold, release 1 -> 0 along the Shape curve.
 // A trigger during the release starts the attack from where the duck is.
 
 #include "../../squares-and-circles-api.h"
+
+ENGINE_INSERT_FX(); // offered as INSERT-FX of a track (the I/O page): its TRIG-INPUT one of its own there
 #include <math.h>
 
 static float _depth = 0.8f;

@@ -38,6 +38,11 @@ Load it on a free track and set its TRIG-INPUT to whatever triggers the kick (or
 channel). Then feed it audio on its I/O page: raise **#&lt;track&gt; &lt;engine&gt;** for the tracks to duck and set
 their AUDIO-OUT to `-`, or use **AUX-INPUT** (a jack or `USB`) with **AUX-LEVEL** as the level.
 
+Or put it on the track itself: **INSERT-FX** of the pad's or the bass's track (the I/O page), then its own
+**TRIG-INPUT** in the row under it to the kick's trigger (`T1`, or `$2A` of a sequencer on track 2). Its `!`
+(the default) is the trigger of the track's engine, which would duck the track on its own notes. A firmware before
+2026-11-21 has no inputs of its own for an insert: it offers the Ducker there with the track's trigger only.
+
 Stereo, same gain on both channels. Without triggers the input passes unchanged. A trigger during the release
 goes down again from where it is, without a jump, and Depth is ramped so turning it while ducked doesn't step.
 
