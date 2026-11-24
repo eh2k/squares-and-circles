@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bash app/build.sh)",
+      "Bash(bash app/build.sh *)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ \"$CLAUDE_CODE_REMOTE\" != true ] || { bash \"$CLAUDE_PROJECT_DIR/app/build.sh\" --setup > /tmp/app-build-setup.log 2>&1 && echo 'The app build is ready (.build/: arm-none-eabi-gcc, udynlink, .venv): bash app/build.sh' || echo 'bash app/build.sh --setup failed: /tmp/app-build-setup.log'; }",
+            "timeout": 600
+          }
+        ]
+      }
+    ]
+  }
+}

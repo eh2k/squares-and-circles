@@ -32,7 +32,7 @@ Similar to the Monomachine and Machinedrum, this device features four fully conf
 
 The available engine types include drums, synthesizers, oscillators, sequencers, and audio processors. The hardware ports and the generated output signals can be internally routed to any engine. For example, you can route the mono audio signal from an oscillator engine to a neighboring effects engine with stereo outputs, enabling seamless signal chaining.
 
-* [Short Press [LEFT]/[RIGHT]] scrolls through the 4 machine-tracks; an engine with a second page of parameters (SYNTH/XX-303) comes with its pages on the way, then the pages of the track's insert effects (`+1 FX/...`, see [Mix / Outputs](#mix--outputs)) (track 1 page 1, track 1 page 2, track 1 insert, track 2, ...; the channel bar shows the page in the track's segment). A drum kit (DRUMKITS/*) has its mix page after its parameters, while two instruments or more play (their own TRIGs, MIDI): LEVEL and PAN of each instrument.
+* [Short Press [LEFT]/[RIGHT]] scrolls through the 4 machine-tracks; an engine with a second page of parameters (SYNTH/VA-303) comes with its pages on the way, then the pages of the track's insert effects (`+1 FX/...`, see [Insert FX](#insert-fx)) (track 1 page 1, track 1 page 2, track 1 insert, track 2, ...; the channel bar shows the page in the track's segment). A drum kit (DRUMKITS/*) has its mix page after its parameters, while two instruments or more play (their own TRIGs, MIDI): LEVEL and PAN of each instrument.
 * [Long press [LEFT]] enters the machine-selection-page.
 * [Long press [RIGHT]] enters the [I/O-Configuration page](#io-configuration).
 * [Long press [LEFT] + [RIGHT]] opens the menu: turn an encoder to choose machines/engines, silent mode, CLK & MIDI settings or patch storage, press it to open (on any other page: back to the engine page).
@@ -70,9 +70,9 @@ The available engine types include drums, synthesizers, oscillators, sequencers,
 |---|---|
 | **GND** | `---`, [Scope](app/GND/Scope/README.md), [FFT](app/GND/FFT/README.md), [Tuner](app/GND/Tuner/README.md), [Midi-Monitor](app/GND/Midi-Monitor/README.md) |
 | **CV** | [V_OCT](app/CV/V_OCT/README.md), [EnvGen_AD](app/CV/EnvGen/README.md), [EnvGen_ADSR](app/CV/EnvGen/README.md), [LFO](app/CV/LFO/README.md), [EnvFollower](app/CV/EnvFollower/README.md), [Vactrol](app/CV/EnvFollower/README.md) |
-| **Drums** | [Analog-BD](app/SYNTH/plaits/README.md), [Analog-SD](app/SYNTH/plaits/README.md), [Analog-HH](app/SYNTH/plaits/README.md), [Analog-HH2](app/SYNTH/plaits/README.md), [909ish-BD](app/SYNTH/plaits/README.md), [909ish-SD](app/SYNTH/plaits/README.md), [TR909-HiHat](app/DRUMS/TR909-HiHat/README.md), [808ish-BD](app/DRUMS/808ish-BD/README.md), [808ish-SD](app/DRUMS/808ish-SD/README.md), [808ish-HiHat](app/DRUMS/808ish-HiHat/README.md), [FM-Drum](app/DRUMS/FM-Drum/README.md), [Djembe](app/DRUMS/Djembe/README.md), [Claps](app/DRUMS/Claps/README.md) |
+| **Drums** | [Analog-BD](app/SYNTH/plaits/README.md), [Analog-SD](app/SYNTH/plaits/README.md), [Analog-HH](app/SYNTH/plaits/README.md), [Analog-HH2](app/SYNTH/plaits/README.md), [909ish-BD](app/SYNTH/plaits/README.md), [909ish-SD](app/SYNTH/plaits/README.md), [VA909-BD](app/DRUMS/VA-909/README.md), [VA909-SD](app/DRUMS/VA-909/README.md), [VA909-RS](app/DRUMS/VA-909/README.md), [VA909-CP](app/DRUMS/VA-909/README.md), [VA909-Toms](app/DRUMS/VA-909/README.md), [TR909-HiHat](app/DRUMS/TR909-HiHat/README.md), [808ish-BD](app/DRUMS/808ish-BD/README.md), [808ish-SD](app/DRUMS/808ish-SD/README.md), [808ish-HiHat](app/DRUMS/808ish-HiHat/README.md), [FM-Drum](app/DRUMS/FM-Drum/README.md), [Djembe](app/DRUMS/Djembe/README.md), [Claps](app/DRUMS/Claps/README.md) |
 | **DRUMKITS** | [TR-707](app/DRUMKITS/TR-707/README.md), [RZ-1](app/DRUMKITS/RZ-1/README.md), [DMX](app/DRUMKITS/DMX/README.md), [Linn](app/DRUMKITS/Linn/README.md), [DrumSynth](app/DRUMKITS/DrumSynth/README.md): [CR-78](app/DRUMKITS/CR-78/README.md), [CR-8000](app/DRUMKITS/CR-8000/README.md), [DR-110](app/DRUMKITS/DR-110/README.md), [KR-55](app/DRUMKITS/KR-55/README.md), [MFB-512](app/DRUMKITS/MFB-512/README.md), [TR-606](app/DRUMKITS/TR-606/README.md), [TR-808](app/DRUMKITS/TR-808/README.md), [TR-909](app/DRUMKITS/TR-909/README.md) |
-| **SYNTH** | [Braids](app/SYNTH/braids/README.md), [Plaits](app/SYNTH/plaits/README.md): Plaits' 16 models (synth and speech), [SAM](app/SYNTH/SAM/README.md), [Rings](app/SYNTH/rings/README.md), [DxFM](app/SYNTH/DxFM/README.md), [DxFM_BNK1-3](app/SYNTH/DxFM/README.md), [XX-303](app/SYNTH/XX-303/README.md) |
+| **SYNTH** | [Braids](app/SYNTH/braids/README.md), [Plaits](app/SYNTH/plaits/README.md): Plaits' 16 models (synth and speech), [SAM](app/SYNTH/SAM/README.md), [Rings](app/SYNTH/rings/README.md), [DxFM](app/SYNTH/DxFM/README.md), [DxFM_BNK1-3](app/SYNTH/DxFM/README.md), [VA-303](app/SYNTH/VA-303/README.md) |
 | **FX** | [Reverb](app/FX/Reverb/README.md), [ReverbSC](app/FX/ReverbSC/README.md), [Rev-Dattorro](app/FX/Rev-Dattorro/README.md), [Delay](app/FX/Delay/README.md), [Gated-Reverb](app/FX/Gated-Reverb/README.md), [Reverb-HP-LP](app/FX/Reverb-HP-LP/README.md), [JU60_chorus](app/FX/JU60_chorus/README.md), [Drive](app/FX/Drive/README.md), [Ducker](app/FX/Ducker/README.md), [Compressor](app/FX/Compressor/README.md), [FV1emu](app/FX/FV1emu/README.md): FV-1 programs from a flash blob |
 | **NOISE** | [NoiseGen](app/NOISE/NoiseGen/README.md), [NES_noise](app/NOISE/NES/README.md), [808_squares](app/NOISE/808_squares/README.md) |
 | **FILTER** | [SVF](app/FILTER/SVF/README.md), [MoogLadder](app/FILTER/MoogLadder/README.md) |
@@ -95,7 +95,7 @@ An engine that does not fit stays on its track and says so on its page: `OUT OF 
 For each parameter a modulation can be assigned:
   * **CV**: <img align="right" src="doc/mod_cv.png" width=196px />
     * SRC:
-      * `C1`, `C2`, `C3`, `C4` - Analog inputs, `$1A`..`$4D` - virtual signals (outputs of the engines, see [I/O-Configuration](#io-configuration))
+      * `C1`, `C2`, `C3`, `C4` - Analog inputs, `$1A`..`$4H` - virtual signals (outputs of the engines, see [I/O-Configuration](#io-configuration))
         * OP: `THRU`, `SLEW`, `S&H`, `T&H`
           * THRU - Thru Input
           * SLEW - Slew Limiter
@@ -113,29 +113,29 @@ For each parameter a modulation can be assigned:
       * All other parameters can be modulated via CV-input with a assumed voltage-range of -4V..4V at 2kHz sample rate.
       * Be aware the CV-range is probably limited by hardware to: -3.5v..6.5V<br clear="right"/>
   * **RND**: Trigger generates a random voltage <img align="right" src="doc/mod_rnd.png" width=196px />
-    * TRIG: `!`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`, `$1A`..`$4D`<br clear="right"/>
+    * TRIG: `!`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`, `$1A`..`$4H`<br clear="right"/>
   * **ENV**: Triggered Envelope (Attack, Decay) <img align="right" src="doc/mod_env.png" width=196px />
 
-    * TRIG: `!`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`, `$1A`..`$4D`
+    * TRIG: `!`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`, `$1A`..`$4H`
     * ATT.: Attack
     * DEC.: Decay<br clear="right"/>
  * **LFO**: Free/Triggered Sine-LFO <img align="right" src="doc/mod_lfo.png" width=196px />
-    * TRIG: `-` (free running), `!`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`, `$1A`..`$4D`
+    * TRIG: `-` (free running), `!`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`, `$1A`..`$4H`
     * SHAPE: `SIN`, `TRI`, `SQR`, `STEPS`, `NOISE`
     * FREQ.: `0-127`
     * WAVEFRM: `0-127`<br clear="right"/>
   * **EF**: Envelope Follower <img align="right" src="doc/mod_ef.png" width=196px />
-    * SRC: `C1`, `C2`, `C3`, `C4`, `$1A`..`$4D`
+    * SRC: `C1`, `C2`, `C3`, `C4`, `$1A`..`$4H`
     * ATT: Attack
     * REL: Release<br clear="right"/>
   * **TM**: Turing Machine  <img align="right" src="doc/mod_tm.png" width=196px />
-    * TRIG: `!`, `CLK`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`, `$1A`..`$4D`
-    * RESET: `-`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`, `$1A`..`$4D`
+    * TRIG: `!`, `CLK`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`, `$1A`..`$4H`
+    * RESET: `-`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`, `$1A`..`$4H`
     * PROB: `0-9` (0-100%)
     * STEPS: `1-16`<br clear="right"/>
   * **SEQ**: 4-Step Sequencer <img align="right" src="doc/mod_seq.png" width=196px />
-    * TRIG: `!`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`, `$1A`..`$4D`, `CLK/1`, `CLK/4`, `CLK/16`, `CLK/32`, `CLK/96`
-    * RESET: `-`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`, `$1A`..`$4D`
+    * TRIG: `!`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`, `$1A`..`$4H`, `CLK/1`, `CLK/4`, `CLK/16`, `CLK/32`, `CLK/96`
+    * RESET: `-`, `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`, `$1A`..`$4H`
     * 4-STEPS: `-64..64` (shown as sliders; integer parameters: at most half their range)<br clear="right"/>
  >`!` = current engine trigger<br/>
  >`CLK` = internal clock<br/>
@@ -149,11 +149,11 @@ For each parameter a modulation can be assigned:
 
 >[Long press [RIGHT]] enters the I/O-Configuration page.
 
-The I/O-Configuration page lets you virtually patch the engine with the hardware ports and internal gate/cv signals ($1A-$4D). The page title is the engine of the track; the page is a list in two sections, `CTRL/INPUTS` and `MIX/OUTPUTS` - which rows appear depends on the engine interface. In addition to the trigger, which is set with a rising edge, a gate state is also provided, that can be processed by the engine. Engines like Closed/Open-HiHats have an additional accent input - this works technically like a second trigger. The V/OCT input can optionally be quantized and transposed. In addition to the Tx inputs, the Cx inputs can also be used as a source for triggers and accents. The output can be configured as mono or stereo. Several engines can share the same output - the signal is mixed.
+The I/O-Configuration page lets you virtually patch the engine with the hardware ports and internal gate/cv signals ($1A-$4H). The page title is the engine of the track; the page is a list in three sections, `CTRL/INPUTS`, `INSERT-FX` and `MIX/OUTPUTS` - which rows appear depends on the engine interface. In addition to the trigger, which is set with a rising edge, a gate state is also provided, that can be processed by the engine. Engines like Closed/Open-HiHats have an additional accent input - this works technically like a second trigger. The V/OCT input can optionally be quantized and transposed. In addition to the Tx inputs, the Cx inputs can also be used as a source for triggers and accents. The output can be configured as mono or stereo. Several engines can share the same output - the signal is mixed.
 
 The small symbol in front of an input's value shows what arrives there: a dot that lights up on each trigger (trigger/accent inputs), a small box with the voltage (V/OCT input).
 
-*Virtual signals* `$1A`..`$4D`: the outputs of the engines can be used as trigger or CV source of another track - `$<track><output>`, e.g. `$3A` is the first output of track 3. While turning to a virtual signal, a box shows the track's engine and the output behind it; turning skips the places without an output (shown as `-`, e.g. `-2C`). The trigger, V/OCT and CV lists offer only the CV outputs; the audio outputs are offered only as source of the envelope follower (modulation EF).
+*Virtual signals* `$1A`..`$4H`: the outputs of the engines can be used as trigger or CV source of another track - `$<track><output>`, e.g. `$3A` is the first output of track 3. While turning to a virtual signal, a box shows the track's engine and the output behind it; turning skips the places without an output (shown as `-`, e.g. `-2C`). The trigger, V/OCT and CV lists offer only the CV outputs; the audio outputs are offered only as source of the envelope follower (modulation EF).
 
 ### Ctrl / Inputs
 
@@ -164,7 +164,7 @@ The small symbol in front of an input's value shows what arrives there: a dot th
  * **TRIG-INPUT**:
    * `-`
    * `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`
-   * `$1A`..`$4D`
+   * `$1A`..`$4H`
    * `$1MIDI`..`$4MIDI`: the MIDI out of that track (e.g. [MIDI/GM-Drums](app/MIDI/GM-Drums/README.md), whatever
      its MIDI-OUT and channel), in addition to the MIDI channel of the settings page
      - the notes trigger the engine like a trigger input: trigger, gate, accent (velocity > 100; not for a sequencer
@@ -189,18 +189,18 @@ The small symbol in front of an input's value shows what arrives there: a dot th
  * **CLOCK-SOURCE**:
    * `CLK` - global clock -> [CLOCK+TIMING+MIDI-Settings](#clocktimingmidi-settings).
    * `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`
-   * `$1A`..`$4D`
+   * `$1A`..`$4H`
 
-*In case the Engine supports Accents (Closed/Open HiHat) - Accent Input is configurable (engines without trigger input: **RESET-TRIG**):*
+*In case the Engine supports Accents (Closed/Open HiHat) - Accent Input is configurable (sequencers and engines without trigger input: **RESET-TRIG**):*
 
  * **ACCENT-INPUT**:
    * `-`
    * `T1`, `T2`, `T3`, `T4`, `C1`, `C2`, `C3`, `C4`
-   * `$1A`..`$4D`
+   * `$1A`..`$4H`
 
  *In case the Engine supports V/OCT - V/OCT Input is configurable:*
 
- * **V/OCT-INPUT**: `-`, `C1`, `C2`, `C3`, `C4`, `$1A`..`$4D`
+ * **V/OCT-INPUT**: `-`, `C1`, `C2`, `C3`, `C4`, `$1A`..`$4H`
    * V/OCT: -3V..6V for frequency-control (default)
    * `$1MIDI`..`$4MIDI` for engines without TRIG-INPUT (e.g. [CV/V_OCT](app/CV/V_OCT/README.md), the SEQ engines):
      the pitch from the notes of that track, as TRIG-INPUT `$nMIDI` above (the CV input is left out, MIDI note 60 =
@@ -231,25 +231,44 @@ The small symbol in front of an input's value shows what arrives there: a dot th
 
 <br clear="right"/>
 
-### Mix / Outputs
+### Insert FX
 
-<img align="right" src="doc/outputs2.png" width=196px />
+<img align="right" src="doc/quick-start/io_insert.png" width=196px />
+
+*The section `INSERT-FX`, between the inputs and the outputs, as the audio runs: engine, insert FX, PAN and LEVEL; only with an engine that plays audio (or an insert set).*
 
  * **INSERT-FX**, **INSERT-FX 2**: `-` or an effect in series behind the engine, on the track itself: its audio runs
    through the effect before PAN and LEVEL, and what the track plays (also its sends to other tracks and its virtual
    signals) is the effect's output. The second row appears once the first is set: a chain of two (Delay, then Reverb).
-   The row offers the effects made for it: the FX first (Delay, Reverb, Compressor, Drive, the FV-1 programs, ...),
-   then the FILTERs (their envelope from the track's trigger, their key tracking from its V/OCT), then the GND tools
-   (Scope, FFT, Tuner on the track's signal); not a synth with an external input (Rings, the 303s'
-   Wave `AUX`) nor an effect that needs a trigger of its own (Ducker): those stay apps of a track with an AUX-INPUT.
+   The row offers the effects made for it: the FX first (Delay, Reverb, Compressor, Drive, Ducker, the FV-1
+   programs, ...), then the FILTERs (their envelope from the track's trigger, their key tracking from its V/OCT), then
+   the GND tools (Scope, FFT, Tuner on the track's signal); not a synth with an external input (Rings, the 303s' Wave
+   `AUX`): those stay apps of a track with an AUX-INPUT.
    While the row is turned, a box shows the group and the engine. A mono engine with a stereo effect plays in stereo. The effects' parameters come as pages
-   after the engine's own (the title shows the slot: `+1 FX/Delay`, `+2 FX/Reverb`), stepped through with
-   [LEFT]/[RIGHT], modulations and all as on a track of its own; an insert shares the track's I/O (a trigger or V/OCT
-   it uses is the track's, the quantizer too) and has no AUX-INPUT or sends of its own. The inserts belong to the
-   track: loading another engine keeps them, `Load & reset I/O` (and a MIDI program change) drops them, `Copy #n`
-   copies them along, a patch saves them (a firmware before 2026-11-11 does not read a patch with an insert). An insert
-   is loaded 300 ms after the last turn of its row, as a change of engine; without RAM for it (`OUT OF RAM`, a
-   Teensy 4.0 holds two Delays) the row goes back to `-`
+   after the engine's own (the title shows the slot: `+1 FX/Delay`, `+2 FX/Reverb`; in the channel bar a line along
+   its lower edge instead of the dotted cells of the engine's pages), stepped through with
+   [LEFT]/[RIGHT], modulations and all as on a track of its own; an insert has no AUX-INPUT or sends of its own, and
+   it gets the MIDI of the track's channel as the engine does
+   * Under the row of an insert that uses inputs, indented, its own **TRIG-INPUT**, **ACCENT-INPUT**, **V/OCT-INPUT**,
+     **CLOCK-SOURCE** and named CV inputs (as far as it has them): `!` (the default, as the `!` of a modulation's TRIG)
+     takes what the track's engine gets (its trigger, V/OCT and clock, as far as the engine has those inputs; the
+     quantizer and transpose are always the track's), `-` (`CLK`) none (the module's clock), else an input or a virtual
+     signal as on the engine's rows. So a Ducker on a pad's track ducks it on the kick's trigger (`T1`, or `$2A` of a
+     sequencer on track 2) and not on the pad's own notes, a FILTER follows a V/OCT of its own. A patch with such an
+     input set is not read by a firmware before 2026-11-21 (without, it is as before)
+   * The inserts belong to the track: loading another engine keeps them, `Load & reset I/O` (and a MIDI program
+     change) drops them, `Copy #n` copies them along with their inputs, a patch saves them (a firmware before
+     2026-11-11 does not read a patch with an insert). An insert is loaded 300 ms after the last turn of its row, as
+     a change of engine; without RAM for it (a Teensy 4.0 holds two Delays) the slot stays empty, the row stays on
+     the effect as `!Delay`, and the box shows `FX: OUT OF RAM`; turning on (or back to it) tries again, a patch
+     saved then has none in the slot
+
+<br clear="right"/>
+
+### Mix / Outputs
+
+<img align="right" src="doc/outputs2.png" width=196px />
+
  * **AUDIO-OUT**
    * `-`, `A`, `B`, `C`, `D`, `A+B`, `C+D`
      - The option `-` (no output) is useful if the signal is to be routed into an AUDIO_PROCESSOR engine
@@ -436,6 +455,10 @@ I have mixed feelings about the user interface and the firmware concept. On the 
 ## License
 
 The application code respectively the suite of machines/engines and the third-party source files are published under permissive software licenses.
+The circuit models - [SYNTH/VA-303](app/SYNTH/VA-303/README.md), [DRUMS/VA-909](app/DRUMS/VA-909/README.md) and their
+libraries `lib/va303`, `lib/va909` - are published under the [Mozilla Public License 2.0](https://mozilla.org/MPL/2.0/):
+they can be used in other software, also closed one, but whoever distributes changed versions of their files publishes
+the source of those files under the MPL as well.
 For the exact license and copyright holder - see the header of individual source code files or readme/license file in the sub folder.
 
 The firmware as a whole is for personal use only.

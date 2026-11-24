@@ -476,6 +476,8 @@ namespace engine
         midiOut(code, 0, 0);
     }
 
+    // An output named NAME, once in setup(): OUT_AUDIO, OUT_AUDIO_L/R are audio, any other name a CV output (at most
+    // 8, $<track>A ... H in the order requested; 4 on a firmware before 2026-11-15). nullptr when there is no place
     // 1V == 1.f, 5V = 5.f
     EXTERN_C float *outputBuffer_f32(const char *name);
 
