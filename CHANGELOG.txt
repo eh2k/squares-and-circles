@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file.
 
+== 2026-11-24
+   * New Engines:
+     * DRUMS/VA909-BD, VA909-SD, VA909-RS, VA909-CP, VA909-Toms (one app, DRUMS/VA-909): the TR-909's bass drum,
+       snare, rim shot, clap and toms (LT, MT, HT on one track) modelled from its circuit, with the 909's knobs, its
+       accent and mods (parts of the circuit as pots: the BD's sweep, hold and drive, ...)
+     * SYNTH/XX-303 -> SYNTH/VA-303: a TB-303 modelled from its circuit (the diode ladder, the envelopes, the accent
+       sweep), its characters fitted to recordings of a TB-303 and a x0xb0x; page 2 with the Devil Fish's Overdrive,
+       Cutoff range, Muffler and Filter FM and the x0xb0x's bass mod. Patches of XX-303 (and of SYNTH/Open303,
+       FILTER/TeeBee) load VA-303 with their knobs and Wave; XX-303's Character, Drive and Type have no counterpart,
+       the sound is VA-303's
+   * Bugfix:
+     * Modulation CV: turning OP from Slew to S&H or T&H left its trigger input on a value past the list, the S&H
+       never triggered; it starts at the first input now
+   * Enhancements:
+     * INSERT-FX: a section of its own on the I/O page, between CTRL/INPUTS and MIX/OUTPUTS; under an insert's row
+       its own TRIG-INPUT, ACCENT-INPUT, V/OCT-INPUT, CLOCK-SOURCE and CV inputs (as far as it has them): `!`, the
+       default, takes the track's as before, else an input or a virtual signal - FX/Ducker is offered as an insert
+       now, e.g. on a pad's track with the kick's trigger (a patch with such an input set is not read by a firmware
+       before); an insert gets the MIDI of the track's channel; one without RAM stays on its row as "!Delay" with
+       the error in its box (the row went back to "-"); the track time on an insert's page is the insert's own, the
+       channel bar marks the insert pages
+     * Loading an engine, an insert FX or a patch no longer interrupts the audio of the other tracks: the setup of an
+       app ran with the audio stopped (up to 20 ms on the DSM0); an engine or insert the audio frame cannot carry at
+       all is stopped (OUT OF CPU) after about 30 ms instead of about 350 ms
+     * DSM0: the audio is computed in an interrupt, as on the O_C: the display, USB, MIDI and file transfers no
+       longer hold it up
+     * Up to 8 CV outputs per engine (app API), the virtual signals $1A..$4H (before $1A..$4D); older patches load,
+       a patch saved now is not read by an older firmware
+
 == 2026-11-14
    * Bugfix:
      * ACCENT-INPUT: an accent gate that rose before the trigger or was held over several steps gave a normal note

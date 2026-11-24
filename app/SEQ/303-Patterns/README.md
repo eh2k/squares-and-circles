@@ -56,8 +56,8 @@ MIDI follows GATE-OUT: a Note On where the gate rises, a Note Off where it falls
 (a slide, #GATE 6) goes legato, its Note On before the Note Off of the note before, so a 303 clone with legato glide
 slides; the same note held on sends nothing. On the OCT41 the I/O page's MIDI-OUT can also be the MIDI jack (no MIDI
 thru: a 303 clone on MIDI in and out does not get its notes back) or the USB host port, and another track takes the
-notes with TRIG-INPUT `$<track>MIDI`. SYNTH/XX-303 with its default V_OCT C2 plays them two octaves below VOCT-OUT:
-MIDI 60 is 0 V there; turn its V_OCT to C4 for the same pitch.
+notes with TRIG-INPUT `$<track>MIDI`. SYNTH/VA-303 (as SYNTH/XX-303) with its default V_OCT C2 plays them two octaves
+below VOCT-OUT: MIDI 60 is 0 V there; turn its V_OCT to C4 for the same pitch.
 
 ## How it works
 
